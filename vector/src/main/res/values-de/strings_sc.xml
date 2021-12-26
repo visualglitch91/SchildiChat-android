@@ -34,7 +34,7 @@
     <string name="bubble_time_location_top">Oben</string>
     <string name="bubble_time_location_bottom">Unten</string>
     <string name="labs_mark_rooms_unread">Chats als ungelesen markieren</string>
-    <string name="labs_mark_rooms_unread_summary">Erlaube, Chats als ungelesen zu markieren. Andere Matrix-Clients unterstützen diese Funktionalität möglicherweise noch nicht.</string>
+    <string name="labs_mark_rooms_unread_summary">Erlaube, Chats als ungelesen zu markieren. Andere Matrix-Clients unterstützen dies möglicherweise noch nicht.</string>
     <string name="url_previews_in_encrypted_rooms">URL-Vorschau in verschlüsselten Chats</string>
     <string name="url_previews_in_encrypted_rooms_summary">Dies offenbart in Nachrichten enthaltene URLs gegenüber dem Homeserver!</string>
     <string name="login_mobile_device_sc">SchildiChat Android</string>
@@ -94,5 +94,34 @@
     <string name="settings_aggregate_unread_counts_summary">Zähle die ungelesenen Chats statt einzelner Nachrichten in Spaces und Raumkategorien</string>
     <string name="user_colors_uniform">Einheitlich</string>
     <string name="room_list_quick_actions_open_at_bottom">Bei neuesten Nachrichten öffnen</string>
-    <string name="send_bug_report_sc_extra">Um die Sichtbarkeit Ihres Issues zu erhöhen und uns die Möglichkeit zu geben, mit Ihnen in Kontakt zu treten, können Sie auf diesen Bericht (unter Angabe Ihrer Matrix-ID und des ungefähren Zeitpunkts, zu dem er gesendet wurde) in einem Issue unter https://github.com/SchildiChat/SchildiChat-android/issues verweisen (prüfen Sie zunächst, ob für Ihr Issue bereits einer existiert, und erstellen Sie nur dann einen neuen, wenn dies nicht der Fall ist).</string>
+    <string name="send_bug_report_sc_extra">Um die Sichtbarkeit Ihres Issues zu erhöhen und uns die Möglichkeit zu geben, mit Ihnen in Kontakt zu treten, können Sie auf diesen Bericht (unter Angabe Ihrer Matrix-ID und des ungefähren Zeitpunkts, zu dem er gesendet wurde) in einem Issue unter https://github.com/SchildiChat/SchildiChat-android/issues verweisen (prüfen Sie zunächst, ob für Ihr Problem bereits ein Issue existiert, und erstellen Sie nur dann ein neues, wenn dies nicht der Fall ist).</string>
+    <string name="settings_troubleshoot_test_fcm_failed_sc">FCM-Token konnte nicht abgerufen werden</string>
+    <string name="settings_unifiedpush">UnifiedPush</string>
+    <string name="settings_jump_to_bottom_on_send_summary">Beim Senden einer Nachricht automatisch nach unten scrollen</string>
+    <string name="settings_apply_sc_default_settings">Klicken Sie nicht auf diese Einstellung</string>
+    <string name="settings_apply_sc_default_settings_dialog_summary">Wenn Sie fortfahren, werden Ihre App-Einstellungen durcheinander gebracht!</string>
+    <string name="settings_jump_to_bottom_on_send">Beim Senden nach unten scrollen</string>
+    <string name="settings_include_space_members_as_rooms">Personen in Spaces anzeigen</string>
+    <string name="settings_include_space_members_as_rooms_summary">Wenn deaktiviert, kannst du immer noch Direkte Nachrichten zu persönlichen Spaces hinzufügen. Wenn aktiviert, siehst du automatisch alle Mitglieder des Spaces.</string>
+    <string name="room_settings_default">Standard</string>
+    <string name="settings_unifiedpush_force_custom_gateway">Benutzerdefiniertes Push-Gateway erzwingen</string>
+    <string name="settings_unifiedpush_force_custom_gateway_summary">Aktiviere dies nur, wenn dein Push-Endpunkt kein externes Gateway benötigt.</string>
+    <string name="settings_unifiedpush_reregister">Push-Verteiler erneut registrieren</string>
+    <string name="settings_force_allow_background_sync">Erlauben Sie Hintergrundsynchronisation zusätzlich zu Push</string>
+    <string name="toast_unifiedpush_no_push_distributor">Kein Push-Verteiler gefunden!</string>
+    <string name="toast_unifiedpush_one_push_distributor">Registrierter Pushverteiler %1$s</string>
+    <string name="settings_force_allow_background_sync_summary">Nur aussagekräftig wärend der Fehlersuche Ihrer Push-Einstellungen!</string>
+    <string name="settings_troubleshoot_test_endpoint_title">Endpoint/FCM</string>
+    <string name="settings_troubleshoot_test_endpoint_success">Endpoint erfolgreich abgerufen:
+\n%1$s</string>
+    <string name="settings_troubleshoot_test_endpoint_failed">Der Abruf des Endpoints ist fehlgeschlagen.</string>
+    <string name="unifiedpush_getdistributors_dialog_title">Wähle einen Verteiler</string>
+    <string name="unifiedpush_getdistributors_dialog_fcm_fallback">FCM Fallback</string>
+    <string name="settings_troubleshoot_test_pusher_registration_title">Pusher Registrierung</string>
+    <string name="settings_troubleshoot_test_pusher_registration_success">Pusher erfolgreich am Heimserver registriert.</string>
+    <string name="settings_troubleshoot_test_pusher_registration_failed">Registrieren des Pushers beim Heimserver fehlgeschlagen:
+\n%1$s</string>
+    <string name="settings_apply_sc_default_settings_dialog_title">Einstellungen durcheinanderbringen</string>
+    <string name="settings_enable_space_pager">Chatliste wischen um Space zu wechseln</string>
+    <string name="settings_enable_space_pager_summary">Erlaube das Wechseln zwischen Wurzelspaces durch horizontales Wischen in der Chatliste</string>
 </resources>
