@@ -88,6 +88,10 @@
     <string name="setting_sc_accent_color_light">Akzentfarbe für helle Themen</string>
     <string name="setting_sc_accent_color_dark">Akzentfarbe für dunkle Themen</string>
     <string name="settings_unread_counter">Anzahl ungelesener Nachrichten</string>
-    <string name="settings_unimportant_counter_badge_v2">Stummgeschaltete Nachrichten zählen</string>
-    <string name="settings_unimportant_counter_badge_summary_v2">Zeige die Anzahl der stummen Nachrichten in der Chatübersicht</string>
+    <string name="settings_unimportant_counter_badge_v2">Stummgeschaltete Nachrichten mitzählen</string>
+    <string name="settings_unimportant_counter_badge_summary_v2">Zeige die Anzahl stummgeschalteter Nachrichten in der Chatübersicht</string>
+    <string name="settings_aggregate_unread_counts">Zähle Chats statt Nachrichten</string>
+    <string name="settings_aggregate_unread_counts_summary">Zähle die ungelesenen Chats statt einzelner Nachrichten in Spaces und Raumkategorien</string>
+    <string name="user_colors_uniform">Einheitlich</string>
+    <string name="room_list_quick_actions_open_at_bottom">Bei neuesten Nachrichten öffnen</string>
 </resources>
