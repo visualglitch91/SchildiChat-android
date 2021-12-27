@@ -124,4 +124,5 @@
     <string name="room_list_quick_actions_open_at_bottom">Otevřít na posledních zprávách</string>
     <string name="settings_enable_space_pager">Přejetím po seznamu chatů změnit prostor</string>
     <string name="settings_enable_space_pager_summary">Umožnit přepínat mezi hlavními prostory vodorovným přejetím v seznamu chatů</string>
+    <string name="room_settings_default">Výchozí</string>
 </resources>
