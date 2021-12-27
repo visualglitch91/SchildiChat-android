@@ -122,4 +122,5 @@
     <string name="settings_include_space_members_as_rooms_summary">Jika dinonaktifkan, Anda masih dapat menambahkan Pesan Langsung ke Space Personal. Jika diaktifkan, Anda akan otomatis melihat semua orang yang juga berada di Space-nya.</string>
     <string name="settings_enable_space_pager">Usap daftar obrolan untuk beralih ke space lain</string>
     <string name="settings_enable_space_pager_summary">Perbolehkan untuk beralih ke space root dengan mengusap secara horizontal pada daftar obrolan</string>
+    <string name="room_settings_default">Default</string>
 </resources>
