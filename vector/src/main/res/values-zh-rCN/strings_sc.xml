@@ -117,7 +117,10 @@
     <string name="settings_force_allow_background_sync_summary">只有在调试推送设置时才有意义！</string>
     <string name="settings_apply_sc_default_settings_dialog_summary">如果你继续，这将扰乱你的应用程序设置！</string>
     <string name="settings_troubleshoot_test_pusher_registration_success">推送程序已成功注册到主服务器。</string>
-    <string name="toast_unifiedpush_one_push_distributor">注册推送分发服务器 %1$s</string>
+    <string name="toast_unifiedpush_one_push_distributor">已注册推送分发服务器 %1$s</string>
     <string name="send_bug_report_sc_extra">为了增加您的问题的可见性并允许我们与您联系，您最好在以下地址提出问题并引用此错误报告（同时提供您的Matrix ID和发送错误报告的大致时间）：https://github.com/SchildiChat/SchildiChat-android/issues （首先检查您的问题是否已经存在，如果没有，则创建一个新问题）。</string>
     <string name="settings_include_space_members_as_rooms_summary">如果禁用，你仍可以将私聊添加至个人空间。若启用，你将自动看见空间中的每位成员。</string>
+    <string name="room_settings_default">默认</string>
+    <string name="settings_enable_space_pager">滑动聊天列表来切换空间</string>
+    <string name="settings_enable_space_pager_summary">允许通过在聊天列表中水平滑动来在根空间之间切换</string>
 </resources>
