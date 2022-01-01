@@ -91,4 +91,8 @@
     <string name="settings_single_overview">Vedere de ansamblu combinată</string>
     <string name="settings_room_unread_kind_dm">Previzualizarea conținutului chatului direct</string>
     <string name="settings_room_unread_kind_group">Previzualizarea conținutului chatului de grup</string>
+    <string name="settings_unread_counter">Contor necitit</string>
+    <string name="settings_unimportant_counter_badge_v2">Numără mesajele dezactivate</string>
+    <string name="settings_unimportant_counter_badge_summary_v2">Afișarea numărului de mesaje dezactivate în prezentarea generală a chat-ului</string>
+    <string name="settings_aggregate_unread_counts">Numărați chat-urile în loc de mesaje</string>
 </resources>
