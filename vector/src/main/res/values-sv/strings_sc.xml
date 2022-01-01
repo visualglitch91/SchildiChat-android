@@ -120,4 +120,7 @@
     <string name="settings_jump_to_bottom_on_send_summary">Rulla automatiskt nedåt när du skickar ett meddelande</string>
     <string name="settings_include_space_members_as_rooms">Visa människor i utrymmen</string>
     <string name="settings_include_space_members_as_rooms_summary">Om det är inaktiverat kan du fortfarande lägga till direktmeddelanden till personliga Spaces. Om det är aktiverat ser du automatiskt alla som är medlemmar i Space.</string>
+    <string name="room_settings_default">Standard</string>
+    <string name="settings_enable_space_pager">Svep i chattlistan för att byta utrymme</string>
+    <string name="settings_enable_space_pager_summary">Tillåt att växla mellan rotutrymmen genom att svepa horisontellt i chattlistan</string>
 </resources>
