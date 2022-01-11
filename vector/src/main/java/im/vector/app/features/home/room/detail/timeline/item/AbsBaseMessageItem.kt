@@ -87,6 +87,8 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder> : BaseEventItem
             holder.reactionsContainer.setOnLongClickListener(baseAttributes.itemLongClickListener)
         }
 
+        // SchildiChat: moved to setBubbleLayout() (called from super.bind()) - so we can do this bubble-style-specific
+        /*
         when (baseAttributes.informationData.e2eDecoration) {
             E2EDecoration.NONE                 -> {
                 holder.e2EDecorationView.render(null)
@@ -97,6 +99,7 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder> : BaseEventItem
                 holder.e2EDecorationView.render(RoomEncryptionTrustLevel.Warning)
             }
         }
+         */
 
         holder.view.onClick(baseAttributes.itemClickListener)
         holder.view.setOnLongClickListener(baseAttributes.itemLongClickListener)
@@ -144,10 +147,27 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder> : BaseEventItem
                     )
                 }
             }
-            else -> {
+            else                                       -> {
                 // No alignment padding for reactions required
                 holder.informationBottom.setPaddingRelative(0, 0, 0, 0)
+            }
         }
+
+        if (BubbleThemeUtils.drawsDualSide(bubbleStyleSetting) /*&& baseAttributes.informationData.sentByMe*/) {
+            // Haven't found a good location for this yet for outgoing messages
+            holder.e2EDecorationView.render(null)
+        } else {
+            // Moved here from upstream's bind()
+            when (baseAttributes.informationData.e2eDecoration) {
+                E2EDecoration.NONE                 -> {
+                    holder.e2EDecorationView.render(null)
+                }
+                E2EDecoration.WARN_IN_CLEAR,
+                E2EDecoration.WARN_SENT_BY_UNVERIFIED,
+                E2EDecoration.WARN_SENT_BY_UNKNOWN -> {
+                    holder.e2EDecorationView.render(RoomEncryptionTrustLevel.Warning)
+                }
+            }
         }
     }
 
