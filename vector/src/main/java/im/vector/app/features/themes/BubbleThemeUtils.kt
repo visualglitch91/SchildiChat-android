@@ -5,6 +5,7 @@ import android.graphics.Paint
 import android.widget.TextView
 import androidx.preference.PreferenceManager
 import im.vector.app.features.home.room.detail.timeline.item.AnonymousReadReceipt
+import timber.log.Timber
 
 /**
  * Util class for managing themes.
@@ -31,8 +32,18 @@ object BubbleThemeUtils {
     fun getBubbleStyle(context: Context): String {
         if (mBubbleStyle == "") {
             mBubbleStyle = PreferenceManager.getDefaultSharedPreferences(context).getString(BUBBLE_STYLE_KEY, BUBBLE_STYLE_BOTH)!!
+            if (mBubbleStyle !in listOf(BUBBLE_STYLE_NONE, BUBBLE_STYLE_START, BUBBLE_STYLE_BOTH)) {
+                Timber.e("Ignoring invalid bubble style setting: $mBubbleStyle")
+                // Invalid setting, fallback to default
+                mBubbleStyle = BUBBLE_STYLE_BOTH
+            }
         }
         return mBubbleStyle
+    }
+
+    fun setBubbleStyle(context: Context, value: String) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putString(BUBBLE_STYLE_KEY, value).apply()
+        invalidateBubbleStyle()
     }
 
     fun getBubbleTimeLocation(@Suppress("UNUSED_PARAMETER") context: Context): String {

@@ -179,6 +179,7 @@ import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.settings.VectorSettingsActivity
 import im.vector.app.features.share.SharedData
 import im.vector.app.features.spaces.share.ShareSpaceBottomSheet
+import im.vector.app.features.themes.BubbleThemeUtils
 import im.vector.app.features.themes.ThemeUtils
 import im.vector.app.features.voice.VoiceFailure
 import im.vector.app.features.widgets.WidgetActivity
@@ -1021,6 +1022,15 @@ class RoomDetailFragment @Inject constructor(
                 matrixAppsMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             }
         }
+
+        // Selected bubble style
+        val selectedBubbleStyle = when (BubbleThemeUtils.getBubbleStyle(requireContext())) {
+            BubbleThemeUtils.BUBBLE_STYLE_NONE  -> R.id.dev_bubble_style_none
+            BubbleThemeUtils.BUBBLE_STYLE_START -> R.id.dev_bubble_style_start
+            BubbleThemeUtils.BUBBLE_STYLE_BOTH  -> R.id.dev_bubble_style_both
+            else                                -> 0
+        }
+        menu.findItem(selectedBubbleStyle).isChecked = true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -1051,6 +1061,18 @@ class RoomDetailFragment @Inject constructor(
             }
             R.id.show_room_info -> {
                 navigator.openRoomProfile(requireActivity(), roomDetailArgs.roomId)
+                true
+            }
+            R.id.dev_bubble_style_none -> {
+                handleSetBubbleStyle(BubbleThemeUtils.BUBBLE_STYLE_NONE)
+                true
+            }
+            R.id.dev_bubble_style_start -> {
+                handleSetBubbleStyle(BubbleThemeUtils.BUBBLE_STYLE_START)
+                true
+            }
+            R.id.dev_bubble_style_both -> {
+                handleSetBubbleStyle(BubbleThemeUtils.BUBBLE_STYLE_BOTH)
                 true
             }
             R.id.search           -> {
@@ -2285,6 +2307,13 @@ class RoomDetailFragment @Inject constructor(
             AttachmentTypeSelectorView.Type.STICKER -> roomDetailViewModel.handle(RoomDetailAction.SelectStickerAttachment)
             AttachmentTypeSelectorView.Type.POLL    -> navigator.openCreatePoll(requireContext(), roomDetailArgs.roomId)
         }.exhaustive
+    }
+
+    private fun handleSetBubbleStyle(bubbleStyle: String) {
+        if (bubbleStyle != BubbleThemeUtils.getBubbleStyle(requireContext())) {
+            BubbleThemeUtils.setBubbleStyle(requireContext(), bubbleStyle)
+            requireActivity().recreate()
+        }
     }
 
 // AttachmentsHelper.Callback

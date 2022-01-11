@@ -64,6 +64,29 @@
         tools:visible="true" />
 
     <item
+        android:id="@+id/dev_bubble_style"
+        android:title="@string/bubble_style"
+        android:visible="false"
+        app:showAsAction="never"
+        tools:visible="true">
+        <menu>
+            <group
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/dev_bubble_style_none"
+                    android:title="@string/bubble_style_none" />
+                <item
+                    android:id="@+id/dev_bubble_style_start"
+                    android:title="@string/bubble_style_start" />
+                <item
+                    android:id="@+id/dev_bubble_style_both"
+                    android:title="@string/bubble_style_both"
+                    android:checked="true" />
+            </group>
+        </menu>
+    </item>
+
+    <item
         android:id="@+id/dev_tools"
         android:icon="@drawable/ic_settings_root_general"
         android:title="@string/dev_tools_menu_name"

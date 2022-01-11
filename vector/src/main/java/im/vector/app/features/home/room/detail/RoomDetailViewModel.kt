@@ -620,6 +620,7 @@ class RoomDetailViewModel @AssistedInject constructor(
             R.id.show_room_info   -> true
             R.id.show_participants -> true
             R.id.search           -> true
+            R.id.dev_bubble_style,
             R.id.dev_tools        -> vectorPreferences.developerMode()
             else                  -> false
         }
