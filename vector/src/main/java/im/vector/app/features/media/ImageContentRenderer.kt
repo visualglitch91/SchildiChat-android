@@ -215,9 +215,7 @@ class ImageContentRenderer @Inject constructor(private val localFilesHelper: Loc
                     .load(resolvedUrl)
         }
 
-        req.override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                .fitCenter()
-                .into(target)
+        req.fitCenter().into(target)
     }
 
     fun renderFitTarget(data: Data, mode: Mode, imageView: ImageView, callback: ((Boolean) -> Unit)? = null) {
