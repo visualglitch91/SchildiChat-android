@@ -468,7 +468,7 @@
     <string name="disclaimer_positive_button">TÌM HIỂU THÊM</string>
     <string name="disclaimer_negative_button">HIỂU RỒI</string>
     <string name="disclaimer_content">Chúng tôi rất háo hức muốn tuyên bố rằng chúng tôi đã đổi tên! Ứng dụng của bạn đã được cập nhật và bạn đã đăng nhập vào tài khoản của bạn.</string>
-    <string name="disclaimer_title">Riot bây giờ là Element!</string>
+    <string name="disclaimer_title">Riot bây giờ là SchildiChat!</string>
     <string name="notice_crypto_unable_to_decrypt_merged">Đang đợi lịch sử mã hoá</string>
     <string name="crypto_error_withheld_generic">Bạn không thể truy cập tin nhắn này vì người gửi đã cố tình không gửi các mã khoá</string>
     <string name="crypto_error_withheld_unverified">Bạn không thể truy cập tin nhắn này vì phiên làm việc của bạn không được người gửi tin cậy</string>
@@ -1284,7 +1284,7 @@
     <string name="login_terms_title">Chấp nhận điều khoản để tiếp tục</string>
     <string name="login_a11y_captcha_container">Hãy thực hiện thách thức captcha</string>
     <string name="login_a11y_choose_other">Chọn một máy chủ khác</string>
-    <string name="login_a11y_choose_modular">Chọn Dịch vụ Element Matrix</string>
+    <string name="login_a11y_choose_modular">Chọn Dịch vụ SchildiChat Matrix</string>
     <string name="login_a11y_choose_matrix_org">Chọn matrix.org</string>
     <string name="login_signup_cancel_confirmation_content">Tài khoản của bạn chưa được tạo.
 \n
@@ -1338,7 +1338,7 @@
     <string name="login_reset_password_on">Đặt lại mật khẩu ở %1$s</string>
     <string name="login_login_with_email_error">Địa chỉ email này không có trong hệ thống.</string>
     <string name="login_server_url_form_other_hint">Địa chỉ</string>
-    <string name="login_server_url_form_modular_hint">Địa chỉ Dịch vụ Element Matrix</string>
+    <string name="login_server_url_form_modular_hint">Địa chỉ Dịch vụ SchildiChat Matrix</string>
     <string name="login_clear_homeserver_history">Xóa lịch sử</string>
     <string name="login_signin_sso">Tiếp tục với SSO</string>
     <string name="login_signin">Đăng Nhập</string>
@@ -1705,7 +1705,7 @@
     <string name="create_poll_question_hint">Câu hỏi hoặc chủ đề</string>
     <string name="create_poll_question_title">Câu hỏi hoặc chủ đề thăm dò ý kiến</string>
     <string name="create_poll_title">Tạo Cuộc thăm dò ý kiến</string>
-    <string name="link_this_email_with_your_account">%s trong Cài đặt để nhận lời mời trực tiếp trong Element.</string>
+    <string name="link_this_email_with_your_account">%s trong Cài đặt để nhận lời mời trực tiếp trong SchildiChat.</string>
     <string name="link_this_email_settings_link">Liên kết email này với tài khoản của bạn</string>
     <string name="this_invite_to_this_space_was_sent">Lời mời này đến Space này đã được gửi đến %s không được liên kết với tài khoản của bạn</string>
     <string name="this_invite_to_this_room_was_sent">Lời mời này đến phòng này đã được gửi đến %s không được liên kết với tài khoản của bạn</string>
@@ -2336,7 +2336,7 @@
 \nBạn có muốn đăng nhập bằng máy khách web không\?</string>
     <string name="login_sso_error_message">Lỗi xảy ra khi tải trang: %1$s (%2$d)</string>
     <string name="login_server_url_form_common_notice">Nhập địa chỉ của máy chủ bạn muốn sử dụng</string>
-    <string name="login_server_url_form_modular_notice">Nhập địa chỉ của Mô-đun Element hoặc Máy chủ bạn muốn sử dụng</string>
+    <string name="login_server_url_form_modular_notice">Nhập địa chỉ của Mô-đun SchildiChat hoặc Máy chủ bạn muốn sử dụng</string>
     <string name="login_server_url_form_modular_text">Lưu trữ cao cấp cho các tổ chức</string>
     <string name="login_server_modular_text">Lưu trữ cao cấp cho các tổ chức</string>
     <string name="login_server_matrix_org_text">Tham gia hàng triệu máy chủ công cộng miễn phí lớn nhất</string>
@@ -2918,10 +2918,10 @@
     <string name="analytics_opt_in_list_item_2">Chúng tôi <b>không </b> chia sẻ thông tin với bên thứ ba</string>
     <string name="analytics_opt_in_list_item_1">Chúng tôi <b>không</b> ghi âm hoặc tạo hồ sơ bất kỳ dữ liệu tài khoản nào</string>
     <string name="analytics_opt_in_content_link">ở đây</string>
-    <string name="analytics_opt_in_content">Giúp chúng tôi xác định các vấn đề và cải thiện Element bằng cách chia sẻ dữ liệu sử dụng ẩn danh. Để hiểu cách mọi người sử dụng nhiều thiết bị, chúng tôi sẽ tạo ra một mã định danh ngẫu nhiên, được chia sẻ bởi các thiết bị của bạn.
+    <string name="analytics_opt_in_content">Giúp chúng tôi xác định các vấn đề và cải thiện SchildiChat bằng cách chia sẻ dữ liệu sử dụng ẩn danh. Để hiểu cách mọi người sử dụng nhiều thiết bị, chúng tôi sẽ tạo ra một mã định danh ngẫu nhiên, được chia sẻ bởi các thiết bị của bạn.
 \n
 \nBạn có thể đọc tất cả các thuật ngữ của chúng tôi %s.</string>
-    <string name="analytics_opt_in_title">Giúp cải thiện Element</string>
+    <string name="analytics_opt_in_title">Giúp cải thiện SchildiChat</string>
     <string name="shortcut_disabled_reason_sign_out">Thiết bị đã bị đăng xuất!</string>
     <string name="shortcut_disabled_reason_room_left">Căn phòng đã bị bỏ lại!</string>
     <string name="login_error_homeserver_from_url_not_found_enter_manual">Chọn homeerver</string>
@@ -2969,7 +2969,7 @@
     <string name="settings_troubleshoot_test_token_registration_quick_fix">Token đăng ký</string>
     <string name="preference_system_settings">Cài đặt hệ thống</string>
     <string name="preference_versions">Phiên bản</string>
-    <string name="preference_help_summary">Nhận trợ giúp về việc sử dụng Element</string>
+    <string name="preference_help_summary">Nhận trợ giúp về việc sử dụng SchildiChat</string>
     <string name="preference_help_title">Trợ giúp và hỗ trợ</string>
     <string name="preference_help">Trợ giúp</string>
     <string name="preference_root_legals">Pháp lý</string>
