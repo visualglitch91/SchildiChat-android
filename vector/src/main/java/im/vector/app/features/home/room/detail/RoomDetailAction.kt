@@ -20,6 +20,7 @@ import android.net.Uri
 import android.view.View
 import im.vector.app.core.platform.VectorViewModelAction
 import im.vector.app.features.call.conference.ConferenceEvent
+import im.vector.app.features.location.LocationData
 import org.matrix.android.sdk.api.session.content.ContentAttachmentData
 import org.matrix.android.sdk.api.session.room.model.message.MessageStickerContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageWithAttachmentContent
@@ -42,6 +43,7 @@ sealed class RoomDetailAction : VectorViewModelAction {
     object MarkAllAsRead : RoomDetailAction()
     data class DownloadOrOpen(val eventId: String, val senderId: String?, val messageFileContent: MessageWithAttachmentContent) : RoomDetailAction()
     object JoinAndOpenReplacementRoom : RoomDetailAction()
+    object OnClickMisconfiguredEncryption : RoomDetailAction()
     object AcceptInvite : RoomDetailAction()
     object RejectInvite : RoomDetailAction()
 
@@ -110,4 +112,7 @@ sealed class RoomDetailAction : VectorViewModelAction {
 
     // Poll
     data class EndPoll(val eventId: String) : RoomDetailAction()
+
+    // Location
+    data class ShowLocation(val locationData: LocationData, val userId: String) : RoomDetailAction()
 }

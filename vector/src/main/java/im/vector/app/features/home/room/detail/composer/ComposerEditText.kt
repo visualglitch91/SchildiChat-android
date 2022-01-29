@@ -34,8 +34,11 @@ import im.vector.app.core.platform.SimpleTextWatcher
 import im.vector.app.features.html.PillImageSpan
 import timber.log.Timber
 
-class ComposerEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = android.R.attr.editTextStyle) :
-        AppCompatEditText(context, attrs, defStyleAttr) {
+class ComposerEditText @JvmOverloads constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = android.R.attr.editTextStyle
+) : AppCompatEditText(context, attrs, defStyleAttr) {
 
     interface Callback {
         fun onRichContentSelected(contentUri: Uri): Boolean

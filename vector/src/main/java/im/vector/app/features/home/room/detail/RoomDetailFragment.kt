@@ -107,8 +107,10 @@ import im.vector.app.core.utils.createUIHandler
 import im.vector.app.core.utils.isValidUrl
 import im.vector.app.core.utils.onPermissionDeniedDialog
 import im.vector.app.core.utils.onPermissionDeniedSnackbar
+import im.vector.app.core.utils.openLocation
 import im.vector.app.core.utils.openUrlInExternalBrowser
 import im.vector.app.core.utils.registerForPermissionsResult
+import im.vector.app.core.utils.safeStartActivity
 import im.vector.app.core.utils.saveMedia
 import im.vector.app.core.utils.shareMedia
 import im.vector.app.core.utils.shareText
@@ -116,6 +118,8 @@ import im.vector.app.core.utils.startInstallFromSourceIntent
 import im.vector.app.core.utils.toast
 import im.vector.app.databinding.DialogReportContentBinding
 import im.vector.app.databinding.FragmentRoomDetailBinding
+import im.vector.app.features.analytics.plan.Click
+import im.vector.app.features.analytics.plan.Screen
 import im.vector.app.features.attachments.AttachmentTypeSelectorView
 import im.vector.app.features.attachments.AttachmentsHelper
 import im.vector.app.features.attachments.ContactAttachment
@@ -133,12 +137,14 @@ import im.vector.app.features.command.Command
 import im.vector.app.features.crypto.keysbackup.restore.KeysBackupRestoreActivity
 import im.vector.app.features.crypto.verification.VerificationBottomSheet
 import im.vector.app.features.home.AvatarRenderer
+import im.vector.app.features.home.room.detail.composer.CanSendStatus
 import im.vector.app.features.home.room.detail.composer.MessageComposerAction
 import im.vector.app.features.home.room.detail.composer.MessageComposerView
 import im.vector.app.features.home.room.detail.composer.MessageComposerViewEvents
 import im.vector.app.features.home.room.detail.composer.MessageComposerViewModel
 import im.vector.app.features.home.room.detail.composer.MessageComposerViewState
 import im.vector.app.features.home.room.detail.composer.SendMode
+import im.vector.app.features.home.room.detail.composer.boolean
 import im.vector.app.features.home.room.detail.composer.voice.VoiceMessageRecorderView
 import im.vector.app.features.home.room.detail.composer.voice.VoiceMessageRecorderView.RecordingUiState
 import im.vector.app.features.home.room.detail.readreceipts.DisplayReadReceiptsBottomSheet
@@ -166,12 +172,15 @@ import im.vector.app.features.html.EventHtmlRenderer
 import im.vector.app.features.html.PillImageSpan
 import im.vector.app.features.html.PillsPostProcessor
 import im.vector.app.features.invite.VectorInviteView
+import im.vector.app.features.location.LocationData
+import im.vector.app.features.location.LocationSharingMode
 import im.vector.app.features.media.ImageContentRenderer
 import im.vector.app.features.media.VideoContentRenderer
 import im.vector.app.features.notifications.NotificationDrawerManager
 import im.vector.app.features.notifications.NotificationUtils
 import im.vector.app.features.permalink.NavigationInterceptor
 import im.vector.app.features.permalink.PermalinkHandler
+import im.vector.app.features.poll.create.PollMode
 import im.vector.app.features.reactions.EmojiReactionPickerActivity
 import im.vector.app.features.roomprofile.RoomProfileActivity
 import im.vector.app.features.session.coroutineScope
@@ -186,11 +195,13 @@ import im.vector.app.features.widgets.WidgetActivity
 import im.vector.app.features.widgets.WidgetArgs
 import im.vector.app.features.widgets.WidgetKind
 import im.vector.app.features.widgets.permissions.RoomWidgetPermissionBottomSheet
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import nl.dionsegijn.konfetti.models.Shape
 import nl.dionsegijn.konfetti.models.Size
@@ -198,6 +209,7 @@ import org.billcarsonfr.jsonviewer.JSonViewerDialog
 import org.commonmark.parser.Parser
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.content.ContentAttachmentData
+import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.events.model.toModel
 import org.matrix.android.sdk.api.session.room.model.Membership
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
@@ -205,6 +217,7 @@ import org.matrix.android.sdk.api.session.room.model.message.MessageAudioContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageFormat
 import org.matrix.android.sdk.api.session.room.model.message.MessageImageInfoContent
+import org.matrix.android.sdk.api.session.room.model.message.MessageLocationContent
 import org.matrix.android.sdk.api.session.room.model.message.MessagePollContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageStickerContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageTextContent
@@ -235,7 +248,8 @@ data class RoomDetailArgs(
         val eventId: String? = null,
         val sharedData: SharedData? = null,
         val openShareSpaceForId: String? = null,
-        val openAtFirstUnread: Boolean? = null
+        val openAtFirstUnread: Boolean? = null,
+        val switchToParentSpace: Boolean = false
 ) : Parcelable
 
 class RoomDetailFragment @Inject constructor(
@@ -335,6 +349,7 @@ class RoomDetailFragment @Inject constructor(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        analyticsScreenName = Screen.ScreenName.Room
         setFragmentResultListener(MigrateRoomBottomSheet.REQUEST_KEY) { _, bundle ->
             bundle.getString(MigrateRoomBottomSheet.BUNDLE_KEY_REPLACEMENT_ROOM)?.let { replacementRoomId ->
                 roomDetailViewModel.handle(RoomDetailAction.RoomUpgradeSuccess(replacementRoomId))
@@ -361,6 +376,7 @@ class RoomDetailFragment @Inject constructor(
         keyboardStateUtils = KeyboardStateUtils(requireActivity())
         lazyLoadedViews.bind(views)
         setupToolbar(views.roomToolbar)
+                .allowBack()
         setupRecyclerView()
         setupComposer()
         setupNotificationView()
@@ -394,13 +410,13 @@ class RoomDetailFragment @Inject constructor(
         }
 
         messageComposerViewModel.onEach(MessageComposerViewState::sendMode, MessageComposerViewState::canSendMessage) { mode, canSend ->
-            if (!canSend) {
+            if (!canSend.boolean()) {
                 return@onEach
             }
             when (mode) {
                 is SendMode.Regular -> renderRegularMode(mode.text)
                 is SendMode.Edit    -> renderSpecialMode(mode.timelineEvent, R.drawable.ic_edit, R.string.edit, mode.text)
-                is SendMode.Quote   -> renderSpecialMode(mode.timelineEvent, R.drawable.ic_quote, R.string.quote, mode.text)
+                is SendMode.Quote   -> renderSpecialMode(mode.timelineEvent, R.drawable.ic_quote, R.string.action_quote, mode.text)
                 is SendMode.Reply   -> renderSpecialMode(mode.timelineEvent, R.drawable.ic_reply, R.string.reply, mode.text)
                 is SendMode.Voice   -> renderVoiceMessageMode(mode.text)
             }
@@ -461,7 +477,8 @@ class RoomDetailFragment @Inject constructor(
                 is RoomDetailViewEvents.OpenRoom                         -> handleOpenRoom(it)
                 RoomDetailViewEvents.OpenInvitePeople                    -> navigator.openInviteUsersToRoom(requireContext(), roomDetailArgs.roomId)
                 RoomDetailViewEvents.OpenSetRoomAvatarDialog             -> galleryOrCameraDialogHelper.show()
-                RoomDetailViewEvents.OpenRoomSettings                    -> handleOpenRoomSettings()
+                RoomDetailViewEvents.OpenRoomSettings                    -> handleOpenRoomSettings(RoomProfileActivity.EXTRA_DIRECT_ACCESS_ROOM_SETTINGS)
+                RoomDetailViewEvents.OpenRoomProfile                     -> handleOpenRoomSettings()
                 is RoomDetailViewEvents.ShowRoomAvatarFullScreen         -> it.matrixItem?.let { item ->
                     navigator.openBigImageViewer(requireActivity(), it.view, item)
                 }
@@ -469,6 +486,7 @@ class RoomDetailFragment @Inject constructor(
                 RoomDetailViewEvents.StopChatEffects                     -> handleStopChatEffects()
                 is RoomDetailViewEvents.DisplayAndAcceptCall             -> acceptIncomingCall(it)
                 RoomDetailViewEvents.RoomReplacementStarted              -> handleRoomReplacement()
+                is RoomDetailViewEvents.ShowLocation                     -> handleShowLocationPreview(it)
             }.exhaustive
         }
 
@@ -591,11 +609,11 @@ class RoomDetailFragment @Inject constructor(
         )
     }
 
-    private fun handleOpenRoomSettings() {
+    private fun handleOpenRoomSettings(directAccess: Int? = null) {
         navigator.openRoomProfile(
                 requireContext(),
                 roomDetailArgs.roomId,
-                RoomProfileActivity.EXTRA_DIRECT_ACCESS_ROOM_SETTINGS
+                directAccess
         )
     }
 
@@ -604,6 +622,17 @@ class RoomDetailFragment @Inject constructor(
         if (openRoom.closeCurrentRoom) {
             requireActivity().finish()
         }
+    }
+
+    private fun handleShowLocationPreview(viewEvent: RoomDetailViewEvents.ShowLocation) {
+        navigator
+                .openLocationSharing(
+                        context = requireContext(),
+                        roomId = roomDetailArgs.roomId,
+                        mode = LocationSharingMode.PREVIEW,
+                        initialLocationData = viewEvent.locationData,
+                        locationOwnerId = viewEvent.userId
+                )
     }
 
     private fun requestNativeWidgetPermission(it: RoomDetailViewEvents.RequestNativeWidgetPermission) {
@@ -680,7 +709,7 @@ class RoomDetailFragment @Inject constructor(
      */
     private fun EmojiPopup.Builder.setOnEmojiPopupDismissListenerLifecycleAware(action: () -> Unit): EmojiPopup.Builder {
         return setOnEmojiPopupDismissListener {
-            if (lifecycle.currentState == Lifecycle.State.STARTED) {
+            if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
                 action()
             }
         }
@@ -793,11 +822,7 @@ class RoomDetailFragment @Inject constructor(
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
         }
 
-        if (intent.resolveActivity(requireActivity().packageManager) != null) {
-            requireActivity().startActivity(intent)
-        } else {
-            requireActivity().toast(R.string.error_no_external_application_found)
-        }
+        requireActivity().safeStartActivity(intent)
     }
 
     private fun installApk(action: RoomDetailViewEvents.OpenFile) {
@@ -969,6 +994,10 @@ class RoomDetailFragment @Inject constructor(
             override fun onTombstoneEventClicked() {
                 roomDetailViewModel.handle(RoomDetailAction.JoinAndOpenReplacementRoom)
             }
+
+            override fun onMisconfiguredEncryptionClicked() {
+                roomDetailViewModel.handle(RoomDetailAction.OnClickMisconfiguredEncryption)
+            }
         }
     }
 
@@ -1102,7 +1131,7 @@ class RoomDetailFragment @Inject constructor(
                 .setPositiveButton(R.string.settings) { _, _ ->
                     navigator.openSettings(requireActivity(), VectorSettingsActivity.EXTRA_DIRECT_ACCESS_GENERAL)
                 }
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton(R.string.action_cancel, null)
                 .show()
     }
 
@@ -1110,7 +1139,7 @@ class RoomDetailFragment @Inject constructor(
         autoCompleter.exitSpecialMode()
         views.composerLayout.collapse()
         views.composerLayout.setTextIfDifferent(content)
-        views.composerLayout.views.sendButton.contentDescription = getString(R.string.send)
+        views.composerLayout.views.sendButton.contentDescription = getString(R.string.action_send)
     }
 
     private fun getMemberNameColor(matrixItem: MatrixItem) = matrixItemColorProvider.getColor(
@@ -1219,12 +1248,6 @@ class RoomDetailFragment @Inject constructor(
     private val attachmentFileActivityResultLauncher = registerStartForActivityResult {
         if (it.resultCode == Activity.RESULT_OK) {
             attachmentsHelper.onFileResult(it.data)
-        }
-    }
-
-    private val attachmentAudioActivityResultLauncher = registerStartForActivityResult {
-        if (it.resultCode == Activity.RESULT_OK) {
-            attachmentsHelper.onAudioResult(it.data)
         }
     }
 
@@ -1352,7 +1375,7 @@ class RoomDetailFragment @Inject constructor(
                     val canSendMessage = withState(messageComposerViewModel) {
                         it.canSendMessage
                     }
-                    if (!canSendMessage) {
+                    if (!canSendMessage.boolean()) {
                         return false
                     }
                     return when (model) {
@@ -1384,27 +1407,28 @@ class RoomDetailFragment @Inject constructor(
 
     private fun updateJumpToReadMarkerViewVisibility() {
         viewLifecycleOwner.lifecycleScope.launchWhenResumed {
-            withState(roomDetailViewModel) {
-                val showJumpToUnreadBanner = when (it.unreadState) {
-                    UnreadState.Unknown,
-                    UnreadState.HasNoUnread            -> false
-                    is UnreadState.ReadMarkerNotLoaded -> true
-                    is UnreadState.HasUnread           -> {
-                        if (it.canShowJumpToReadMarker) {
-                            val lastVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
-                            val positionOfReadMarker = timelineEventController.getPositionOfReadMarker()
-                            if (positionOfReadMarker == null) {
-                                false
-                            } else {
-                                positionOfReadMarker > lastVisibleItem
-                            }
-                        } else {
-                            false
+            val state = roomDetailViewModel.awaitState()
+            val showJumpToUnreadBanner = when (state.unreadState) {
+                UnreadState.Unknown,
+                UnreadState.HasNoUnread            -> false
+                is UnreadState.ReadMarkerNotLoaded -> true
+                is UnreadState.HasUnread           -> {
+                    if (state.canShowJumpToReadMarker) {
+                        val lastVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
+                        val positionOfReadMarker = withContext(Dispatchers.Default) {
+                            timelineEventController.getPositionOfReadMarker()
                         }
+                        if (positionOfReadMarker == null) {
+                            false
+                        } else {
+                            positionOfReadMarker > lastVisibleItem
+                        }
+                    } else {
+                        false
                     }
                 }
-                views.jumpToReadMarkerView.isVisible = showJumpToUnreadBanner
             }
+            views.jumpToReadMarkerView.isVisible = showJumpToUnreadBanner
         }
     }
 
@@ -1442,9 +1466,9 @@ class RoomDetailFragment @Inject constructor(
             override fun onAddAttachment() {
                 if (!::attachmentTypeSelector.isInitialized) {
                     attachmentTypeSelector = AttachmentTypeSelectorView(vectorBaseActivity, vectorBaseActivity.layoutInflater, this@RoomDetailFragment)
-                    attachmentTypeSelector.setAttachmentVisibility(AttachmentTypeSelectorView.Type.POLL, vectorPreferences.labsEnablePolls())
+                    attachmentTypeSelector.setAttachmentVisibility(AttachmentTypeSelectorView.Type.LOCATION, vectorPreferences.isLocationSharingEnabled())
                 }
-                attachmentTypeSelector.show(views.composerLayout.views.attachmentButton, keyboardStateUtils.isKeyboardShowing)
+                attachmentTypeSelector.show(views.composerLayout.views.attachmentButton)
             }
 
             override fun onSendMessage(text: CharSequence) {
@@ -1471,6 +1495,7 @@ class RoomDetailFragment @Inject constructor(
             return
         }
         if (text.isNotBlank()) {
+            analyticsTracker.capture(Click(name = Click.Name.SendMessageButton))
             // We collapse ASAP, if not there will be a slight annoying delay
             views.composerLayout.collapse(true)
             lockSendButton = true
@@ -1537,10 +1562,18 @@ class RoomDetailFragment @Inject constructor(
                 views.voiceMessageRecorderView.render(messageComposerState.voiceRecordingUiState)
                 views.composerLayout.setRoomEncrypted(summary.isEncrypted)
                 // views.composerLayout.alwaysShowSendButton = !vectorPreferences.useVoiceMessage()
-                if (messageComposerState.canSendMessage) {
-                    views.notificationAreaView.render(NotificationAreaView.State.Hidden)
-                } else {
-                    views.notificationAreaView.render(NotificationAreaView.State.NoPermissionToPost)
+                when (messageComposerState.canSendMessage) {
+                    CanSendStatus.Allowed                    -> {
+                        NotificationAreaView.State.Hidden
+                    }
+                    CanSendStatus.NoPermission               -> {
+                        NotificationAreaView.State.NoPermissionToPost
+                    }
+                    is CanSendStatus.UnSupportedE2eAlgorithm -> {
+                        NotificationAreaView.State.UnsupportedAlgorithm(mainState.isAllowedToSetupEncryption)
+                    }
+                }.let {
+                    views.notificationAreaView.render(it)
                 }
             } else {
                 views.hideComposerViews()
@@ -1585,7 +1618,7 @@ class RoomDetailFragment @Inject constructor(
         views.roomToolbarSubtitleView.apply {
             setTextOrHide(subtitle)
             if (typingMessage.isNullOrBlank()) {
-                setTextColor(colorProvider.getColorFromAttribute(R.attr.vctr_content_primary))
+                setTextColor(colorProvider.getColorFromAttribute(R.attr.vctr_content_secondary))
                 setTypeface(null, Typeface.NORMAL)
             } else {
                 setTextColor(colorProvider.getColorFromAttribute(R.attr.colorPrimary))
@@ -1656,7 +1689,7 @@ class RoomDetailFragment @Inject constructor(
                     val reason = views.dialogReportContentInput.text.toString()
                     roomDetailViewModel.handle(RoomDetailAction.ReportContent(action.eventId, action.senderId, reason))
                 }
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton(R.string.action_cancel, null)
                 .show()
     }
 
@@ -1666,7 +1699,7 @@ class RoomDetailFragment @Inject constructor(
                         activity = requireActivity(),
                         askForReason = action.askForReason,
                         confirmationRes = action.dialogDescriptionRes,
-                        positiveRes = R.string.remove,
+                        positiveRes = R.string.action_remove,
                         reasonHintRes = R.string.delete_event_dialog_reason_hint,
                         titleRes = action.dialogTitleRes
                 ) { reason ->
@@ -1786,7 +1819,7 @@ class RoomDetailFragment @Inject constructor(
                             .setPositiveButton(R.string._continue) { _, _ ->
                                 openUrlInExternalBrowser(requireContext(), url)
                             }
-                            .setNegativeButton(R.string.cancel, null)
+                            .setNegativeButton(R.string.action_cancel, null)
                             .show()
                 } else {
                     // Open in external browser, in a new Tab
@@ -1989,16 +2022,22 @@ class RoomDetailFragment @Inject constructor(
     }
 
     private fun onShareActionClicked(action: EventSharedAction.Share) {
-        if (action.messageContent is MessageTextContent) {
-            shareText(requireContext(), action.messageContent.body)
-        } else if (action.messageContent is MessageWithAttachmentContent) {
-            lifecycleScope.launch {
-                val result = runCatching { session.fileService().downloadFile(messageContent = action.messageContent) }
-                if (!isAdded) return@launch
-                result.fold(
-                        { shareMedia(requireContext(), it, getMimeTypeFromUri(requireContext(), it.toUri())) },
-                        { showErrorInSnackbar(it) }
-                )
+        when (action.messageContent) {
+            is MessageTextContent           -> shareText(requireContext(), action.messageContent.body)
+            is MessageLocationContent       -> {
+                LocationData.create(action.messageContent.getUri())?.let {
+                    openLocation(requireActivity(), it.latitude, it.longitude)
+                }
+            }
+            is MessageWithAttachmentContent -> {
+                lifecycleScope.launch {
+                    val result = runCatching { session.fileService().downloadFile(messageContent = action.messageContent) }
+                    if (!isAdded) return@launch
+                    result.fold(
+                            { shareMedia(requireContext(), it, getMimeTypeFromUri(requireContext(), it.toUri())) },
+                            { showErrorInSnackbar(it) }
+                    )
+                }
             }
         }
     }
@@ -2091,7 +2130,9 @@ class RoomDetailFragment @Inject constructor(
                 roomDetailViewModel.handle(RoomDetailAction.UpdateQuickReactAction(action.eventId, action.clickedOn, action.add))
             }
             is EventSharedAction.Edit                       -> {
-                if (withState(messageComposerViewModel) { it.isVoiceMessageIdle }) {
+                if (action.eventType == EventType.POLL_START) {
+                    navigator.openCreatePoll(requireContext(), roomDetailArgs.roomId, action.eventId, PollMode.EDIT)
+                } else if (withState(messageComposerViewModel) { it.isVoiceMessageIdle }) {
                     messageComposerViewModel.handle(MessageComposerAction.EnterEditMode(action.eventId, views.composerLayout.text.toString()))
                 } else {
                     requireActivity().toast(R.string.error_voice_message_cannot_reply_or_edit)
@@ -2160,7 +2201,7 @@ class RoomDetailFragment @Inject constructor(
         MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Vector_MaterialAlertDialog)
                 .setTitle(R.string.end_poll_confirmation_title)
                 .setMessage(R.string.end_poll_confirmation_description)
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton(R.string.action_cancel, null)
                 .setPositiveButton(R.string.end_poll_confirmation_approve_button) { _, _ ->
                     roomDetailViewModel.handle(RoomDetailAction.EndPoll(eventId))
                 }
@@ -2171,7 +2212,7 @@ class RoomDetailFragment @Inject constructor(
         MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_Vector_MaterialAlertDialog_Destructive)
                 .setTitle(R.string.room_participants_action_ignore_title)
                 .setMessage(R.string.room_participants_action_ignore_prompt_msg)
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton(R.string.action_cancel, null)
                 .setPositiveButton(R.string.room_participants_action_ignore) { _, _ ->
                     roomDetailViewModel.handle(RoomDetailAction.IgnoreUser(senderId))
                 }
@@ -2191,7 +2232,7 @@ class RoomDetailFragment @Inject constructor(
                 userId == session.myUserId) {
             // Empty composer, current user: start an emote
             views.composerLayout.views.composerEditText.setText(Command.EMOTE.command + " ")
-            views.composerLayout.views.composerEditText.setSelection(Command.EMOTE.length)
+            views.composerLayout.views.composerEditText.setSelection(Command.EMOTE.command.length + 1)
         } else {
             val roomMember = roomDetailViewModel.getMember(userId)
             // TODO move logic outside of fragment
@@ -2294,18 +2335,27 @@ class RoomDetailFragment @Inject constructor(
 
     private fun launchAttachmentProcess(type: AttachmentTypeSelectorView.Type) {
         when (type) {
-            AttachmentTypeSelectorView.Type.CAMERA  -> attachmentsHelper.openCamera(
+            AttachmentTypeSelectorView.Type.CAMERA   -> attachmentsHelper.openCamera(
                     activity = requireActivity(),
                     vectorPreferences = vectorPreferences,
                     cameraActivityResultLauncher = attachmentCameraActivityResultLauncher,
                     cameraVideoActivityResultLauncher = attachmentCameraVideoActivityResultLauncher
             )
-            AttachmentTypeSelectorView.Type.FILE    -> attachmentsHelper.selectFile(attachmentFileActivityResultLauncher)
-            AttachmentTypeSelectorView.Type.GALLERY -> attachmentsHelper.selectGallery(attachmentMediaActivityResultLauncher)
-            AttachmentTypeSelectorView.Type.AUDIO   -> attachmentsHelper.selectAudio(attachmentAudioActivityResultLauncher)
-            AttachmentTypeSelectorView.Type.CONTACT -> attachmentsHelper.selectContact(attachmentContactActivityResultLauncher)
-            AttachmentTypeSelectorView.Type.STICKER -> roomDetailViewModel.handle(RoomDetailAction.SelectStickerAttachment)
-            AttachmentTypeSelectorView.Type.POLL    -> navigator.openCreatePoll(requireContext(), roomDetailArgs.roomId)
+            AttachmentTypeSelectorView.Type.FILE     -> attachmentsHelper.selectFile(attachmentFileActivityResultLauncher)
+            AttachmentTypeSelectorView.Type.GALLERY  -> attachmentsHelper.selectGallery(attachmentMediaActivityResultLauncher)
+            AttachmentTypeSelectorView.Type.CONTACT  -> attachmentsHelper.selectContact(attachmentContactActivityResultLauncher)
+            AttachmentTypeSelectorView.Type.STICKER  -> roomDetailViewModel.handle(RoomDetailAction.SelectStickerAttachment)
+            AttachmentTypeSelectorView.Type.POLL     -> navigator.openCreatePoll(requireContext(), roomDetailArgs.roomId, null, PollMode.CREATE)
+            AttachmentTypeSelectorView.Type.LOCATION -> {
+                navigator
+                        .openLocationSharing(
+                                context = requireContext(),
+                                roomId = roomDetailArgs.roomId,
+                                mode = LocationSharingMode.STATIC_SHARING,
+                                initialLocationData = null,
+                                locationOwnerId = session.myUserId
+                        )
+            }
         }.exhaustive
     }
 

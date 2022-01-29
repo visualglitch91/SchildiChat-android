@@ -55,6 +55,10 @@ class ScanUserCodeFragment @Inject constructor() :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setupToolbar(views.qrScannerToolbar)
+                .allowBack(useCross = true)
+
         views.userCodeMyCodeButton.debouncedClicks {
             sharedViewModel.handle(UserCodeActions.SwitchMode(UserCodeState.Mode.SHOW))
         }

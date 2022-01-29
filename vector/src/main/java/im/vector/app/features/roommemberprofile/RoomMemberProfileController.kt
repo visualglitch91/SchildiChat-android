@@ -24,6 +24,7 @@ import im.vector.app.core.epoxy.profiles.buildProfileSection
 import im.vector.app.core.resources.ColorProvider
 import im.vector.app.core.resources.StringProvider
 import im.vector.app.core.ui.list.genericFooterItem
+import im.vector.lib.core.utils.epoxy.charsequence.toEpoxyCharSequence
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.room.model.Membership
 import org.matrix.android.sdk.api.session.room.powerlevels.PowerLevelsHelper
@@ -44,6 +45,7 @@ class RoomMemberProfileController @Inject constructor(
         fun onShowDeviceList()
         fun onShowDeviceListNoCrossSigning()
         fun onOpenDmClicked()
+        fun onOverrideColorClicked()
         fun onJumpToReadReceiptClicked()
         fun onMentionClicked()
         fun onEditPowerLevel(currentRole: Role)
@@ -96,11 +98,14 @@ class RoomMemberProfileController @Inject constructor(
 
     private fun buildSecuritySection(state: RoomMemberProfileViewState) {
         // Security
-        buildProfileSection(stringProvider.getString(R.string.room_profile_section_security))
         val host = this
 
         if (state.isRoomEncrypted) {
-            if (state.userMXCrossSigningInfo != null) {
+            if (!state.isAlgorithmSupported) {
+                // TODO find sensible message to display here
+                // For now we just remove the verify actions as well as the Security status
+            } else if (state.userMXCrossSigningInfo != null) {
+                buildProfileSection(stringProvider.getString(R.string.room_profile_section_security))
                 // Cross signing is enabled for this user
                 if (state.userMXCrossSigningInfo.isTrusted()) {
                     // User is trusted
@@ -148,12 +153,14 @@ class RoomMemberProfileController @Inject constructor(
 
                     genericFooterItem {
                         id("verify_footer")
-                        text(host.stringProvider.getString(R.string.room_profile_encrypted_subtitle))
+                        text(host.stringProvider.getString(R.string.room_profile_encrypted_subtitle).toEpoxyCharSequence())
                         centered(false)
                         backgroundColor(host.colorProvider.getColorFromAttribute(R.attr.vctr_header_background))
                     }
                 }
             } else {
+                buildProfileSection(stringProvider.getString(R.string.room_profile_section_security))
+
                 buildProfileAction(
                         id = "learn_more",
                         title = stringProvider.getString(R.string.room_profile_section_security_learn_more),
@@ -164,9 +171,11 @@ class RoomMemberProfileController @Inject constructor(
                 )
             }
         } else {
+            buildProfileSection(stringProvider.getString(R.string.room_profile_section_security))
+
             genericFooterItem {
                 id("verify_footer_not_encrypted")
-                text(host.stringProvider.getString(R.string.room_profile_not_encrypted_subtitle))
+                text(host.stringProvider.getString(R.string.room_profile_not_encrypted_subtitle).toEpoxyCharSequence())
                 centered(false)
                 backgroundColor(host.colorProvider.getColorFromAttribute(R.attr.vctr_header_background))
             }
@@ -175,10 +184,19 @@ class RoomMemberProfileController @Inject constructor(
 
     private fun buildMoreSection(state: RoomMemberProfileViewState) {
         // More
+        buildProfileSection(stringProvider.getString(R.string.room_profile_section_more))
+
+        buildProfileAction(
+                id = "overrideColor",
+                editable = false,
+                title = stringProvider.getString(R.string.room_member_override_nick_color),
+                subtitle = state.userColorOverride,
+                divider = !state.isMine,
+                action = { callback?.onOverrideColorClicked() }
+        )
+
         if (!state.isMine) {
             val membership = state.asyncMembership() ?: return
-
-            buildProfileSection(stringProvider.getString(R.string.room_profile_section_more))
 
             buildProfileAction(
                     id = "direct",
@@ -268,7 +286,7 @@ class RoomMemberProfileController @Inject constructor(
                             editable = false,
                             divider = canBan,
                             destructive = true,
-                            title = stringProvider.getString(R.string.room_participants_action_kick),
+                            title = stringProvider.getString(R.string.room_participants_action_remove),
                             action = { callback?.onKickClicked(state.isSpace) }
                     )
                 }
@@ -306,7 +324,7 @@ class RoomMemberProfileController @Inject constructor(
         return if (isIgnored) {
             stringProvider.getString(R.string.unignore)
         } else {
-            stringProvider.getString(R.string.ignore)
+            stringProvider.getString(R.string.action_ignore)
         }
     }
 }

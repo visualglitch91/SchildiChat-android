@@ -18,8 +18,8 @@
     <string name="notice_room_leave_by_you">Du lämnade rummet</string>
     <string name="notice_room_reject">%1$s avböjde inbjudan</string>
     <string name="notice_room_reject_by_you">Du avböjde inbjudan</string>
-    <string name="notice_room_kick">%1$s kickade %2$s</string>
-    <string name="notice_room_kick_by_you">Du kickade %1$s</string>
+    <string name="notice_room_remove">%1$s kickade %2$s</string>
+    <string name="notice_room_remove_by_you">Du kickade %1$s</string>
     <string name="notice_room_unban">%1$s avbannade %2$s</string>
     <string name="notice_room_unban_by_you">Du avbannade %1$s</string>
     <string name="notice_room_ban">%1$s avbannade %2$s</string>
@@ -99,7 +99,7 @@
     <string name="notice_power_level_changed">%1$s ändrade behörighetsnivå för %2$s.</string>
     <string name="notice_power_level_diff">%1$s från %2$s till %3$s</string>
     <string name="notice_crypto_unable_to_decrypt">** Kan inte avkryptera: %s **</string>
-    <string name="notice_crypto_error_unkwown_inbound_session_id">Avsändarens enhet har inte gett oss nycklarna för det här meddelandet.</string>
+    <string name="notice_crypto_error_unknown_inbound_session_id">Avsändarens enhet har inte gett oss nycklarna för det här meddelandet.</string>
     <string name="could_not_redact">Kunde inte dölja</string>
     <string name="unable_to_send_message">Kunde inte skicka meddelandet</string>
     <string name="message_failed_to_upload">Misslyckades att ladda upp bilden</string>
@@ -146,8 +146,8 @@
     <string name="notice_room_leave_with_reason_by_you">Du lämnade rummet. Anledning: %1$s</string>
     <string name="notice_room_reject_with_reason">%1$s avböjde inbjudan. Anledning: %2$s</string>
     <string name="notice_room_reject_with_reason_by_you">Du avböjde inbjudan. Anledning: %1$s</string>
-    <string name="notice_room_kick_with_reason">%1$s kickade %2$s. Anledning: %3$s</string>
-    <string name="notice_room_kick_with_reason_by_you">Du kickade %1$s. Anledning: %2$s</string>
+    <string name="notice_room_remove_with_reason">%1$s kickade %2$s. Anledning: %3$s</string>
+    <string name="notice_room_remove_with_reason_by_you">Du kickade %1$s. Anledning: %2$s</string>
     <string name="notice_room_unban_with_reason">%1$s avbannade %2$s. Anledning: %3$s</string>
     <string name="notice_room_unban_with_reason_by_you">Du avbannade %1$s. Anledning: %2$s</string>
     <string name="notice_room_ban_with_reason">%1$s bannade %2$s. Anledning: %3$s</string>
@@ -295,28 +295,28 @@
     <string name="dialog_title_third_party_licences">Tredjepartslicenser</string>
     <string name="loading">Laddar…</string>
     <string name="ok">OK</string>
-    <string name="cancel">Avbryt</string>
-    <string name="save">Spara</string>
-    <string name="leave">Lämna</string>
-    <string name="stay">Stanna</string>
-    <string name="send">Skicka</string>
-    <string name="resend">Skicka igen</string>
-    <string name="redact">Ta bort</string>
-    <string name="quote">Citera</string>
-    <string name="download">Ladda ner</string>
-    <string name="share">Dela</string>
-    <string name="speak">Prata</string>
-    <string name="clear">Rensa</string>
+    <string name="action_cancel">Avbryt</string>
+    <string name="action_save">Spara</string>
+    <string name="action_leave">Lämna</string>
+    <string name="action_stay">Stanna</string>
+    <string name="action_send">Skicka</string>
+    <string name="action_resend">Skicka igen</string>
+    <string name="action_redact">Ta bort</string>
+    <string name="action_quote">Citera</string>
+    <string name="action_download">Ladda ner</string>
+    <string name="action_share">Dela</string>
+    <string name="action_speak">Prata</string>
+    <string name="action_clear">Rensa</string>
     <string name="later">Senare</string>
-    <string name="forward">Vidarebefordra</string>
+    <string name="action_forward">Vidarebefordra</string>
     <string name="permalink">Permanent länk</string>
     <string name="view_source">Visa källkod</string>
     <string name="view_decrypted_source">Visa avkrypterad källkod</string>
-    <string name="delete">Radera</string>
-    <string name="rename">Döp om</string>
+    <string name="action_delete">Radera</string>
+    <string name="action_rename">Döp om</string>
     <string name="none">Ingen</string>
-    <string name="revoke">Återkalla</string>
-    <string name="disconnect">Koppla ifrån</string>
+    <string name="action_revoke">Återkalla</string>
+    <string name="action_disconnect">Koppla ifrån</string>
     <string name="report_content">Rapportera innehåll</string>
     <string name="active_call">Aktivt samtal</string>
     <string name="ongoing_conference_call">Pågående gruppsamtal.
@@ -333,15 +333,15 @@
     <string name="call_anyway">Ring ändå</string>
     <string name="send_anyway">Skicka ändå</string>
     <string name="or">eller</string>
-    <string name="invite">Bjud in</string>
+    <string name="action_invite">Bjud in</string>
     <string name="offline">Bortkopplad</string>
-    <string name="accept">Godkänn</string>
-    <string name="skip">Hoppa över</string>
+    <string name="action_accept">Godkänn</string>
+    <string name="action_skip">Hoppa över</string>
     <string name="done">Färdig</string>
-    <string name="abort">Avbryt</string>
-    <string name="ignore">Ignorera</string>
-    <string name="review">Granska</string>
-    <string name="decline">Avslå</string>
+    <string name="action_abort">Avbryt</string>
+    <string name="action_ignore">Ignorera</string>
+    <string name="action_review">Granska</string>
+    <string name="action_decline">Avslå</string>
     <string name="action_exit">Avsluta</string>
     <string name="actions">Handlingar</string>
     <string name="action_sign_out">Logga ut</string>
@@ -356,7 +356,7 @@
     <string name="action_open">Öppna</string>
     <string name="action_close">Stäng</string>
     <string name="copied_to_clipboard">Kopierat till klippbordet</string>
-    <string name="disable">Stäng av</string>
+    <string name="action_disable">Stäng av</string>
     <string name="dialog_title_confirmation">Bekräftelse</string>
     <string name="dialog_title_warning">Varning</string>
     <string name="dialog_title_error">Fel</string>
@@ -580,10 +580,10 @@
     <string name="yes">JA</string>
     <string name="no">NEJ</string>
     <string name="_continue">Fortsätt</string>
-    <string name="remove">Ta bort</string>
-    <string name="join">Gå med</string>
-    <string name="preview">Förhandsvisning</string>
-    <string name="reject">Avslå</string>
+    <string name="action_remove">Ta bort</string>
+    <string name="action_join">Gå med</string>
+    <string name="action_preview">Förhandsvisning</string>
+    <string name="action_reject">Avslå</string>
     <string name="list_members">Lista medlemmar</string>
     <string name="open_chat_header">Öppna rubrik</string>
     <string name="room_sync_in_progress">Synkroniserar…</string>
@@ -624,7 +624,6 @@
     </plurals>
     <string name="room_participants_leave_prompt_title">Lämna rum</string>
     <string name="room_participants_leave_prompt_msg">Är du säker på att du vill lämna rummet\?</string>
-    <string name="room_participants_remove_prompt_msg">Är du säker på att du vill ta bort %s från den här chatten\?</string>
     <string name="room_participants_create">Skapa</string>
     <string name="room_participants_online">Online</string>
     <string name="room_participants_offline">Offline</string>
@@ -637,17 +636,15 @@
     <string name="room_participants_header_devices">SESSIONER</string>
     <string name="room_participants_action_invite">Bjud in</string>
     <string name="room_participants_action_leave">Lämna det här rummet</string>
-    <string name="room_participants_action_remove">Ta bort från det här rummet</string>
     <string name="room_participants_action_ban">Banna</string>
     <string name="room_participants_action_unban">Avbanna</string>
-    <string name="room_participants_action_kick">Kicka</string>
+    <string name="room_participants_action_remove">Kicka</string>
     <string name="room_participants_action_set_default_power_level">Återställ till vanlig användare</string>
     <string name="room_participants_action_set_moderator">Gör till moderator</string>
     <string name="room_participants_action_set_admin">Gör till administratör</string>
     <string name="room_participants_action_ignore">Ignorera</string>
     <string name="search_members_hint">Filtrera rumsmedlemmar</string>
     <string name="tab_title_search_rooms">RUM</string>
-    <string name="room_recents_conversations">RUM</string>
     <plurals name="directory_search_rooms">
         <item quantity="one">%d rum</item>
         <item quantity="other">%d rum</item>
@@ -798,10 +795,6 @@
 \nVänligen kolla ${app_name}inställningarna.</string>
     <string name="settings_troubleshoot_test_bing_settings_success_with_warn">Observera att vissa meddelandetyper är satta till tyst (kommer att producera aviseringar utan ljud).</string>
     <string name="settings_troubleshoot_test_bing_settings_failed">Vissa aviseringar är inaktiverade i dina anpassade inställningar.</string>
-    <string name="settings_troubleshoot_test_foreground_service_started_title">Aviseringstjänst</string>
-    <string name="settings_troubleshoot_test_foreground_service_startedt_success">Aviseringstjänsten körs.</string>
-    <string name="settings_troubleshoot_test_foreground_service_started_failed">Aviseringstjänsten körs inte.
-\nFörsök att starta om appen.</string>
     <string name="settings_troubleshoot_test_service_restart_title">Automatisk omstart av aviseringstjänsten</string>
     <string name="template_settings_troubleshoot_test_service_boot_failed">Tjänsten kommer inte att starta när enheten startas om, så du kommer inte att få aviseringar förrens ${app_name} har öppnats en gång.</string>
     <string name="template_settings_troubleshoot_test_bg_restricted_failed">Bakgrundsbegränsningar är aktiverade för ${app_name}.
@@ -1062,9 +1055,9 @@
     <string name="choose_locale_current_locale_title">Nuvarande språk</string>
     <string name="choose_locale_other_locales_title">Andra tillgängliga språk</string>
     <string name="choose_locale_loading_locales">Laddar tillgängliga språk…</string>
-    <string name="play_video">Spela</string>
-    <string name="pause_video">Pausa</string>
-    <string name="dismiss">Avfärda</string>
+    <string name="action_play">Spela</string>
+    <string name="action_pause">Pausa</string>
+    <string name="action_dismiss">Avfärda</string>
     <string name="action_copy">Kopiera</string>
     <string name="dialog_title_success">Framgång</string>
     <string name="bottom_action_notification">Aviseringar</string>
@@ -1240,9 +1233,9 @@
     <string name="room_participants_action_unignore_prompt_msg">Att avignorera den här användaren kommer att visa alla meddelanden från hen igen.</string>
     <string name="room_participants_action_cancel_invite_title">Avbryt inbjudan</string>
     <string name="room_participants_action_cancel_invite_prompt_msg">Är du säker på att du vill avbryta inbjudan för den här användaren\?</string>
-    <string name="room_participants_kick_title">Kicka användaren</string>
-    <string name="room_participants_kick_reason">Anledning för kick</string>
-    <string name="room_participants_kick_prompt_msg">att sparka ut användaren kommer att ta bort hen från det här rummet.
+    <string name="room_participants_remove_title">Kicka användaren</string>
+    <string name="room_participants_remove_reason">Anledning för kick</string>
+    <string name="room_participants_remove_prompt_msg">att sparka ut användaren kommer att ta bort hen från det här rummet.
 \n
 \nFör att hindra hen från att gå med i rummet igen så bör du banna hen istället.</string>
     <string name="room_participants_ban_title">Banna användaren</string>
@@ -1292,16 +1285,6 @@
     <string name="search_hint">Sök</string>
     <string name="search_no_results">Inga resultat</string>
     <string name="tab_title_search_messages">MEDDELANDEN</string>
-    <string name="room_recents_join">GÅ MED</string>
-    <string name="room_recents_directory">KATALOG</string>
-    <string name="room_recents_favourites">FAVORITER</string>
-    <string name="room_recents_low_priority">LÅG PRIORITET</string>
-    <string name="room_recents_invites">INBJUDNINGAR</string>
-    <string name="room_recents_start_chat">Starta chatt</string>
-    <string name="room_recents_create_room">Skapa rum</string>
-    <string name="room_recents_join_room">Gå med i rum</string>
-    <string name="room_recents_join_room_title">Gå med i ett rum</string>
-    <string name="room_recents_join_room_prompt">Skriv ett rums-ID eller ett rumsalias</string>
     <string name="directory_search_results_title">Bläddra i katalogen</string>
     <string name="directory_searching_title">Söker i katalog…</string>
     <string name="room_settings_favourite">Favorit</string>
@@ -1343,7 +1326,6 @@
     <string name="settings_troubleshoot_test_token_registration_success">FCM-token registrerades framgångsrikt på hemservern.</string>
     <string name="settings_troubleshoot_test_token_registration_failed">Misslyckades att registrera FCM-token på hemservern:
 \n%1$s</string>
-    <string name="settings_troubleshoot_test_foreground_service_started_quickfix">Starta tjänst</string>
     <string name="settings_troubleshoot_test_service_restart_success">Tjänsten dödades och startades om automatiskt.</string>
     <string name="settings_troubleshoot_test_service_restart_failed">Tjänsten misslyckades att starta om</string>
     <string name="settings_troubleshoot_test_service_boot_title">Starta vid boot</string>
@@ -1566,7 +1548,7 @@
     <string name="settings_security_prevent_screenshots_title">Förhindra skärmdumpar av appen</string>
     <string name="settings_security_prevent_screenshots_summary">Att aktivera den här inställningen lägger till FLAG_SECURE till alla aktiviteter. Starta om appen för att inställningen ska få effekt.</string>
     <string name="template_use_other_session_content_description">Använd senaste ${app_name} på dina andra enheter; ${app_name} Web, ${app_name} iOS, ${app_name} för Android, eller annan Matrixklient som stöder korssignering</string>
-    <string name="or_other_mx_capabale_client">eller en annan Matrixklient som städer korssignering</string>
+    <string name="or_other_mx_capable_client">eller en annan Matrixklient som städer korssignering</string>
     <string name="template_use_latest_app">Använd senaste ${app_name} på dina andra enheter:</string>
     <string name="command_description_discard_session">Tvingar den nuvarande utgående gruppsessionen i ett krypterat rum att kasseras</string>
     <string name="keys_backup_recovery_key_error_decrypt">Säkerhetskopian kunde inte avkrypteras med den här återställningsnyckeln: vänligen verifiera att du skrev in rätt återställningsnyckel.</string>
@@ -1788,7 +1770,7 @@
     <string name="command_description_invite_user">Bjuder in användaren med det angivna ID:t till det nuvarande rummet</string>
     <string name="command_description_join_room">Går med i rummet med den angivna adressen</string>
     <string name="command_description_topic">Sätt ett rumsämne</string>
-    <string name="command_description_kick_user">Sparkar ut användaren med det angivna ID:t</string>
+    <string name="command_description_remove_user">Sparkar ut användaren med det angivna ID:t</string>
     <string name="command_description_nick">Ändrar ditt visningsnamn</string>
     <string name="command_description_clear_scalar_token">För att fixa Matrixapphantering</string>
     <string name="create">Skapa</string>
@@ -1806,7 +1788,7 @@
         <item quantity="other">%d medlemmar</item>
     </plurals>
     <string name="group_no_long_description">Gemenskapsadministratören har inte försett en lång beskrivning för den här gemenskapen.</string>
-    <string name="has_been_kicked">Du har blivit utsparkad från %1$s av %2$s</string>
+    <string name="has_been_removed">Du har blivit utsparkad från %1$s av %2$s</string>
     <string name="has_been_banned">Du har blivit bannad från %1$s av %2$s</string>
     <string name="reason_colon">Orsak: %1$s</string>
     <string name="rejoin">Gå med igen</string>
@@ -1925,8 +1907,8 @@
     <string name="room_list_catchup_welcome_body">Kom ikapp med olästa meddelanden här</string>
     <string name="room_list_people_empty_title">Konversationer</string>
     <string name="title_activity_emoji_reaction_picker">Reaktioner</string>
-    <string name="reactions_agree">Acceptera</string>
-    <string name="reactions_like">Gilla</string>
+    <string name="action_agree">Acceptera</string>
+    <string name="action_like">Gilla</string>
     <string name="message_add_reaction">Lägg till reaktion</string>
     <string name="message_view_reaction">Visa reaktioner</string>
     <string name="reactions">Reaktioner</string>
@@ -2184,15 +2166,6 @@
     <string name="qr_code_scanned_by_other_no">Nej</string>
     <string name="no_connectivity_to_the_server_indicator">Anslutningen till servern har tappats</string>
     <string name="no_connectivity_to_the_server_indicator_airplane">Flygplansläge är på</string>
-    <plurals name="poll_info">
-        <item quantity="one">%d röst</item>
-        <item quantity="other">%d röster</item>
-    </plurals>
-    <plurals name="poll_info_final">
-        <item quantity="one">%d röst - Slutgiltigt resultat</item>
-        <item quantity="other">%d röster - Slutgiltigt resultat</item>
-    </plurals>
-    <string name="poll_item_selected_aria">Valt alternativ</string>
     <string name="command_description_poll">Skapar en enkel omröstning</string>
     <string name="verification_cannot_access_other_session">Använd en återställningslösenfras eller -nyckel</string>
     <string name="new_signin">Ny inloggning</string>
@@ -2371,7 +2344,6 @@
     <string name="settings_show_room_member_state_events">Visa statushändelser angående rumsmedlemmar</string>
     <string name="settings_show_room_member_state_events_summary">Inkluderar när personer bjuds in, går med, lämnar, kickas, bannas eller byter sin avatar eller sitt namn.</string>
     <string name="sent_a_poll">Omröstning</string>
-    <string name="sent_a_bot_buttons">Bottknappar</string>
     <string name="sent_a_reaction">Reagerade med: %s</string>
     <string name="sent_verification_conclusion">Verifieringsavslutning</string>
     <string name="universal_link_malformed">Länken var felformaterad</string>
@@ -2431,7 +2403,7 @@
     <string name="search_banned_user_hint">Filtrera bannade användare</string>
     <string name="no_permissions_to_start_webrtc_call_in_direct_room">Du har inte behörighet att starta ett samtal</string>
     <string name="no_permissions_to_start_conf_call_in_direct_room">Du har inte behörighet att starta ett gruppsamtal</string>
-    <string name="reset">Återställ</string>
+    <string name="action_reset">Återställ</string>
     <string name="create_room_topic_hint">Ämne</string>
     <string name="warning_unsaved_change_discard">Förkasta ändringar</string>
     <string name="warning_unsaved_change">Det finns osparade ändringar. Förkasta ändringarna\?</string>
@@ -2561,7 +2533,7 @@
     <string name="room_permissions_notify_everyone">Underrätta alla</string>
     <string name="room_permissions_remove_messages_sent_by_others">Ta bort meddelanden skickade av andra</string>
     <string name="room_permissions_ban_users">Banna användare</string>
-    <string name="room_permissions_kick_users">Kicka användare</string>
+    <string name="room_permissions_remove_users">Kicka användare</string>
     <string name="room_permissions_change_settings">Ändra inställningar</string>
     <string name="room_permissions_invite_users">Bjuda in användare</string>
     <string name="room_permissions_send_messages">Skicka meddelanden</string>
@@ -2711,7 +2683,7 @@
     <string name="suggested_header">Föreslagna rum</string>
     <string name="invite_to_space_with_name">Bjud in till %s</string>
     <string name="invite_by_link">Dela länk</string>
-    <string name="invite_by_mxid">Bjud in med användarnamn</string>
+    <string name="invite_by_username">Bjud in med användarnamn</string>
     <string name="invite_by_email">Bjud in via e-post</string>
     <string name="invite_people_to_your_space_desc">Det är bara du här för tillfället. %s kommer att vara ännu bättre med fler.</string>
     <string name="invite_people_to_your_space">Bjud in personer till ditt utrymme</string>
@@ -2731,8 +2703,6 @@
     <string name="skip_for_now">Hoppa över för tillfället</string>
     <string name="share_space_link_message">Gå med i mitt utrymme %1$s %2$s</string>
     <string name="invite_just_to_this_room_desc">De kommer inte att bli en del av %s</string>
-    <string name="labs_use_restricted_join_rule_desc">Varning kräver serverstöd och experimentell rumsversion</string>
-    <string name="labs_use_restricted_join_rule">Experimentellt utrymme - Begränsat rum.</string>
     <string name="you_are_invited">Du är inbjuden</string>
     <string name="spaces_beta_welcome_to_spaces_desc">Utrymmen är ett nytt sätt att gruppera rum och personer.</string>
     <string name="spaces_beta_welcome_to_spaces">Välkommen till utrymmen!</string>
@@ -2948,7 +2918,7 @@
     <string name="space_settings_permissions_title">Utrymmesbehörigheter</string>
     <string name="space_participants_unban_prompt_msg">Om användaren avbannas kommer denna att få gå med i utrymmet igen.</string>
     <string name="space_participants_ban_prompt_msg">Att banna användaren kommer att kicka denne från det här utrymmet och hindra hen från att gå med igen.</string>
-    <string name="space_participants_kick_prompt_msg">att kicka användaren kommer att ta bort den från det här utrymmet.
+    <string name="space_participants_remove_prompt_msg">att kicka användaren kommer att ta bort den från det här utrymmet.
 \n
 \nFör att hindra hen från att gå med igen så bör de banna hen istället.</string>
     <string name="create_space_in_progress">Skapar utrymme…</string>
@@ -3002,7 +2972,7 @@
     <string name="discovery_invite">Bjud in med e-post, hitta kontakter och mer…</string>
     <string name="finish_setting_up_discovery">Slutför inställning av upptäckbarhet.</string>
     <string name="create_space_identity_server_info_none">Du använder för närvarande ingen identitetsserver. För att bjuda in teammedlemmar och kunna upptäckas av dem, konfigurera en nedan.</string>
-    <string name="invite_by_mxid_or_mail">Bjud in med användarnamn eller e-postadress</string>
+    <string name="invite_by_username_or_mail">Bjud in med användarnamn eller e-postadress</string>
     <string name="a11y_presence_unavailable">Otillgänglig</string>
     <string name="a11y_presence_offline">Offline</string>
     <string name="a11y_presence_online">Online</string>
@@ -3032,4 +3002,65 @@
     <string name="action_not_now">Inte nu</string>
     <string name="identity_server_consent_dialog_content_3">För att hitta existerande kontakter så behöver du skicka kontaktinfo (e-postadresser och telefonnummer) till din identitetsserver. Vi hashar din data innan den skickas av sekretesskäl.</string>
     <string name="identity_server_consent_dialog_content_question">Går du med på att skicka den här infon\?</string>
+    <string name="analytics_opt_in_list_item_3">Du kan stänga av detta när som helst i inställningarna</string>
+    <string name="analytics_opt_in_list_item_2">Vi delar <b>inte</b> information med tredje parter</string>
+    <string name="analytics_opt_in_list_item_1">Vi spelar <b>inte</b> in eller profilerar någon kontodata</string>
+    <string name="analytics_opt_in_content_link">här</string>
+    <string name="analytics_opt_in_content">Hjälp oss att identifiera problem och förbättra Element genom att dela anonym användningsdata. För att förstå hur personer använder multipla enheter så generar vi en slumpmässig identifierare som delas mellan dina enheter.
+\n
+\nDu kan läsa alla våra villkor %s.</string>
+    <string name="analytics_opt_in_title">Hjälp att förbättra Element</string>
+    <string name="action_enable">Aktivera</string>
+    <string name="delete_poll_dialog_content">Är du säker på att du vill ta bort den här omröstningen\? Du kommer inte kunna få tillbaka den när den har tagits bort.</string>
+    <string name="delete_poll_dialog_title">Ta bort omröstning</string>
+    <string name="poll_end_room_list_preview">Omröstning avslutad</string>
+    <string name="poll_response_room_list_preview">Röst avgiven</string>
+    <string name="end_poll_confirmation_approve_button">Avsluta omröstningen</string>
+    <string name="end_poll_confirmation_description">Det här kommer att stoppa personer från att rösta och visa det slutgiltiga resultatet av omröstningen.</string>
+    <string name="end_poll_confirmation_title">Avsluta den här omröstningen\?</string>
+    <string name="a11y_poll_winner_option">vinnande alternativ</string>
+    <string name="poll_end_action">Avsluta omröstning</string>
+    <plurals name="poll_total_vote_count_after_ended">
+        <item quantity="one">Slutgiltigt resultat baserat på %1$d röst</item>
+        <item quantity="other">Slutgiltigt resultat baserat på %1$d röster</item>
+    </plurals>
+    <plurals name="poll_total_vote_count_before_ended_and_voted">
+        <item quantity="one">Baserat på %1$d röst</item>
+        <item quantity="other">Baserat på %1$d röster</item>
+    </plurals>
+    <plurals name="poll_option_vote_count">
+        <item quantity="one">%1$d röst</item>
+        <item quantity="other">%1$d röster</item>
+    </plurals>
+    <string name="preference_system_settings">Systeminställningar</string>
+    <string name="preference_versions">Versioner</string>
+    <string name="preference_help_summary">Få hjälp med att använda Element</string>
+    <string name="preference_help_title">Hjälp och support</string>
+    <string name="preference_help">Hjälp</string>
+    <string name="preference_root_legals">Legalt</string>
+    <string name="legals_no_policy_provided">Den här servern förser ingen policy.</string>
+    <string name="legals_third_party_notices">Tredjepartsbibliotek</string>
+    <string name="legals_identity_server_title">Din identitetsservers policy</string>
+    <string name="template_legals_application_title">${app_name}s policy</string>
+    <string name="legals_home_server_title">Din hemservers policy</string>
+    <plurals name="poll_total_vote_count_before_ended_and_not_voted">
+        <item quantity="one">%1$d röst avgiven. Rösta för att se resultatet</item>
+        <item quantity="other">%1$d röster avgivna. Rösta för att se resultatet</item>
+    </plurals>
+    <string name="tooltip_attachment_poll">Skapa omröstning</string>
+    <string name="tooltip_attachment_contact">Öppna kontakter</string>
+    <string name="tooltip_attachment_sticker">Skicka dekal</string>
+    <string name="tooltip_attachment_file">Ladda upp fil</string>
+    <string name="tooltip_attachment_gallery">Skicka bilder och video</string>
+    <string name="tooltip_attachment_photo">Öppna kameran</string>
+    <string name="restart_the_application_to_apply_changes">Starta om appen för att ändringen ska börja gälla.</string>
+    <string name="labs_enable_latex_maths">Aktivera LaTeX-matte</string>
+    <string name="labs_auto_report_uisi_desc">Ditt system kommer automatiskt att skicka loggar när det misslyckas att avkryptera</string>
+    <string name="labs_auto_report_uisi">Rapportera avkrypteringsfel automatiskt.</string>
+    <string name="room_member_override_nick_color">Åsidosätt visningsnamnsfärg</string>
+    <string name="login_splash_already_have_account">Jag har redan ett konto</string>
+    <string name="ftue_auth_carousel_3_title">Kontakta vem som helst.</string>
+    <string name="ftue_auth_carousel_2_title">Du har kontroll.</string>
+    <string name="ftue_auth_carousel_1_title">Äg dina konversationer.</string>
+    <string name="room_error_access_unauthorized">Du får inte gå med i det här rummet</string>
 </resources>

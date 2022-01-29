@@ -19,6 +19,7 @@ package org.matrix.android.sdk.internal.session.room.summary
 import de.spiritcroc.matrixsdk.StaticScSdkHelper
 import io.realm.Realm
 import io.realm.kotlin.createObject
+import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.events.model.toModel
@@ -38,13 +39,11 @@ import org.matrix.android.sdk.api.session.room.send.SendState
 import org.matrix.android.sdk.api.session.sync.model.RoomSyncSummary
 import org.matrix.android.sdk.api.session.sync.model.RoomSyncUnreadNotifications
 import org.matrix.android.sdk.internal.crypto.EventDecryptor
-import org.matrix.android.sdk.internal.crypto.MXCRYPTO_ALGORITHM_MEGOLM
 import org.matrix.android.sdk.internal.crypto.crosssigning.DefaultCrossSigningService
+import org.matrix.android.sdk.internal.crypto.model.event.EncryptionEventContent
 import org.matrix.android.sdk.internal.database.mapper.ContentMapper
 import org.matrix.android.sdk.internal.database.mapper.asDomain
 import org.matrix.android.sdk.internal.database.model.CurrentStateEventEntity
-import org.matrix.android.sdk.internal.database.model.EventEntity
-import org.matrix.android.sdk.internal.database.model.EventEntityFields
 import org.matrix.android.sdk.internal.database.model.GroupSummaryEntity
 import org.matrix.android.sdk.internal.database.model.RoomMemberSummaryEntityFields
 import org.matrix.android.sdk.internal.database.model.RoomSummaryEntity
@@ -57,7 +56,6 @@ import org.matrix.android.sdk.internal.database.query.getOrCreate
 import org.matrix.android.sdk.internal.database.query.getOrNull
 import org.matrix.android.sdk.internal.database.query.isEventRead
 import org.matrix.android.sdk.internal.database.query.where
-import org.matrix.android.sdk.internal.database.query.whereType
 import org.matrix.android.sdk.internal.di.UserId
 import org.matrix.android.sdk.internal.extensions.clearWith
 import org.matrix.android.sdk.internal.query.process
@@ -128,10 +126,8 @@ internal class RoomSummaryUpdater @Inject constructor(
         Timber.v("## Space: Updating summary room [$roomId] roomType: [$roomType]")
 
         // Don't use current state for this one as we are only interested in having MXCRYPTO_ALGORITHM_MEGOLM event in the room
-        val encryptionEvent = EventEntity.whereType(realm, roomId = roomId, type = EventType.STATE_ROOM_ENCRYPTION)
-                .contains(EventEntityFields.CONTENT, "\"algorithm\":\"$MXCRYPTO_ALGORITHM_MEGOLM\"")
-                .isNotNull(EventEntityFields.STATE_KEY)
-                .findFirst()
+        val encryptionEvent = CurrentStateEventEntity.getOrNull(realm, roomId, type = EventType.STATE_ROOM_ENCRYPTION, stateKey = "")?.root
+        Timber.v("## CRYPTO: currentEncryptionEvent is $encryptionEvent")
 
         val latestPreviewableEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScAll(realm, roomId)
         val latestPreviewableContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId)
@@ -150,17 +146,15 @@ internal class RoomSummaryUpdater @Inject constructor(
         roomSummaryEntity.hasUnreadMessages = roomSummaryEntity.notificationCount > 0 ||
                 (roomSummaryEntity.unreadCount?.let { it > 0 } ?: false) ||
                 // avoid this call if we are sure there are unread events
-                !isEventRead(realm.configuration, userId, roomId, latestPreviewableEvent?.eventId)
+                latestPreviewableEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
         roomSummaryEntity.hasUnreadContentMessages = roomSummaryEntity.notificationCount > 0 ||
                 (roomSummaryEntity.unreadCount?.let { it > 0 } ?: false) ||
                 // avoid this call if we are sure there are unread events
-                (latestPreviewableContentEvent != null &&
-                        !isEventRead(realm.configuration, userId, roomId, latestPreviewableContentEvent.eventId))
+                latestPreviewableContentEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
         roomSummaryEntity.hasUnreadOriginalContentMessages = roomSummaryEntity.notificationCount > 0 ||
                 (roomSummaryEntity.unreadCount?.let { it > 0 } ?: false) ||
                 // avoid this call if we are sure there are unread events
-                (latestPreviewableOriginalContentEvent != null &&
-                        !isEventRead(realm.configuration, userId, roomId, latestPreviewableOriginalContentEvent.eventId))
+                latestPreviewableOriginalContentEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
 
         roomSummaryEntity.setDisplayName(roomDisplayNameResolver.resolve(realm, roomId))
         roomSummaryEntity.avatarUrl = roomAvatarResolver.resolve(realm, roomId)
@@ -174,6 +168,11 @@ internal class RoomSummaryUpdater @Inject constructor(
                 .orEmpty()
         roomSummaryEntity.updateAliases(roomAliases)
         roomSummaryEntity.isEncrypted = encryptionEvent != null
+
+        roomSummaryEntity.e2eAlgorithm = ContentMapper.map(encryptionEvent?.content)
+                ?.toModel<EncryptionEventContent>()
+                ?.algorithm
+
         roomSummaryEntity.encryptionEventTs = encryptionEvent?.originServerTs
 
         if (roomSummaryEntity.membership == Membership.INVITE && inviterId != null) {
@@ -276,7 +275,7 @@ internal class RoomSummaryUpdater @Inject constructor(
                                     .findFirst()
                                     ?.let { childSum ->
                                         lookupMap.entries.firstOrNull { it.key.roomId == lookedUp.roomId }?.let { entry ->
-                                            if (entry.value.indexOfFirst { it.roomId == childSum.roomId } == -1) {
+                                            if (entry.value.none { it.roomId == childSum.roomId }) {
                                                 // add looked up as a parent
                                                 entry.value.add(childSum)
                                             }
@@ -339,7 +338,7 @@ internal class RoomSummaryUpdater @Inject constructor(
                                                 .process(RoomSummaryEntityFields.MEMBERSHIP_STR, Membership.activeMemberships())
                                                 .findFirst()
                                                 ?.let { parentSum ->
-                                                    if (lookupMap[parentSum]?.indexOfFirst { it.roomId == lookedUp.roomId } == -1) {
+                                                    if (lookupMap[parentSum]?.none { it.roomId == lookedUp.roomId }.orFalse()) {
                                                         // add lookedup as a parent
                                                         lookupMap[parentSum]?.add(lookedUp)
                                                     }

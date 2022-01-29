@@ -67,8 +67,10 @@ data class RoomDetailViewState(
         val canInvite: Boolean = true,
         val isAllowedToManageWidgets: Boolean = false,
         val isAllowedToStartWebRTCCall: Boolean = true,
+        val isAllowedToSetupEncryption: Boolean = true,
         val hasFailedSending: Boolean = false,
-        val jitsiState: JitsiState = JitsiState()
+        val jitsiState: JitsiState = JitsiState(),
+        val switchToParentSpace: Boolean = false
 ) : MavericksState {
 
     constructor(args: RoomDetailArgs) : this(
@@ -76,7 +78,8 @@ data class RoomDetailViewState(
             eventId = args.eventId,
             // Also highlight the target event, if any
             highlightedEventId = args.eventId,
-            openAtFirstUnread = args.openAtFirstUnread
+            openAtFirstUnread = args.openAtFirstUnread,
+            switchToParentSpace = args.switchToParentSpace
     )
 
     fun isWebRTCCallOptionAvailable() = (asyncRoomSummary.invoke()?.joinedMembersCount ?: 0) <= 2

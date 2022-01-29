@@ -42,6 +42,7 @@ import im.vector.app.core.utils.PERMISSIONS_FOR_TAKING_PHOTO
 import im.vector.app.core.utils.checkPermissions
 import im.vector.app.core.utils.onPermissionDeniedSnackbar
 import im.vector.app.core.utils.registerForPermissionsResult
+import im.vector.app.features.analytics.plan.Screen
 import im.vector.app.features.contactsbook.ContactsBookFragment
 import im.vector.app.features.userdirectory.UserListFragment
 import im.vector.app.features.userdirectory.UserListFragmentArgs
@@ -63,6 +64,7 @@ class CreateDirectRoomActivity : SimpleFragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        analyticsScreenName = Screen.ScreenName.StartChat
         views.toolbar.visibility = View.GONE
 
         sharedActionViewModel = viewModelProvider.get(UserListSharedActionViewModel::class.java)
@@ -168,11 +170,8 @@ class CreateDirectRoomActivity : SimpleFragmentActivity() {
         }
     }
 
-    private fun renderCreationSuccess(roomId: String?) {
-        // Navigate to freshly created room
-        if (roomId != null) {
-            navigator.openRoom(this, roomId)
-        }
+    private fun renderCreationSuccess(roomId: String) {
+        navigator.openRoom(this, roomId)
         finish()
     }
 

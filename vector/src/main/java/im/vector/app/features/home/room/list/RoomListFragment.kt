@@ -45,6 +45,7 @@ import im.vector.app.core.platform.StateView
 import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.core.resources.UserPreferencesProvider
 import im.vector.app.databinding.FragmentRoomListBinding
+import im.vector.app.features.analytics.plan.Screen
 import im.vector.app.features.home.RoomListDisplayMode
 import im.vector.app.features.home.room.filtered.FilteredRoomFooterItem
 import im.vector.app.features.home.room.list.RoomListSectionBuilderSpace.Companion.SPACE_ID_FOLLOW_APP
@@ -110,6 +111,15 @@ class RoomListFragment @Inject constructor(
 
     private val adapterInfosList = mutableListOf<SectionAdapterInfo>()
     private var concatAdapter: ConcatAdapter? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        analyticsScreenName = when (roomListParams.displayMode) {
+            RoomListDisplayMode.PEOPLE -> Screen.ScreenName.MobilePeople
+            RoomListDisplayMode.ROOMS  -> Screen.ScreenName.MobileRooms
+            else                       -> null
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -458,10 +468,10 @@ class RoomListFragment @Inject constructor(
         MaterialAlertDialogBuilder(requireContext(), if (isPublicRoom) 0 else R.style.ThemeOverlay_Vector_MaterialAlertDialog_Destructive)
                 .setTitle(R.string.room_participants_leave_prompt_title)
                 .setMessage(message)
-                .setPositiveButton(R.string.leave) { _, _ ->
+                .setPositiveButton(R.string.action_leave) { _, _ ->
                     roomListViewModel.handle(RoomListAction.LeaveRoom(roomId))
                 }
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton(R.string.action_cancel, null)
                 .show()
     }
 

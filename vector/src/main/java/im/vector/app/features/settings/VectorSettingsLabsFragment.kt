@@ -56,5 +56,9 @@ class VectorSettingsLabsFragment @Inject constructor(
 
         findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_VOICE_MESSAGE)?.isEnabled = Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP
 
+        findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_LABS_AUTO_REPORT_UISI)?.let { pref ->
+            // ensure correct default
+            pref.isChecked = vectorPreferences.labsAutoReportUISI()
+        }
     }
 }

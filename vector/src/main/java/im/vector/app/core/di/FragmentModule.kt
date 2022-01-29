@@ -61,6 +61,8 @@ import im.vector.app.features.home.room.breadcrumbs.BreadcrumbsFragment
 import im.vector.app.features.home.room.detail.RoomDetailFragment
 import im.vector.app.features.home.room.detail.search.SearchFragment
 import im.vector.app.features.home.room.list.RoomListFragment
+import im.vector.app.features.location.LocationPreviewFragment
+import im.vector.app.features.location.LocationSharingFragment
 import im.vector.app.features.login.LoginCaptchaFragment
 import im.vector.app.features.login.LoginFragment
 import im.vector.app.features.login.LoginGenericTextInputFormFragment
@@ -94,6 +96,20 @@ import im.vector.app.features.login2.created.AccountCreatedFragment
 import im.vector.app.features.login2.terms.LoginTermsFragment2
 import im.vector.app.features.matrixto.MatrixToRoomSpaceFragment
 import im.vector.app.features.matrixto.MatrixToUserFragment
+import im.vector.app.features.onboarding.ftueauth.FtueAuthCaptchaFragment
+import im.vector.app.features.onboarding.ftueauth.FtueAuthGenericTextInputFormFragment
+import im.vector.app.features.onboarding.ftueauth.FtueAuthLoginFragment
+import im.vector.app.features.onboarding.ftueauth.FtueAuthResetPasswordFragment
+import im.vector.app.features.onboarding.ftueauth.FtueAuthResetPasswordMailConfirmationFragment
+import im.vector.app.features.onboarding.ftueauth.FtueAuthResetPasswordSuccessFragment
+import im.vector.app.features.onboarding.ftueauth.FtueAuthServerSelectionFragment
+import im.vector.app.features.onboarding.ftueauth.FtueAuthSignUpSignInSelectionFragment
+import im.vector.app.features.onboarding.ftueauth.FtueAuthSplashCarouselFragment
+import im.vector.app.features.onboarding.ftueauth.FtueAuthSplashFragment
+import im.vector.app.features.onboarding.ftueauth.FtueAuthUseCaseFragment
+import im.vector.app.features.onboarding.ftueauth.FtueAuthWaitForEmailFragment
+import im.vector.app.features.onboarding.ftueauth.FtueAuthWebFragment
+import im.vector.app.features.onboarding.ftueauth.terms.FtueAuthTermsFragment
 import im.vector.app.features.pin.PinFragment
 import im.vector.app.features.poll.create.CreatePollFragment
 import im.vector.app.features.qrcode.QrCodeScannerFragment
@@ -386,6 +402,76 @@ interface FragmentModule {
     @IntoMap
     @FragmentKey(LoginWaitForEmailFragment2::class)
     fun bindLoginWaitForEmailFragment2(fragment: LoginWaitForEmailFragment2): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthCaptchaFragment::class)
+    fun bindFtueAuthCaptchaFragment(fragment: FtueAuthCaptchaFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthGenericTextInputFormFragment::class)
+    fun bindFtueAuthGenericTextInputFormFragment(fragment: FtueAuthGenericTextInputFormFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthLoginFragment::class)
+    fun bindFtueAuthLoginFragment(fragment: FtueAuthLoginFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthResetPasswordFragment::class)
+    fun bindFtueAuthResetPasswordFragment(fragment: FtueAuthResetPasswordFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthResetPasswordMailConfirmationFragment::class)
+    fun bindFtueAuthResetPasswordMailConfirmationFragment(fragment: FtueAuthResetPasswordMailConfirmationFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthResetPasswordSuccessFragment::class)
+    fun bindFtueAuthResetPasswordSuccessFragment(fragment: FtueAuthResetPasswordSuccessFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthServerSelectionFragment::class)
+    fun bindFtueAuthServerSelectionFragment(fragment: FtueAuthServerSelectionFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthSignUpSignInSelectionFragment::class)
+    fun bindFtueAuthSignUpSignInSelectionFragment(fragment: FtueAuthSignUpSignInSelectionFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthSplashFragment::class)
+    fun bindFtueAuthSplashFragment(fragment: FtueAuthSplashFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthSplashCarouselFragment::class)
+    fun bindFtueAuthSplashCarouselFragment(fragment: FtueAuthSplashCarouselFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthUseCaseFragment::class)
+    fun bindFtueAuthUseCaseFragment(fragment: FtueAuthUseCaseFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthWaitForEmailFragment::class)
+    fun bindFtueAuthWaitForEmailFragment(fragment: FtueAuthWaitForEmailFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthWebFragment::class)
+    fun bindFtueAuthWebFragment(fragment: FtueAuthWebFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(FtueAuthTermsFragment::class)
+    fun bindFtueAuthTermsFragment(fragment: FtueAuthTermsFragment): Fragment
 
     @Binds
     @IntoMap
@@ -861,4 +947,14 @@ interface FragmentModule {
     @IntoMap
     @FragmentKey(CreatePollFragment::class)
     fun bindCreatePollFragment(fragment: CreatePollFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(LocationSharingFragment::class)
+    fun bindLocationSharingFragment(fragment: LocationSharingFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(LocationPreviewFragment::class)
+    fun bindLocationPreviewFragment(fragment: LocationPreviewFragment): Fragment
 }

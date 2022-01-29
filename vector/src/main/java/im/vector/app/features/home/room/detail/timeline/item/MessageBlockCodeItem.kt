@@ -23,25 +23,26 @@ import com.airbnb.epoxy.EpoxyModelClass
 import im.vector.app.R
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.extensions.setTextOrHide
+import im.vector.lib.core.utils.epoxy.charsequence.EpoxyCharSequence
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 @EpoxyModelClass(layout = R.layout.item_timeline_event_base)
 abstract class MessageBlockCodeItem : AbsMessageItem<MessageBlockCodeItem.Holder>() {
 
     @EpoxyAttribute
-    var message: CharSequence? = null
+    var message: EpoxyCharSequence? = null
 
     @EpoxyAttribute
-    var editedSpan: CharSequence? = null
+    var editedSpan: EpoxyCharSequence? = null
 
     override fun bind(holder: Holder) {
         super.bind(holder)
-        holder.messageView.text = message
+        holder.messageView.text = message?.charSequence
         renderSendState(holder.messageView, holder.messageView)
         holder.messageView.onClick(attributes.itemClickListener)
         holder.messageView.setOnLongClickListener(attributes.itemLongClickListener)
         holder.editedView.movementMethod = BetterLinkMovementMethod.getInstance()
-        holder.editedView.setTextOrHide(editedSpan)
+        holder.editedView.setTextOrHide(editedSpan?.charSequence)
     }
 
     override fun getViewType() = STUB_ID

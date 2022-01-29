@@ -21,22 +21,31 @@ import android.text.Spannable
 import androidx.core.text.toSpannable
 import im.vector.app.R
 import im.vector.app.core.resources.ColorProvider
+import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.themes.ThemeUtils
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.Markwon
+import io.noties.markwon.MarkwonPlugin
 import io.noties.markwon.core.MarkwonTheme
+import io.noties.markwon.PrecomputedFutureTextSetterCompat
+import io.noties.markwon.ext.latex.JLatexMathPlugin
+import io.noties.markwon.ext.latex.JLatexMathTheme
 import io.noties.markwon.html.HtmlPlugin
+import io.noties.markwon.inlineparser.MarkwonInlineParserPlugin
 import org.commonmark.node.Node
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class EventHtmlRenderer @Inject constructor(private val htmlConfigure: MatrixHtmlPluginConfigure,
-                                            private val context: Context) {
+class EventHtmlRenderer @Inject constructor(
+        private val htmlConfigure: MatrixHtmlPluginConfigure,
+        private val context: Context,
+        private val vectorPreferences: VectorPreferences
+) {
 
     private fun resolveCodeBlockBackground() =
-        ThemeUtils.getColor(context, R.attr.code_block_bg_color)
+            ThemeUtils.getColor(context, R.attr.code_block_bg_color)
     private fun resolveQuoteBarColor() =
             ThemeUtils.getColor(context, R.attr.quote_bar_color)
 
@@ -59,7 +68,26 @@ class EventHtmlRenderer @Inject constructor(private val htmlConfigure: MatrixHtm
                         }
                     }
             ))
-            .build()
+            .apply {
+                if (vectorPreferences.latexMathsIsEnabled()) {
+                        usePlugin(object : AbstractMarkwonPlugin() { // Markwon expects maths to be in a specific format: https://noties.io/Markwon/docs/v4/ext-latex
+                            override fun processMarkdown(markdown: String): String {
+                                return markdown
+                                        .replace(Regex("""<span\s+data-mx-maths="([^"]*)">.*?</span>""")) {
+                                            matchResult -> "$$" + matchResult.groupValues[1] + "$$"
+                                        }
+                                        .replace(Regex("""<div\s+data-mx-maths="([^"]*)">.*?</div>""")) {
+                                            matchResult -> "\n$$\n" + matchResult.groupValues[1] + "\n$$\n"
+                                        }
+                            }
+                        })
+                        .usePlugin(MarkwonInlineParserPlugin.create())
+                        .usePlugin(JLatexMathPlugin.create(44F) { builder ->
+                            builder.inlinesEnabled(true)
+                            builder.theme().inlinePadding(JLatexMathTheme.Padding.symmetric(24, 8))
+                        })
+                }
+            }.textSetter(PrecomputedFutureTextSetterCompat.create()).build()
 
     private var markwon: Markwon = buildMarkwon()
     get() {
@@ -79,6 +107,8 @@ class EventHtmlRenderer @Inject constructor(private val htmlConfigure: MatrixHtm
         }
         return field
     }
+
+    val plugins: List<MarkwonPlugin> = markwon.plugins
 
     fun invalidateColors() {
         markwon = buildMarkwon()

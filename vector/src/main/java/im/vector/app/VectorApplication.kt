@@ -36,6 +36,7 @@ import com.airbnb.epoxy.EpoxyController
 import com.airbnb.mvrx.Mavericks
 import com.facebook.stetho.Stetho
 import com.gabrielittner.threetenbp.LazyThreeTen
+import com.mapbox.mapboxsdk.Mapbox
 import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider
 import dagger.hilt.android.HiltAndroidApp
@@ -97,6 +98,7 @@ class VectorApplication :
     @Inject lateinit var pinLocker: PinLocker
     @Inject lateinit var callManager: WebRtcCallManager
     @Inject lateinit var invitesAcceptor: InvitesAcceptor
+    @Inject lateinit var autoRageShaker: AutoRageShaker
     @Inject lateinit var vectorFileLogger: VectorFileLogger
     @Inject lateinit var vectorAnalytics: VectorAnalytics
 
@@ -118,6 +120,7 @@ class VectorApplication :
         appContext = this
         vectorAnalytics.init()
         invitesAcceptor.initialize()
+        autoRageShaker.initialize()
         vectorUncaughtExceptionHandler.activate(this)
 
         // SC SDK helper initialization
@@ -199,6 +202,9 @@ class VectorApplication :
         })
 
         EmojiManager.install(GoogleEmojiProvider())
+
+        // Initialize Mapbox before inflating mapViews
+        Mapbox.getInstance(this)
     }
 
     private val startSyncOnFirstStart = object : DefaultLifecycleObserver {

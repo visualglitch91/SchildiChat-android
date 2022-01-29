@@ -15,7 +15,10 @@ kapt {
 // Note: 2 digits max for each value
 ext.versionMajor = 1
 ext.versionMinor = 3
-ext.versionPatch = 12
+// Note: even values are reserved for regular release, odd values for hotfix release.
+// When creating a hotfix, you should decrease the value, since the current value
+// is the value for the next regular release.
+ext.versionPatch = 16
 
 ext.scVersion = 48
 
@@ -142,7 +145,7 @@ android {
         buildConfigField "String", "BUILD_NUMBER", "\"${buildNumber}\""
         resValue "string", "build_number", "\"${buildNumber}\""
 
-        buildConfigField "im.vector.app.features.VectorFeatures.LoginVersion", "LOGIN_VERSION", "im.vector.app.features.VectorFeatures.LoginVersion.V1"
+        buildConfigField "im.vector.app.features.VectorFeatures.OnboardingVariant", "ONBOARDING_VARIANT", "im.vector.app.features.VectorFeatures.OnboardingVariant.FTUE_AUTH"
 
         buildConfigField "im.vector.app.features.crypto.keysrequest.OutboundSessionKeySharingStrategy", "outboundSessionKeySharingStrategy", "im.vector.app.features.crypto.keysrequest.OutboundSessionKeySharingStrategy.WhenTyping"
 
@@ -151,6 +154,9 @@ android {
         //  If set, MSC3086 asserted identity messages sent on VoIP calls will cause the call to appear in the room corresponding to the asserted identity.
         //  This *must* only be set in trusted environments.
         buildConfigField "Boolean", "handleCallAssertedIdentityEvents", "false"
+
+        buildConfigField "Boolean", "enableLocationSharing", "true"
+        buildConfigField "String", "mapTilerKey", "\"fU3vlMsMn4Jb6dnEIFsx\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -206,15 +212,20 @@ android {
         animationsDisabled = true
 
         // Comment to run on Android 12
-        execution 'ANDROIDX_TEST_ORCHESTRATOR'
+//        execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }
-
     signingConfigs {
         debug {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
             storeFile file('./signature/debug.keystore')
             storePassword 'android'
+        }
+        release {
+            keyAlias project.property("signing.element.keyId")
+            keyPassword project.property("signing.element.keyPassword")
+            storeFile file(project.property("signing.element.storePath"))
+            storePassword project.property("signing.element.storePassword")
         }
     }
 
@@ -246,6 +257,7 @@ android {
                 optimizeCode true
                 proguardFiles 'proguard-rules.pro'
             }
+            signingConfig signingConfigs.release
         }
     }
 
@@ -334,7 +346,9 @@ dependencies {
     implementation project(":diff-match-patch")
     implementation project(":multipicker")
     implementation project(":attachment-viewer")
+    implementation project(":library:jsonviewer")
     implementation project(":library:ui-styles")
+    implementation project(":library:core-utils")
     implementation 'androidx.multidex:multidex:2.0.1'
 
     implementation libs.jetbrains.kotlinReflect
@@ -372,7 +386,7 @@ dependencies {
     implementation 'com.facebook.stetho:stetho:1.6.0'
 
     // Phone number https://github.com/google/libphonenumber
-    implementation 'com.googlecode.libphonenumber:libphonenumber:8.12.39'
+    implementation 'com.googlecode.libphonenumber:libphonenumber:8.12.41'
 
     // FlowBinding
     implementation libs.github.flowBinding
@@ -402,6 +416,8 @@ dependencies {
     implementation libs.google.material
     implementation 'me.gujun.android:span:1.7'
     implementation libs.markwon.core
+    implementation libs.markwon.extLatex
+    implementation libs.markwon.inlineParser
     implementation libs.markwon.html
     implementation 'com.googlecode.htmlcompressor:htmlcompressor:1.5.2'
     implementation 'me.saket:better-link-movement-method:2.2.0'
@@ -467,8 +483,7 @@ dependencies {
     // OSS License, gplay flavor only
     gplayImplementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
 
-    implementation "androidx.emoji2:emoji2:1.0.0"
-    implementation('com.github.BillCarsonFr:JsonViewer:0.7')
+    implementation "androidx.emoji2:emoji2:1.0.1"
 
     // WebRTC
     // org.webrtc:google-webrtc is for development purposes only
@@ -500,6 +515,10 @@ dependencies {
         exclude group: 'org.json', module: 'json' //provided by Android natively
     }
     implementation 'commons-codec:commons-codec:1.15'
+
+    // MapTiler
+    implementation 'org.maplibre.gl:android-sdk:9.5.2'
+    implementation 'org.maplibre.gl:android-plugin-annotation-v9:1.0.0'
 
 
     // TESTS

@@ -32,6 +32,9 @@ import org.matrix.android.sdk.api.session.room.model.message.AudioInfo
 import org.matrix.android.sdk.api.session.room.model.message.AudioWaveformInfo
 import org.matrix.android.sdk.api.session.room.model.message.FileInfo
 import org.matrix.android.sdk.api.session.room.model.message.ImageInfo
+import org.matrix.android.sdk.api.session.room.model.message.LocationAsset
+import org.matrix.android.sdk.api.session.room.model.message.LocationAssetType
+import org.matrix.android.sdk.api.session.room.model.message.LocationInfo
 import org.matrix.android.sdk.api.session.room.model.message.MessageAudioContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageContentWithFormattedBody
@@ -39,6 +42,7 @@ import org.matrix.android.sdk.api.session.room.model.message.MessageEndPollConte
 import org.matrix.android.sdk.api.session.room.model.message.MessageFileContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageFormat
 import org.matrix.android.sdk.api.session.room.model.message.MessageImageContent
+import org.matrix.android.sdk.api.session.room.model.message.MessageLocationContent
 import org.matrix.android.sdk.api.session.room.model.message.MessagePollContent
 import org.matrix.android.sdk.api.session.room.model.message.MessagePollResponseContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageTextContent
@@ -48,6 +52,7 @@ import org.matrix.android.sdk.api.session.room.model.message.PollAnswer
 import org.matrix.android.sdk.api.session.room.model.message.PollCreationInfo
 import org.matrix.android.sdk.api.session.room.model.message.PollQuestion
 import org.matrix.android.sdk.api.session.room.model.message.PollResponse
+import org.matrix.android.sdk.api.session.room.model.message.PollType
 import org.matrix.android.sdk.api.session.room.model.message.ThumbnailInfo
 import org.matrix.android.sdk.api.session.room.model.message.VideoInfo
 import org.matrix.android.sdk.api.session.room.model.relation.ReactionContent
@@ -62,6 +67,8 @@ import org.matrix.android.sdk.internal.session.content.ThumbnailExtractor
 import org.matrix.android.sdk.internal.session.permalinks.PermalinkFactory
 import org.matrix.android.sdk.internal.session.room.send.pills.TextPillsUtils
 import java.lang.RuntimeException
+import java.util.UUID
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 /**
@@ -125,6 +132,45 @@ internal class LocalEchoEventFactory @Inject constructor(
                 ))
     }
 
+    private fun createPollContent(question: String,
+                                  options: List<String>,
+                                  pollType: PollType): MessagePollContent {
+        return MessagePollContent(
+                pollCreationInfo = PollCreationInfo(
+                        question = PollQuestion(
+                                question = question
+                        ),
+                        kind = pollType,
+                        answers = options.map { option ->
+                            PollAnswer(
+                                    id = UUID.randomUUID().toString(),
+                                    answer = option
+                            )
+                        }
+                )
+        )
+    }
+
+    fun createPollReplaceEvent(roomId: String,
+                               pollType: PollType,
+                               targetEventId: String,
+                               question: String,
+                               options: List<String>): Event {
+        val newContent = MessagePollContent(
+                relatesTo = RelationDefaultContent(RelationType.REPLACE, targetEventId),
+                newContent = createPollContent(question, options, pollType).toContent()
+        )
+        val localId = LocalEcho.createLocalEchoId()
+        return Event(
+                roomId = roomId,
+                originServerTs = dummyOriginServerTs(),
+                senderId = userId,
+                eventId = localId,
+                type = EventType.POLL_START,
+                content = newContent.toContent()
+        )
+    }
+
     fun createPollReplyEvent(roomId: String,
                              pollEventId: String,
                              answerId: String): Event {
@@ -150,21 +196,10 @@ internal class LocalEchoEventFactory @Inject constructor(
     }
 
     fun createPollEvent(roomId: String,
+                        pollType: PollType,
                         question: String,
                         options: List<String>): Event {
-        val content = MessagePollContent(
-                pollCreationInfo = PollCreationInfo(
-                        question = PollQuestion(
-                                question = question
-                        ),
-                        answers = options.mapIndexed { index, option ->
-                            PollAnswer(
-                                    id = "$index-$option",
-                                    answer = option
-                            )
-                        }
-                )
-        )
+        val content = createPollContent(question, options, pollType)
         val localId = LocalEcho.createLocalEchoId()
         return Event(
                 roomId = roomId,
@@ -195,24 +230,48 @@ internal class LocalEchoEventFactory @Inject constructor(
                 unsignedData = UnsignedData(age = null, transactionId = localId))
     }
 
+    fun createLocationEvent(roomId: String,
+                            latitude: Double,
+                            longitude: Double,
+                            uncertainty: Double?): Event {
+        val geoUri = buildGeoUri(latitude, longitude, uncertainty)
+        val content = MessageLocationContent(
+                geoUri = geoUri,
+                body = geoUri,
+                locationInfo = LocationInfo(
+                        geoUri = geoUri,
+                        description = geoUri
+                ),
+                locationAsset = LocationAsset(
+                        type = LocationAssetType.SELF
+                ),
+                ts = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),
+                text = geoUri
+        )
+        return createMessageEvent(roomId, content)
+    }
+
     fun createReplaceTextOfReply(roomId: String,
                                  eventReplaced: TimelineEvent,
                                  originalEvent: TimelineEvent,
                                  newBodyText: String,
-                                 newBodyAutoMarkdown: Boolean,
+                                 autoMarkdown: Boolean,
                                  msgType: String,
                                  compatibilityText: String): Event {
         val permalink = permalinkFactory.createPermalink(roomId, originalEvent.root.eventId ?: "", false)
         val userLink = originalEvent.root.senderId?.let { permalinkFactory.createPermalink(it, false) } ?: ""
 
         val body = bodyForReply(originalEvent.getLastMessageContent(), originalEvent.isReply())
-        val replyFormatted = REPLY_PATTERN.format(
+        // As we always supply formatted body for replies we should force the MarkdownParser to produce html.
+        val newBodyFormatted = markdownParser.parse(newBodyText, force = true, advanced = autoMarkdown).takeFormatted()
+        // Body of the original message may not have formatted version, so may also have to convert to html.
+        val bodyFormatted = body.formattedText ?: markdownParser.parse(body.text, force = true, advanced = autoMarkdown).takeFormatted()
+        val replyFormatted = buildFormattedReply(
                 permalink,
                 userLink,
                 originalEvent.senderInfo.disambiguatedDisplayName,
-                // Remove inner mx_reply tags if any
-                body.takeFormatted().replace(MX_REPLY_REGEX, ""),
-                createTextContent(newBodyText, newBodyAutoMarkdown).takeFormatted()
+                bodyFormatted,
+                newBodyFormatted
         )
         //
         // > <@alice:example.org> This is the original body
@@ -396,13 +455,17 @@ internal class LocalEchoEventFactory @Inject constructor(
         val userLink = permalinkFactory.createPermalink(userId, false) ?: return null
 
         val body = bodyForReply(eventReplied.getLastMessageContent(), eventReplied.isReply())
-        val replyFormatted = REPLY_PATTERN.format(
+
+        // As we always supply formatted body for replies we should force the MarkdownParser to produce html.
+        val replyTextFormatted = markdownParser.parse(replyText, force = true, advanced = autoMarkdown).takeFormatted()
+        // Body of the original message may not have formatted version, so may also have to convert to html.
+        val bodyFormatted = body.formattedText ?: markdownParser.parse(body.text, force = true, advanced = autoMarkdown).takeFormatted()
+        val replyFormatted = buildFormattedReply(
                 permalink,
                 userLink,
                 userId,
-                // Remove inner mx_reply tags if any
-                body.takeFormatted().replace(MX_REPLY_REGEX, ""),
-                createTextContent(replyText, autoMarkdown).takeFormatted()
+                bodyFormatted,
+                replyTextFormatted
         )
         //
         // > <@alice:example.org> This is the original body
@@ -420,6 +483,16 @@ internal class LocalEchoEventFactory @Inject constructor(
         return createMessageEvent(roomId, content)
     }
 
+    private fun buildFormattedReply(permalink: String, userLink: String, userId: String, bodyFormatted: String, newBodyFormatted: String): String {
+        return REPLY_PATTERN.format(
+                permalink,
+                userLink,
+                userId,
+                // Remove inner mx_reply tags if any
+                bodyFormatted.replace(MX_REPLY_REGEX, ""),
+                newBodyFormatted
+        )
+    }
     private fun buildReplyFallback(body: TextContent, originalSenderId: String?, newBodyText: String): String {
         return buildString {
             append("> <")
@@ -468,6 +541,23 @@ internal class LocalEchoEventFactory @Inject constructor(
         }
     }
 
+    /**
+     * Returns RFC5870 formatted geo uri 'geo:latitude,longitude;uncertainty' like 'geo:40.05,29.24;30'
+     * Uncertainty of the location is in meters and not required.
+     */
+    private fun buildGeoUri(latitude: Double, longitude: Double, uncertainty: Double?): String {
+        return buildString {
+            append("geo:")
+            append(latitude)
+            append(",")
+            append(longitude)
+            uncertainty?.let {
+                append(";")
+                append(it)
+            }
+        }
+    }
+
     /*
      * {
         "content": {
@@ -501,6 +591,38 @@ internal class LocalEchoEventFactory @Inject constructor(
     fun createLocalEcho(event: Event) {
         checkNotNull(event.roomId) { "Your event should have a roomId" }
         localEchoRepository.createLocalEcho(event)
+    }
+
+    fun createQuotedTextEvent(
+            roomId: String,
+            quotedEvent: TimelineEvent,
+            text: String,
+            autoMarkdown: Boolean,
+    ): Event {
+        val messageContent = quotedEvent.getLastMessageContent()
+        val textMsg = messageContent?.body
+        val quoteText = legacyRiotQuoteText(textMsg, text)
+        return createFormattedTextEvent(roomId, markdownParser.parse(quoteText, force = true, advanced = autoMarkdown), MessageType.MSGTYPE_TEXT)
+    }
+
+    private fun legacyRiotQuoteText(quotedText: String?, myText: String): String {
+        val messageParagraphs = quotedText?.split("\n\n".toRegex())?.dropLastWhile { it.isEmpty() }?.toTypedArray()
+        return buildString {
+            if (messageParagraphs != null) {
+                for (i in messageParagraphs.indices) {
+                    if (messageParagraphs[i].isNotBlank()) {
+                        append("> ")
+                        append(messageParagraphs[i])
+                    }
+
+                    if (i != messageParagraphs.lastIndex) {
+                        append("\n\n")
+                    }
+                }
+            }
+            append("\n\n")
+            append(myText)
+        }
     }
 
     companion object {

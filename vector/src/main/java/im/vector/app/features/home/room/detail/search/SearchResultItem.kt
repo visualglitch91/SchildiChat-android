@@ -28,6 +28,7 @@ import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.extensions.setTextOrHide
 import im.vector.app.features.displayname.getBestName
 import im.vector.app.features.home.AvatarRenderer
+import im.vector.lib.core.utils.epoxy.charsequence.EpoxyCharSequence
 import org.matrix.android.sdk.api.util.MatrixItem
 
 @EpoxyModelClass(layout = R.layout.item_search_result)
@@ -35,7 +36,7 @@ abstract class SearchResultItem : VectorEpoxyModel<SearchResultItem.Holder>() {
 
     @EpoxyAttribute lateinit var avatarRenderer: AvatarRenderer
     @EpoxyAttribute var formattedDate: String? = null
-    @EpoxyAttribute lateinit var spannable: CharSequence
+    @EpoxyAttribute lateinit var spannable: EpoxyCharSequence
     @EpoxyAttribute var sender: MatrixItem? = null
     @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash) var listener: ClickListener? = null
 
@@ -46,7 +47,7 @@ abstract class SearchResultItem : VectorEpoxyModel<SearchResultItem.Holder>() {
         sender?.let { avatarRenderer.render(it, holder.avatarImageView) }
         holder.memberNameView.setTextOrHide(sender?.getBestName())
         holder.timeView.text = formattedDate
-        holder.contentView.text = spannable
+        holder.contentView.text = spannable.charSequence
     }
 
     class Holder : VectorEpoxyHolder() {

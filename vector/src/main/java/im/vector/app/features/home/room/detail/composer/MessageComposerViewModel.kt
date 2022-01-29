@@ -26,6 +26,8 @@ import im.vector.app.core.di.hiltMavericksViewModelFactory
 import im.vector.app.core.extensions.exhaustive
 import im.vector.app.core.platform.VectorViewModel
 import im.vector.app.core.resources.StringProvider
+import im.vector.app.features.analytics.AnalyticsTracker
+import im.vector.app.features.analytics.extensions.toAnalyticsJoinedRoom
 import im.vector.app.features.attachments.toContentAttachmentData
 import im.vector.app.features.command.CommandParser
 import im.vector.app.features.command.ParsedCommand
@@ -38,9 +40,8 @@ import im.vector.app.features.session.coroutineScope
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.voice.VoicePlayerHelper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import org.commonmark.parser.Parser
-import org.commonmark.renderer.html.HtmlRenderer
 import org.matrix.android.sdk.api.query.QueryStringValue
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.content.ContentAttachmentData
@@ -49,6 +50,7 @@ import org.matrix.android.sdk.api.session.events.model.toContent
 import org.matrix.android.sdk.api.session.events.model.toModel
 import org.matrix.android.sdk.api.session.room.model.PowerLevelsContent
 import org.matrix.android.sdk.api.session.room.model.RoomAvatarContent
+import org.matrix.android.sdk.api.session.room.model.RoomEncryptionAlgorithm
 import org.matrix.android.sdk.api.session.room.model.RoomMemberContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageType
 import org.matrix.android.sdk.api.session.room.powerlevels.PowerLevelsHelper
@@ -57,6 +59,8 @@ import org.matrix.android.sdk.api.session.room.timeline.getLastMessageContent
 import org.matrix.android.sdk.api.session.room.timeline.getRelationContent
 import org.matrix.android.sdk.api.session.room.timeline.getTextEditableContent
 import org.matrix.android.sdk.api.session.space.CreateSpaceParams
+import org.matrix.android.sdk.flow.flow
+import org.matrix.android.sdk.flow.unwrap
 import timber.log.Timber
 
 class MessageComposerViewModel @AssistedInject constructor(
@@ -64,8 +68,10 @@ class MessageComposerViewModel @AssistedInject constructor(
         private val session: Session,
         private val stringProvider: StringProvider,
         private val vectorPreferences: VectorPreferences,
+        private val commandParser: CommandParser,
         private val rainbowGenerator: RainbowGenerator,
         private val voiceMessageHelper: VoiceMessageHelper,
+        private val analyticsTracker: AnalyticsTracker,
         private val voicePlayerHelper: VoicePlayerHelper
 ) : VectorViewModel<MessageComposerViewState, MessageComposerAction, MessageComposerViewEvents>(initialState) {
 
@@ -76,7 +82,7 @@ class MessageComposerViewModel @AssistedInject constructor(
 
     init {
         loadDraftIfAny()
-        observePowerLevel()
+        observePowerLevelAndEncryption()
         subscribeToStateInternal()
     }
 
@@ -141,12 +147,30 @@ class MessageComposerViewModel @AssistedInject constructor(
         }
     }
 
-    private fun observePowerLevel() {
-        PowerLevelsFlowFactory(room).createFlow()
-                .setOnEach {
-                    val canSendMessage = PowerLevelsHelper(it).isUserAllowedToSend(session.myUserId, false, EventType.MESSAGE)
-                    copy(canSendMessage = canSendMessage)
+    private fun observePowerLevelAndEncryption() {
+        combine(
+                PowerLevelsFlowFactory(room).createFlow(),
+                room.flow().liveRoomSummary().unwrap()
+        ) { pl, sum ->
+            val canSendMessage = PowerLevelsHelper(pl).isUserAllowedToSend(session.myUserId, false, EventType.MESSAGE)
+            if (canSendMessage) {
+                val isE2E = sum.isEncrypted
+                if (isE2E) {
+                    val roomEncryptionAlgorithm = sum.roomEncryptionAlgorithm
+                    if (roomEncryptionAlgorithm is RoomEncryptionAlgorithm.UnsupportedAlgorithm) {
+                        CanSendStatus.UnSupportedE2eAlgorithm(roomEncryptionAlgorithm.name)
+                    } else {
+                        CanSendStatus.Allowed
+                    }
+                } else {
+                    CanSendStatus.Allowed
                 }
+            } else {
+                CanSendStatus.NoPermission
+            }
+        }.setOnEach {
+            copy(canSendMessage = it)
+        }
     }
 
     private fun handleEnterQuoteMode(action: MessageComposerAction.EnterQuoteMode) {
@@ -165,7 +189,7 @@ class MessageComposerViewModel @AssistedInject constructor(
         withState { state ->
             when (state.sendMode) {
                 is SendMode.Regular -> {
-                    when (val slashCommandResult = CommandParser.parseSplashCommand(action.text)) {
+                    when (val slashCommandResult = commandParser.parseSlashCommand(action.text)) {
                         is ParsedCommand.ErrorNotACommand         -> {
                             // Send the text message to the room
                             room.sendTextMessage(action.text, autoMarkdown = action.autoMarkdown)
@@ -221,8 +245,8 @@ class MessageComposerViewModel @AssistedInject constructor(
                         is ParsedCommand.UnignoreUser             -> {
                             handleUnignoreSlashCommand(slashCommandResult)
                         }
-                        is ParsedCommand.KickUser                 -> {
-                            handleKickSlashCommand(slashCommandResult)
+                        is ParsedCommand.RemoveUser               -> {
+                            handleRemoveSlashCommand(slashCommandResult)
                         }
                         is ParsedCommand.JoinRoom                 -> {
                             handleJoinToAnotherRoomSlashCommand(slashCommandResult)
@@ -410,23 +434,7 @@ class MessageComposerViewModel @AssistedInject constructor(
                     popDraft()
                 }
                 is SendMode.Quote   -> {
-                    val messageContent = state.sendMode.timelineEvent.getLastMessageContent()
-                    val textMsg = messageContent?.body
-
-                    val finalText = legacyRiotQuoteText(textMsg, action.text.toString())
-
-                    // TODO check for pills?
-
-                    // TODO Refactor this, just temporary for quotes
-                    val parser = Parser.builder().build()
-                    val document = parser.parse(finalText)
-                    val renderer = HtmlRenderer.builder().build()
-                    val htmlText = renderer.render(document)
-                    if (finalText == htmlText) {
-                        room.sendTextMessage(finalText)
-                    } else {
-                        room.sendFormattedTextMessage(finalText, htmlText)
-                    }
+                    room.sendQuotedTextMessage(state.sendMode.timelineEvent, action.text.toString(), action.autoMarkdown)
                     _viewEvents.post(MessageComposerViewEvents.MessageSent)
                     popDraft()
                 }
@@ -518,6 +526,7 @@ class MessageComposerViewModel @AssistedInject constructor(
                 return@launch
             }
             session.getRoomSummary(command.roomAlias)
+                    ?.also { analyticsTracker.capture(it.toAnalyticsJoinedRoom()) }
                     ?.roomId
                     ?.let {
                         _viewEvents.post(MessageComposerViewEvents.JoinRoomCommandSuccess(it))
@@ -572,7 +581,7 @@ class MessageComposerViewModel @AssistedInject constructor(
                 ?: return
 
         launchSlashCommandFlowSuspendable {
-            room.sendStateEvent(EventType.STATE_ROOM_POWER_LEVELS, null, newPowerLevelsContent)
+            room.sendStateEvent(EventType.STATE_ROOM_POWER_LEVELS, stateKey = "", newPowerLevelsContent)
         }
     }
 
@@ -596,9 +605,9 @@ class MessageComposerViewModel @AssistedInject constructor(
         }
     }
 
-    private fun handleKickSlashCommand(kick: ParsedCommand.KickUser) {
+    private fun handleRemoveSlashCommand(removeUser: ParsedCommand.RemoveUser) {
         launchSlashCommandFlowSuspendable {
-            room.kick(kick.userId, kick.reason)
+            room.remove(removeUser.userId, removeUser.reason)
         }
     }
 
@@ -639,7 +648,7 @@ class MessageComposerViewModel @AssistedInject constructor(
 
     private fun handleChangeRoomAvatarSlashCommand(changeAvatar: ParsedCommand.ChangeRoomAvatar) {
         launchSlashCommandFlowSuspendable {
-            room.sendStateEvent(EventType.STATE_ROOM_AVATAR, null, RoomAvatarContent(changeAvatar.url).toContent())
+            room.sendStateEvent(EventType.STATE_ROOM_AVATAR, stateKey = "", RoomAvatarContent(changeAvatar.url).toContent())
         }
     }
 

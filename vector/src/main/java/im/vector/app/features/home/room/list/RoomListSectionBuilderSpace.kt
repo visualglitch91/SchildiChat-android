@@ -143,7 +143,7 @@ class RoomListSectionBuilderSpace(
         }
 
         if (explicitSpaceId == SPACE_ID_FOLLOW_APP) {
-            appStateHandler.selectedRoomGroupingObservable
+            appStateHandler.selectedRoomGroupingFlow
                     .distinctUntilChanged()
                     .onEach { groupingMethod ->
                         val selectedSpace = groupingMethod.orNull()?.space()
@@ -333,8 +333,8 @@ class RoomListSectionBuilderSpace(
                                          explicitSpaceId: String?) {
         // add suggested rooms
         val suggestedRoomsFlow = if (explicitSpaceId == SPACE_ID_FOLLOW_APP) { // MutableLiveData<List<SpaceChildInfo>>()
-                appStateHandler.selectedRoomGroupingObservable
-                        .distinctUntilChanged()
+                appStateHandler.selectedRoomGroupingFlow
+r                       .distinctUntilChanged()
                         .flatMapLatest { groupingMethod ->
                             val selectedSpace = groupingMethod.orNull()?.space()
                             if (selectedSpace == null) {

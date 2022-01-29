@@ -27,6 +27,7 @@ import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.utils.openUrlInChromeCustomTab
 import im.vector.app.databinding.FragmentLoginSplashBinding
+import im.vector.app.features.analytics.plan.Screen
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.settings.VectorSettingsUrls
 import org.matrix.android.sdk.api.failure.Failure
@@ -42,6 +43,11 @@ class LoginSplashFragment @Inject constructor(
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentLoginSplashBinding {
         return FragmentLoginSplashBinding.inflate(inflater, container, false)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        analyticsScreenName = Screen.ScreenName.Welcome
+        super.onCreate(savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -60,6 +66,7 @@ class LoginSplashFragment @Inject constructor(
             views.loginSplashVersion.text = "Version : ${BuildConfig.VERSION_NAME}\n" +
                     "Branch: ${BuildConfig.GIT_BRANCH_NAME}\n" +
                     "Build: ${BuildConfig.BUILD_NUMBER}"
+            views.loginSplashVersion.debouncedClicks { navigator.openDebug(requireContext()) }
         }
     }
 
@@ -86,7 +93,7 @@ class LoginSplashFragment @Inject constructor(
                     .setPositiveButton(R.string.login_error_homeserver_from_url_not_found_enter_manual) { _, _ ->
                         loginViewModel.handle(LoginAction.OnGetStarted(resetLoginConfig = true))
                     }
-                    .setNegativeButton(R.string.cancel, null)
+                    .setNegativeButton(R.string.action_cancel, null)
                     .show()
         } else {
             super.onError(throwable)

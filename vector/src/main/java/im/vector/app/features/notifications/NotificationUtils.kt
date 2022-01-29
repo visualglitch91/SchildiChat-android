@@ -692,7 +692,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
 
                     addAction(
                             R.drawable.vector_notification_reject_invitation,
-                            stringProvider.getString(R.string.reject),
+                            stringProvider.getString(R.string.action_reject),
                             rejectIntentPendingIntent
                     )
 
@@ -709,7 +709,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
                     )
                     addAction(
                             R.drawable.vector_notification_accept_invitation,
-                            stringProvider.getString(R.string.join),
+                            stringProvider.getString(R.string.action_join),
                             joinIntentPendingIntent
                     )
 
@@ -774,7 +774,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
     }
 
     private fun buildOpenRoomIntent(roomId: String): PendingIntent? {
-        val roomIntentTap = RoomDetailActivity.newIntent(context, RoomDetailArgs(roomId))
+        val roomIntentTap = RoomDetailActivity.newIntent(context, RoomDetailArgs(roomId = roomId, switchToParentSpace = true))
         roomIntentTap.action = TAP_TO_VIEW_ACTION
         // pending intent get reused by system, this will mess up the extra params, so put unique info to avoid that
         roomIntentTap.data = createIgnoredUri("openRoom?$roomId")

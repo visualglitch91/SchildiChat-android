@@ -33,14 +33,19 @@ import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import im.vector.app.features.home.room.detail.timeline.format.EventDetailsFormatter
+import im.vector.app.features.home.room.detail.timeline.helper.LocationPinProvider
 import im.vector.app.features.home.room.detail.timeline.image.buildImageContentRendererData
 import im.vector.app.features.home.room.detail.timeline.item.E2EDecoration
 import im.vector.app.features.home.room.detail.timeline.tools.createLinkMovementMethod
 import im.vector.app.features.home.room.detail.timeline.tools.linkify
 import im.vector.app.features.html.SpanUtils
+import im.vector.app.features.location.LocationData
 import im.vector.app.features.media.ImageContentRenderer
+import im.vector.lib.core.utils.epoxy.charsequence.toEpoxyCharSequence
 import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.failure.Failure
+import org.matrix.android.sdk.api.session.events.model.toModel
+import org.matrix.android.sdk.api.session.room.model.message.MessageLocationContent
 import org.matrix.android.sdk.api.session.room.send.SendState
 import javax.inject.Inject
 
@@ -56,7 +61,8 @@ class MessageActionsEpoxyController @Inject constructor(
         private val errorFormatter: ErrorFormatter,
         private val spanUtils: SpanUtils,
         private val eventDetailsFormatter: EventDetailsFormatter,
-        private val dateFormatter: VectorDateFormatter
+        private val dateFormatter: VectorDateFormatter,
+        private val locationPinProvider: LocationPinProvider
 ) : TypedEpoxyController<MessageActionState>() {
 
     var listener: MessageActionsEpoxyControllerListener? = null
@@ -68,6 +74,9 @@ class MessageActionsEpoxyController @Inject constructor(
         val formattedDate = dateFormatter.format(date, DateFormatKind.MESSAGE_DETAIL)
         val body = state.messageBody.linkify(host.listener)
         val bindingOptions = spanUtils.getBindingOptions(body)
+        val locationData = state.timelineEvent()?.root?.getClearContent()?.toModel<MessageLocationContent>(catchError = true)?.let {
+            LocationData.create(it.getUri())
+        }
         bottomSheetMessagePreviewItem {
             id("preview")
             avatarRenderer(host.avatarRenderer)
@@ -77,9 +86,11 @@ class MessageActionsEpoxyController @Inject constructor(
             data(state.timelineEvent()?.buildImageContentRendererData(host.dimensionConverter.dpToPx(66)))
             userClicked { host.listener?.didSelectMenuAction(EventSharedAction.OpenUserProfile(state.informationData.senderId)) }
             bindingOptions(bindingOptions)
-            body(body)
-            bodyDetails(host.eventDetailsFormatter.format(state.timelineEvent()?.root))
+            body(body.toEpoxyCharSequence())
+            bodyDetails(host.eventDetailsFormatter.format(state.timelineEvent()?.root)?.toEpoxyCharSequence())
             time(formattedDate)
+            locationData(locationData)
+            locationPinProvider(host.locationPinProvider)
         }
 
         // Send state

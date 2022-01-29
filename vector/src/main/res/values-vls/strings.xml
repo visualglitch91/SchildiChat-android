@@ -10,7 +10,7 @@
     <string name="notice_room_join">%1$s neemt nu deel an ’t gesprek</string>
     <string name="notice_room_leave">%1$s èt ’t gesprek verloatn</string>
     <string name="notice_room_reject">%1$s èt d’uitnodigienge geweigerd</string>
-    <string name="notice_room_kick">%1$s èt %2$s uut ’t gesprek verwyderd</string>
+    <string name="notice_room_remove">%1$s èt %2$s uut ’t gesprek verwyderd</string>
     <string name="notice_room_unban">%1$s èt %2$s ountbann</string>
     <string name="notice_room_ban">%1$s èt %2$s verbann</string>
     <string name="notice_room_withdraw">%1$s èt d’uutnodigienge van %2$s ingetrokkn</string>
@@ -48,7 +48,7 @@
     <string name="notice_room_third_party_registered_invite">%1$s èt d’uutnodigienge vo %2$s anveird</string>
 
     <string name="notice_crypto_unable_to_decrypt">** Kun nie ountsleuteln: %s **</string>
-    <string name="notice_crypto_error_unkwown_inbound_session_id">’t Toestel van den afzender èt geen sleutels vo da bericht hier gesteurd.</string>
+    <string name="notice_crypto_error_unknown_inbound_session_id">’t Toestel van den afzender èt geen sleutels vo da bericht hier gesteurd.</string>
 
     <string name="could_not_redact">Kosteg nie verwyderd wordn</string>
     <string name="unable_to_send_message">Kosteg ’t bericht nie verzendn</string>
@@ -138,6 +138,6 @@
     <string name="loading">Loadn…</string>
 
     <string name="ok">Oké</string>
-    <string name="cancel">Annuleern</string>
-    <string name="save">Ipsloan</string>
+    <string name="action_cancel">Annuleern</string>
+    <string name="action_save">Ipsloan</string>
 </resources>

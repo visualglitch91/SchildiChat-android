@@ -17,6 +17,7 @@
 package im.vector.app.features.home.room.detail.timeline.item
 
 import android.content.Context
+import android.text.Spanned
 import android.text.TextUtils
 import android.text.method.MovementMethod
 import androidx.core.text.PrecomputedTextCompat
@@ -27,8 +28,6 @@ import com.airbnb.epoxy.EpoxyModelClass
 import im.vector.app.R
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.epoxy.onLongClickIgnoringLinks
-import im.vector.app.core.epoxy.util.preventMutation
-import im.vector.app.core.resources.ColorProvider
 import im.vector.app.core.ui.views.FooteredTextView
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import im.vector.app.features.home.room.detail.timeline.tools.findPillsAndProcess
@@ -36,6 +35,8 @@ import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlRetriever
 import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlUiState
 import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlViewSc
 import im.vector.app.features.media.ImageContentRenderer
+import im.vector.lib.core.utils.epoxy.charsequence.EpoxyCharSequence
+import io.noties.markwon.MarkwonPlugin
 import org.matrix.android.sdk.api.extensions.orFalse
 
 @EpoxyModelClass(layout = R.layout.item_timeline_event_base)
@@ -45,7 +46,7 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
     var searchForPills: Boolean = false
 
     @EpoxyAttribute
-    var message: CharSequence? = null
+    var message: EpoxyCharSequence? = null
 
     @EpoxyAttribute
     var bindingOptions: BindingOptions? = null
@@ -64,6 +65,9 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
 
     @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash)
     var movementMethod: MovementMethod? = null
+
+    @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash)
+    var markwonPlugins: (List<MarkwonPlugin>)? = null
 
     private val previewUrlViewUpdater = PreviewUrlViewUpdater()
 
@@ -90,7 +94,7 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
             holder.messageView.textSize = 14F
         }
         if (searchForPills) {
-            message?.findPillsAndProcess(coroutineScope) {
+            message?.charSequence?.findPillsAndProcess(coroutineScope) {
                 // mmm.. not sure this is so safe in regards to cell reuse
                 it.bind(holder.messageView)
             }
@@ -107,31 +111,27 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
             m = TextUtils.concat(m, "\u202f")
         }
 
-        val textFuture = if (bindingOptions?.canUseTextFuture.orFalse()) {
-            PrecomputedTextCompat.getTextFuture(
-                    m ?: "",
-                    TextViewCompat.getTextMetricsParams(holder.messageView),
-                    null)
-        } else {
-            null
+        m?.charSequence.let { charSequence ->
+            markwonPlugins?.forEach { plugin -> plugin.beforeSetText(holder.messageView, charSequence as Spanned) }
         }
         super.bind(holder)
         holder.messageView.movementMethod = movementMethod
         renderSendState(holder.messageView, holder.messageView)
         holder.messageView.onClick(attributes.itemClickListener)
         holder.messageView.onLongClickIgnoringLinks(attributes.itemLongClickListener)
+        holder.messageView.setTextWithEmojiSupport(message?.charSequence, bindingOptions)
+        markwonPlugins?.forEach { plugin -> plugin.afterSetText(holder.messageView) }
+    }
 
-        if (bindingOptions?.canUseTextFuture.orFalse()) {
-            holder.messageView.setTextFuture(textFuture)
+    private fun AppCompatTextView.setTextWithEmojiSupport(message: CharSequence?, bindingOptions: BindingOptions?) {
+        if (bindingOptions?.canUseTextFuture.orFalse() && message != null) {
+            val textFuture = PrecomputedTextCompat.getTextFuture(message, TextViewCompat.getTextMetricsParams(this), null)
+            setTextFuture(textFuture)
         } else {
             // Remove possible previously set futures that might overwrite our text
             holder.messageView.setTextFuture(null)
 
-            holder.messageView.text = if (bindingOptions?.preventMutation.orFalse()) {
-                m.preventMutation()
-            } else {
-                m
-            }
+            text = message
         }
     }
 

@@ -36,7 +36,6 @@ import im.vector.app.R
 import im.vector.app.RoomGroupingMethod
 import im.vector.app.core.extensions.restart
 import im.vector.app.core.extensions.toMvRxBundle
-import im.vector.app.core.platform.ToolbarConfigurable
 import im.vector.app.core.platform.VectorBaseActivity
 import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.core.resources.ColorProvider
@@ -422,11 +421,9 @@ class HomeDetailFragment @Inject constructor(
     }
 
     private fun setupToolbar() {
-        val parentActivity = vectorBaseActivity
-        if (parentActivity is ToolbarConfigurable) {
-            parentActivity.configure(views.groupToolbar)
-        }
-        views.groupToolbar.title = ""
+        setupToolbar(views.groupToolbar)
+                .setTitle(null)
+
         views.groupToolbarAvatarImageView.debouncedClicks {
             sharedActionViewModel.post(HomeActivitySharedAction.OpenDrawer)
         }

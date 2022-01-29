@@ -24,6 +24,7 @@ import android.os.Build
 import android.view.View
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
+import com.squareup.moshi.Types
 import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.di.ActiveSessionHolder
@@ -50,7 +51,9 @@ import okhttp3.Response
 import org.json.JSONException
 import org.json.JSONObject
 import org.matrix.android.sdk.api.Matrix
+import org.matrix.android.sdk.api.util.JsonDict
 import org.matrix.android.sdk.api.util.MimeTypes
+import org.matrix.android.sdk.internal.di.MoshiProvider
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
@@ -95,6 +98,9 @@ class BugReporter @Inject constructor(
 
     // boolean to cancel the bug report
     private val mIsCancelled = false
+
+    val adapter = MoshiProvider.providesMoshi()
+            .adapter<JsonDict>(Types.newParameterizedType(Map::class.java, String::class.java, Any::class.java))
 
     /**
      * Get current Screenshot
@@ -144,7 +150,7 @@ class BugReporter @Inject constructor(
         /**
          * The bug report upload succeeded.
          */
-        fun onUploadSucceed()
+        fun onUploadSucceed(reportUrl: String?)
     }
 
     /**
@@ -169,12 +175,14 @@ class BugReporter @Inject constructor(
                       theBugDescription: String,
                       serverVersion: String,
                       canContact: Boolean = false,
+                      customFields: Map<String, String>? = null,
                       listener: IMXBugReportListener?) {
         // enumerate files to delete
         val mBugReportFiles: MutableList<File> = ArrayList()
 
         coroutineScope.launch {
             var serverError: String? = null
+            var reportURL: String? = null
             withContext(Dispatchers.IO) {
                 var bugDescription = theBugDescription
                 val crashCallStack = getCrashDescription(context)
@@ -250,15 +258,17 @@ class BugReporter @Inject constructor(
 
                 if (!mIsCancelled) {
                     val text = when (reportType) {
-                        ReportType.BUG_REPORT -> "$bugDescription"
-                        ReportType.SUGGESTION -> "[Suggestion] $bugDescription"
+                        ReportType.BUG_REPORT          -> "$bugDescription"
+                        ReportType.SUGGESTION          -> "[Suggestion] $bugDescription"
                         ReportType.SPACE_BETA_FEEDBACK -> "[spaces-feedback] $bugDescription"
+                        ReportType.AUTO_UISI_SENDER,
+                        ReportType.AUTO_UISI           -> bugDescription
                     }
 
                     // build the multi part request
                     val builder = BugReporterMultipartBody.Builder()
                             .addFormDataPart("text", text)
-                            .addFormDataPart("app", "schildichat-android")
+                            .addFormDataPart("app", rageShakeAppNameForReport(context, reportType))
                             .addFormDataPart("user_agent", Matrix.getInstance(context).getUserAgent())
                             .addFormDataPart("user_id", userId)
                             .addFormDataPart("can_contact", canContact.toString())
@@ -277,7 +287,11 @@ class BugReporter @Inject constructor(
                             .addFormDataPart("app_language", VectorLocale.applicationLocale.toString())
                             .addFormDataPart("default_app_language", systemLocaleProvider.getSystemLocale().toString())
                             .addFormDataPart("theme", ThemeUtils.getApplicationTheme(context))
-                            .addFormDataPart("server_version", serverVersion)
+                            .addFormDataPart("server_version", serverVersion).apply {
+                                customFields?.forEach { (name, value) ->
+                                    addFormDataPart(name, value)
+                                }
+                            }
 
                     // UnifiedPush
                     // Only include the UP endpoint base url to exclude private user tokens in the path or parameters
@@ -349,11 +363,21 @@ class BugReporter @Inject constructor(
                     //builder.addFormDataPart("label", "[SchildiChat]")
 
                     when (reportType) {
-                        ReportType.BUG_REPORT -> {
+                        ReportType.BUG_REPORT          -> {
                             /* nop */
                         }
-                        ReportType.SUGGESTION -> builder.addFormDataPart("label", "[Suggestion]")
+                        ReportType.SUGGESTION          -> builder.addFormDataPart("label", "[Suggestion]")
                         ReportType.SPACE_BETA_FEEDBACK -> builder.addFormDataPart("label", "spaces-feedback")
+                        ReportType.AUTO_UISI           -> {
+                            builder.addFormDataPart("label", "Z-UISI")
+                            builder.addFormDataPart("label", "android")
+                            builder.addFormDataPart("label", "uisi-recipient")
+                        }
+                        ReportType.AUTO_UISI_SENDER    -> {
+                            builder.addFormDataPart("label", "Z-UISI")
+                            builder.addFormDataPart("label", "android")
+                            builder.addFormDataPart("label", "uisi-sender")
+                        }
                     }
 
                     if (getCrashFile(context).exists()) {
@@ -445,6 +469,10 @@ class BugReporter @Inject constructor(
                                 Timber.e(e, "## sendBugReport() : failed to parse error")
                             }
                         }
+                    } else {
+                        reportURL = response?.body?.string()?.let { stringBody ->
+                            adapter.fromJson(stringBody)?.get("report_url")?.toString()
+                        }
                     }
                 }
             }
@@ -462,7 +490,7 @@ class BugReporter @Inject constructor(
                         if (mIsCancelled) {
                             listener.onUploadCancelled()
                         } else if (null == serverError) {
-                            listener.onUploadSucceed()
+                            listener.onUploadSucceed(reportURL)
                         } else {
                             listener.onUploadFailed(serverError)
                         }
@@ -487,6 +515,21 @@ class BugReporter @Inject constructor(
         activity.startActivity(BugReportActivity.intent(activity, reportType))
     }
 
+    private fun rageShakeAppNameForReport(context: Context, reportType: ReportType): String {
+        // As per https://github.com/matrix-org/rageshake
+        // app: Identifier for the application (eg 'riot-web').
+        // Should correspond to a mapping configured in the configuration file for github issue reporting to work.
+        // (see R.string.bug_report_url for configured RS server)
+        return when (reportType) {
+            ReportType.AUTO_UISI_SENDER,
+            ReportType.AUTO_UISI -> {
+                context.getString(R.string.bug_report_auto_uisi_app_name)
+            }
+            else                 -> {
+               context.getString(R.string.bug_report_app_name)
+            }
+        }
+    }
 // ==============================================================================================================
 // crash report management
 // ==============================================================================================================

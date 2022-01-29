@@ -96,7 +96,7 @@
         android:layout_width="22dp"
         android:layout_height="22dp"
         android:background="?android:attr/selectableItemBackground"
-        android:contentDescription="@string/cancel"
+        android:contentDescription="@string/action_cancel"
         android:src="@drawable/ic_close_round"
         android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="parent"
@@ -117,9 +117,9 @@
 
     <ImageButton
         android:id="@+id/attachmentButton"
-        android:layout_width="42dp"
-        android:layout_height="48dp"
-        android:layout_margin="1dp"
+        android:layout_width="@dimen/composer_attachment_width"
+        android:layout_height="@dimen/composer_attachment_height"
+        android:layout_margin="@dimen/composer_attachment_margin"
         android:background="?android:attr/selectableItemBackground"
         android:contentDescription="@string/option_send_files"
         android:src="@drawable/ic_attachment"
@@ -178,9 +178,9 @@
     <ImageButton
         android:id="@+id/sendButton"
         android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_height="@dimen/composer_min_height"
         android:layout_marginEnd="2dp"
-        android:contentDescription="@string/send"
+        android:contentDescription="@string/action_send"
         android:scaleType="center"
         android:src="@drawable/ic_send"
         app:layout_constraintBottom_toBottomOf="parent"
