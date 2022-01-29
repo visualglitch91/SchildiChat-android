@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 internal class DefaultTimeline(private val roomId: String,
                                private val initialEventId: String?,
-                               private val initialEventIdOffset: Int = 0,
+                               private var initialEventIdOffset: Int = 0,
                                private val realmConfiguration: RealmConfiguration,
                                private val loadRoomMembersTask: LoadRoomMembersTask,
                                private val readReceiptHandler: ReadReceiptHandler,
@@ -356,8 +356,16 @@ internal class DefaultTimeline(private val roomId: String,
         return initialEventId
     }
 
+    override fun setInitialEventId(eventId: String?) {
+        // SC-TODO?? -- just changing initialEventId to var is not enough, we get duplicated timelines :O
+        //initialEventId = eventId
+    }
+
     override fun getInitialEventIdOffset(): Int {
         return initialEventIdOffset
     }
 
+    override fun setInitialEventIdOffset(offset: Int) {
+        initialEventIdOffset = offset
+    }
 }

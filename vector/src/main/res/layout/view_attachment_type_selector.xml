@@ -8,8 +8,8 @@
 
     <ImageButton
         android:id="@+id/attachmentCloseButton"
-        android:layout_width="@dimen/composer_attachment_size"
-        android:layout_height="@dimen/composer_attachment_size"
+        android:layout_width="@dimen/composer_attachment_width"
+        android:layout_height="@dimen/composer_attachment_height"
         android:layout_margin="@dimen/composer_attachment_margin"
         android:background="@null"
         android:contentDescription="@string/action_close"
@@ -40,7 +40,8 @@
                 android:layout_height="@dimen/layout_touch_size"
                 android:background="?android:attr/selectableItemBackground"
                 android:contentDescription="@string/attachment_type_gallery"
-                android:src="@drawable/ic_attachment_gallery" />
+                android:src="@drawable/ic_attachment_gallery"
+                app:tint="?colorPrimary"/>
 
             <ImageButton
                 android:id="@+id/attachmentStickersButton"

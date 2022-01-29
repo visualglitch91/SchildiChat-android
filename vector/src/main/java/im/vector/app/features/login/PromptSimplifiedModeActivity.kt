@@ -18,17 +18,15 @@ package im.vector.app.features.login
 
 import android.content.Context
 import android.content.Intent
-import com.google.android.material.appbar.MaterialToolbar
 import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.core.extensions.addFragment
-import im.vector.app.core.platform.ToolbarConfigurable
 import im.vector.app.core.platform.VectorBaseActivity
 import im.vector.app.databinding.ActivityLoginBinding
 import im.vector.app.features.pin.UnlockedActivity
 import im.vector.app.features.settings.VectorPreferences
 
 @AndroidEntryPoint
-open class PromptSimplifiedModeActivity : VectorBaseActivity<ActivityLoginBinding>(), ToolbarConfigurable, UnlockedActivity {
+open class PromptSimplifiedModeActivity : VectorBaseActivity<ActivityLoginBinding>(), UnlockedActivity {
 
     override fun getBinding() = ActivityLoginBinding.inflate(layoutInflater)
 
@@ -45,10 +43,6 @@ open class PromptSimplifiedModeActivity : VectorBaseActivity<ActivityLoginBindin
         fun newIntent(context: Context): Intent {
             return Intent(context, PromptSimplifiedModeActivity::class.java)
         }
-    }
-
-    override fun configure(toolbar: MaterialToolbar) {
-        configureToolbar(toolbar)
     }
 
     override fun onBackPressed() {

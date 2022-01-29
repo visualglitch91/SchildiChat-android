@@ -28,6 +28,7 @@ import im.vector.app.features.home.room.detail.timeline.item.MessageTextItem_
 import im.vector.app.features.home.room.detail.timeline.tools.createLinkMovementMethod
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.lib.core.utils.epoxy.charsequence.toEpoxyCharSequence
+import im.vector.lib.core.utils.epoxy.charsequence.toMessageTextEpoxyCharSequence
 import me.gujun.android.span.image
 import me.gujun.android.span.span
 import org.matrix.android.sdk.api.session.crypto.MXCryptoError
@@ -111,7 +112,7 @@ class EncryptedItemFactory @Inject constructor(private val messageInformationDat
                         .leftGuideline(avatarSizeProvider.leftGuideline)
                         .highlighted(params.isHighlighted)
                         .attributes(attributes)
-                        .message(spannableStr.toEpoxyCharSequence())
+                        .message(spannableStr.toMessageTextEpoxyCharSequence())
                         .movementMethod(createLinkMovementMethod(params.callback))
             }
             else                                             -> null

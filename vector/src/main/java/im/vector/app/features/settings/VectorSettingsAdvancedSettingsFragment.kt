@@ -88,7 +88,7 @@ class VectorSettingsAdvancedSettingsFragment @Inject constructor(
                     .setPositiveButton(R.string._continue) { _, _ ->
                         vectorPreferences.applyScDefaultValues()
                     }
-                    .setNegativeButton(R.string.cancel) { _, _ -> /* Just close dialog */ }
+                    .setNegativeButton(R.string.action_cancel) { _, _ -> /* Just close dialog */ }
                     .show()
             true
         }

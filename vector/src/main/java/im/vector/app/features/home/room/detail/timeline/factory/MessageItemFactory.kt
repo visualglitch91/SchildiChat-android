@@ -76,6 +76,7 @@ import im.vector.app.features.media.ImageContentRenderer
 import im.vector.app.features.media.VideoContentRenderer
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.lib.core.utils.epoxy.charsequence.toEpoxyCharSequence
+import im.vector.lib.core.utils.epoxy.charsequence.toMessageTextEpoxyCharSequence
 import me.gujun.android.span.span
 import org.commonmark.node.Document
 import org.matrix.android.sdk.api.MatrixUrls.isMxcUrl
@@ -573,7 +574,7 @@ class MessageItemFactory @Inject constructor(
                             annotateWithEdited(linkifiedBody, callback, informationData)
                         } else {
                             linkifiedBody
-                        }.toEpoxyCharSequence()
+                        }.toMessageTextEpoxyCharSequence()
                 )
                 .useBigFont(linkifiedBody.length <= MAX_NUMBER_OF_EMOJI_FOR_BIG_FONT * 2 && containsOnlyEmojis(linkifiedBody.toString()))
                 .bindingOptions(bindingOptions)
@@ -689,7 +690,7 @@ class MessageItemFactory @Inject constructor(
                 .imageContentRenderer(imageContentRenderer)
                 .previewUrlCallback(callback)
                 .attributes(attributes)
-                .message(message.toEpoxyCharSequence())
+                .message(message.toMessageTextEpoxyCharSequence())
                 .bindingOptions(bindingOptions)
                 .highlighted(highlight)
                 .movementMethod(createLinkMovementMethod(callback))
@@ -712,7 +713,7 @@ class MessageItemFactory @Inject constructor(
                             annotateWithEdited(message, callback, informationData)
                         } else {
                             message
-                        }.toEpoxyCharSequence()
+                        }.toMessageTextEpoxyCharSequence()
                 )
                 .bindingOptions(bindingOptions)
                 .leftGuideline(avatarSizeProvider.leftGuideline)

@@ -20,6 +20,7 @@ import android.content.Context
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.method.MovementMethod
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.PrecomputedTextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.TextViewCompat
@@ -100,18 +101,7 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
             }
         }
 
-        var m = message
-        if (m != null && m.isNotEmpty()) {
-            // Remove last trailing newline: looks especially bad in message bubble
-            if (m.last() == '\n') {
-                m = m.subSequence(0, m.length-1)
-            }
-            // Add a narrow non-breakable space to work around wrap_content cutting italic text | https://stackoverflow.com/questions/4353836/italic-textview-with-wrap-contents-seems-to-clip-the-text-at-right-edge
-            // (interestingly, this seems to be only relevant for the last character even for multi-line messages)
-            m = TextUtils.concat(m, "\u202f")
-        }
-
-        m?.charSequence.let { charSequence ->
+        message?.charSequence.let { charSequence ->
             markwonPlugins?.forEach { plugin -> plugin.beforeSetText(holder.messageView, charSequence as Spanned) }
         }
         super.bind(holder)
@@ -129,7 +119,7 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
             setTextFuture(textFuture)
         } else {
             // Remove possible previously set futures that might overwrite our text
-            holder.messageView.setTextFuture(null)
+            setTextFuture(null)
 
             text = message
         }
