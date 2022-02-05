@@ -60,4 +60,5 @@
     <string name="all_list_rooms_empty_body">Sludringer vil bli vist her</string>
     <string name="settings_user_colors_in_dm">Brukerfarger i direktesludringer</string>
     <string name="login_server_other_text_sc">Skriv inn tjeneradresse å logge inn eller registrere deg på</string>
+    <string name="settings_unread_counter">Ulest-teller</string>
 </resources>
