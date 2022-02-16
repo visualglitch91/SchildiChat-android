@@ -120,4 +120,7 @@
     <string name="settings_apply_sc_default_settings_dialog_title">Estragar as configurações</string>
     <string name="settings_apply_sc_default_settings_dialog_summary">Se você continuar, isso vai bagunçar as configurações do seu app!</string>
     <string name="room_list_quick_actions_open_at_bottom">Abrir focando em mensagens recentes</string>
+    <string name="room_settings_default">Padrão</string>
+    <string name="settings_enable_space_pager">Deslize a lista da conversa para trocar de campo</string>
+    <string name="settings_enable_space_pager_summary">Permitir alternar entre os campos root, deslizando horizontalmente na lista da conversa</string>
 </resources>
