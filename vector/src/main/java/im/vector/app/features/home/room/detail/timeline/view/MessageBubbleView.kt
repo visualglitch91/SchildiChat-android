@@ -35,8 +35,10 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import im.vector.app.R
 import im.vector.app.core.resources.LocaleProvider
 import im.vector.app.core.resources.getLayoutDirectionFromCurrentLocale
+import im.vector.app.core.ui.views.BubbleDependentView
 import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.databinding.ViewMessageBubbleBinding
+import im.vector.app.features.home.room.detail.timeline.item.BaseEventItem
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.home.room.detail.timeline.style.shapeAppearanceModel
 import im.vector.app.features.themes.ThemeUtils
@@ -93,7 +95,7 @@ class MessageBubbleView @JvmOverloads constructor(context: Context, attrs: Attri
         }
     }
 
-    override fun renderMessageLayout(messageLayout: TimelineMessageLayout) {
+    override fun <H: BaseEventItem.BaseHolder>renderMessageLayout(messageLayout: TimelineMessageLayout, bubbleDependentView: BubbleDependentView<H>, holder: H) {
         if (messageLayout !is TimelineMessageLayout.Bubble) {
             Timber.v("Can't render messageLayout $messageLayout")
             return

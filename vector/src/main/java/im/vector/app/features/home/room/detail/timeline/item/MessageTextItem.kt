@@ -35,6 +35,7 @@ import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlRetriever
 import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlUiState
 import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlView
 import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlViewSc
+import im.vector.app.features.home.room.detail.timeline.view.ScMessageBubbleWrapView
 import im.vector.app.features.media.ImageContentRenderer
 import im.vector.lib.core.utils.epoxy.charsequence.EpoxyCharSequence
 import io.noties.markwon.MarkwonPlugin
@@ -172,6 +173,32 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
             holder?.messageView?.requestLayout()
             //*/
         }
+    }
+
+
+    override fun allowFooterOverlay(holder: Holder, bubbleWrapView: ScMessageBubbleWrapView): Boolean {
+        return true
+    }
+
+    override fun needsFooterReservation(): Boolean {
+        return true
+    }
+
+    override fun reserveFooterSpace(holder: Holder, width: Int, height: Int) {
+        // Remember for PreviewUrlViewUpdater.onStateUpdated
+        footerWidth = width
+        footerHeight = height
+        // Reserve both in preview and in message
+        // User might close preview, so we still need place in the message
+        // if we don't want to change this afterwards
+        // This might be a race condition, but the UI-isssue if evaluated wrongly is negligible
+        if (!holder.previewUrlView.isVisible) {
+            holder.messageView.footerWidth = width
+            holder.messageView.footerHeight = height
+        } // else: will be handled in onStateUpdated
+        holder.previewUrlViewSc.footerWidth = height
+        holder.previewUrlViewSc.footerHeight = height
+        holder.previewUrlViewSc.updateFooterSpace()
     }
 
     companion object {

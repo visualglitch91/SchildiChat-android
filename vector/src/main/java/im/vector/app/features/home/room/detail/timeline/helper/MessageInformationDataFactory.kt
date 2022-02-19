@@ -161,16 +161,7 @@ class MessageInformationDataFactory @Inject constructor(private val session: Ses
                     ReferencesInfoData(verificationState)
                 },
                 sentByMe = isSentByMe,
-                readReceiptAnonymous = if (event.root.sendState == SendState.SYNCED || event.root.sendState == SendState.SENT) {
-                    /*if (event.readByOther) {
-                        AnonymousReadReceipt.READ
-                    } else {
-                        AnonymousReadReceipt.SENT
-                    }*/
-                    AnonymousReadReceipt.NONE
-                } else {
-                    AnonymousReadReceipt.PROCESSING
-                },
+                readReceiptAnonymous = BubbleThemeUtils.anonymousReadReceiptForEvent(event),
                 senderPowerLevel = senderPowerLevel,
                 isDirect = isEffectivelyDirect,
                 isPublic = roomSummary?.isPublic ?: false,

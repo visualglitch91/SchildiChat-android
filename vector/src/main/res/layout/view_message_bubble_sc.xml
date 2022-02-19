@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/eventBaseView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:addStatesFromChildren="true"
     android:background="?attr/selectableItemBackground"
-    tools:viewBindingIgnore="true">
+    tools:parentTag="android.widget.RelativeLayout">
 
     <im.vector.app.core.platform.CheckableView
         android:id="@+id/messageSelectedBackground"
@@ -116,7 +115,7 @@
                 android:textColor="?vctr_content_primary"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                tools:text="@sample/matrix.json/data/displayName" />
+                tools:text="@sample/users.json/data/displayName" />
 
             <TextView
                 android:id="@+id/bubbleMessageTimeView"
@@ -136,7 +135,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/bubbleMessageTimeView"
-                android:layout_margin="0dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginBottom="0dp"
                 android:addStatesFromChildren="true" />
 
             <!--
@@ -278,4 +280,4 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-</RelativeLayout>
+</merge>

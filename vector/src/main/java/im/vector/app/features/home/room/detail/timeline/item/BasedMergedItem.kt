@@ -21,6 +21,9 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import im.vector.app.R
 import im.vector.app.features.home.AvatarRenderer
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
+import im.vector.app.features.home.room.detail.timeline.view.TimelineMessageLayoutRenderer
+import im.vector.app.features.home.room.detail.timeline.view.scOnlyRenderMessageLayout
 import org.matrix.android.sdk.api.util.MatrixItem
 
 abstract class BasedMergedItem<H : BasedMergedItem.Holder> : BaseEventItem<H>() {
@@ -39,6 +42,8 @@ abstract class BasedMergedItem<H : BasedMergedItem.Holder> : BaseEventItem<H>() 
             holder.separatorView.visibility = View.VISIBLE
             holder.expandView.setText(R.string.merged_events_collapse)
         }
+
+        (holder.view as? TimelineMessageLayoutRenderer).scOnlyRenderMessageLayout(attributes.messageLayout, this, holder)
     }
 
     protected val distinctMergeData by lazy {
@@ -69,6 +74,7 @@ abstract class BasedMergedItem<H : BasedMergedItem.Holder> : BaseEventItem<H>() 
         val mergeData: List<Data>
         val avatarRenderer: AvatarRenderer
         val onCollapsedStateChanged: (Boolean) -> Unit
+        val messageLayout: TimelineMessageLayout
     }
 
     abstract class Holder(@IdRes stubId: Int) : BaseEventItem.BaseHolder(stubId) {

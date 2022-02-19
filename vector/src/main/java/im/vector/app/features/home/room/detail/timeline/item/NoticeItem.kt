@@ -27,6 +27,8 @@ import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.ui.views.ShieldImageView
 import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
+import im.vector.app.features.home.room.detail.timeline.view.TimelineMessageLayoutRenderer
+import im.vector.app.features.home.room.detail.timeline.view.scOnlyRenderMessageLayout
 import im.vector.lib.core.utils.epoxy.charsequence.EpoxyCharSequence
 import org.matrix.android.sdk.api.crypto.RoomEncryptionTrustLevel
 
@@ -53,6 +55,8 @@ abstract class NoticeItem : BaseEventItem<NoticeItem.Holder>() {
                 holder.e2EDecorationView.render(RoomEncryptionTrustLevel.Warning)
             }
         }
+
+        (holder.view as? TimelineMessageLayoutRenderer).scOnlyRenderMessageLayout(attributes.informationData.messageLayout, this, holder)
     }
 
     override fun unbind(holder: Holder) {

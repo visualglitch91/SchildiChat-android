@@ -16,6 +16,7 @@
 
 package im.vector.app.features.home.room.detail.timeline.item
 
+import android.content.res.Resources
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -25,13 +26,19 @@ import androidx.core.view.isVisible
 import im.vector.app.R
 import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.onClick
+import im.vector.app.core.ui.views.BubbleDependentView
 import im.vector.app.core.ui.views.ShieldImageView
 import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.timeline.MessageColorProvider
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
+import im.vector.app.features.home.room.detail.timeline.helper.AvatarSizeProvider
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.home.room.detail.timeline.view.TimelineMessageLayoutRenderer
+import im.vector.app.features.home.room.detail.timeline.view.scRenderMessageLayout
 import im.vector.app.features.reactions.widget.ReactionButton
+import org.matrix.android.sdk.api.crypto.RoomEncryptionTrustLevel
 import org.matrix.android.sdk.api.session.room.send.SendState
+import kotlin.math.ceil
 
 /**
  * Base timeline item with reactions and read receipts.
@@ -85,23 +92,22 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder> : BaseEventItem
             holder.reactionsContainer.setOnLongClickListener(baseAttributes.itemLongClickListener)
         }
 
-        // SchildiChat: moved to setBubbleLayout() (called from super.bind()) - so we can do this bubble-style-specific
-        /*
-        when (baseAttributes.informationData.e2eDecoration) {
-            E2EDecoration.NONE                 -> {
-                holder.e2EDecorationView.render(null)
-            }
-            E2EDecoration.WARN_IN_CLEAR,
-            E2EDecoration.WARN_SENT_BY_UNVERIFIED,
-            E2EDecoration.WARN_SENT_BY_UNKNOWN -> {
-                holder.e2EDecorationView.render(RoomEncryptionTrustLevel.Warning)
+        if (baseAttributes.informationData.messageLayout.showE2eDecoration) {
+            when (baseAttributes.informationData.e2eDecoration) {
+                E2EDecoration.NONE                 -> {
+                    holder.e2EDecorationView.render(null)
+                }
+                E2EDecoration.WARN_IN_CLEAR,
+                E2EDecoration.WARN_SENT_BY_UNVERIFIED,
+                E2EDecoration.WARN_SENT_BY_UNKNOWN -> {
+                    holder.e2EDecorationView.render(RoomEncryptionTrustLevel.Warning)
+                }
             }
         }
-         */
 
         holder.view.onClick(baseAttributes.itemClickListener)
         holder.view.setOnLongClickListener(baseAttributes.itemLongClickListener)
-        (holder.view as? TimelineMessageLayoutRenderer)?.renderMessageLayout(baseAttributes.informationData.messageLayout)
+        (holder.view as? TimelineMessageLayoutRenderer).scRenderMessageLayout(baseAttributes.informationData.messageLayout, this, holder)
     }
 
     override fun unbind(holder: H) {
@@ -114,6 +120,25 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder> : BaseEventItem
         val state = if (baseAttributes.informationData.hasPendingEdits) SendState.UNSENT else baseAttributes.informationData.sendState
         textView?.setTextColor(baseAttributes.messageColorProvider.getMessageTextColor(state))
         failureIndicator?.isVisible = baseAttributes.informationData.sendState.hasFailed()
+    }
+
+    override fun getScBubbleMargin(resources: Resources): Int {
+        return when {
+            (baseAttributes.informationData.messageLayout as? TimelineMessageLayout.ScBubble)?.singleSidedLayout == true -> 0
+            // else: dual-side bubbles (getBubbleMargin should not get called for other bubbleStyles)
+
+            // Direct chats usually have avatars hidden on both sides
+            baseAttributes.informationData.isDirect -> resources.getDimensionPixelSize(R.dimen.dual_bubble_both_sides_without_avatar_margin)
+            // No direct chat, but sent by me: other side has an avatar
+            baseAttributes.informationData.sentByMe -> {
+                resources.getDimensionPixelSize(R.dimen.dual_bubble_one_side_without_avatar_margin) +
+                        resources.getDimensionPixelSize(R.dimen.dual_bubble_one_side_avatar_offset) +
+                        // SC bubbles use SMALL avatars
+                        ceil(AvatarSizeProvider.Companion.AvatarStyle.SMALL.avatarSizeDP * resources.displayMetrics.density).toInt()
+            }
+            // No direct chat, sent by other: my side has hidden avatar
+            else -> resources.getDimensionPixelSize(R.dimen.dual_bubble_one_side_without_avatar_margin)
+        }
     }
 
     abstract class Holder(@IdRes stubId: Int) : BaseEventItem.BaseHolder(stubId) {

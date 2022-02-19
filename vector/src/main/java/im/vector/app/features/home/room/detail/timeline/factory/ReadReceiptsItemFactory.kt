@@ -21,10 +21,12 @@ import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptData
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptsItem
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptsItem_
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayoutFactory
 import org.matrix.android.sdk.api.session.room.model.ReadReceipt
 import javax.inject.Inject
 
-class ReadReceiptsItemFactory @Inject constructor(private val avatarRenderer: AvatarRenderer) {
+class ReadReceiptsItemFactory @Inject constructor(private val avatarRenderer: AvatarRenderer,
+                                                  private val messageLayoutFactory: TimelineMessageLayoutFactory) {
 
     fun create(
             eventId: String,
@@ -44,6 +46,7 @@ class ReadReceiptsItemFactory @Inject constructor(private val avatarRenderer: Av
                 .id("read_receipts_$eventId")
                 .eventId(eventId)
                 .readReceipts(readReceiptsData)
+                .messageLayout(messageLayoutFactory.createDummy())
                 .avatarRenderer(avatarRenderer)
                 .shouldHideReadReceipts(isFromThreadTimeLine)
                 .clickListener {

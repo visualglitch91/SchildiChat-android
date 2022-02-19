@@ -25,6 +25,7 @@ import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
 import im.vector.app.R
 import im.vector.app.features.home.AvatarRenderer
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 
 @EpoxyModelClass(layout = R.layout.item_timeline_event_base_noinfo)
 abstract class MergedMembershipEventsItem : BasedMergedItem<MergedMembershipEventsItem.Holder>() {
@@ -69,6 +70,7 @@ abstract class MergedMembershipEventsItem : BasedMergedItem<MergedMembershipEven
             override val isCollapsed: Boolean,
             override val mergeData: List<Data>,
             override val avatarRenderer: AvatarRenderer,
-            override val onCollapsedStateChanged: (Boolean) -> Unit
+            override val onCollapsedStateChanged: (Boolean) -> Unit,
+            override val messageLayout: TimelineMessageLayout
     ) : BasedMergedItem.Attributes
 }

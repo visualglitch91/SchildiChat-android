@@ -18,6 +18,7 @@ package im.vector.app.features.home.room.detail.timeline.style
 
 import android.os.Parcelable
 import im.vector.app.R
+import im.vector.app.features.home.room.detail.timeline.item.AnonymousReadReceipt
 import kotlinx.parcelize.Parcelize
 
 sealed interface TimelineMessageLayout : Parcelable {
@@ -25,11 +26,13 @@ sealed interface TimelineMessageLayout : Parcelable {
     val showAvatar: Boolean
     val showDisplayName: Boolean
     val showTimestamp: Boolean
+    val showE2eDecoration: Boolean
 
     @Parcelize
     data class Default(override val showAvatar: Boolean,
                        override val showDisplayName: Boolean,
                        override val showTimestamp: Boolean,
+                       override val showE2eDecoration: Boolean,
             // Keep defaultLayout generated on epoxy items
                        override val layoutRes: Int = 0) : TimelineMessageLayout
 
@@ -38,6 +41,7 @@ sealed interface TimelineMessageLayout : Parcelable {
             override val showAvatar: Boolean,
             override val showDisplayName: Boolean,
             override val showTimestamp: Boolean = true,
+            override val showE2eDecoration: Boolean = true,
             val isIncoming: Boolean,
             val isPseudoBubble: Boolean,
             val cornersRadius: CornersRadius,
@@ -60,22 +64,22 @@ sealed interface TimelineMessageLayout : Parcelable {
 
     @Parcelize
     data class ScBubble(
-            // SC-TODO adapt me
             override val showAvatar: Boolean,
             override val showDisplayName: Boolean,
             override val showTimestamp: Boolean = true,
-            // SC-TODO?? Keep defaultLayout generated on epoxy items
-            override val layoutRes: Int = 0
-            /* SC-TODO
+            override val showE2eDecoration: Boolean = false,
             val isIncoming: Boolean,
+            val reverseBubble: Boolean,
+            val singleSidedLayout: Boolean,
+            val isRealBubble: Boolean,
             val isPseudoBubble: Boolean,
+            val isNotice: Boolean,
             val timestampAsOverlay: Boolean,
             override val layoutRes: Int = if (isIncoming) {
-                R.layout.item_timeline_event_bubble_incoming_base
+                R.layout.item_timeline_event_sc_bubble_incoming_base
             } else {
-                R.layout.item_timeline_event_bubble_outgoing_base
+                R.layout.item_timeline_event_sc_bubble_outgoing_base
             }
-             */
     ) : TimelineMessageLayout
 
 }

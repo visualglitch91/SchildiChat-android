@@ -37,6 +37,7 @@ import im.vector.app.core.utils.tappableMatchingText
 import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.RoomDetailAction
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.home.room.detail.timeline.tools.linkify
 import me.gujun.android.span.span
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
@@ -224,6 +225,7 @@ abstract class MergedRoomCreationItem : BasedMergedItem<MergedRoomCreationItem.H
             override val mergeData: List<Data>,
             override val avatarRenderer: AvatarRenderer,
             override val onCollapsedStateChanged: (Boolean) -> Unit,
+            override val messageLayout: TimelineMessageLayout,
             val callback: TimelineEventController.Callback? = null,
             val currentUserId: String,
             val hasEncryptionEvent: Boolean,

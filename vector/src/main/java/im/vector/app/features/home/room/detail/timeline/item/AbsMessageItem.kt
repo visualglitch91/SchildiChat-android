@@ -36,8 +36,15 @@ import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.timeline.MessageColorProvider
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
+import im.vector.app.features.home.room.detail.timeline.view.ScMessageBubbleWrapView
+import im.vector.app.features.home.room.detail.timeline.view.TimelineMessageLayoutRenderer
+import im.vector.app.features.home.room.detail.timeline.view.canHideAvatars
+import im.vector.app.features.home.room.detail.timeline.view.infoInBubbles
+import im.vector.app.features.themes.guessTextWidth
 import org.matrix.android.sdk.api.session.threads.ThreadDetails
 import org.matrix.android.sdk.api.util.MatrixItem
+import kotlin.math.ceil
 
 /**
  * Base timeline item that adds an optional information bar with the sender avatar, name, time, send state
@@ -75,40 +82,42 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
 
     override fun bind(holder: H) {
         super.bind(holder)
-        if (attributes.informationData.messageLayout.showAvatar) {
-            holder.avatarImageView.layoutParams = holder.avatarImageView.layoutParams?.apply {
-                height = attributes.avatarSize
-                width = attributes.avatarSize
+        if ((holder.view as? ScMessageBubbleWrapView)?.customBind(this, holder, attributes, _avatarClickListener, _memberNameClickListener) != true) {
+            if (attributes.informationData.messageLayout.showAvatar) {
+                holder.avatarImageView.layoutParams = holder.avatarImageView.layoutParams?.apply {
+                    height = attributes.avatarSize
+                    width = attributes.avatarSize
+                }
+                attributes.avatarRenderer.render(attributes.informationData.matrixItem, holder.avatarImageView)
+                holder.avatarImageView.setOnLongClickListener(attributes.itemLongClickListener)
+                holder.avatarImageView.isVisible = true
+                holder.avatarImageView.onClick(_avatarClickListener)
+            } else {
+                holder.avatarImageView.setOnClickListener(null)
+                holder.avatarImageView.setOnLongClickListener(null)
+                holder.avatarImageView.isVisible = false
             }
-            attributes.avatarRenderer.render(attributes.informationData.matrixItem, holder.avatarImageView)
-            holder.avatarImageView.setOnLongClickListener(attributes.itemLongClickListener)
-            holder.avatarImageView.isVisible = true
-            holder.avatarImageView.onClick(_avatarClickListener)
-        } else {
-            holder.avatarImageView.setOnClickListener(null)
-            holder.avatarImageView.setOnLongClickListener(null)
-            holder.avatarImageView.isVisible = false
+            if (attributes.informationData.messageLayout.showDisplayName) {
+                holder.memberNameView.isVisible = true
+                holder.memberNameView.text = attributes.informationData.memberName
+                holder.memberNameView.setTextColor(attributes.getMemberNameColor())
+                holder.memberNameView.onClick(_memberNameClickListener)
+                holder.memberNameView.setOnLongClickListener(attributes.itemLongClickListener)
+            } else {
+                holder.memberNameView.setOnClickListener(null)
+                holder.memberNameView.setOnLongClickListener(null)
+                holder.memberNameView.isVisible = false
+            }
+            if (attributes.informationData.messageLayout.showTimestamp) {
+                holder.timeView.isVisible = true
+                holder.timeView.text = attributes.informationData.time
+            } else {
+                holder.timeView.isVisible = false
+            }
+            // Render send state indicator
+            holder.sendStateImageView.render(attributes.informationData.sendStateDecoration)
+            holder.eventSendingIndicator.isVisible = attributes.informationData.sendStateDecoration == SendStateDecoration.SENDING_MEDIA
         }
-        if (attributes.informationData.messageLayout.showDisplayName) {
-            holder.memberNameView.isVisible = true
-            holder.memberNameView.text = attributes.informationData.memberName
-            holder.memberNameView.setTextColor(attributes.getMemberNameColor())
-            holder.memberNameView.onClick(_memberNameClickListener)
-            holder.memberNameView.setOnLongClickListener(attributes.itemLongClickListener)
-        } else {
-            holder.memberNameView.setOnClickListener(null)
-            holder.memberNameView.setOnLongClickListener(null)
-            holder.memberNameView.isVisible = false
-        }
-        if (attributes.informationData.messageLayout.showTimestamp) {
-            holder.timeView.isVisible = true
-            holder.timeView.text = attributes.informationData.time
-        } else {
-            holder.timeView.isVisible = false
-        }
-        // Render send state indicator
-        holder.sendStateImageView.render(attributes.informationData.sendStateDecoration)
-        holder.eventSendingIndicator.isVisible = attributes.informationData.sendStateDecoration == SendStateDecoration.SENDING_MEDIA
 
         // Threads
         if (attributes.areThreadMessagesEnabled) {
@@ -151,14 +160,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
         super.unbind(holder)
     }
 
-    private fun Attributes.getMemberNameColor() = messageColorProvider.getMemberNameTextColor(
-            informationData.matrixItem,
-            MatrixItemColorProvider.UserInRoomInformation(
-                    attributes.informationData.isDirect,
-                    attributes.informationData.isPublic,
-                    attributes.informationData.senderPowerLevel
-            )
-    )
+    override fun getInformationData(): MessageInformationData? = attributes.informationData
 
     abstract class Holder(@IdRes stubId: Int) : AbsBaseMessageItem.Holder(stubId) {
 
@@ -216,10 +218,20 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
 
             return result
         }
+
+        fun getMemberNameColor() = messageColorProvider.getMemberNameTextColor(
+                informationData.matrixItem,
+                MatrixItemColorProvider.UserInRoomInformation(
+                        informationData.isDirect,
+                        informationData.isPublic,
+                        informationData.senderPowerLevel
+                )
+        )
     }
 
     override fun ignoreMessageGuideline(context: Context): Boolean {
-        return false // SC-TODO infoInBubbles(context) && canHideAvatars()
+        val messageLayout = attributes.informationData.messageLayout as? TimelineMessageLayout.ScBubble ?: return false
+        return infoInBubbles(messageLayout) && canHideAvatars(attributes)
     }
 
 }

@@ -5,6 +5,8 @@ import android.graphics.Paint
 import android.widget.TextView
 import androidx.preference.PreferenceManager
 import im.vector.app.features.home.room.detail.timeline.item.AnonymousReadReceipt
+import org.matrix.android.sdk.api.session.room.send.SendState
+import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -22,6 +24,29 @@ class BubbleThemeUtils @Inject constructor(private val context: Context) {
         const val BUBBLE_STYLE_BOTH = "both"
         const val BUBBLE_TIME_TOP = "top"
         const val BUBBLE_TIME_BOTTOM = "bottom"
+
+        fun getVisibleAnonymousReadReceipts(readReceipt: AnonymousReadReceipt?, sentByMe: Boolean): AnonymousReadReceipt {
+            readReceipt ?: return AnonymousReadReceipt.NONE
+            // TODO
+            return if (sentByMe && (/*TODO setting?*/ true || readReceipt == AnonymousReadReceipt.PROCESSING)) {
+                readReceipt
+            } else {
+                AnonymousReadReceipt.NONE
+            }
+        }
+
+        fun anonymousReadReceiptForEvent(event: TimelineEvent): AnonymousReadReceipt {
+            return if (event.root.sendState == SendState.SYNCED || event.root.sendState == SendState.SENT) {
+                /*if (event.readByOther) {
+                    AnonymousReadReceipt.READ
+                } else {
+                    AnonymousReadReceipt.SENT
+                }*/
+                AnonymousReadReceipt.NONE
+            } else {
+                AnonymousReadReceipt.PROCESSING
+            }
+        }
     }
 
     // Special case of BUBBLE_STYLE_BOTH, to allow non-bubble items align to the sender either way
@@ -47,15 +72,6 @@ class BubbleThemeUtils @Inject constructor(private val context: Context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit().putString(BUBBLE_STYLE_KEY, value).apply()
     }
 
-    fun getVisibleAnonymousReadReceipts(readReceipt: AnonymousReadReceipt, sentByMe: Boolean): AnonymousReadReceipt {
-        // TODO
-        return if (sentByMe && (/*TODO setting*/ true || readReceipt == AnonymousReadReceipt.PROCESSING)) {
-            readReceipt
-        } else {
-            AnonymousReadReceipt.NONE
-        }
-    }
-
     /* SC-TODO
     fun drawsActualBubbles(bubbleStyle: String): Boolean {
         return bubbleStyle == BUBBLE_STYLE_START || bubbleStyle == BUBBLE_STYLE_BOTH
@@ -65,20 +81,6 @@ class BubbleThemeUtils @Inject constructor(private val context: Context) {
         return bubbleStyle == BUBBLE_STYLE_BOTH || bubbleStyle == BUBBLE_STYLE_BOTH_HIDDEN
     }
      */
-
-    fun guessTextWidth(view: TextView): Float {
-        return guessTextWidth(view, view.text)
-    }
-
-    fun guessTextWidth(view: TextView, text: CharSequence): Float {
-        return guessTextWidth(view.textSize, text);
-    }
-
-    fun guessTextWidth(textSize: Float, text: CharSequence): Float {
-        val paint = Paint()
-        paint.textSize = textSize
-        return paint.measureText(text.toString())
-    }
 
     fun forceAlwaysShowTimestamps(bubbleStyle: String): Boolean {
         return isBubbleTimeLocationSettingAllowed(bubbleStyle)
@@ -95,4 +97,18 @@ class BubbleThemeUtils @Inject constructor(private val context: Context) {
     fun isBubbleTimeLocationSettingAllowed(): Boolean {
         return isBubbleTimeLocationSettingAllowed(getBubbleStyle())
     }
+}
+
+fun guessTextWidth(view: TextView): Float {
+    return guessTextWidth(view, view.text)
+}
+
+fun guessTextWidth(view: TextView, text: CharSequence): Float {
+    return guessTextWidth(view.textSize, text);
+}
+
+fun guessTextWidth(textSize: Float, text: CharSequence): Float {
+    val paint = Paint()
+    paint.textSize = textSize
+    return paint.measureText(text.toString())
 }

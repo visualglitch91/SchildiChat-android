@@ -33,6 +33,9 @@ import im.vector.app.features.home.room.detail.timeline.helper.ContentDownloadSt
 import im.vector.app.features.home.room.detail.timeline.helper.ContentUploadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.themes.ThemeUtils
+import im.vector.app.features.themes.guessTextWidth
+import kotlin.math.ceil
+import kotlin.math.max
 
 @EpoxyModelClass(layout = R.layout.item_timeline_event_base)
 abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
@@ -101,6 +104,18 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
         super.unbind(holder)
         contentUploadStateTrackerBinder.unbind(attributes.informationData.eventId)
         contentDownloadStateTrackerBinder.unbind(mxcUrl)
+    }
+
+    override fun getViewStubMinimumWidth(holder: Holder): Int {
+        // Guess text width for name and time
+        // On first call, holder.fileImageView.width is not initialized yet
+        val imageWidth = holder.fileImageView.resources.getDimensionPixelSize(R.dimen.chat_avatar_size)
+        val minimumWidthWithText =
+                ceil(guessTextWidth(holder.filenameView, filename)).toInt() +
+                        imageWidth +
+                        holder.filenameView.resources.getDimensionPixelSize(R.dimen.sc_bubble_guess_minimum_width_padding)
+        val absoluteMinimumWidth = imageWidth*3
+        return max(absoluteMinimumWidth, minimumWidthWithText)
     }
 
     override fun getViewStubId() = STUB_ID

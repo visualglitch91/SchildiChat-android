@@ -16,9 +16,11 @@
 
 package im.vector.app.features.home.room.detail.timeline.item
 
+import android.content.res.Resources
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import com.airbnb.epoxy.EpoxyAttribute
@@ -33,6 +35,7 @@ import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.features.home.room.detail.timeline.helper.ContentUploadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.home.room.detail.timeline.style.granularRoundedCorners
+import im.vector.app.features.home.room.detail.timeline.view.ScMessageBubbleWrapView
 import im.vector.app.features.media.ImageContentRenderer
 import org.matrix.android.sdk.api.util.MimeTypes
 
@@ -57,7 +60,6 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
     @EpoxyAttribute
     lateinit var contentUploadStateTrackerBinder: ContentUploadStateTrackerBinder
 
-    // SC-TODO
     var lastAllowedFooterOverlay: Boolean = true
     var lastShowFooterBellow: Boolean = true
     var forceAllowFooterOverlay: Boolean? = null
@@ -67,18 +69,19 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
         forceAllowFooterOverlay = null
         super.bind(holder)
 
+        val bubbleWrapView = (holder.view as? ScMessageBubbleWrapView)
+        val host = this
         val onImageSizeListener = object: ImageContentRenderer.OnImageSizeListener {
             override fun onImageSizeUpdated(width: Int, height: Int) {
+                bubbleWrapView ?: return
                 // Image size change -> different footer space situation possible
-                /* SC-TODO
-                val footerMeasures = getFooterMeasures(holder)
+                val footerMeasures = bubbleWrapView.getFooterMeasures(attributes.informationData)
                 forceAllowFooterOverlay = shouldAllowFooterOverlay(footerMeasures, width, height)
                 val newShowFooterBellow = shouldShowFooterBellow(footerMeasures, width, height)
                 if (lastAllowedFooterOverlay != forceAllowFooterOverlay || newShowFooterBellow != lastShowFooterBellow) {
                     showFooterBellow = newShowFooterBellow
-                    updateMessageBubble(holder.imageView.context, holder)
+                    bubbleWrapView.renderMessageLayout(attributes.informationData.messageLayout, host, holder)
                 }
-                */
             }
         }
         val animate = mediaData.mimeType == MimeTypes.Gif
@@ -87,11 +90,10 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
 
         val messageLayout = baseAttributes.informationData.messageLayout
         val dimensionConverter = DimensionConverter(holder.view.resources)
-        // SC-TODO handle SC bubbles
-        val imageCornerTransformation = if (messageLayout is TimelineMessageLayout.Bubble) {
-            messageLayout.cornersRadius.granularRoundedCorners()
-        } else {
-            RoundedCorners(dimensionConverter.dpToPx(8))
+        val imageCornerTransformation = when (messageLayout) {
+            is TimelineMessageLayout.ScBubble -> RoundedCorners(dimensionConverter.dpToPx(3))
+            is TimelineMessageLayout.Bubble   -> messageLayout.cornersRadius.granularRoundedCorners()
+            else -> RoundedCorners(dimensionConverter.dpToPx(8))
         }
         imageContentRenderer.render(mediaData, effectiveMode, holder.imageView, imageCornerTransformation, onImageSizeListener)
         if (!attributes.informationData.sendState.hasFailed()) {
@@ -122,7 +124,6 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
 
     override fun getViewStubId() = STUB_ID
 
-    // SC-TODO
     private fun shouldAllowFooterOverlay(footerMeasures: Array<Int>, imageWidth: Int, imageHeight: Int): Boolean {
         val footerWidth = footerMeasures[0]
         val footerHeight = footerMeasures[1]
@@ -131,7 +132,6 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
         return imageWidth > 1.5*footerWidth && imageHeight > 1.5*footerHeight && (imageWidth * imageHeight > 4 * footerWidth * footerHeight)
     }
 
-    // SC-TODO
     private fun shouldShowFooterBellow(footerMeasures: Array<Int>, imageWidth: Int, imageHeight: Int): Boolean {
         // Only show footer bellow if the width is not the limiting factor (or it will get cut).
         // Otherwise, we can not be sure in this place that we'll have enough space on the side
@@ -141,6 +141,57 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
         return imageWidth > 1.5*footerWidth && imageHeight < 1.5*footerHeight
     }
 
+    override fun allowFooterOverlay(holder: Holder, bubbleWrapView: ScMessageBubbleWrapView): Boolean {
+        val rememberedAllowFooterOverlay = forceAllowFooterOverlay
+        if (rememberedAllowFooterOverlay != null) {
+            lastAllowedFooterOverlay = rememberedAllowFooterOverlay
+            return rememberedAllowFooterOverlay
+        }
+        val imageWidth = holder.imageView.width
+        val imageHeight = holder.imageView.height
+        if (imageWidth == 0 && imageHeight == 0) {
+            // Not initialised yet, assume true
+            lastAllowedFooterOverlay = true
+            return true
+        }
+        // If the footer covers most of the image, or is even larger than the image, move it outside
+        val footerMeasures = bubbleWrapView.getFooterMeasures(baseAttributes.informationData)
+        lastAllowedFooterOverlay = shouldAllowFooterOverlay(footerMeasures, imageWidth, imageHeight)
+        return lastAllowedFooterOverlay
+    }
+
+    override fun allowFooterBelow(holder: Holder): Boolean {
+        val showBellow = showFooterBellow
+        lastShowFooterBellow = showBellow
+        return showBellow
+    }
+
+    override fun getScBubbleMargin(resources: Resources): Int {
+        return 0
+    }
+
+    override fun applyScBubbleStyle(messageLayout: TimelineMessageLayout.ScBubble, holder: Holder) {
+        // Case: ImageContentRenderer.processSize only sees width=height=0 -> width of the ImageView not adapted to the actual content
+        // -> Align image within ImageView to same side as message bubbles
+        holder.imageView.scaleType = if (messageLayout.reverseBubble) ImageView.ScaleType.FIT_END else ImageView.ScaleType.FIT_START
+        // Case: Message information (sender name + date) makes the containing view wider than the ImageView
+        // -> Align ImageView within its parent to the same side as message bubbles
+        (holder.imageView.layoutParams as ConstraintLayout.LayoutParams).horizontalBias = if (messageLayout.reverseBubble) 1f else 0f
+
+        // Image outline
+        when {
+            !(messageLayout.isRealBubble || messageLayout.isPseudoBubble) || mode != ImageContentRenderer.Mode.THUMBNAIL -> {
+                // Don't show it for non-bubble layouts, don't show for Stickers, ...
+                holder.mediaContentView.background = null
+            }
+            attributes.informationData.sentByMe                                                           -> {
+                holder.mediaContentView.setBackgroundResource(R.drawable.background_image_border_outgoing)
+            }
+            else                                        -> {
+                holder.mediaContentView.setBackgroundResource(R.drawable.background_image_border_incoming)
+            }
+        }
+    }
 
     class Holder : AbsMessageItem.Holder(STUB_ID) {
         val progressLayout by bind<ViewGroup>(R.id.messageMediaUploadProgressLayout)

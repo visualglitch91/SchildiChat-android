@@ -30,6 +30,7 @@ import im.vector.app.features.home.room.detail.timeline.item.MergedMembershipEve
 import im.vector.app.features.home.room.detail.timeline.item.MergedMembershipEventsItem_
 import im.vector.app.features.home.room.detail.timeline.item.MergedRoomCreationItem
 import im.vector.app.features.home.room.detail.timeline.item.MergedRoomCreationItem_
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayoutFactory
 import im.vector.app.features.home.room.detail.timeline.tools.createLinkMovementMethod
 import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.query.QueryStringValue
@@ -46,6 +47,7 @@ import javax.inject.Inject
 class MergedHeaderItemFactory @Inject constructor(private val activeSessionHolder: ActiveSessionHolder,
                                                   private val avatarRenderer: AvatarRenderer,
                                                   private val avatarSizeProvider: AvatarSizeProvider,
+                                                  private val messageLayoutFactory: TimelineMessageLayoutFactory,
                                                   private val timelineEventVisibilityHelper: TimelineEventVisibilityHelper) {
 
     private val collapsedEventIds = linkedSetOf<Long>()
@@ -129,7 +131,8 @@ class MergedHeaderItemFactory @Inject constructor(private val activeSessionHolde
                     onCollapsedStateChanged = {
                         mergeItemCollapseStates[event.localId] = it
                         requestModelBuild()
-                    }
+                    },
+                    messageLayout = messageLayoutFactory.createDummy()
             )
             MergedMembershipEventsItem_()
                     .id(mergeId)
@@ -206,6 +209,7 @@ class MergedHeaderItemFactory @Inject constructor(private val activeSessionHolde
                         mergeItemCollapseStates[event.localId] = it
                         requestModelBuild()
                     },
+                    messageLayout = messageLayoutFactory.createDummy(),
                     hasEncryptionEvent = hasEncryption,
                     isEncryptionAlgorithmSecure = encryptionAlgorithm == MXCRYPTO_ALGORITHM_MEGOLM,
                     callback = callback,

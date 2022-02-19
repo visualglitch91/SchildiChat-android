@@ -18,6 +18,7 @@ package im.vector.app.features.home.room.detail.timeline.item
 import android.content.Context
 import android.view.View
 import android.view.ViewStub
+import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
@@ -28,6 +29,7 @@ import im.vector.app.core.epoxy.VectorEpoxyHolder
 import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.core.platform.CheckableView
 import im.vector.app.core.ui.views.BubbleDependentView
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 
 /**
  * Children must override getViewType()
@@ -71,6 +73,7 @@ abstract class BaseEventItem<H : BaseEventItem.BaseHolder> : VectorEpoxyModel<H>
         val leftGuideline by bind<View>(R.id.messageStartGuideline)
         val contentContainer by bind<View>(R.id.viewStubContainer)
         val checkableBackground by bind<CheckableView>(R.id.messageSelectedBackground)
+        val viewStubContainer by bind<FrameLayout>(R.id.viewStubContainer)
 
         override fun bindView(itemView: View) {
             super.bindView(itemView)
