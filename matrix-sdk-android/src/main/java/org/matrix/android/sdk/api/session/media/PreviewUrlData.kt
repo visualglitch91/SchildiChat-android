@@ -47,7 +47,11 @@ data class PreviewUrlData(
         // Value of field "og:description"
         val description: String?,
         // Value of field "og:image"
-        val mxcUrl: String?
+        val mxcUrl: String?,
+        // Value of field "og:image:width"
+        val imageWidth: Int?,
+        // Value of field "og:image:height"
+        val imageHeight: Int?
 ) {
     fun isPreviewable(): Boolean {
         return siteName?.isNotEmpty() == true ||

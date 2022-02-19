@@ -17,13 +17,19 @@
 package im.vector.app.features.settings
 
 import android.os.Build
+import androidx.preference.Preference
 import im.vector.app.R
 import im.vector.app.core.preference.VectorSwitchPreference
+import im.vector.app.features.MainActivity
+import im.vector.app.features.MainActivityArgs
 import im.vector.app.features.themes.ThemeUtils
+import org.matrix.android.sdk.internal.database.lightweight.LightweightSettingsStorage
 import javax.inject.Inject
 
 class VectorSettingsLabsFragment @Inject constructor(
-        private val vectorPreferences: VectorPreferences
+        private val vectorPreferences: VectorPreferences,
+        private val lightweightSettingsStorage: LightweightSettingsStorage
+
 ) : VectorSettingsBaseFragment() {
 
     override var titleRes = R.string.room_settings_labs_pref_title
@@ -59,6 +65,16 @@ class VectorSettingsLabsFragment @Inject constructor(
         findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_LABS_AUTO_REPORT_UISI)?.let { pref ->
             // ensure correct default
             pref.isChecked = vectorPreferences.labsAutoReportUISI()
+        }
+
+        // clear cache
+        findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_LABS_ENABLE_THREAD_MESSAGES)?.let {
+            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                lightweightSettingsStorage.setThreadMessagesEnabled(vectorPreferences.areThreadMessagesEnabled())
+                displayLoadingView()
+                MainActivity.restartApp(requireActivity(), MainActivityArgs(clearCache = true))
+                false
+            }
         }
     }
 }

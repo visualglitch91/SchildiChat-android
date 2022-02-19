@@ -25,8 +25,8 @@ import im.vector.app.R
 import im.vector.app.core.extensions.setTextOrHide
 import im.vector.app.databinding.ViewUrlPreviewScBinding
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.media.ImageContentRenderer
-import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.session.media.PreviewUrlData
 
 /**
@@ -36,14 +36,14 @@ class PreviewUrlViewSc @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
-) : ConstraintLayout(context, attrs, defStyleAttr), View.OnClickListener {
+) : ConstraintLayout(context, attrs, defStyleAttr), View.OnClickListener, AbstractPreviewUrlView {
 
     private lateinit var views: ViewUrlPreviewScBinding
 
     var footerWidth: Int = 0
     var footerHeight: Int = 0
 
-    var delegate: TimelineEventController.PreviewUrlCallback? = null
+    override var delegate: TimelineEventController.PreviewUrlCallback? = null
 
     init {
         setupView()
@@ -56,9 +56,9 @@ class PreviewUrlViewSc @JvmOverloads constructor(
      *
      * @param newState the newState representing the view
      */
-    fun render(newState: PreviewUrlUiState,
+    override fun render(newState: PreviewUrlUiState,
                imageContentRenderer: ImageContentRenderer,
-               force: Boolean = false) {
+               force: Boolean /*= false*/) {
         if (newState == state && !force) {
             return
         }
@@ -151,9 +151,13 @@ class PreviewUrlViewSc @JvmOverloads constructor(
 
         isVisible = true
         views.urlPreviewTitle.setTextOrHide(previewUrlData.title)
-        views.urlPreviewImage.isVisible = previewUrlData.mxcUrl?.let { imageContentRenderer.render(it, views.urlPreviewImage, hideOnFail = true) }.orFalse()
+        views.urlPreviewImage.isVisible = imageContentRenderer.render(previewUrlData, views.urlPreviewImage)
         views.urlPreviewDescription.setTextOrHide(previewUrlData.description)
         views.urlPreviewSite.setTextOrHide(siteText)
+    }
+
+    override fun renderMessageLayout(messageLayout: TimelineMessageLayout) {
+        // No-op
     }
 
     /**

@@ -17,6 +17,8 @@
 package im.vector.app.features.home.room.detail.timeline.item
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Paint
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -31,6 +33,8 @@ import im.vector.app.R
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.features.home.room.detail.timeline.helper.ContentDownloadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.helper.ContentUploadStateTrackerBinder
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
+import im.vector.app.features.themes.ThemeUtils
 import im.vector.app.features.themes.BubbleThemeUtils
 import kotlin.math.ceil
 
@@ -77,15 +81,19 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
         } else {
             if (izDownloaded) {
                 holder.fileImageView.setImageResource(iconRes)
-                holder.fileDownloadProgress.progress = 100
+                holder.fileDownloadProgress.progress = 0
             } else {
                 contentDownloadStateTrackerBinder.bind(mxcUrl, holder)
                 holder.fileImageView.setImageResource(R.drawable.ic_download)
-                holder.fileDownloadProgress.progress = 0
             }
         }
 //        holder.view.setOnClickListener(clickListener)
-
+        val backgroundTint = if (attributes.informationData.messageLayout is TimelineMessageLayout.Bubble) {
+            Color.TRANSPARENT
+        } else {
+            ThemeUtils.getColor(holder.view.context, R.attr.vctr_content_quinary)
+        }
+        holder.mainLayout.backgroundTintList = ColorStateList.valueOf(backgroundTint)
         holder.filenameView.onClick(attributes.itemClickListener)
         holder.filenameView.setOnLongClickListener(attributes.itemLongClickListener)
         holder.fileImageWrapper.onClick(attributes.itemClickListener)
@@ -99,7 +107,7 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
         contentDownloadStateTrackerBinder.unbind(mxcUrl)
     }
 
-    override fun getViewType() = STUB_ID
+    override fun getViewStubId() = STUB_ID
 
     override fun messageBubbleAllowed(context: Context): Boolean {
         return true
@@ -120,6 +128,7 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
     }
 
     class Holder : AbsMessageItem.Holder(STUB_ID) {
+        val mainLayout by bind<ViewGroup>(R.id.messageFileMainLayout)
         val progressLayout by bind<ViewGroup>(R.id.messageFileUploadProgressLayout)
         val fileLayout by bind<ViewGroup>(R.id.messageFileLayout)
         val fileImageView by bind<ImageView>(R.id.messageFileIconView)

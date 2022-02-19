@@ -121,7 +121,7 @@ class VectorApplication :
         vectorAnalytics.init()
         invitesAcceptor.initialize()
         autoRageShaker.initialize()
-        vectorUncaughtExceptionHandler.activate(this)
+        vectorUncaughtExceptionHandler.activate()
 
         // SC SDK helper initialization
         StaticScSdkHelper.scSdkPreferenceProvider = vectorPreferences

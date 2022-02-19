@@ -33,7 +33,6 @@ import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.core.platform.CheckableView
 import im.vector.app.core.ui.views.BubbleDependentView
 import im.vector.app.core.ui.views.updateMessageBubble
-import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.features.themes.BubbleThemeUtils
 
 /**
@@ -48,8 +47,18 @@ abstract class BaseEventItem<H : BaseEventItem.BaseHolder> : VectorEpoxyModel<H>
     @EpoxyAttribute
     open var leftGuideline: Int = 0
 
-    @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash)
-    lateinit var dimensionConverter: DimensionConverter
+    final override fun getViewType(): Int {
+        // This makes sure we have a unique integer for the combination of layout and ViewStubId.
+        val pairingResult = pairingFunction(layout.toLong(), getViewStubId().toLong())
+        return (pairingResult - Int.MAX_VALUE).toInt()
+    }
+
+    abstract fun getViewStubId(): Int
+
+    // Szudzik function
+    private fun pairingFunction(a: Long, b: Long): Long {
+        return if (a >= b) a * a + a + b else a + b * b
+    }
 
     @CallSuper
     override fun bind(holder: H) {

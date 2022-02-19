@@ -24,7 +24,7 @@ import im.vector.app.features.themes.BubbleThemeUtils
 @EpoxyModelClass(layout = R.layout.item_timeline_event_base)
 abstract class RedactedMessageItem : AbsMessageItem<RedactedMessageItem.Holder>() {
 
-    override fun getViewType() = STUB_ID
+    override fun getViewStubId() = STUB_ID
 
     override fun shouldShowReactionAtBottom() = false
 

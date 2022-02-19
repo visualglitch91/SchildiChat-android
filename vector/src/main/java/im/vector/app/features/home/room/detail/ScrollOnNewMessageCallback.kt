@@ -77,7 +77,7 @@ class ScrollOnNewMessageCallback(private val layoutManager: BetterLinearLayoutMa
                     // To do that, we actually scroll the view above out by TARGET_SCROLL_OUT_FACTOR (since we can only control the distance
                     // from the bottom of the view, not the top).
                     val scrollToPosition = max(it + scrollOffset + 1, 0)
-                    layoutManager.scrollToPositionWithOffset(scrollToPosition, (parentView.measuredHeight * RoomDetailFragment.TARGET_SCROLL_OUT_FACTOR).toInt())
+                    layoutManager.scrollToPositionWithOffset(scrollToPosition, (parentView.measuredHeight * TimelineFragment.TARGET_SCROLL_OUT_FACTOR).toInt())
                     layoutManager.setPreferredAnchorPosition(scrollToPosition)
                 }
             }

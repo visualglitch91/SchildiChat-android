@@ -16,6 +16,7 @@
 
 package im.vector.app.features.call
 
+import android.app.Activity
 import android.app.KeyguardManager
 import android.app.PictureInPictureParams
 import android.content.Context
@@ -43,6 +44,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
+import im.vector.app.core.extensions.registerStartForActivityResult
 import im.vector.app.core.extensions.setTextOrHide
 import im.vector.app.core.platform.VectorBaseActivity
 import im.vector.app.core.utils.PERMISSIONS_FOR_AUDIO_IP_CALL
@@ -58,7 +60,7 @@ import im.vector.app.features.call.webrtc.WebRtcCallManager
 import im.vector.app.features.displayname.getBestName
 import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.RoomDetailActivity
-import im.vector.app.features.home.room.detail.RoomDetailArgs
+import im.vector.app.features.home.room.detail.arguments.TimelineArgs
 import io.github.hyuwah.draggableviewlib.DraggableView
 import io.github.hyuwah.draggableviewlib.setupDraggable
 import kotlinx.parcelize.Parcelize
@@ -518,10 +520,16 @@ class VectorCallActivity : VectorBaseActivity<ActivityCallBinding>(), CallContro
             }
             is VectorCallViewEvents.ShowCallTransferScreen -> {
                 val callId = withState(callViewModel) { it.callId }
-                navigator.openCallTransfer(this, callId)
+                navigator.openCallTransfer(this, callTransferActivityResultLauncher, callId)
             }
             null                                           -> {
             }
+        }
+    }
+
+    private val callTransferActivityResultLauncher = registerStartForActivityResult { activityResult ->
+        if (activityResult.resultCode == Activity.RESULT_CANCELED) {
+            callViewModel.handle(VectorCallViewActions.CallTransferSelectionCancelled)
         }
     }
 
@@ -563,7 +571,7 @@ class VectorCallActivity : VectorBaseActivity<ActivityCallBinding>(), CallContro
 
     private fun returnToChat() {
         val roomId = withState(callViewModel) { it.roomId }
-        val args = RoomDetailArgs(roomId)
+        val args = TimelineArgs(roomId)
         val intent = RoomDetailActivity.newIntent(this, args).apply {
             flags = FLAG_ACTIVITY_CLEAR_TOP
         }

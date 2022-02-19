@@ -17,6 +17,8 @@
 package im.vector.app.features.home.room.detail.timeline.item
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
@@ -34,7 +36,9 @@ import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.features.home.room.detail.timeline.helper.ContentDownloadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.helper.ContentUploadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.helper.VoiceMessagePlaybackTracker
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.themes.BubbleThemeUtils
+import im.vector.app.features.themes.ThemeUtils
 
 @EpoxyModelClass(layout = R.layout.item_timeline_event_base)
 abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
@@ -99,6 +103,12 @@ abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
             }
         }
 
+        val backgroundTint = if (attributes.informationData.messageLayout is TimelineMessageLayout.Bubble) {
+            Color.TRANSPARENT
+        } else {
+            ThemeUtils.getColor(holder.view.context, R.attr.vctr_content_quinary)
+        }
+        holder.voicePlaybackLayout.backgroundTintList = ColorStateList.valueOf(backgroundTint)
         holder.voicePlaybackControlButton.setOnClickListener { playbackControlButtonClickListener?.invoke(it) }
 
         voiceMessagePlaybackTracker.track(attributes.informationData.eventId, object : VoiceMessagePlaybackTracker.Listener {
@@ -139,15 +149,15 @@ abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
         voiceMessagePlaybackTracker.unTrack(attributes.informationData.eventId)
     }
 
-    override fun getViewType() = STUB_ID
+    override fun getViewStubId() = STUB_ID
 
     class Holder : AbsMessageItem.Holder(STUB_ID) {
+        val voicePlaybackLayout by bind<View>(R.id.voicePlaybackLayout)
         val voiceLayout by bind<ViewGroup>(R.id.voiceLayout)
         val voicePlaybackControlButton by bind<ImageButton>(R.id.voicePlaybackControlButton)
         val voicePlaybackTime by bind<TextView>(R.id.voicePlaybackTime)
         val voicePlaybackWaveform by bind<AudioRecordView>(R.id.voicePlaybackWaveform)
         val progressLayout by bind<ViewGroup>(R.id.messageFileUploadProgressLayout)
-        val voicePlaybackLayout by bind<ConstraintLayout>(R.id.voicePlaybackLayout)
         val voiceMessageName by bind<TextView>(R.id.voiceMessageName)
     }
 

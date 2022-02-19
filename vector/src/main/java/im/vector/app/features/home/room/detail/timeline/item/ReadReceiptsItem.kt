@@ -22,6 +22,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import androidx.core.view.isVisible
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
@@ -42,6 +43,7 @@ abstract class ReadReceiptsItem : EpoxyModelWithHolder<ReadReceiptsItem.Holder>(
 
     @EpoxyAttribute lateinit var eventId: String
     @EpoxyAttribute lateinit var readReceipts: List<ReadReceiptData>
+    @EpoxyAttribute var shouldHideReadReceipts: Boolean = false
     @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash) lateinit var avatarRenderer: AvatarRenderer
     @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash) lateinit var clickListener: ClickListener
 
@@ -55,6 +57,8 @@ abstract class ReadReceiptsItem : EpoxyModelWithHolder<ReadReceiptsItem.Holder>(
         holder.readReceiptsView.render(readReceipts, avatarRenderer)
 
         updateMessageBubble(holder.readReceiptsView.context, holder)
+
+        holder.readReceiptsView.isVisible = !shouldHideReadReceipts
     }
 
     override fun unbind(holder: Holder) {

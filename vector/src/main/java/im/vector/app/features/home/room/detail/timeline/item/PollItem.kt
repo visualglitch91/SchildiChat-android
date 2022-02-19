@@ -51,6 +51,8 @@ abstract class PollItem : AbsMessageItem<PollItem.Holder>() {
     @EpoxyAttribute
     lateinit var optionViewStates: List<PollOptionViewState>
 
+    override fun getViewStubId() = STUB_ID
+
     override fun bind(holder: Holder) {
         super.bind(holder)
         val relatedEventId = eventId ?: return

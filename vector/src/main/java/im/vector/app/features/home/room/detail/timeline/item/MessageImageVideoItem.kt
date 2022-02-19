@@ -26,12 +26,16 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import im.vector.app.R
 import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.files.LocalFilesHelper
 import im.vector.app.core.glide.GlideApp
+import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.features.home.room.detail.timeline.helper.ContentUploadStateTrackerBinder
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
+import im.vector.app.features.home.room.detail.timeline.style.granularRoundedCorners
 import im.vector.app.features.media.ImageContentRenderer
 import im.vector.app.features.themes.BubbleThemeUtils
 import org.matrix.android.sdk.api.util.MimeTypes
@@ -81,7 +85,16 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
         val animate = mediaData.mimeType == MimeTypes.Gif
         // Do not use thumbnails for animated GIFs - sometimes thumbnails do not animate while the original GIF does
         val effectiveMode = if (animate && mode == ImageContentRenderer.Mode.THUMBNAIL) ImageContentRenderer.Mode.ANIMATED_THUMBNAIL else mode
-        imageContentRenderer.render(mediaData, effectiveMode, holder.imageView, onImageSizeListener, animate)
+
+        val messageLayout = baseAttributes.informationData.messageLayout
+        val dimensionConverter = DimensionConverter(holder.view.resources)
+        // SC-TODO handle SC bubbles
+        val imageCornerTransformation = if (messageLayout is TimelineMessageLayout.Bubble) {
+            messageLayout.cornersRadius.granularRoundedCorners()
+        } else {
+            RoundedCorners(dimensionConverter.dpToPx(8))
+        }
+        imageContentRenderer.render(mediaData, effectiveMode, holder.imageView, imageCornerTransformation, onImageSizeListener)
         if (!attributes.informationData.sendState.hasFailed()) {
             contentUploadStateTrackerBinder.bind(
                     attributes.informationData.eventId,
@@ -108,7 +121,7 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
         super.unbind(holder)
     }
 
-    override fun getViewType() = STUB_ID
+    override fun getViewStubId() = STUB_ID
 
     override fun messageBubbleAllowed(context: Context): Boolean {
         return false

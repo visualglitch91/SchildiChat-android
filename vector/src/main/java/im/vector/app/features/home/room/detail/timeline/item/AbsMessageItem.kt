@@ -31,7 +31,9 @@ import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.annotation.IdRes
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import com.airbnb.epoxy.EpoxyAttribute
 import kotlin.math.max
 import kotlin.math.round
@@ -47,6 +49,8 @@ import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorPr
 import im.vector.app.features.themes.BubbleThemeUtils
 import im.vector.app.features.themes.ThemeUtils
 import kotlin.math.ceil
+import org.matrix.android.sdk.api.session.threads.ThreadDetails
+import org.matrix.android.sdk.api.util.MatrixItem
 
 /**
  * Base timeline item that adds an optional information bar with the sender avatar, name, time, send state
@@ -76,8 +80,15 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
         }
     }
 
+    private val _threadClickListener = object : ClickListener {
+        override fun invoke(p1: View) {
+            attributes.threadCallback?.onThreadSummaryClicked(attributes.informationData.eventId, attributes.threadDetails?.isRootThread ?: false)
+        }
+    }
+
     override fun bind(holder: H) {
         super.bind(holder)
+        if (true /* SC-TODO is SC layout */) {
         val contentInBubble = infoInBubbles(holder.memberNameView.context)
         val senderInBubble = senderNameInBubble(holder.memberNameView.context)
 
@@ -91,7 +102,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
         val canHideSender = canHideSender()
 
         // Select which views are visible, based on bubble style and other criteria
-        if (attributes.informationData.showInformation) {
+        if (attributes.informationData.messageLayout.showDisplayName) {
             if (senderInBubble) {
                 memberNameView = holder.bubbleMemberNameView
                 hiddenViews.add(holder.memberNameView)
@@ -106,7 +117,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
                 timeView = holder.timeView
                 hiddenViews.add(holder.bubbleTimeView)
             }
-        } else if (attributes.informationData.forceShowTimestamp) {
+        } else if (attributes.informationData.messageLayout.showTimestamp) {
             memberNameView = null
             //hiddenViews.add(holder.memberNameView) // this one get's some special hiding treatment below
             hiddenViews.add(holder.bubbleMemberNameView)
@@ -137,7 +148,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
             // For code readability, we don't inline this setting in the above cases
             if (BubbleThemeUtils.getBubbleTimeLocation(holder.bubbleTimeView.context) == BubbleThemeUtils.BUBBLE_TIME_BOTTOM) {
                 timeView = holder.bubbleFooterTimeView
-                if (attributes.informationData.showInformation) {
+                if (attributes.informationData.messageLayout.showDisplayName) {
                     if (canHideSender) {
                         // In the case of footer time, we can also hide the names without making it look awkward
                         if (memberNameView != null) {
@@ -162,7 +173,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
         }
 
         // Dual-side bubbles: hide own avatar, and all in direct chats
-        if ((!attributes.informationData.showInformation) ||
+        if ((!attributes.informationData.messageLayout.showAvatar) ||
                 (contentInBubble && canHideAvatar)) {
             avatarImageView = null
             hiddenViews.add(holder.avatarImageView)
@@ -189,7 +200,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
 
         // More extra views added by Schildi
         if (senderInBubble) {
-            holder.viewStubContainer.minimumWidth = getViewStubMinimumWidth(holder, contentInBubble, attributes.informationData.showInformation)
+            holder.viewStubContainer.minimumWidth = getViewStubMinimumWidth(holder, contentInBubble, attributes.informationData.messageLayout.showDisplayName)
         } else {
             holder.viewStubContainer.minimumWidth = 0
         }
@@ -208,7 +219,6 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
             // Same as it.isInvisible = true
             it.visibility = View.INVISIBLE
         }
-
         // Render send state indicator
         if (contentInBubble) {
             // Bubbles have their own decoration in the anonymous read receipt (in the message footer)
@@ -218,6 +228,71 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
             holder.sendStateImageView.render(attributes.informationData.sendStateDecoration)
             holder.eventSendingIndicator.isVisible = attributes.informationData.sendStateDecoration == SendStateDecoration.SENDING_MEDIA
         }
+        } else { // SC-TODO non-SC bubbles
+        if (attributes.informationData.messageLayout.showAvatar) {
+            holder.avatarImageView.layoutParams = holder.avatarImageView.layoutParams?.apply {
+                height = attributes.avatarSize
+                width = attributes.avatarSize
+            }
+            attributes.avatarRenderer.render(attributes.informationData.matrixItem, holder.avatarImageView)
+            holder.avatarImageView.setOnLongClickListener(attributes.itemLongClickListener)
+            holder.avatarImageView.isVisible = true
+            holder.avatarImageView.onClick(_avatarClickListener)
+        } else {
+            holder.avatarImageView.setOnClickListener(null)
+            holder.avatarImageView.setOnLongClickListener(null)
+            holder.avatarImageView.isVisible = false
+        }
+        if (attributes.informationData.messageLayout.showDisplayName) {
+            holder.memberNameView.isVisible = true
+            holder.memberNameView.text = attributes.informationData.memberName
+            holder.memberNameView.setTextColor(attributes.getMemberNameColor())
+            holder.memberNameView.onClick(_memberNameClickListener)
+            holder.memberNameView.setOnLongClickListener(attributes.itemLongClickListener)
+        } else {
+            holder.memberNameView.setOnClickListener(null)
+            holder.memberNameView.setOnLongClickListener(null)
+            holder.memberNameView.isVisible = false
+        }
+        if (attributes.informationData.messageLayout.showTimestamp) {
+            holder.timeView.isVisible = true
+            holder.timeView.text = attributes.informationData.time
+        } else {
+            holder.timeView.isVisible = false
+        }
+        // Render send state indicator
+        holder.sendStateImageView.render(attributes.informationData.sendStateDecoration)
+        holder.eventSendingIndicator.isVisible = attributes.informationData.sendStateDecoration == SendStateDecoration.SENDING_MEDIA
+        } // SC- TODO
+
+        // Threads
+        if (attributes.areThreadMessagesEnabled) {
+            holder.threadSummaryConstraintLayout.onClick(_threadClickListener)
+            attributes.threadDetails?.let { threadDetails ->
+                holder.threadSummaryConstraintLayout.isVisible = threadDetails.isRootThread
+                holder.threadSummaryCounterTextView.text = threadDetails.numberOfThreads.toString()
+                holder.threadSummaryInfoTextView.text = threadDetails.threadSummaryLatestTextMessage ?: attributes.decryptionErrorMessage
+
+                val userId = threadDetails.threadSummarySenderInfo?.userId ?: return@let
+                val displayName = threadDetails.threadSummarySenderInfo?.displayName
+                val avatarUrl = threadDetails.threadSummarySenderInfo?.avatarUrl
+                attributes.avatarRenderer.render(MatrixItem.UserItem(userId, displayName, avatarUrl), holder.threadSummaryAvatarImageView)
+                updateHighlightedMessageHeight(holder, true)
+            } ?: run {
+                holder.threadSummaryConstraintLayout.isVisible = false
+                updateHighlightedMessageHeight(holder, false)
+            }
+        }
+    }
+
+    private fun updateHighlightedMessageHeight(holder: Holder, isExpanded: Boolean) {
+        holder.checkableBackground.updateLayoutParams<RelativeLayout.LayoutParams> {
+            if (isExpanded) {
+                addRule(RelativeLayout.ALIGN_BOTTOM, holder.threadSummaryConstraintLayout.id)
+            } else {
+                addRule(RelativeLayout.ALIGN_BOTTOM, holder.informationBottom.id)
+            }
+        }
     }
 
     override fun unbind(holder: H) {
@@ -226,6 +301,8 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
         holder.avatarImageView.setOnLongClickListener(null)
         holder.memberNameView.setOnClickListener(null)
         holder.memberNameView.setOnLongClickListener(null)
+        attributes.avatarRenderer.clear(holder.threadSummaryAvatarImageView)
+        holder.threadSummaryConstraintLayout.setOnClickListener(null)
         super.unbind(holder)
     }
 
@@ -239,6 +316,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
     )
 
     abstract class Holder(@IdRes stubId: Int) : AbsBaseMessageItem.Holder(stubId) {
+
         val avatarImageView by bind<ImageView>(R.id.messageAvatarImageView)
         val memberNameView by bind<TextView>(R.id.messageMemberNameView)
         val timeView by bind<TextView>(R.id.messageTimeView)
@@ -252,6 +330,10 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
         val viewStubContainer by bind<FrameLayout>(R.id.viewStubContainer)
         val sendStateImageView by bind<SendStateImageView>(R.id.messageSendStateImageView)
         val eventSendingIndicator by bind<ProgressBar>(R.id.eventSendingIndicator)
+        val threadSummaryConstraintLayout by bind<ConstraintLayout>(R.id.messageThreadSummaryConstraintLayout)
+        val threadSummaryCounterTextView by bind<TextView>(R.id.messageThreadSummaryCounterTextView)
+        val threadSummaryAvatarImageView by bind<ImageView>(R.id.messageThreadSummaryAvatarImageView)
+        val threadSummaryInfoTextView by bind<TextView>(R.id.messageThreadSummaryInfoTextView)
     }
 
     /**
@@ -267,9 +349,13 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
             val memberClickListener: ClickListener? = null,
             override val reactionPillCallback: TimelineEventController.ReactionPillCallback? = null,
             val avatarCallback: TimelineEventController.AvatarCallback? = null,
+            val threadCallback: TimelineEventController.ThreadCallback? = null,
             override val readReceiptsCallback: TimelineEventController.ReadReceiptsCallback? = null,
             val isNotice: Boolean = false,
-            val emojiTypeFace: Typeface? = null
+            val emojiTypeFace: Typeface? = null,
+            val decryptionErrorMessage: String? = null,
+            val threadDetails: ThreadDetails? = null,
+            val areThreadMessagesEnabled: Boolean = false
     ) : AbsBaseMessageItem.Attributes {
 
         // Have to override as it's used to diff epoxy items
@@ -281,6 +367,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
 
             if (avatarSize != other.avatarSize) return false
             if (informationData != other.informationData) return false
+            if (threadDetails != other.threadDetails) return false
 
             return true
         }
@@ -288,6 +375,8 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
         override fun hashCode(): Int {
             var result = avatarSize
             result = 31 * result + informationData.hashCode()
+            result = 31 * result + threadDetails.hashCode()
+
             return result
         }
     }
@@ -301,7 +390,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
         val time = attributes.informationData.time.toString()
         return if (contentInBubble) {
             if (BubbleThemeUtils.getBubbleTimeLocation(holder.bubbleTimeView.context) == BubbleThemeUtils.BUBBLE_TIME_BOTTOM) {
-                if (attributes.informationData.showInformation && !canHideSender()) {
+                if (attributes.informationData.messageLayout.showDisplayName && !canHideSender()) {
                     // Since timeView automatically gets enough space, either within or outside the viewStub, we just need to ensure the member name view has enough space
                     // Somehow not enough without extra space...
                     ceil(BubbleThemeUtils.guessTextWidth(holder.bubbleMemberNameView, "$memberName ")).toInt()
@@ -309,14 +398,14 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
                     // wrap_content works!
                     0
                 }
-            } else if (attributes.informationData.showInformation || attributes.informationData.forceShowTimestamp) {
+            } else if (attributes.informationData.messageLayout.showDisplayName || attributes.informationData.messageLayout.showTimestamp) {
                 // Guess text width for name and time next to each other
-                val text = if (attributes.informationData.showInformation) {
+                val text = if (attributes.informationData.messageLayout.showDisplayName) {
                     "$memberName $time"
                 } else {
                     time
                 }
-                val textSize = if (attributes.informationData.showInformation) {
+                val textSize = if (attributes.informationData.messageLayout.showDisplayName) {
                     max(holder.bubbleMemberNameView.textSize, holder.bubbleTimeView.textSize)
                 } else {
                     holder.bubbleTimeView.textSize
@@ -459,7 +548,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
                 val longPaddingDp: Int
                 val shortPaddingDp: Int
                 if (BubbleThemeUtils.drawsActualBubbles(bubbleStyle)) {
-                    val bubbleRes = if (attributes.informationData.showInformation) { // tail
+                    val bubbleRes = if (attributes.informationData.messageLayout.showAvatar) { // tail
                         if (reverseBubble) { // outgoing
                             R.drawable.msg_bubble_text_outgoing
                         } else { // incoming

@@ -39,10 +39,12 @@ import org.matrix.android.sdk.api.session.room.model.message.MessagePollResponse
 import org.matrix.android.sdk.api.session.room.model.message.MessageRelationContent
 import org.matrix.android.sdk.api.session.room.model.relation.ReactionContent
 import org.matrix.android.sdk.api.session.room.powerlevels.PowerLevelsHelper
+import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.getLastMessageContent
 import org.matrix.android.sdk.internal.SessionManager
 import org.matrix.android.sdk.internal.crypto.model.event.EncryptedEventContent
 import org.matrix.android.sdk.internal.crypto.verification.toState
+import org.matrix.android.sdk.internal.database.helper.findRootThreadEvent
 import org.matrix.android.sdk.internal.database.mapper.ContentMapper
 import org.matrix.android.sdk.internal.database.mapper.EventMapper
 import org.matrix.android.sdk.internal.database.model.EditAggregatedSummaryEntity
@@ -331,6 +333,29 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
                 )
             }
         }
+
+        if (!isLocalEcho) {
+            val replaceEvent = TimelineEventEntity.where(realm, roomId, eventId).findFirst()
+            handleThreadSummaryEdition(editedEvent, replaceEvent, existingSummary?.editions)
+        }
+    }
+
+    /**
+     * Check if the edition is on the latest thread event, and update it accordingly
+     */
+    private fun handleThreadSummaryEdition(editedEvent: EventEntity?,
+                                           replaceEvent: TimelineEventEntity?,
+                                           editions: List<EditionOfEvent>?) {
+        replaceEvent ?: return
+        editedEvent ?: return
+        editedEvent.findRootThreadEvent()?.apply {
+            val threadSummaryEventId = threadSummaryLatestMessage?.eventId
+            if (editedEvent.eventId == threadSummaryEventId || editions?.any { it.eventId == threadSummaryEventId } == true) {
+                // The edition is for the latest event or for any event replaced, this is to handle multiple
+                // edits of the same latest event
+                threadSummaryLatestMessage = replaceEvent
+            }
+        }
     }
 
     private fun handleResponse(realm: Realm,
@@ -344,15 +369,7 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
         val targetEventId = relatedEventId ?: content.relatesTo?.eventId ?: return
         val eventTimestamp = event.originServerTs ?: return
 
-        val session = sessionManager.getSessionComponent(sessionId)?.session()
-
-        val targetPollEvent = session?.getRoom(roomId)?.getTimeLineEvent(targetEventId) ?: return Unit.also {
-            Timber.v("## POLL target poll event $targetEventId not found in room $roomId")
-        }
-
-        val targetPollContent = targetPollEvent.getLastMessageContent() as? MessagePollContent ?: return Unit.also {
-            Timber.v("## POLL target poll event $targetEventId content is malformed")
-        }
+        val targetPollContent = getPollContent(roomId, targetEventId) ?: return
 
         // ok, this is a poll response
         var existing = EventAnnotationsSummaryEntity.where(realm, roomId, targetEventId).findFirst()
@@ -453,6 +470,17 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
                               isLocalEcho: Boolean) {
         val pollEventId = content.relatesTo?.eventId ?: return
 
+        val pollOwnerId = getPollEvent(roomId, pollEventId)?.root?.senderId
+        val isPollOwner = pollOwnerId == event.senderId
+
+        val powerLevelsHelper = stateEventDataSource.getStateEvent(roomId, EventType.STATE_ROOM_POWER_LEVELS, QueryStringValue.NoCondition)
+                ?.content?.toModel<PowerLevelsContent>()
+                ?.let { PowerLevelsHelper(it) }
+        if (!isPollOwner && !powerLevelsHelper?.isUserAbleToRedact(event.senderId ?: "").orFalse()) {
+            Timber.v("## Received poll.end event $pollEventId but user ${event.senderId} doesn't have enough power level in room $roomId")
+            return
+        }
+
         var existing = EventAnnotationsSummaryEntity.where(realm, roomId, pollEventId).findFirst()
         if (existing == null) {
             Timber.v("## POLL creating new relation summary for $pollEventId")
@@ -470,14 +498,6 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
             return
         }
 
-        val powerLevelsHelper = stateEventDataSource.getStateEvent(roomId, EventType.STATE_ROOM_POWER_LEVELS, QueryStringValue.NoCondition)
-                ?.content?.toModel<PowerLevelsContent>()
-                ?.let { PowerLevelsHelper(it) }
-        if (!powerLevelsHelper?.isUserAbleToRedact(event.senderId ?: "").orFalse()) {
-            Timber.v("## Received poll.end event $pollEventId but user ${event.senderId} doesn't have enough power level in room $roomId")
-            return
-        }
-
         val txId = event.unsignedData?.transactionId
         // is it a remote echo?
         if (!isLocalEcho && existingPollSummary.sourceLocalEchoEvents.contains(txId)) {
@@ -489,6 +509,21 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
         }
 
         existingPollSummary.closedTime = event.originServerTs
+    }
+
+    private fun getPollEvent(roomId: String, eventId: String): TimelineEvent? {
+        val session = sessionManager.getSessionComponent(sessionId)?.session()
+        return session?.getRoom(roomId)?.getTimeLineEvent(eventId) ?: return null.also {
+            Timber.v("## POLL target poll event $eventId not found in room $roomId")
+        }
+    }
+
+    private fun getPollContent(roomId: String, eventId: String): MessagePollContent? {
+        val pollEvent = getPollEvent(roomId, eventId) ?: return null
+
+        return pollEvent.getLastMessageContent() as? MessagePollContent ?: return null.also {
+            Timber.v("## POLL target poll event $eventId content is malformed")
+        }
     }
 
     private fun handleInitialAggregatedRelations(realm: Realm,
