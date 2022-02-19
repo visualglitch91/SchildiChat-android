@@ -7,6 +7,7 @@ import im.vector.app.features.themes.BubbleThemeUtils
 
 interface BubbleDependentView<H> {
 
+    /*
     fun messageBubbleAllowed(context: Context): Boolean {
         return false
     }
@@ -20,8 +21,10 @@ interface BubbleDependentView<H> {
     }
 
     fun setBubbleLayout(holder: H, bubbleStyle: String, bubbleStyleSetting: String, reverseBubble: Boolean)
+     */
 }
 
+/*
 // This function belongs to BubbleDependentView, but turned out to raise a NoSuchMethodError since recently
 // when called from an onImageSizeUpdated listener
 fun <H>updateMessageBubble(context: Context, view: BubbleDependentView<H>, holder: H) {
@@ -55,3 +58,4 @@ fun setFlatRtl(layout: ViewGroup, direction: Int, childDirection: Int, depth: In
         }
     }
 }
+ */

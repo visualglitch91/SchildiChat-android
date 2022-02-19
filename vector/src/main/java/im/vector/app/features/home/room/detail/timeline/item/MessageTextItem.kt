@@ -16,13 +16,10 @@
 
 package im.vector.app.features.home.room.detail.timeline.item
 
-import android.content.Context
 import android.text.Spanned
-import android.text.TextUtils
 import android.text.method.MovementMethod
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.PrecomputedTextCompat
-import androidx.core.view.isVisible
 import androidx.core.widget.TextViewCompat
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
@@ -179,37 +176,5 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
 
     companion object {
         private const val STUB_ID = R.id.messageContentTextStub
-    }
-
-    override fun messageBubbleAllowed(context: Context): Boolean {
-        return true
-    }
-
-    override fun allowFooterOverlay(holder: Holder): Boolean {
-        return true
-    }
-
-    override fun needsFooterReservation(holder: Holder): Boolean {
-        return true
-    }
-
-    override fun reserveFooterSpace(holder: Holder, width: Int, height: Int) {
-        if (attributes.informationData.messageLayout !is TimelineMessageLayout.ScBubble) {
-            return
-        }
-        // Remember for PreviewUrlViewUpdater.onStateUpdated
-        footerWidth = width
-        footerHeight = height
-        // Reserve both in preview and in message
-        // User might close preview, so we still need place in the message
-        // if we don't want to change this afterwards
-        // This might be a race condition, but the UI-isssue if evaluated wrongly is negligible
-        if (!holder.previewUrlViewSc.isVisible) {
-            holder.messageView.footerWidth = width
-            holder.messageView.footerHeight = height
-        } // else: will be handled in onStateUpdated
-        holder.previewUrlViewSc.footerWidth = height
-        holder.previewUrlViewSc.footerHeight = height
-        holder.previewUrlViewSc.updateFooterSpace()
     }
 }

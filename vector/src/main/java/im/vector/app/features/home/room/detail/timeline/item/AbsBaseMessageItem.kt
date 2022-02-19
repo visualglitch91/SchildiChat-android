@@ -31,10 +31,7 @@ import im.vector.app.features.home.room.detail.timeline.MessageColorProvider
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import im.vector.app.features.home.room.detail.timeline.view.TimelineMessageLayoutRenderer
 import im.vector.app.features.reactions.widget.ReactionButton
-import im.vector.app.features.themes.BubbleThemeUtils
-import org.matrix.android.sdk.api.crypto.RoomEncryptionTrustLevel
 import org.matrix.android.sdk.api.session.room.send.SendState
-import kotlin.math.round
 
 /**
  * Base timeline item with reactions and read receipts.
@@ -117,60 +114,6 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder> : BaseEventItem
         val state = if (baseAttributes.informationData.hasPendingEdits) SendState.UNSENT else baseAttributes.informationData.sendState
         textView?.setTextColor(baseAttributes.messageColorProvider.getMessageTextColor(state))
         failureIndicator?.isVisible = baseAttributes.informationData.sendState.hasFailed()
-    }
-
-    override fun setBubbleLayout(holder: H, bubbleStyle: String, bubbleStyleSetting: String, reverseBubble: Boolean) {
-        super.setBubbleLayout(holder, bubbleStyle, bubbleStyleSetting, reverseBubble)
-
-        // ATTENTION: we go over the bubbleStyleSetting here: this might differ from the effective bubbleStyle
-        // for this view class! We want to use the setting to do some uniform alignments for all views though.
-        when (bubbleStyleSetting) {
-            BubbleThemeUtils.BUBBLE_STYLE_START,
-            BubbleThemeUtils.BUBBLE_STYLE_BOTH,
-            BubbleThemeUtils.BUBBLE_STYLE_BOTH_HIDDEN,
-            BubbleThemeUtils.BUBBLE_STYLE_START_HIDDEN -> {
-                // Padding for views that align with the bubble (should be roughly the bubble tail width)
-                val bubbleStartAlignWidth = holder.informationBottom.resources.getDimensionPixelSize(R.dimen.sc_bubble_tail_size)
-                if (reverseBubble) {
-                    // Align reactions container to bubble
-                    holder.informationBottom.setPaddingRelative(
-                            0,
-                            0,
-                            bubbleStartAlignWidth,
-                            0
-                    )
-                } else {
-                    // Align reactions container to bubble
-                    holder.informationBottom.setPaddingRelative(
-                            bubbleStartAlignWidth,
-                            0,
-                            0,
-                            0
-                    )
-                }
-            }
-            else                                       -> {
-                // No alignment padding for reactions required
-                holder.informationBottom.setPaddingRelative(0, 0, 0, 0)
-            }
-        }
-
-        if (BubbleThemeUtils.drawsDualSide(bubbleStyleSetting) /*&& baseAttributes.informationData.sentByMe*/) {
-            // Haven't found a good location for this yet for outgoing messages
-            holder.e2EDecorationView.render(null)
-        } else {
-            // Moved here from upstream's bind()
-            when (baseAttributes.informationData.e2eDecoration) {
-                E2EDecoration.NONE                 -> {
-                    holder.e2EDecorationView.render(null)
-                }
-                E2EDecoration.WARN_IN_CLEAR,
-                E2EDecoration.WARN_SENT_BY_UNVERIFIED,
-                E2EDecoration.WARN_SENT_BY_UNKNOWN -> {
-                    holder.e2EDecorationView.render(RoomEncryptionTrustLevel.Warning)
-                }
-            }
-        }
     }
 
     abstract class Holder(@IdRes stubId: Int) : BaseEventItem.BaseHolder(stubId) {

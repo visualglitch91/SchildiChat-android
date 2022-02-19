@@ -16,7 +16,6 @@
 
 package im.vector.app.features.home.room.detail.timeline.item
 
-import android.content.Context
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.children
@@ -89,9 +88,5 @@ abstract class PollItem : AbsMessageItem<PollItem.Holder>() {
 
     companion object {
         private const val STUB_ID = R.id.messageContentPollStub
-    }
-
-    override fun messageBubbleAllowed(context: Context): Boolean {
-        return true
     }
 }

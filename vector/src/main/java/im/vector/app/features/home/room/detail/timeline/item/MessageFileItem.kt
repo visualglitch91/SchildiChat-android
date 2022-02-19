@@ -16,7 +16,6 @@
 
 package im.vector.app.features.home.room.detail.timeline.item
 
-import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Paint
@@ -28,15 +27,12 @@ import androidx.annotation.DrawableRes
 import androidx.core.view.isVisible
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
-import kotlin.math.max
 import im.vector.app.R
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.features.home.room.detail.timeline.helper.ContentDownloadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.helper.ContentUploadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.themes.ThemeUtils
-import im.vector.app.features.themes.BubbleThemeUtils
-import kotlin.math.ceil
 
 @EpoxyModelClass(layout = R.layout.item_timeline_event_base)
 abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
@@ -108,24 +104,6 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
     }
 
     override fun getViewStubId() = STUB_ID
-
-    override fun messageBubbleAllowed(context: Context): Boolean {
-        return true
-    }
-
-    override fun getViewStubMinimumWidth(holder: Holder, contentInBubble: Boolean, showInformation: Boolean): Int {
-        val superVal = super.getViewStubMinimumWidth(holder, contentInBubble, showInformation)
-
-        // Guess text width for name and time
-        // On first call, holder.fileImageView.width is not initialized yet
-        val imageWidth = holder.fileImageView.resources.getDimensionPixelSize(R.dimen.chat_avatar_size)
-        val minimumWidthWithText =
-                ceil(BubbleThemeUtils.guessTextWidth(holder.filenameView, filename)).toInt() +
-                imageWidth +
-                holder.filenameView.resources.getDimensionPixelSize(R.dimen.sc_bubble_guess_minimum_width_padding)
-        val absoluteMinimumWidth = imageWidth*3
-        return max(max(absoluteMinimumWidth, minimumWidthWithText), superVal)
-    }
 
     class Holder : AbsMessageItem.Holder(STUB_ID) {
         val mainLayout by bind<ViewGroup>(R.id.messageFileMainLayout)

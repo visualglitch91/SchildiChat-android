@@ -23,7 +23,6 @@ class TimelineLayoutSettingsProvider @Inject constructor(private val vectorPrefe
 
     fun getLayoutSettings(): TimelineLayoutSettings {
         // SC-TODO
-        if (true) return TimelineLayoutSettings.SC_BUBBLE
         return if (vectorPreferences.useMessageBubblesLayout()) {
             TimelineLayoutSettings.BUBBLE
         } else {
