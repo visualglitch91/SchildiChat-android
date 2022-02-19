@@ -2,14 +2,16 @@
 <resources>
 
     <string-array name="bubble_style_entries" translatable="false">
-        <item>@string/bubble_style_none</item>
-        <item>@string/bubble_style_start</item>
         <item>@string/bubble_style_both</item>
+        <item>@string/bubble_style_start</item>
+        <item>@string/bubble_style_element</item>
+        <item>@string/bubble_style_none</item>
     </string-array>
     <string-array name="bubble_style_values" translatable="false">
-        <item>none</item>
-        <item>start</item>
         <item>both</item>
+        <item>start</item>
+        <item>element</item>
+        <item>none</item>
     </string-array>
 
     <string-array name="bubble_time_location_entries" translatable="false">

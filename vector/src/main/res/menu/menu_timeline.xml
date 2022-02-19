@@ -89,15 +89,18 @@
             <group
                 android:checkableBehavior="single">
                 <item
-                    android:id="@+id/dev_bubble_style_none"
-                    android:title="@string/bubble_style_none" />
+                    android:id="@+id/dev_bubble_style_both"
+                    android:title="@string/bubble_style_both"
+                    android:checked="true" />
                 <item
                     android:id="@+id/dev_bubble_style_start"
                     android:title="@string/bubble_style_start" />
                 <item
-                    android:id="@+id/dev_bubble_style_both"
-                    android:title="@string/bubble_style_both"
-                    android:checked="true" />
+                    android:id="@+id/dev_bubble_style_element"
+                    android:title="@string/bubble_style_element" />
+                <item
+                    android:id="@+id/dev_bubble_style_none"
+                    android:title="@string/bubble_style_none" />
             </group>
         </menu>
     </item>

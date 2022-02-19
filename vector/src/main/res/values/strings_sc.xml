@@ -40,6 +40,7 @@
     <string name="bubble_style_none">None</string>
     <string name="bubble_style_start">Same side</string>
     <string name="bubble_style_both">Both sides</string>
+    <string name="bubble_style_element">Element</string>
     <string name="bubble_time_location">Timestamp location</string>
     <string name="bubble_time_location_top">Top</string>
     <string name="bubble_time_location_bottom">Bottom</string>

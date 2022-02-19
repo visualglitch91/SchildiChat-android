@@ -34,12 +34,12 @@ import im.vector.app.features.MainActivity
 import im.vector.app.features.MainActivityArgs
 import im.vector.app.features.configuration.VectorConfiguration
 import im.vector.app.features.themes.BubbleThemeUtils
-import im.vector.app.features.themes.BubbleThemeUtils.BUBBLE_TIME_BOTTOM
 import im.vector.app.features.themes.ThemeUtils
 import javax.inject.Inject
 
 class VectorSettingsPreferencesFragment @Inject constructor(
         private val vectorConfiguration: VectorConfiguration,
+        private val bubbleThemeUtils: BubbleThemeUtils,
         private val vectorPreferences: VectorPreferences
 ) : VectorSettingsBaseFragment() {
 
@@ -99,30 +99,12 @@ class VectorSettingsPreferencesFragment @Inject constructor(
 
         val bubbleStylePreference = findPreference<VectorListPreference>(BubbleThemeUtils.BUBBLE_STYLE_KEY)
         bubbleStylePreference!!.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-            BubbleThemeUtils.invalidateBubbleStyle()
-            updateBubbleDependencies(
-                    bubbleStyle = newValue as String,
-                    BUBBLE_TIME_BOTTOM //bubbleTimeLocation = bubbleTimeLocationPref!!.value
-            )
+            updateBubbleDependencies(bubbleStyle = newValue as String)
             true
         }
 
-        //bubbleTimeLocationPref = findPreference<VectorListPreference>(BubbleThemeUtils.BUBBLE_TIME_LOCATION_KEY)
         alwaysShowTimestampsPref = findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_ALWAYS_SHOW_TIMESTAMPS_KEY)
-        /*
-        bubbleTimeLocationPref!!.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-            BubbleThemeUtils.invalidateBubbleStyle()
-            updateBubbleDependencies(
-                    bubbleStyle = bubbleStylePreference.value,
-                    bubbleTimeLocation = newValue as String
-            )
-            true
-        }
-        */
-        updateBubbleDependencies(
-                bubbleStyle = bubbleStylePreference.value,
-                bubbleTimeLocation = BUBBLE_TIME_BOTTOM //bubbleTimeLocationPref!!.value
-        )
+        updateBubbleDependencies(bubbleStyle = bubbleStylePreference.value)
 
         findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_PREF_SPACE_SHOW_ALL_ROOM_IN_HOME)!!.let { pref ->
             pref.isChecked = vectorPreferences.prefSpacesShowAllRoomInHome()
@@ -262,8 +244,8 @@ class VectorSettingsPreferencesFragment @Inject constructor(
                 }
     }
 
-    private fun updateBubbleDependencies(bubbleStyle: String, bubbleTimeLocation: String) {
+    private fun updateBubbleDependencies(bubbleStyle: String) {
         //bubbleTimeLocationPref?.setEnabled(BubbleThemeUtils.isBubbleTimeLocationSettingAllowed(bubbleStyle))
-        alwaysShowTimestampsPref?.setEnabled(!BubbleThemeUtils.forceAlwaysShowTimestamps(bubbleStyle, bubbleTimeLocation))
+        alwaysShowTimestampsPref?.setEnabled(!bubbleThemeUtils.forceAlwaysShowTimestamps(bubbleStyle))
     }
 }

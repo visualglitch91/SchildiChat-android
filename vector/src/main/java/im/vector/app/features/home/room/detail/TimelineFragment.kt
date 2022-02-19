@@ -254,6 +254,7 @@ class TimelineFragment @Inject constructor(
         private val notificationDrawerManager: NotificationDrawerManager,
         private val eventHtmlRenderer: EventHtmlRenderer,
         private val vectorPreferences: VectorPreferences,
+        private val bubbleThemeUtils: BubbleThemeUtils,
         private val colorProvider: ColorProvider,
         private val dimensionConverter: DimensionConverter,
         private val userPreferencesProvider: UserPreferencesProvider,
@@ -1067,11 +1068,12 @@ class TimelineFragment @Inject constructor(
         }
 
         // Selected bubble style
-        val selectedBubbleStyle = when (BubbleThemeUtils.getBubbleStyle(requireContext())) {
-            BubbleThemeUtils.BUBBLE_STYLE_NONE  -> R.id.dev_bubble_style_none
-            BubbleThemeUtils.BUBBLE_STYLE_START -> R.id.dev_bubble_style_start
-            BubbleThemeUtils.BUBBLE_STYLE_BOTH  -> R.id.dev_bubble_style_both
-            else                                -> 0
+        val selectedBubbleStyle = when (bubbleThemeUtils.getBubbleStyle()) {
+            BubbleThemeUtils.BUBBLE_STYLE_NONE    -> R.id.dev_bubble_style_none
+            BubbleThemeUtils.BUBBLE_STYLE_START   -> R.id.dev_bubble_style_start
+            BubbleThemeUtils.BUBBLE_STYLE_BOTH    -> R.id.dev_bubble_style_both
+            BubbleThemeUtils.BUBBLE_STYLE_ELEMENT -> R.id.dev_bubble_style_element
+            else                                  -> R.id.dev_bubble_style_both
         }
         menu.findItem(selectedBubbleStyle).isChecked = true
     }
@@ -1116,6 +1118,10 @@ class TimelineFragment @Inject constructor(
             }
             R.id.dev_bubble_style_both -> {
                 handleSetBubbleStyle(BubbleThemeUtils.BUBBLE_STYLE_BOTH)
+                true
+            }
+            R.id.dev_bubble_style_element -> {
+                handleSetBubbleStyle(BubbleThemeUtils.BUBBLE_STYLE_ELEMENT)
                 true
             }
             R.id.menu_timeline_thread_list         -> {
@@ -2519,8 +2525,8 @@ class TimelineFragment @Inject constructor(
     }
 
     private fun handleSetBubbleStyle(bubbleStyle: String) {
-        if (bubbleStyle != BubbleThemeUtils.getBubbleStyle(requireContext())) {
-            BubbleThemeUtils.setBubbleStyle(requireContext(), bubbleStyle)
+        if (bubbleStyle != bubbleThemeUtils.getBubbleStyle()) {
+            bubbleThemeUtils.setBubbleStyle(bubbleStyle)
             requireActivity().recreate()
         }
     }

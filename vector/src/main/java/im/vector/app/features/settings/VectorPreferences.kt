@@ -30,13 +30,16 @@ import im.vector.app.core.di.DefaultSharedPreferences
 import im.vector.app.features.disclaimer.SHARED_PREF_KEY
 import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
 import im.vector.app.features.homeserver.ServerUrlsRepository
+import im.vector.app.features.themes.BubbleThemeUtils
 import im.vector.app.features.themes.ThemeUtils
 import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import timber.log.Timber
 import javax.inject.Inject
 
-class VectorPreferences @Inject constructor(private val context: Context): StaticScSdkHelper.ScSdkPreferenceProvider {
+class VectorPreferences @Inject constructor(private val context: Context, private val bubbleThemeUtils: BubbleThemeUtils): StaticScSdkHelper.ScSdkPreferenceProvider {
+
+    constructor(context: Context) : this(context, BubbleThemeUtils(context))
 
     companion object {
         const val SETTINGS_HELP_PREFERENCE_KEY = "SETTINGS_HELP_PREFERENCE_KEY"
@@ -890,8 +893,13 @@ class VectorPreferences @Inject constructor(private val context: Context): Stati
      *
      * @return true to show timeline message in bubble.
      */
+    /* SC: use BubbleThemeUtils instead
     fun useMessageBubblesLayout(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_INTERFACE_BUBBLE_KEY, false)
+    }
+     */
+    fun useElementMessageBubblesLayout(): Boolean {
+        return bubbleThemeUtils.getBubbleStyle() == BubbleThemeUtils.BUBBLE_STYLE_ELEMENT
     }
 
     /**

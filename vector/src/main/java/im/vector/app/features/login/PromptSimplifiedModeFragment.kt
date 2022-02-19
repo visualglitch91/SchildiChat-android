@@ -25,7 +25,7 @@ import im.vector.app.databinding.FragmentPromptSimplifiedModeBinding
 import im.vector.app.features.settings.VectorPreferences
 import javax.inject.Inject
 
-class PromptSimplifiedModeFragment @Inject constructor() : VectorBaseFragment<FragmentPromptSimplifiedModeBinding>() {
+class PromptSimplifiedModeFragment @Inject constructor(private val vectorPreferences: VectorPreferences) : VectorBaseFragment<FragmentPromptSimplifiedModeBinding>() {
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPromptSimplifiedModeBinding {
         return FragmentPromptSimplifiedModeBinding.inflate(inflater, container, false)
@@ -39,12 +39,12 @@ class PromptSimplifiedModeFragment @Inject constructor() : VectorBaseFragment<Fr
     }
 
     private fun simplifiedModeOn() {
-        VectorPreferences(requireContext()).setSimplifiedMode(true)
+        vectorPreferences.setSimplifiedMode(true)
         activity?.finish()
     }
 
     private fun simplifiedModeOff() {
-        VectorPreferences(requireContext()).setSimplifiedMode(false)
+        vectorPreferences.setSimplifiedMode(false)
         activity?.finish()
     }
 }

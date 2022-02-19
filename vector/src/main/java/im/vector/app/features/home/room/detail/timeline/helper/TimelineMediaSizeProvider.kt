@@ -48,7 +48,7 @@ class TimelineMediaSizeProvider @Inject constructor(private val resources: Resou
             maxImageWidth = (width * 0.7f).roundToInt()
             maxImageHeight = (height * 0.7f).roundToInt()
         }
-        return if (vectorPreferences.useMessageBubblesLayout()) {
+        return if (vectorPreferences.useElementMessageBubblesLayout()) {
             val bubbleMaxImageWidth = maxImageWidth.coerceAtMost(resources.getDimensionPixelSize(R.dimen.chat_bubble_fixed_size))
             Pair(bubbleMaxImageWidth, maxImageHeight)
         } else {
