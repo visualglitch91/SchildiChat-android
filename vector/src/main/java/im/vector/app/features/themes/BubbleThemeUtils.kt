@@ -16,7 +16,6 @@ import javax.inject.Inject
 class BubbleThemeUtils @Inject constructor(private val context: Context) {
     companion object {
         const val BUBBLE_STYLE_KEY = "BUBBLE_STYLE_KEY"
-        const val BUBBLE_TIME_LOCATION_KEY = "BUBBLE_TIME_LOCATION_KEY"
 
         const val BUBBLE_STYLE_NONE = "none"
         const val BUBBLE_STYLE_ELEMENT = "element"
@@ -49,15 +48,6 @@ class BubbleThemeUtils @Inject constructor(private val context: Context) {
         }
     }
 
-    // Special case of BUBBLE_STYLE_BOTH, to allow non-bubble items align to the sender either way
-    // (not meant for user setting, but internal use)
-    //const val BUBBLE_STYLE_BOTH_HIDDEN = "both_hidden"
-    // As above, so for single bubbles side
-    //const val BUBBLE_STYLE_START_HIDDEN = "start_hidden"
-
-    //private var mBubbleStyle: String = ""
-    //private var mBubbleTimeLocation: String = ""
-
     fun getBubbleStyle(): String {
         val bubbleStyle = PreferenceManager.getDefaultSharedPreferences(context).getString(BUBBLE_STYLE_KEY, BUBBLE_STYLE_BOTH)!!
         if (bubbleStyle !in listOf(BUBBLE_STYLE_NONE, BUBBLE_STYLE_START, BUBBLE_STYLE_BOTH, BUBBLE_STYLE_ELEMENT)) {
@@ -72,31 +62,6 @@ class BubbleThemeUtils @Inject constructor(private val context: Context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit().putString(BUBBLE_STYLE_KEY, value).apply()
     }
 
-    /* SC-TODO
-    fun drawsActualBubbles(bubbleStyle: String): Boolean {
-        return bubbleStyle == BUBBLE_STYLE_START || bubbleStyle == BUBBLE_STYLE_BOTH
-    }
-
-    fun drawsDualSide(bubbleStyle: String): Boolean {
-        return bubbleStyle == BUBBLE_STYLE_BOTH || bubbleStyle == BUBBLE_STYLE_BOTH_HIDDEN
-    }
-     */
-
-    fun forceAlwaysShowTimestamps(bubbleStyle: String): Boolean {
-        return isBubbleTimeLocationSettingAllowed(bubbleStyle)
-    }
-
-    fun isBubbleTimeLocationSettingAllowed(bubbleStyle: String): Boolean {
-        return bubbleStyle == BUBBLE_STYLE_BOTH // SC-TODO? || bubbleStyle == BUBBLE_STYLE_BOTH_HIDDEN
-    }
-
-    fun forceAlwaysShowTimestamps(): Boolean {
-        return forceAlwaysShowTimestamps(getBubbleStyle())
-    }
-
-    fun isBubbleTimeLocationSettingAllowed(): Boolean {
-        return isBubbleTimeLocationSettingAllowed(getBubbleStyle())
-    }
 }
 
 fun guessTextWidth(view: TextView): Float {

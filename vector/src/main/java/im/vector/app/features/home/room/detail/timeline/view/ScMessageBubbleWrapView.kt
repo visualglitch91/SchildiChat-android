@@ -54,7 +54,6 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
     override fun onFinishInflate() {
         super.onFinishInflate()
         views = ViewMessageBubbleScBinding.bind(this)
-        // SC-TODO ... ?
     }
 
     fun <H : VectorEpoxyHolder> customBind(

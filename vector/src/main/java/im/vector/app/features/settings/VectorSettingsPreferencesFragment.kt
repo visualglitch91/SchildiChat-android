@@ -246,6 +246,6 @@ class VectorSettingsPreferencesFragment @Inject constructor(
 
     private fun updateBubbleDependencies(bubbleStyle: String) {
         //bubbleTimeLocationPref?.setEnabled(BubbleThemeUtils.isBubbleTimeLocationSettingAllowed(bubbleStyle))
-        alwaysShowTimestampsPref?.setEnabled(!bubbleThemeUtils.forceAlwaysShowTimestamps(bubbleStyle))
+        alwaysShowTimestampsPref?.setEnabled(bubbleStyle in listOf(BubbleThemeUtils.BUBBLE_STYLE_NONE, BubbleThemeUtils.BUBBLE_STYLE_START))
     }
 }
