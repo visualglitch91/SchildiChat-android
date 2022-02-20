@@ -439,6 +439,8 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
         (views.bubbleView.layoutParams as FrameLayout.LayoutParams).gravity = if (messageLayout.reverseBubble) Gravity.END else Gravity.START
         //holder.informationBottom.layoutDirection = if (shouldRtl) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR
         setFlatRtl(views.reactionsContainer, if (messageLayout.reverseBubble) reverseDirection else defaultDirection, defaultDirection)
+        //setFlatRtl(views.messageThreadSummaryContainer, if (messageLayout.reverseBubble) reverseDirection else defaultDirection, defaultDirection, 2)
+        views.messageThreadSummaryContainer.layoutDirection = if (messageLayout.reverseBubble) reverseDirection else defaultDirection
         // Layout is broken if bubbleView is RTL (for some reason, Android uses left/end padding for right/start as well...)
         setFlatRtl(views.bubbleView, View.LAYOUT_DIRECTION_LTR, defaultDirection)
     }
