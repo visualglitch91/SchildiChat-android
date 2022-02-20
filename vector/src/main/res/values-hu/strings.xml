@@ -1615,7 +1615,7 @@ Ha nem te állítottad be a visszaállítási metódust, akkor egy támadó pró
     <string name="login_server_url_form_modular_hint">Element Matrix Services Cím</string>
     <string name="login_server_url_form_other_hint">Cím</string>
     <string name="login_server_url_form_modular_text">Prémium szerverüzemeltetés szervezetek részére</string>
-    <string name="login_server_url_form_modular_notice">Add meg az általad használt Modular szerver, vagy a hozzá tartozó Element címét</string>
+    <string name="login_server_url_form_modular_notice">Add meg az általad használt Modular szerver, vagy a hozzá tartozó SchildiChat címét</string>
     <string name="login_sso_error_message">Az oldal betöltésekor hiba történt: %1$s (%2$d)</string>
     <string name="login_registration_disabled">Ne haragudj, ez a szerver nem fogad új fiókokat.</string>
     <string name="login_login_with_email_error">Ez az e-mail cím egyik fiókhoz sincs társítva.</string>
@@ -2214,7 +2214,7 @@ Ha nem te állítottad be a visszaállítási metódust, akkor egy támadó pró
     <string name="crypto_error_withheld_unverified">Nem érheted el ezt az üzenetet, mert a feladó nem bízik a munkamenetedben</string>
     <string name="crypto_error_withheld_generic">Nem érheted el ezt az üzenetet, mert a feladó szándékosan nem küldte el a kulcsokat</string>
     <string name="notice_crypto_unable_to_decrypt_merged">Várakozás a titkosítási előzményekre</string>
-    <string name="disclaimer_title">A Riot mostantól Element!</string>
+    <string name="disclaimer_title">A Riot mostantól SchildiChat!</string>
     <string name="disclaimer_content">Örömmel jelentjük be, hogy nevet változtattunk! Az alkalmazás naprakész, és be vagy jelentkezve a fiókodba.</string>
     <string name="disclaimer_negative_button">ÉRTEM</string>
     <string name="disclaimer_positive_button">TOVÁBBI INFORMÁCIÓK</string>
@@ -2608,7 +2608,7 @@ Ha nem te állítottad be a visszaállítási metódust, akkor egy támadó pró
     <string name="settings_security_pin_code_change_pin_summary">Jelenlegi PIN kód megváltoztatása</string>
     <string name="settings_security_pin_code_change_pin_title">PIN megváltoztatása</string>
     <string name="template_settings_security_pin_code_grace_period_summary_off">${app_name} megnyitásához mindig PIN kód szükséges.</string>
-    <string name="template_settings_security_pin_code_grace_period_summary_on">Ha 2 percnél hosszabb ideig nem használod az ${app_name} Element alkalmazást, PIN kódot fog kérni.</string>
+    <string name="template_settings_security_pin_code_grace_period_summary_on">Ha 2 percnél hosszabb ideig nem használod az ${app_name} SchildiChat alkalmazást, PIN kódot fog kérni.</string>
     <string name="settings_security_pin_code_grace_period_title">2 perc elteltével PIN szükséges</string>
     <string name="settings_security_pin_code_use_biometrics_summary_on">Eszköz specifikus biometrikus azonosítás engedélyezése, mint ujjlenyomat vagy arcfelismerés.</string>
     <plurals name="entries">
@@ -3028,7 +3028,7 @@ Ha nem te állítottad be a visszaállítási metódust, akkor egy támadó pró
     </plurals>
     <string name="preference_system_settings">Rendszerbeállítások</string>
     <string name="preference_versions">Verziók</string>
-    <string name="preference_help_summary">Segítség az Element használatában</string>
+    <string name="preference_help_summary">Segítség az SchildiChat használatában</string>
     <string name="preference_help_title">Segítség és támogatás</string>
     <string name="preference_help">Segítség</string>
     <string name="legals_no_policy_provided">Ez a szerver nem adott meg szabályzatot.</string>
@@ -3040,10 +3040,10 @@ Ha nem te állítottad be a visszaállítási metódust, akkor egy támadó pró
     <string name="analytics_opt_in_list_item_2"><b>Nem</b> osztjuk meg az információt harmadik féllel</string>
     <string name="analytics_opt_in_list_item_1"><b>Nem</b> küldünk és nem profilozunk semmilyen fiók adatot</string>
     <string name="analytics_opt_in_content_link">itt</string>
-    <string name="analytics_opt_in_content">Segíts észrevennünk a hibákat, és jobbá tenni az Element-et a névtelen használati adatok küldése által. Ahhoz, hogy megértsük, hogyan használnak a felhasználók egyszerre több eszközt, egy véletlenszerű azonosítót generálunk, ami az eszközeid között meg lesz osztva.
+    <string name="analytics_opt_in_content">Segíts észrevennünk a hibákat, és jobbá tenni az SchildiChat-et a névtelen használati adatok küldése által. Ahhoz, hogy megértsük, hogyan használnak a felhasználók egyszerre több eszközt, egy véletlenszerű azonosítót generálunk, ami az eszközeid között meg lesz osztva.
 \n
 \nElolvashatod a feltételeinket %s.</string>
-    <string name="analytics_opt_in_title">Segíts az Element-et jobbá tenni</string>
+    <string name="analytics_opt_in_title">Segíts az SchildiChat-et jobbá tenni</string>
     <string name="a11y_poll_winner_option">nyerő válasz</string>
     <string name="preference_root_legals">Jogi dolgok</string>
     <string name="restart_the_application_to_apply_changes">A változások életbelépéséhez indítsd újra az alkalmazást.</string>
