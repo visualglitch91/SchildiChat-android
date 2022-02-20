@@ -60,10 +60,10 @@ abstract class MessageLocationItem : AbsMessageItem<MessageLocationItem.Holder>(
         val location = locationUrl ?: return
         val messageLayout = attributes.informationData.messageLayout
         val dimensionConverter = DimensionConverter(holder.view.resources)
-        val imageCornerTransformation = if (messageLayout is TimelineMessageLayout.Bubble) {
-            messageLayout.cornersRadius.granularRoundedCorners()
-        } else {
-            RoundedCorners(dimensionConverter.dpToPx(8))
+        val imageCornerTransformation = when (messageLayout) {
+            is TimelineMessageLayout.ScBubble -> RoundedCorners(dimensionConverter.dpToPx(3))
+            is TimelineMessageLayout.Bubble   -> messageLayout.cornersRadius.granularRoundedCorners()
+            else -> RoundedCorners(dimensionConverter.dpToPx(8))
         }
         holder.staticMapImageView.updateLayoutParams {
             width = mapWidth

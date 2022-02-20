@@ -100,10 +100,11 @@ abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
             }
         }
 
-        val backgroundTint = if (attributes.informationData.messageLayout is TimelineMessageLayout.Bubble) {
+        val backgroundTint = if (attributes.informationData.messageLayout is TimelineMessageLayout.Bubble ||
+                attributes.informationData.messageLayout is TimelineMessageLayout.ScBubble) {
             Color.TRANSPARENT
         } else {
-            ThemeUtils.getColor(holder.view.context, R.attr.vctr_content_quinary)
+            ThemeUtils.getColor(holder.view.context, R.attr.sc_message_bg_incoming)
         }
         holder.voicePlaybackLayout.backgroundTintList = ColorStateList.valueOf(backgroundTint)
         holder.voicePlaybackControlButton.setOnClickListener { playbackControlButtonClickListener?.invoke(it) }
@@ -144,6 +145,11 @@ abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
         contentUploadStateTrackerBinder.unbind(attributes.informationData.eventId)
         contentDownloadStateTrackerBinder.unbind(mxcUrl)
         voiceMessagePlaybackTracker.unTrack(attributes.informationData.eventId)
+    }
+
+    override fun applyScBubbleStyle(messageLayout: TimelineMessageLayout.ScBubble, holder: Holder) {
+        // Undo padding from TimelineContentMediaPillStyle
+        holder.voicePlaybackLayout.setPadding(0, 0, 0, 0)
     }
 
     override fun getViewStubId() = STUB_ID

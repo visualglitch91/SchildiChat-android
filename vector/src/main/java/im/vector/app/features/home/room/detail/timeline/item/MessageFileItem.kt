@@ -87,10 +87,11 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
             }
         }
 //        holder.view.setOnClickListener(clickListener)
-        val backgroundTint = if (attributes.informationData.messageLayout is TimelineMessageLayout.Bubble) {
+        val backgroundTint = if (attributes.informationData.messageLayout is TimelineMessageLayout.Bubble
+                || attributes.informationData.messageLayout is TimelineMessageLayout.ScBubble) {
             Color.TRANSPARENT
         } else {
-            ThemeUtils.getColor(holder.view.context, R.attr.vctr_content_quinary)
+            ThemeUtils.getColor(holder.view.context, R.attr.sc_message_bg_incoming)
         }
         holder.mainLayout.backgroundTintList = ColorStateList.valueOf(backgroundTint)
         holder.filenameView.onClick(attributes.itemClickListener)
@@ -109,13 +110,18 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
     override fun getViewStubMinimumWidth(holder: Holder): Int {
         // Guess text width for name and time
         // On first call, holder.fileImageView.width is not initialized yet
-        val imageWidth = holder.fileImageView.resources.getDimensionPixelSize(R.dimen.chat_avatar_size)
+        val imageWidth = holder.fileImageView.resources.getDimensionPixelSize(R.dimen.file_icon_size)
         val minimumWidthWithText =
                 ceil(guessTextWidth(holder.filenameView, filename)).toInt() +
                         imageWidth +
                         holder.filenameView.resources.getDimensionPixelSize(R.dimen.sc_bubble_guess_minimum_width_padding)
         val absoluteMinimumWidth = imageWidth*3
         return max(absoluteMinimumWidth, minimumWidthWithText)
+    }
+
+    override fun applyScBubbleStyle(messageLayout: TimelineMessageLayout.ScBubble, holder: Holder) {
+        // Undo padding from TimelineContentMediaPillStyle
+        holder.mainLayout.setPadding(0, 0, 0, 0)
     }
 
     override fun getViewStubId() = STUB_ID

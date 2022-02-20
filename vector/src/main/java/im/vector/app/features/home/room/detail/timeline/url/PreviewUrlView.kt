@@ -87,6 +87,7 @@ class PreviewUrlView @JvmOverloads constructor(
                 val guidelineBegin = DimensionConverter(resources).dpToPx(8)
                 views.urlPreviewStartGuideline.setGuidelineBegin(guidelineBegin)
             }
+            is TimelineMessageLayout.ScBubble,
             is TimelineMessageLayout.Bubble  -> {
                 setCardBackgroundColor(Color.TRANSPARENT)
                 rippleColor = ColorStateList.valueOf(Color.TRANSPARENT)

@@ -32,4 +32,6 @@
     <dimen name="sc_footer_reverse_margin_end">8dp</dimen>
     <dimen name="sc_footer_rtl_mismatch_extra_padding">4dp</dimen>
 
+    <dimen name="file_icon_size">32dp</dimen>
+
 </resources>
