@@ -35,6 +35,7 @@
     <!--android:title="@string/settings_labs_enable_send_voice" />-->
 
     <im.vector.app.core.preference.VectorSwitchPreference
+        android:enabled="false"
         android:defaultValue="false"
         android:key="SETTINGS_OPEN_CHATS_AT_FIRST_UNREAD"
         android:title="@string/settings_open_chats_at_first_unread"
