@@ -76,6 +76,7 @@ import im.vector.app.features.login.LoginSignUpSignInSelectionFragment
 import im.vector.app.features.login.LoginSplashFragment
 import im.vector.app.features.login.LoginWaitForEmailFragment
 import im.vector.app.features.login.LoginWebFragment
+import im.vector.app.features.login.PromptSimplifiedModeFragment
 import im.vector.app.features.login.terms.LoginTermsFragment
 import im.vector.app.features.login2.LoginCaptchaFragment2
 import im.vector.app.features.login2.LoginFragmentSigninPassword2
@@ -953,6 +954,11 @@ interface FragmentModule {
     @IntoMap
     @FragmentKey(CreatePollFragment::class)
     fun bindCreatePollFragment(fragment: CreatePollFragment): Fragment
+
+    @Binds
+    @IntoMap
+    @FragmentKey(PromptSimplifiedModeFragment::class)
+    fun bindPromptSimplifiedModeFragment(fragment: PromptSimplifiedModeFragment): Fragment
 
     @Binds
     @IntoMap
