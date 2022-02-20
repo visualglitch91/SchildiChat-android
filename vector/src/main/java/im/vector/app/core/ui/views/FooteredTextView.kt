@@ -4,9 +4,14 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.text.Layout
+import android.text.Spannable
+import android.text.Spanned
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.text.getSpans
+import androidx.core.text.toSpanned
 import im.vector.app.R
+import im.vector.app.features.html.HtmlCodeSpan
 import kotlin.math.ceil
 import kotlin.math.max
 
@@ -90,8 +95,19 @@ class FooteredTextView @JvmOverloads constructor(
                     (maxLineWidth + resources.getDimensionPixelSize(R.dimen.sc_footer_rtl_mismatch_extra_padding))
                 ) + footerWidth
 
+        // If the last line is a multi-line code block, we have never space in the last line (as the black background always uses full width)
+        val forceNewlineFooter = if (text is Spannable || text is Spanned) {
+            val span = text.toSpanned()
+            // If not found, -1+1 = 0
+            val lastLineStart = span.lastIndexOf("\n") + 1
+            val lastLineCodeSpans = span.getSpans<HtmlCodeSpan>(lastLineStart)
+            lastLineCodeSpans.any { it.isBlock }
+        } else {
+            false
+        }
+
         // Is there space for a horizontal footer?
-        if (widthWithHorizontalFooter <= widthLimit) {
+        if (widthWithHorizontalFooter <= widthLimit && !forceNewlineFooter) {
             // Reserve extra horizontal footer space if necessary
             if (widthWithHorizontalFooter > newWidth) {
                 newWidth = ceil(widthWithHorizontalFooter).toInt()
