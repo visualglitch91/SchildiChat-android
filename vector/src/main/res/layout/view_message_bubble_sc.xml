@@ -5,7 +5,6 @@
     android:id="@+id/eventBaseView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
     tools:parentTag="android.widget.RelativeLayout">
 
     <im.vector.app.core.platform.CheckableView
