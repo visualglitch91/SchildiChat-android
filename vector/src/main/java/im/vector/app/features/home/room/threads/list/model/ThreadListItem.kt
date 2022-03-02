@@ -33,6 +33,7 @@ import im.vector.app.core.extensions.setLeftDrawable
 import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.features.displayname.getBestName
 import im.vector.app.features.home.AvatarRenderer
+import im.vector.app.features.themes.ThemeUtils
 import org.matrix.android.sdk.api.session.threads.ThreadNotificationState
 import org.matrix.android.sdk.api.util.MatrixItem
 
@@ -80,11 +81,11 @@ abstract class ThreadListItem : VectorEpoxyModel<ThreadListItem.Holder>() {
         when (threadNotificationState) {
             ThreadNotificationState.NEW_MESSAGE             -> {
                 holder.unreadImageView.isVisible = true
-                holder.unreadImageView.setColorFilter(ContextCompat.getColor(holder.view.context, R.color.palette_gray_200))
+                holder.unreadImageView.setColorFilter(ThemeUtils.getColor(holder.view.context, R.attr.colorAccent))
             }
             ThreadNotificationState.NEW_HIGHLIGHTED_MESSAGE -> {
                 holder.unreadImageView.isVisible = true
-                holder.unreadImageView.setColorFilter(ContextCompat.getColor(holder.view.context, R.color.palette_vermilion))
+                holder.unreadImageView.setColorFilter(ThemeUtils.getColor(holder.view.context, R.attr.colorError))
             }
             else                                            -> {
                 holder.unreadImageView.isVisible = false
