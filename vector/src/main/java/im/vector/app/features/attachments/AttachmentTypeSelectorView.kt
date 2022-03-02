@@ -88,15 +88,19 @@ class AttachmentTypeSelectorView(context: Context,
     }
 
     private fun animateOpen() {
+        /*
         views.attachmentCloseButton.animate()
                 .setDuration(200)
                 .rotation(135f)
+         */
     }
 
     private fun animateClose() {
+        /*
         views.attachmentCloseButton.animate()
                 .setDuration(200)
                 .rotation(0f)
+         */
     }
 
     fun show(anchor: View) {

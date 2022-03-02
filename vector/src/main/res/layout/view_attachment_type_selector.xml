@@ -13,11 +13,11 @@
         android:layout_margin="@dimen/composer_attachment_margin"
         android:background="@null"
         android:contentDescription="@string/action_close"
-        android:src="@drawable/ic_attachment"
+        android:src="@drawable/ic_close_24dp"
+        app:tint="?vctr_content_secondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:rotation="135" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <HorizontalScrollView
         android:layout_width="0dp"
