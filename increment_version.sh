@@ -158,7 +158,7 @@ git_changelog() {
         | grep -v "Added translation using Weblate" \
         | grep -v "Translated using Weblate" \
         | grep -v "weblate/sc" \
-        | grep -v "\\[merge.*\\]" \
+        | grep -v "\\[.*merge.*\\]" \
         | grep -v "Disable Android Auto supports" \
         || echo "No significant changes since the last stable release"
 }
