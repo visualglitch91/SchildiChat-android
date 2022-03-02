@@ -61,7 +61,7 @@ class TimelineMessageLayoutFactory @Inject constructor(private val session: Sess
                 MessageType.MSGTYPE_IMAGE,
                 MessageType.MSGTYPE_VIDEO,
                 MessageType.MSGTYPE_STICKER_LOCAL,
-                MessageType.MSGTYPE_EMOTE
+                //MessageType.MSGTYPE_EMOTE
         )
         private val MSG_TYPES_WITH_TIMESTAMP_AS_OVERLAY = setOf(
                 MessageType.MSGTYPE_IMAGE, MessageType.MSGTYPE_VIDEO
@@ -103,10 +103,15 @@ class TimelineMessageLayoutFactory @Inject constructor(private val session: Sess
                 val isBubble = event.shouldBuildBubbleLayout()
                 val singleSidedLayout = bubbleThemeUtils.getBubbleStyle() == BubbleThemeUtils.BUBBLE_STYLE_START
                 val pseudoBubble = messageContent.isPseudoBubble()
+                val showTimestamp = showInformation || !singleSidedLayout || vectorPreferences.alwaysShowTimeStamps()
                 return TimelineMessageLayout.ScBubble(
                         showAvatar = showInformation,
-                        showDisplayName = showInformation,
-                        showTimestamp = !singleSidedLayout || vectorPreferences.alwaysShowTimeStamps(),
+                        // Display names not required if
+                        // - !showInformation -> multiple messages in a row, already had name before
+                        // - redundantDisplayName -> message content already includes the display name (-> m.emote)
+                        // Display name still required for single sided layout if timestamp is shown (empty space looks bad otherwise)
+                        showDisplayName = showInformation && ((singleSidedLayout && showTimestamp) || !messageContent.redundantDisplayName()),
+                        showTimestamp = showTimestamp,
                         isIncoming = !isSentByMe,
                         isNotice = messageContent is MessageNoticeContent,
                         reverseBubble = isSentByMe && !singleSidedLayout,
@@ -185,6 +190,11 @@ class TimelineMessageLayoutFactory @Inject constructor(private val session: Sess
         if (this == null) return false
         if (msgType == MessageType.MSGTYPE_LOCATION) return vectorPreferences.labsRenderLocationsInTimeline()
         return this.msgType in MSG_TYPES_WITH_PSEUDO_BUBBLE_LAYOUT
+    }
+
+    private fun MessageContent?.redundantDisplayName(): Boolean {
+        if (this == null) return false
+        return msgType == MessageType.MSGTYPE_EMOTE
     }
 
     private fun MessageContent?.timestampAsOverlay(): Boolean {
