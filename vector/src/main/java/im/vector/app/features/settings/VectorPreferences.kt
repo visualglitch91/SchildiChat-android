@@ -1023,6 +1023,15 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
         }, MatrixItemColorProvider.USER_COLORING_DEFAULT) ?: MatrixItemColorProvider.USER_COLORING_DEFAULT
     }
 
+    fun canOverrideUserColors(): Boolean {
+        return MatrixItemColorProvider.USER_COLORING_FROM_ID in listOf(
+                userColorMode(isDirect = false, isPublic = false),
+                userColorMode(isDirect = false, isPublic = true),
+                userColorMode(isDirect = true, isPublic = false),
+                userColorMode(isDirect = true, isPublic = true),
+        )
+    }
+
     // SC addition
     fun loadRoomAtFirstUnread(): Boolean {
         // https://github.com/vector-im/element-android/issues/5092
