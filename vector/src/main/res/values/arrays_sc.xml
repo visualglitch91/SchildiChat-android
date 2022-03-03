@@ -14,6 +14,17 @@
         <item>none</item>
     </string-array>
 
+    <string-array name="bubble_appearance_roundness_entries" translatable="false">
+        <item>@string/bubble_rounded_corners_default</item>
+        <item>@string/bubble_rounded_corners_r1</item>
+        <item>@string/bubble_rounded_corners_r2</item>
+    </string-array>
+    <string-array name="bubble_appearance_roundness_values" translatable="false">
+        <item>default</item>
+        <item>r1</item>
+        <item>r2</item>
+    </string-array>
+
     <string-array name="bubble_time_location_entries" translatable="false">
         <item>@string/bubble_time_location_top</item>
         <item>@string/bubble_time_location_bottom</item>

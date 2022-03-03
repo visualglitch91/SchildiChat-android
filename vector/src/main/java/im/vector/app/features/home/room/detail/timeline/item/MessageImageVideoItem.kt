@@ -17,6 +17,7 @@
 package im.vector.app.features.home.room.detail.timeline.item
 
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -25,6 +26,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
+import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import im.vector.app.R
 import im.vector.app.core.epoxy.ClickListener
@@ -37,7 +39,9 @@ import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLay
 import im.vector.app.features.home.room.detail.timeline.style.granularRoundedCorners
 import im.vector.app.features.home.room.detail.timeline.view.ScMessageBubbleWrapView
 import im.vector.app.features.media.ImageContentRenderer
+import im.vector.app.features.themes.defaultScBubbleAppearance
 import org.matrix.android.sdk.api.util.MimeTypes
+import kotlin.math.round
 
 @EpoxyModelClass(layout = R.layout.item_timeline_event_base)
 abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Holder>() {
@@ -90,12 +94,23 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
 
         val messageLayout = baseAttributes.informationData.messageLayout
         val dimensionConverter = DimensionConverter(holder.view.resources)
-        val imageCornerTransformation = when (messageLayout) {
-            is TimelineMessageLayout.ScBubble -> RoundedCorners(dimensionConverter.dpToPx(3))
-            is TimelineMessageLayout.Bubble   -> messageLayout.cornersRadius.granularRoundedCorners()
-            else -> RoundedCorners(dimensionConverter.dpToPx(8))
+        val cornerRoundnessDp: Int
+        val imageCornerTransformation: Transformation<Bitmap>
+        when (messageLayout) {
+            is TimelineMessageLayout.ScBubble -> {
+                cornerRoundnessDp = round(messageLayout.bubbleAppearance.getBubbleRadiusDp(holder.view.context)).toInt()
+                imageCornerTransformation = RoundedCorners(dimensionConverter.dpToPx(cornerRoundnessDp))
+            }
+            is TimelineMessageLayout.Bubble   -> {
+                cornerRoundnessDp = 8
+                imageCornerTransformation = messageLayout.cornersRadius.granularRoundedCorners()
+            }
+            else -> {
+                cornerRoundnessDp = 8
+                imageCornerTransformation = RoundedCorners(dimensionConverter.dpToPx(cornerRoundnessDp))
+            }
         }
-        imageContentRenderer.render(mediaData, effectiveMode, holder.imageView, imageCornerTransformation, onImageSizeListener)
+        imageContentRenderer.render(mediaData, effectiveMode, holder.imageView, cornerRoundnessDp, imageCornerTransformation, onImageSizeListener)
         if (!attributes.informationData.sendState.hasFailed()) {
             contentUploadStateTrackerBinder.bind(
                     attributes.informationData.eventId,
@@ -180,14 +195,16 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
 
         // Image outline
         when {
-            !(messageLayout.isRealBubble || messageLayout.isPseudoBubble) || mode != ImageContentRenderer.Mode.THUMBNAIL -> {
-                // Don't show it for non-bubble layouts, don't show for Stickers, ...
+            // Don't show it for non-bubble layouts, don't show for Stickers, ...
+            // Also only supported for default corner radius
+            !(messageLayout.isRealBubble || messageLayout.isPseudoBubble) || mode != ImageContentRenderer.Mode.THUMBNAIL
+                    || messageLayout.bubbleAppearance != defaultScBubbleAppearance -> {
                 holder.mediaContentView.background = null
             }
-            attributes.informationData.sentByMe                                                           -> {
+            attributes.informationData.sentByMe                                    -> {
                 holder.mediaContentView.setBackgroundResource(R.drawable.background_image_border_outgoing)
             }
-            else                                        -> {
+            else                                                                   -> {
                 holder.mediaContentView.setBackgroundResource(R.drawable.background_image_border_incoming)
             }
         }

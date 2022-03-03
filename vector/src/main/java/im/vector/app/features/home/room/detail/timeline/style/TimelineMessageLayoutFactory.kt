@@ -112,6 +112,7 @@ class TimelineMessageLayoutFactory @Inject constructor(private val session: Sess
                         // Display name still required for single sided layout if timestamp is shown (empty space looks bad otherwise)
                         showDisplayName = showInformation && ((singleSidedLayout && showTimestamp) || !messageContent.redundantDisplayName()),
                         showTimestamp = showTimestamp,
+                        bubbleAppearance = bubbleThemeUtils.getBubbleAppearance(),
                         isIncoming = !isSentByMe,
                         isNotice = messageContent is MessageNoticeContent,
                         reverseBubble = isSentByMe && !singleSidedLayout,
@@ -168,6 +169,7 @@ class TimelineMessageLayoutFactory @Inject constructor(private val session: Sess
                         showAvatar = false,
                         showDisplayName = false,
                         showTimestamp = true,
+                        bubbleAppearance = bubbleThemeUtils.getBubbleAppearance(),
                         isIncoming = false,
                         isNotice = false,
                         reverseBubble = false,

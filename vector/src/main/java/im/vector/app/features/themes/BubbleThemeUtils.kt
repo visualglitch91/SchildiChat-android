@@ -2,9 +2,14 @@ package im.vector.app.features.themes
 
 import android.content.Context
 import android.graphics.Paint
+import android.os.Parcelable
 import android.widget.TextView
+import androidx.annotation.DimenRes
+import androidx.annotation.DrawableRes
 import androidx.preference.PreferenceManager
+import im.vector.app.R
 import im.vector.app.features.home.room.detail.timeline.item.AnonymousReadReceipt
+import kotlinx.parcelize.Parcelize
 import org.matrix.android.sdk.api.session.room.send.SendState
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import timber.log.Timber
@@ -16,6 +21,11 @@ import javax.inject.Inject
 class BubbleThemeUtils @Inject constructor(private val context: Context) {
     companion object {
         const val BUBBLE_STYLE_KEY = "BUBBLE_STYLE_KEY"
+        const val BUBBLE_ROUNDNESS_KEY = "SETTINGS_SC_BUBBLE_ROUNDED_CORNERS"
+        const val BUBBLE_ROUNDNESS_DEFAULT = "default"
+        const val BUBBLE_ROUNDNESS_R1 = "r1"
+        const val BUBBLE_ROUNDNESS_R2 = "r2"
+        const val BUBBLE_TAIL_KEY = "SETTINGS_SC_BUBBLE_TAIL"
 
         const val BUBBLE_STYLE_NONE = "none"
         const val BUBBLE_STYLE_ELEMENT = "element"
@@ -62,6 +72,22 @@ class BubbleThemeUtils @Inject constructor(private val context: Context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit().putString(BUBBLE_STYLE_KEY, value).apply()
     }
 
+    fun getBubbleAppearance(): ScBubbleAppearance {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        val baseAppearance = when (prefs.getString(BUBBLE_ROUNDNESS_KEY, BUBBLE_ROUNDNESS_DEFAULT)) {
+            BUBBLE_ROUNDNESS_R1 -> r1ScBubbleAppearance
+            BUBBLE_ROUNDNESS_R2 -> r2ScBubbleAppearance
+            else                -> defaultScBubbleAppearance
+        }
+        return if (prefs.getBoolean(BUBBLE_TAIL_KEY, true)) {
+            baseAppearance
+        } else {
+            baseAppearance.copy(
+                    textBubbleOutgoing = baseAppearance.textBubbleOutgoingNoTail,
+                    textBubbleIncoming = baseAppearance.textBubbleIncomingNoTail
+            )
+        }
+    }
 }
 
 fun guessTextWidth(view: TextView): Float {
@@ -77,3 +103,49 @@ fun guessTextWidth(textSize: Float, text: CharSequence): Float {
     paint.textSize = textSize
     return paint.measureText(text.toString())
 }
+
+@Parcelize
+data class ScBubbleAppearance(
+        @DimenRes
+        val roundness: Int,
+        @DrawableRes
+        val textBubbleOutgoing: Int,
+        @DrawableRes
+        val textBubbleIncoming: Int,
+        @DrawableRes
+        val textBubbleOutgoingNoTail: Int,
+        @DrawableRes
+        val textBubbleIncomingNoTail: Int,
+) : Parcelable {
+    fun getBubbleRadiusPx(context: Context): Int {
+        return context.resources.getDimensionPixelSize(roundness)
+    }
+    fun getBubbleRadiusDp(context: Context): Float {
+        return context.resources.getDimension(roundness)
+    }
+}
+
+val defaultScBubbleAppearance = ScBubbleAppearance(
+        R.dimen.sc_bubble_radius,
+        R.drawable.msg_bubble_text_outgoing,
+        R.drawable.msg_bubble_text_incoming,
+        R.drawable.msg_bubble_text_outgoing_notail,
+        R.drawable.msg_bubble_text_incoming_notail,
+)
+
+val r1ScBubbleAppearance = ScBubbleAppearance(
+        R.dimen.sc_bubble_r1_radius,
+        R.drawable.msg_bubble_r1_text_outgoing,
+        R.drawable.msg_bubble_r1_text_incoming,
+        R.drawable.msg_bubble_r1_text_outgoing_notail,
+        R.drawable.msg_bubble_r1_text_incoming_notail,
+)
+
+
+val r2ScBubbleAppearance = ScBubbleAppearance(
+        R.dimen.sc_bubble_r2_radius,
+        R.drawable.msg_bubble_r2_text_outgoing,
+        R.drawable.msg_bubble_r2_text_incoming,
+        R.drawable.msg_bubble_r2_text_outgoing_notail,
+        R.drawable.msg_bubble_r2_text_incoming_notail,
+)

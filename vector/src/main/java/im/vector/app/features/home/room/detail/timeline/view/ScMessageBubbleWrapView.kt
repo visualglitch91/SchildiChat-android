@@ -264,21 +264,8 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
             // Padding for bubble content: long for side with tail, short for other sides
             val longPaddingDp: Int
             val shortPaddingDp: Int
+            bubbleView.setBackgroundResource(messageLayout.bubbleDrawable)
             if (!messageLayout.isPseudoBubble) {
-                val bubbleRes = if (messageLayout.showAvatar) { // tail
-                    if (messageLayout.reverseBubble) { // outgoing
-                        R.drawable.msg_bubble_text_outgoing
-                    } else { // incoming
-                        R.drawable.msg_bubble_text_incoming
-                    }
-                } else { // notail
-                    if (messageLayout.reverseBubble) { // outgoing
-                        R.drawable.msg_bubble_text_outgoing_notail
-                    } else { // incoming
-                        R.drawable.msg_bubble_text_incoming_notail
-                    }
-                }
-                bubbleView.setBackgroundResource(bubbleRes)
                 longPaddingDp = bubbleView.resources.getDimensionPixelSize(R.dimen.sc_bubble_inner_padding_long_side)
                 shortPaddingDp = bubbleView.resources.getDimensionPixelSize(R.dimen.sc_bubble_inner_padding_short_side)
             } else {

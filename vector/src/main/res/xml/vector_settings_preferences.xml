@@ -38,6 +38,10 @@
             android:title="@string/settings_dark_theme"
             app:iconSpaceReserved="false" />
 
+        <im.vector.app.core.preference.VectorPreference
+            android:title="@string/settings_advanced_theme_settings"
+            app:fragment="im.vector.app.features.settings.VectorSettingsAdvancedThemeFragment" />
+
         <im.vector.app.core.preference.VectorListPreference
             android:defaultValue="both"
             android:entries="@array/bubble_style_entries"
@@ -46,6 +50,11 @@
             android:summary="%s"
             android:title="@string/bubble_style"
             app:iconSpaceReserved="false" />
+
+        <im.vector.app.core.preference.VectorPreference
+            android:key="BUBBLE_APPEARANCE_KEY"
+            android:title="@string/bubble_appearance"
+            app:fragment="im.vector.app.features.settings.VectorSettingsBubbleAppearanceFragment" />
 
         <!--
         <im.vector.app.core.preference.VectorListPreference
@@ -63,10 +72,6 @@
             android:key="SETTINGS_INTERFACE_TEXT_SIZE_KEY"
             android:persistent="false"
             android:title="@string/font_size" />
-
-        <im.vector.app.core.preference.VectorPreference
-            android:title="@string/settings_advanced_theme_settings"
-            app:fragment="im.vector.app.features.settings.VectorSettingsAdvancedThemeFragment" />
 
     </im.vector.app.core.preference.VectorPreferenceCategory>
 

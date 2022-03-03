@@ -43,11 +43,16 @@ class VectorSettingsPreferencesFragment @Inject constructor(
         private val vectorPreferences: VectorPreferences
 ) : VectorSettingsBaseFragment() {
 
+    companion object {
+        const val BUBBLE_APPEARANCE_KEY = "BUBBLE_APPEARANCE_KEY"
+    }
+
     override var titleRes = R.string.settings_preferences
     override val preferenceXmlRes = R.xml.vector_settings_preferences
 
     //private var bubbleTimeLocationPref: VectorListPreference? = null
     private var alwaysShowTimestampsPref: VectorSwitchPreference? = null
+    private var bubbleAppearancePref: VectorPreference? = null
 
     private val selectedLanguagePreference by lazy {
         findPreference<VectorPreference>(VectorPreferences.SETTINGS_INTERFACE_LANGUAGE_PREFERENCE_KEY)!!
@@ -104,6 +109,7 @@ class VectorSettingsPreferencesFragment @Inject constructor(
         }
 
         alwaysShowTimestampsPref = findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_ALWAYS_SHOW_TIMESTAMPS_KEY)
+        bubbleAppearancePref = findPreference(BUBBLE_APPEARANCE_KEY)
         updateBubbleDependencies(bubbleStyle = bubbleStylePreference.value)
 
         findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_PREF_SPACE_SHOW_ALL_ROOM_IN_HOME)!!.let { pref ->
@@ -246,6 +252,7 @@ class VectorSettingsPreferencesFragment @Inject constructor(
 
     private fun updateBubbleDependencies(bubbleStyle: String) {
         //bubbleTimeLocationPref?.setEnabled(BubbleThemeUtils.isBubbleTimeLocationSettingAllowed(bubbleStyle))
-        alwaysShowTimestampsPref?.setEnabled(bubbleStyle in listOf(BubbleThemeUtils.BUBBLE_STYLE_NONE, BubbleThemeUtils.BUBBLE_STYLE_START))
+        alwaysShowTimestampsPref?.isEnabled = bubbleStyle in listOf(BubbleThemeUtils.BUBBLE_STYLE_NONE, BubbleThemeUtils.BUBBLE_STYLE_START)
+        bubbleAppearancePref?.isEnabled = bubbleStyle in listOf(BubbleThemeUtils.BUBBLE_STYLE_START, BubbleThemeUtils.BUBBLE_STYLE_BOTH)
     }
 }

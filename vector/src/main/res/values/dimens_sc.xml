@@ -20,6 +20,12 @@
     <!-- inner_padding_short_side + inner_padding_long_side (+ some extra to make sure?) -->
     <dimen name="sc_bubble_guess_minimum_width_padding">32dp</dimen>
 
+    <!-- Extra round bubbles -->
+    <dimen name="sc_bubble_r1_radius">8dp</dimen>
+    <dimen name="sc_bubble_r2_radius">12dp</dimen>
+    <dimen name="sc_bubble_r1_radius_in_tail">@dimen/sc_bubble_radius_in_tail</dimen>
+    <dimen name="sc_bubble_r2_radius_in_tail">@dimen/sc_bubble_radius_in_tail</dimen>
+
     <!-- Footer dimensions -->
     <dimen name="sc_footer_overlay_padding">2dp</dimen>
     <dimen name="sc_footer_noverlay_padding_top">4dp</dimen>

@@ -5,7 +5,7 @@ set -e
 my_dir="$(dirname "$(realpath "$0")")"
 pushd "$my_dir" > /dev/null
 
-res_dir="vector/src/main/res/"
+res_dir="vector/src/main/res"
 god_bubble="vector/src/main/res/drawable/msg_godbubble.xml"
 
 # Multiline sed -i
@@ -27,6 +27,7 @@ function create_msg_bubble() {
     local is_rtl="$2"
     local is_notice="$3"
     local has_tail="$4"
+    local roundness="$5"
 
     # Out file name
     local out_bubble="$res_dir/drawable"
@@ -34,6 +35,9 @@ function create_msg_bubble() {
         local out_bubble="$out_bubble-ldrtl"
     fi
     local out_bubble="$out_bubble/msg_bubble"
+    if [ ! -z "$roundness" ]; then
+        local out_bubble="${out_bubble}_$roundness"
+    fi
     if ((is_notice)); then
         local out_bubble="${out_bubble}_notice"
     else
@@ -79,19 +83,25 @@ function create_msg_bubble() {
     if ((is_outgoing)); then
         sed -i 's|_incoming|_outgoing|g' "$out_bubble"
     fi
+    # Modify roundness
+    if [ ! -z "$roundness" ]; then
+        sed -i "s|sc_bubble_radius|sc_bubble_${roundness}_radius|g" "$out_bubble"
+    fi
     # Remove unneeded size, which only exists to make it look nicer in drawable preview
     sed -i 's|<size.*/>||g' "$out_bubble"
 }
 
-for is_outgoing in 0 1; do
-    for is_rtl in 0 1; do
-        # Notices are handled via transparency and do not need own drawables right now
-        is_notice=0
-        #for is_notice in 0 1; do
-            for has_tail in 0 1; do
-                create_msg_bubble "$is_outgoing" "$is_rtl" "$is_notice" "$has_tail"
-            done
-        #done
+for roundness in "" "r1" "r2"; do
+    for is_outgoing in 0 1; do
+        for is_rtl in 0 1; do
+            # Notices are handled via transparency and do not need own drawables right now
+            is_notice=0
+            #for is_notice in 0 1; do
+                for has_tail in 0 1; do
+                    create_msg_bubble "$is_outgoing" "$is_rtl" "$is_notice" "$has_tail" "$roundness"
+                done
+            #done
+        done
     done
 done
 

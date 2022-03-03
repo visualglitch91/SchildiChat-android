@@ -45,6 +45,14 @@
     <string name="bubble_time_location_top">Top</string>
     <string name="bubble_time_location_bottom">Bottom</string>
 
+    <string name="bubble_appearance">Bubble appearance</string>
+    <string name="bubble_rounded_corners">Corners</string>
+    <string name="bubble_rounded_corners_default">Default</string>
+    <string name="bubble_rounded_corners_r1">Round</string>
+    <string name="bubble_rounded_corners_r2">Extra round</string>
+    <string name="bubble_tail">Bubble tail</string>
+    <string name="bubble_tail_summary">Include bubble tail for a sender\'s first message</string>
+
     <string name="settings_unread_counter">Unread counter</string>
     <string name="settings_unimportant_counter_badge_v2">Count muted messages</string>
     <string name="settings_unimportant_counter_badge_summary_v2">Show counts for muted messages in the chat overview</string>

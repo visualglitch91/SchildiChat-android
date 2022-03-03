@@ -146,7 +146,7 @@ class ImageContentRenderer @Inject constructor(private val localFilesHelper: Loc
                 .into(imageView)
     }
 
-    fun render(data: Data, mode: Mode, imageView: ImageView, cornerTransformation: Transformation<Bitmap> = RoundedCorners(dimensionConverter.dpToPx(3)), onImageSizeListener: OnImageSizeListener? = null, animate: Boolean = false) {
+    fun render(data: Data, mode: Mode, imageView: ImageView, cornerRoundnessDp: Int = 3, cornerTransformation: Transformation<Bitmap> = RoundedCorners(dimensionConverter.dpToPx(cornerRoundnessDp)), onImageSizeListener: OnImageSizeListener? = null, animate: Boolean = false) {
         val size = processSize(data, mode)
         imageView.updateLayoutParams {
             width = size.width
@@ -177,8 +177,7 @@ class ImageContentRenderer @Inject constructor(private val localFilesHelper: Loc
                 })
         request = if (animate) {
             // Glide seems to already do some dp to px calculation for animated gifs?
-            // SC-TODO extract dp from cornerTransformation
-            request.transform(RoundedCorners(3))
+            request.transform(RoundedCorners(cornerRoundnessDp))
             //request.apply(RequestOptions.bitmapTransform(RoundedCorners(3)))
         } else {
             request.dontAnimate()

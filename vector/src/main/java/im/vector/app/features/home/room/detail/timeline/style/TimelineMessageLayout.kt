@@ -17,8 +17,9 @@
 package im.vector.app.features.home.room.detail.timeline.style
 
 import android.os.Parcelable
+import androidx.annotation.DrawableRes
 import im.vector.app.R
-import im.vector.app.features.home.room.detail.timeline.item.AnonymousReadReceipt
+import im.vector.app.features.themes.ScBubbleAppearance
 import kotlinx.parcelize.Parcelize
 
 sealed interface TimelineMessageLayout : Parcelable {
@@ -68,6 +69,7 @@ sealed interface TimelineMessageLayout : Parcelable {
             override val showDisplayName: Boolean,
             override val showTimestamp: Boolean = true,
             override val showE2eDecoration: Boolean = false,
+            val bubbleAppearance: ScBubbleAppearance,
             val isIncoming: Boolean,
             val reverseBubble: Boolean,
             val singleSidedLayout: Boolean,
@@ -79,6 +81,22 @@ sealed interface TimelineMessageLayout : Parcelable {
                 R.layout.item_timeline_event_sc_bubble_incoming_base
             } else {
                 R.layout.item_timeline_event_sc_bubble_outgoing_base
+            },
+            @DrawableRes
+            val bubbleDrawable: Int = if (isPseudoBubble) {
+                0
+            } else if (showAvatar) { // tail
+                if (reverseBubble) { // outgoing
+                    bubbleAppearance.textBubbleOutgoing
+                } else { // incoming
+                    bubbleAppearance.textBubbleIncoming
+                }
+            } else { // notail
+                if (reverseBubble) { // outgoing
+                    bubbleAppearance.textBubbleOutgoingNoTail
+                } else { // incoming
+                    bubbleAppearance.textBubbleIncomingNoTail
+                }
             }
     ) : TimelineMessageLayout
 
