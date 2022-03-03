@@ -93,7 +93,7 @@ internal class SyncThread @Inject constructor(private val syncTask: SyncTask,
 
     fun restart() = synchronized(lock) {
         if (!isStarted) {
-            Timber.tag(loggerTag.value).d("Resume sync...")
+            Timber.tag(loggerTag.value).i("Resume sync...")
             isStarted = true
             // Check again server availability and the token validity
             canReachServer = true
@@ -104,7 +104,7 @@ internal class SyncThread @Inject constructor(private val syncTask: SyncTask,
 
     fun pause() = synchronized(lock) {
         if (isStarted) {
-            Timber.tag(loggerTag.value).d("Pause sync...")
+            Timber.tag(loggerTag.value).i("Pause sync...")
             isStarted = false
             retryNoNetworkTask?.cancel()
             syncScope.coroutineContext.cancelChildren()
@@ -112,7 +112,7 @@ internal class SyncThread @Inject constructor(private val syncTask: SyncTask,
     }
 
     fun kill() = synchronized(lock) {
-        Timber.tag(loggerTag.value).d("Kill sync...")
+        Timber.tag(loggerTag.value).i("Kill sync...")
         updateStateTo(SyncState.Killing)
         retryNoNetworkTask?.cancel()
         syncScope.coroutineContext.cancelChildren()
@@ -136,21 +136,21 @@ internal class SyncThread @Inject constructor(private val syncTask: SyncTask,
     }
 
     override fun run() {
-        Timber.tag(loggerTag.value).d("Start syncing...")
+        Timber.tag(loggerTag.value).i("Start syncing...")
 
         isStarted = true
         networkConnectivityChecker.register(this)
         backgroundDetectionObserver.register(this)
         registerActiveCallsObserver()
         while (state != SyncState.Killing) {
-            Timber.tag(loggerTag.value).d("Entering loop, state: $state")
+            Timber.tag(loggerTag.value).i("Entering loop, state: $state")
             if (!isStarted) {
-                Timber.tag(loggerTag.value).d("Sync is Paused. Waiting...")
+                Timber.tag(loggerTag.value).i("Sync is Paused. Waiting...")
                 updateStateTo(SyncState.Paused)
                 synchronized(lock) { lock.wait() }
-                Timber.tag(loggerTag.value).d("...unlocked")
+                Timber.tag(loggerTag.value).i("...unlocked")
             } else if (!canReachServer) {
-                Timber.tag(loggerTag.value).d("No network. Waiting...")
+                Timber.tag(loggerTag.value).i("No network. Waiting...")
                 updateStateTo(SyncState.NoNetwork)
                 // We force retrying in RETRY_WAIT_TIME_MS maximum. Otherwise it will be unlocked by onConnectivityChanged() or restart()
                 retryNoNetworkTask = Timer(SyncState.NoNetwork.toString(), false).schedule(RETRY_WAIT_TIME_MS) {
@@ -160,15 +160,15 @@ internal class SyncThread @Inject constructor(private val syncTask: SyncTask,
                     }
                 }
                 synchronized(lock) { lock.wait() }
-                Timber.tag(loggerTag.value).d("...retry")
+                Timber.tag(loggerTag.value).i("...retry")
             } else if (!isTokenValid) {
                 if (state == SyncState.Killing) {
                     continue
                 }
-                Timber.tag(loggerTag.value).d("Token is invalid. Waiting...")
+                Timber.tag(loggerTag.value).i("Token is invalid. Waiting...")
                 updateStateTo(SyncState.InvalidToken)
                 synchronized(lock) { lock.wait() }
-                Timber.tag(loggerTag.value).d("...unlocked")
+                Timber.tag(loggerTag.value).i("...unlocked")
             } else {
                 if (state !is SyncState.Running) {
                     updateStateTo(SyncState.Running(afterPause = true))
@@ -179,7 +179,7 @@ internal class SyncThread @Inject constructor(private val syncTask: SyncTask,
                     afterPause                      -> 0L /* No timeout after a pause */
                     else                            -> DEFAULT_LONG_POOL_TIMEOUT
                 }
-                Timber.tag(loggerTag.value).d("Execute sync request with timeout $timeout")
+                Timber.tag(loggerTag.value).i("Execute sync request with timeout $timeout")
                 val params = SyncTask.Params(timeout, SyncPresence.Online, afterPause = afterPause)
                 val sync = syncScope.launch {
                     previousSyncResponseHasToDevice = doSync(params)
@@ -187,10 +187,10 @@ internal class SyncThread @Inject constructor(private val syncTask: SyncTask,
                 runBlocking {
                     sync.join()
                 }
-                Timber.tag(loggerTag.value).d("...Continue")
+                Timber.tag(loggerTag.value).i("...Continue")
             }
         }
-        Timber.tag(loggerTag.value).d("Sync killed")
+        Timber.tag(loggerTag.value).i("Sync killed")
         updateStateTo(SyncState.Killed)
         backgroundDetectionObserver.unregister(this)
         networkConnectivityChecker.unregister(this)
@@ -223,9 +223,9 @@ internal class SyncThread @Inject constructor(private val syncTask: SyncTask,
             }
             if (failure is Failure.NetworkConnection && failure.cause is SocketTimeoutException) {
                 // Timeout are not critical
-                Timber.tag(loggerTag.value).d("Timeout")
+                Timber.tag(loggerTag.value).i("Timeout")
             } else if (failure is CancellationException) {
-                Timber.tag(loggerTag.value).d("Cancelled")
+                Timber.tag(loggerTag.value).i("Cancelled")
             } else if (failure.isTokenError()) {
                 // No token or invalid token, stop the thread
                 Timber.tag(loggerTag.value).w(failure, "Token error")
@@ -235,7 +235,7 @@ internal class SyncThread @Inject constructor(private val syncTask: SyncTask,
                 Timber.tag(loggerTag.value).e(failure)
                 if (failure !is Failure.NetworkConnection || failure.cause is JsonEncodingException) {
                     // Wait 10s before retrying
-                    Timber.tag(loggerTag.value).d("Wait 10s")
+                    Timber.tag(loggerTag.value).i("Wait 10s")
                     delay(RETRY_WAIT_TIME_MS)
                 }
             }
@@ -250,7 +250,7 @@ internal class SyncThread @Inject constructor(private val syncTask: SyncTask,
     }
 
     private fun updateStateTo(newState: SyncState) {
-        Timber.tag(loggerTag.value).d("Update state from $state to $newState")
+        Timber.tag(loggerTag.value).i("Update state from $state to $newState")
         if (newState == state) {
             return
         }
