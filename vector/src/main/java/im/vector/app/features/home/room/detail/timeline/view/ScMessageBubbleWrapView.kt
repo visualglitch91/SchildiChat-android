@@ -534,7 +534,7 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
         val time = attributes.informationData.time.toString()
         val result = if (contentInBubble) {
             if (getBubbleTimeLocation(messageLayout) == BUBBLE_TIME_BOTTOM) {
-                if (attributes.informationData.messageLayout.showDisplayName && canHideSender) {
+                if (attributes.informationData.messageLayout.showDisplayName && !canHideSender) {
                     // Since timeView automatically gets enough space, either within or outside the viewStub, we just need to ensure the member name view has enough space
                     // Somehow not enough without extra space...
                     ceil(guessTextWidth(views.bubbleMessageMemberNameView, "$memberName ")).toInt()
