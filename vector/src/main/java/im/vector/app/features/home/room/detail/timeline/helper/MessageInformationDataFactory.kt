@@ -16,7 +16,6 @@
 
 package im.vector.app.features.home.room.detail.timeline.helper
 
-import android.content.Context;
 import im.vector.app.core.date.DateFormatKind
 import im.vector.app.core.date.VectorDateFormatter
 import im.vector.app.core.extensions.localDateTime
@@ -26,7 +25,6 @@ import im.vector.app.features.home.room.detail.timeline.item.E2EDecoration
 import im.vector.app.features.home.room.detail.timeline.item.MessageInformationData
 import im.vector.app.features.home.room.detail.timeline.item.PollResponseData
 import im.vector.app.features.home.room.detail.timeline.item.PollVoteSummaryData
-import im.vector.app.features.home.room.detail.timeline.item.ReactionInfoData
 import im.vector.app.features.home.room.detail.timeline.item.ReferencesInfoData
 import im.vector.app.features.home.room.detail.timeline.item.SendStateDecoration
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayoutFactory
@@ -57,10 +55,8 @@ import javax.inject.Inject
  */
 class MessageInformationDataFactory @Inject constructor(private val session: Session,
                                                         private val dateFormatter: VectorDateFormatter,
-                                                        private val context: Context,
-                                                        private val visibilityHelper: TimelineEventVisibilityHelper,
-                                                        private val vectorPreferences: VectorPreferences,
-                                                        private val messageLayoutFactory: TimelineMessageLayoutFactory) {
+                                                        private val messageLayoutFactory: TimelineMessageLayoutFactory,
+                                                        private val reactionsSummaryFactory: ReactionsSummaryFactory) {
 
     fun create(params: TimelineItemFactoryParams): MessageInformationData {
         val event = params.event
@@ -134,11 +130,7 @@ class MessageInformationDataFactory @Inject constructor(private val session: Ses
                 avatarUrl = event.senderInfo.avatarUrl,
                 memberName = event.senderInfo.disambiguatedDisplayName,
                 messageLayout = messageLayout,
-                orderedReactionList = event.annotations?.reactionsSummary
-                        // ?.filter { isSingleEmoji(it.key) }
-                        ?.map {
-                            ReactionInfoData(it.key, it.count, it.addedByMe, it.localEchoEvents.isEmpty())
-                        },
+                reactionsSummary = reactionsSummaryFactory.create(event, params.callback),
                 pollResponseAggregatedSummary = event.annotations?.pollResponseSummary?.let {
                     PollResponseData(
                             myVote = it.aggregatedContent?.myVote,

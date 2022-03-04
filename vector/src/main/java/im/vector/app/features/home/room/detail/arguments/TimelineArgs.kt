@@ -29,5 +29,6 @@ data class TimelineArgs(
         val openShareSpaceForId: String? = null,
         val openAtFirstUnread: Boolean? = null,
         val threadTimelineArgs: ThreadTimelineArgs? = null,
-        val switchToParentSpace: Boolean = false
+        val switchToParentSpace: Boolean = false,
+        val isInviteAlreadyAccepted: Boolean = false
 ) : Parcelable

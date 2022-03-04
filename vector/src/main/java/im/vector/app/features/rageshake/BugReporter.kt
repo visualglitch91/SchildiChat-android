@@ -76,7 +76,8 @@ class BugReporter @Inject constructor(
         private val versionProvider: VersionProvider,
         private val vectorPreferences: VectorPreferences,
         private val vectorFileLogger: VectorFileLogger,
-        private val systemLocaleProvider: SystemLocaleProvider
+        private val systemLocaleProvider: SystemLocaleProvider,
+        private val matrix: Matrix
 ) {
     var inMultiWindowMode = false
 
@@ -268,7 +269,7 @@ class BugReporter @Inject constructor(
                     val builder = BugReporterMultipartBody.Builder()
                             .addFormDataPart("text", text)
                             .addFormDataPart("app", rageShakeAppNameForReport(reportType))
-                            .addFormDataPart("user_agent", Matrix.getInstance(context).getUserAgent())
+                            .addFormDataPart("user_agent", matrix.getUserAgent())
                             .addFormDataPart("user_id", userId)
                             .addFormDataPart("can_contact", canContact.toString())
                             .addFormDataPart("is_debug_build", BuildConfig.DEBUG.toString())

@@ -15,7 +15,6 @@
         <item name="vctr_system">@color/background_dark_sc</item>
 
         <!-- other colors -->
-        <item name="vctr_unread_room_badge">?colorAccent</item>
         <item name="vctr_fab_label_bg">@color/background_floating_sc</item>
         <item name="vctr_fab_label_stroke">@android:color/black</item>
         <item name="vctr_fab_label_color">@android:color/white</item>

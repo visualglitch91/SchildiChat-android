@@ -31,8 +31,7 @@ import im.vector.app.core.extensions.singletonEntryPoint
 import im.vector.app.core.platform.VectorBaseActivity
 import im.vector.app.core.utils.toast
 import im.vector.app.features.analytics.AnalyticsTracker
-import im.vector.app.features.analytics.plan.Screen
-import im.vector.app.features.analytics.screen.ScreenEvent
+import im.vector.app.features.analytics.plan.MobileScreen
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.matrix.android.sdk.api.session.Session
@@ -44,8 +43,7 @@ abstract class VectorSettingsBaseFragment : ScPreferenceFragment(), MavericksVie
      * Analytics
      * ========================================================================================== */
 
-    protected var analyticsScreenName: Screen.ScreenName? = null
-    private var screenEvent: ScreenEvent? = null
+    protected var analyticsScreenName: MobileScreen.ScreenName? = null
 
     protected lateinit var analyticsTracker: AnalyticsTracker
 
@@ -92,15 +90,12 @@ abstract class VectorSettingsBaseFragment : ScPreferenceFragment(), MavericksVie
     override fun onResume() {
         super.onResume()
         Timber.i("onResume Fragment ${javaClass.simpleName}")
-        screenEvent = analyticsScreenName?.let { ScreenEvent(it) }
+        analyticsScreenName?.let {
+            analyticsTracker.screen(MobileScreen(screenName = it))
+        }
         vectorActivity.supportActionBar?.setTitle(titleRes)
         // find the view from parent activity
         mLoadingView = vectorActivity.findViewById(R.id.vector_settings_spinner_views)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        screenEvent?.send(analyticsTracker)
     }
 
     abstract fun bindPref()

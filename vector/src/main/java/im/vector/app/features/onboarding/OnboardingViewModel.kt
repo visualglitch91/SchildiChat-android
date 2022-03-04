@@ -39,7 +39,7 @@ import im.vector.app.core.utils.ensureTrailingSlash
 import im.vector.app.features.VectorFeatures
 import im.vector.app.features.analytics.AnalyticsTracker
 import im.vector.app.features.analytics.extensions.toTrackingValue
-import im.vector.app.features.analytics.plan.Identity
+import im.vector.app.features.analytics.plan.UserProperties
 import im.vector.app.features.login.HomeServerConnectionConfigFactory
 import im.vector.app.features.login.LoginConfig
 import im.vector.app.features.login.LoginMode
@@ -143,7 +143,6 @@ class OnboardingViewModel @AssistedInject constructor(
             is OnboardingAction.ResetPasswordMailConfirmed -> handleResetPasswordMailConfirmed()
             is OnboardingAction.RegisterAction             -> handleRegisterAction(action)
             is OnboardingAction.ResetAction                -> handleResetAction(action)
-            is OnboardingAction.SetupSsoForSessionRecovery -> handleSetupSsoForSessionRecovery(action)
             is OnboardingAction.UserAcceptCertificate      -> handleUserAcceptCertificate(action)
             OnboardingAction.ClearHomeServerHistory        -> handleClearHomeServerHistory()
             is OnboardingAction.PostViewEvent              -> _viewEvents.post(action.viewEvent)
@@ -246,18 +245,6 @@ class OnboardingViewModel @AssistedInject constructor(
                 }
                         ?.let { onSessionCreated(it) }
             }
-        }
-    }
-
-    private fun handleSetupSsoForSessionRecovery(action: OnboardingAction.SetupSsoForSessionRecovery) {
-        setState {
-            copy(
-                    signMode = SignMode.SignIn,
-                    loginMode = LoginMode.Sso(action.ssoIdentityProviders),
-                    homeServerUrlFromUser = action.homeServerUrl,
-                    homeServerUrl = action.homeServerUrl,
-                    deviceId = action.deviceId
-            )
         }
     }
 
@@ -752,7 +739,7 @@ class OnboardingViewModel @AssistedInject constructor(
     private suspend fun onSessionCreated(session: Session) {
         awaitState().useCase?.let { useCase ->
             session.vectorStore(applicationContext).setUseCase(useCase)
-            analyticsTracker.updateUserProperties(Identity(ftueUseCaseSelection = useCase.toTrackingValue()))
+            analyticsTracker.updateUserProperties(UserProperties(ftueUseCaseSelection = useCase.toTrackingValue()))
         }
         activeSessionHolder.setActiveSession(session)
 

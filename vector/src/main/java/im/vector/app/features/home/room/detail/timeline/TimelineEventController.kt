@@ -43,6 +43,7 @@ import im.vector.app.features.home.room.detail.timeline.helper.ContentDownloadSt
 import im.vector.app.features.home.room.detail.timeline.helper.ContentUploadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.helper.InvalidateTimelineEventDiffUtilCallback
 import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
+import im.vector.app.features.home.room.detail.timeline.helper.ReactionsSummaryFactory
 import im.vector.app.features.home.room.detail.timeline.helper.TimelineControllerInterceptorHelper
 import im.vector.app.features.home.room.detail.timeline.helper.TimelineEventDiffUtilCallback
 import im.vector.app.features.home.room.detail.timeline.helper.TimelineEventVisibilityHelper
@@ -89,7 +90,8 @@ class TimelineEventController @Inject constructor(private val dateFormatter: Vec
                                                   @TimelineEventControllerHandler
                                                   private val backgroundHandler: Handler,
                                                   private val timelineEventVisibilityHelper: TimelineEventVisibilityHelper,
-                                                  private val readReceiptsItemFactory: ReadReceiptsItemFactory
+                                                  private val readReceiptsItemFactory: ReadReceiptsItemFactory,
+                                                  private val reactionListFactory: ReactionsSummaryFactory
 ) : EpoxyController(backgroundHandler, backgroundHandler), Timeline.Listener, EpoxyController.Interceptor {
 
     /**
@@ -143,6 +145,8 @@ class TimelineEventController @Inject constructor(private val dateFormatter: Vec
         fun getPreviewUrlRetriever(): PreviewUrlRetriever
 
         fun onVoiceControlButtonClicked(eventId: String, messageAudioContent: MessageAudioContent)
+
+        fun onAddMoreReaction(event: TimelineEvent)
     }
 
     interface ReactionPillCallback {
@@ -307,6 +311,7 @@ class TimelineEventController @Inject constructor(private val dateFormatter: Vec
         super.onAttachedToRecyclerView(recyclerView)
         timeline?.addListener(this)
         timelineMediaSizeProvider.recyclerView = recyclerView
+        reactionListFactory.onRequestBuild = { requestModelBuild() }
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
@@ -314,6 +319,7 @@ class TimelineEventController @Inject constructor(private val dateFormatter: Vec
         contentUploadStateTrackerBinder.clear()
         contentDownloadStateTrackerBinder.clear()
         timeline?.removeListener(this)
+        reactionListFactory.onRequestBuild = null
         super.onDetachedFromRecyclerView(recyclerView)
     }
 
@@ -420,7 +426,7 @@ class TimelineEventController @Inject constructor(private val dateFormatter: Vec
             val event = currentSnapshot[position]
             val nextEvent = currentSnapshot.nextOrNull(position)
             // Should be build if not cached or if model should be refreshed
-            if (modelCache[position] == null || modelCache[position]?.isCacheable(partialState) == false) {
+            if (modelCache[position] == null || modelCache[position]?.isCacheable(partialState) == false || reactionListFactory.needsRebuild(event)) {
                 val prevEvent = currentSnapshot.prevOrNull(position)
                 val prevDisplayableEvent = currentSnapshot.subList(0, position).lastOrNull {
                     timelineEventVisibilityHelper.shouldShowEvent(
@@ -547,7 +553,7 @@ class TimelineEventController @Inject constructor(private val dateFormatter: Vec
             val event = itr.previous()
             timelineEventsGroups.addOrIgnore(event)
             val currentReadReceipts = ArrayList(event.readReceipts).filter {
-                it.user.userId != session.myUserId
+                it.roomMember.userId != session.myUserId
             }
             if (timelineEventVisibilityHelper.shouldShowEvent(
                             timelineEvent = event,

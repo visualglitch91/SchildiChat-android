@@ -50,7 +50,7 @@ interface Navigator {
 
     fun softLogout(context: Context)
 
-    fun openRoom(context: Context, roomId: String, eventId: String? = null, buildTask: Boolean = false, openAtFirstUnread: Boolean? = null)
+    fun openRoom(context: Context, roomId: String, eventId: String? = null, buildTask: Boolean = false, isInviteAlreadyAccepted: Boolean = false, openAtFirstUnread: Boolean? = null)
 
     sealed class PostSwitchSpaceAction {
         object None : PostSwitchSpaceAction()

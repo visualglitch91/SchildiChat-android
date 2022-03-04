@@ -27,7 +27,7 @@ import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.utils.openUrlInChromeCustomTab
 import im.vector.app.databinding.FragmentLoginSplashBinding
-import im.vector.app.features.analytics.plan.Screen
+import im.vector.app.features.analytics.plan.MobileScreen
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.settings.VectorSettingsUrls
 import org.matrix.android.sdk.api.failure.Failure
@@ -46,7 +46,7 @@ class LoginSplashFragment @Inject constructor(
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        analyticsScreenName = Screen.ScreenName.Welcome
+        analyticsScreenName = MobileScreen.ScreenName.Welcome
         super.onCreate(savedInstanceState)
     }
 

@@ -15,7 +15,6 @@
         <item name="vctr_system">@color/background_sc_light</item>
 
         <!-- other colors -->
-        <item name="vctr_unread_room_badge">?colorAccent</item>
         <item name="vctr_fab_label_bg">@color/background_floating_sc_light</item>
         <item name="vctr_fab_label_stroke">@color/background_floating_sc_light</item>
         <item name="vctr_fab_label_color">?vctr_content_primary</item>

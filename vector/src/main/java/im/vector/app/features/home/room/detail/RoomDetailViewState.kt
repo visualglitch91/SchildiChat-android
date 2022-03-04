@@ -50,11 +50,12 @@ data class JitsiState(
 data class RoomDetailViewState(
         val roomId: String,
         val eventId: String?,
-        val openAtFirstUnread: Boolean? = null,
+        val isInviteAlreadyAccepted: Boolean,
         val myRoomMember: Async<RoomMemberSummary> = Uninitialized,
         val asyncInviter: Async<RoomMemberSummary> = Uninitialized,
         val asyncRoomSummary: Async<RoomSummary> = Uninitialized,
         val powerLevelsHelper: PowerLevelsHelper? = null,
+        val openAtFirstUnread: Boolean? = null,
         val activeRoomWidgets: Async<List<Widget>> = Uninitialized,
         val formattedTypingUsers: String? = null,
         val tombstoneEvent: Event? = null,
@@ -80,6 +81,7 @@ data class RoomDetailViewState(
     constructor(args: TimelineArgs) : this(
             roomId = args.roomId,
             eventId = args.eventId,
+            isInviteAlreadyAccepted = args.isInviteAlreadyAccepted,
             // Also highlight the target event, if any
             highlightedEventId = args.eventId,
             openAtFirstUnread = args.openAtFirstUnread,
