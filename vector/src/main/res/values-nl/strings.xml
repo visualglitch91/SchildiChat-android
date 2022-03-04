@@ -1934,7 +1934,7 @@
 \nWil je inloggen met een webclient\?</string>
     <string name="login_sso_error_message">Er is een fout opgetreden bij het laden van de pagina: %1$s (%2$d)</string>
     <string name="login_server_url_form_common_notice">Voer het adres in van de server die u wilt gebruiken</string>
-    <string name="login_server_url_form_modular_notice">Voer het adres in van de Modular SchildiChat of de server die u wilt gebruiken</string>
+    <string name="login_server_url_form_modular_notice">Voer het adres in van de Modular Element of de server die u wilt gebruiken</string>
     <string name="login_server_url_form_modular_text">Premium hosting voor organisaties</string>
     <string name="login_server_url_form_modular_hint">Element Matrix Services-adres</string>
     <string name="login_clear_homeserver_history">Geschiedenis wissen</string>
@@ -2126,7 +2126,7 @@
     <string name="send_suggestion">Doe een suggestie</string>
     <string name="preference_system_settings">Systeem instellingen</string>
     <string name="preference_versions">Versies</string>
-    <string name="preference_help_summary">Hulp bij het gebruik van SchildiChat</string>
+    <string name="preference_help_summary">Hulp bij het gebruik van Element</string>
     <string name="preference_help_title">Hulp en ondersteuning</string>
     <string name="preference_help">Hulp</string>
     <string name="preference_root_legals">Juridisch</string>
@@ -2236,10 +2236,10 @@
     <string name="analytics_opt_in_list_item_2">We delen <b>geen</b> informatie met derden</string>
     <string name="analytics_opt_in_list_item_1">We registreren of profileren <b>geen</b> accountgegevens</string>
     <string name="analytics_opt_in_content_link">hier</string>
-    <string name="analytics_opt_in_content">Help ons problemen te identificeren en SchildiChat te verbeteren door anonieme gebruiksgegevens te delen. Om inzicht te krijgen in hoe mensen meerdere apparaten gebruiken, genereren we een willekeurige identificatie die door uw apparaten wordt gedeeld.
+    <string name="analytics_opt_in_content">Help ons problemen te identificeren en Element te verbeteren door anonieme gebruiksgegevens te delen. Om inzicht te krijgen in hoe mensen meerdere apparaten gebruiken, genereren we een willekeurige identificatie die door uw apparaten wordt gedeeld.
 \n
 \nU kunt al onze voorwaarden %s lezen.</string>
-    <string name="analytics_opt_in_title">Help SchildiChat verbeteren</string>
+    <string name="analytics_opt_in_title">Help Element verbeteren</string>
     <string name="reset_secure_backup_warning">Dit zal uw huidige sleutel of zin vervangen.</string>
     <string name="reset_secure_backup_title">Genereer een nieuwe beveiligingssleutel of stel een nieuwe beveiligingszin in voor uw bestaande back-up.</string>
     <string name="settings_secure_backup_section_info">Bescherm uzelf tegen verlies van toegang tot versleutelde berichten en gegevens door een back-up te maken van versleutelingssleutels op uw server.</string>
@@ -2460,7 +2460,7 @@
     <string name="disclaimer_positive_button">LEER MEER</string>
     <string name="disclaimer_negative_button">BEGREPEN</string>
     <string name="disclaimer_content">We zijn verheugd om aan te kondigen dat we van naam zijn veranderd! Uw app is up-to-date en u bent ingelogd op uw account.</string>
-    <string name="disclaimer_title">Riot is nu SchildiChat!</string>
+    <string name="disclaimer_title">Riot is nu Element!</string>
     <string name="notice_crypto_unable_to_decrypt_merged">Wachten op versleutelingsgeschiedenis</string>
     <string name="crypto_error_withheld_generic">U heeft geen toegang tot dit bericht omdat de afzender de sleutels met opzet niet heeft verzonden</string>
     <string name="crypto_error_withheld_blacklisted">U heeft geen toegang tot dit bericht omdat u bent geblokkeerd door de afzender</string>
@@ -2941,7 +2941,7 @@
     <string name="create_poll_title">Poll maken</string>
     <string name="restart_the_application_to_apply_changes">Start de toepassing opnieuw om de wijziging door te voeren.</string>
     <string name="labs_enable_latex_maths">LaTeX wiskunde inschakelen</string>
-    <string name="link_this_email_with_your_account">%s in Instellingen om uitnodigingen rechtstreeks in SchildiChat te ontvangen.</string>
+    <string name="link_this_email_with_your_account">%s in Instellingen om uitnodigingen rechtstreeks in Element te ontvangen.</string>
     <string name="link_this_email_settings_link">Koppel deze e-mail aan uw account</string>
     <string name="this_invite_to_this_space_was_sent">Deze uitnodiging voor deze space is verzonden naar %s die niet is gekoppeld aan uw account</string>
     <string name="this_invite_to_this_room_was_sent">Deze uitnodiging voor deze kamer is verzonden naar %s die niet is gekoppeld aan uw account</string>
