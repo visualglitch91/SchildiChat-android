@@ -121,7 +121,7 @@ data class ScBubbleAppearance(
         return context.resources.getDimensionPixelSize(roundness)
     }
     fun getBubbleRadiusDp(context: Context): Float {
-        return context.resources.getDimension(roundness)
+        return (context.resources.getDimension(roundness) / context.resources.displayMetrics.density)
     }
 }
 
