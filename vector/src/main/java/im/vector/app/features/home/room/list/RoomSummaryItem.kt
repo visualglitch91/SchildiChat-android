@@ -78,6 +78,15 @@ abstract class RoomSummaryItem : VectorEpoxyModel<RoomSummaryItem.Holder>() {
         holder.lastEventView.text = lastFormattedEvent.charSequence
         holder.unreadCounterBadgeView.render(UnreadCounterBadgeView.State(unreadNotificationCount, showHighlighted, unreadCount ?: 0, markedUnread))
         holder.unreadIndentIndicator.isVisible = hasUnreadMessage
+        // Mirror unreadCounterBadgeView colors
+        holder.unreadIndentIndicator.setBackgroundColor(
+                when {
+                    showHighlighted                             -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, R.attr.colorError)
+                    unreadNotificationCount > 0 || markedUnread -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, R.attr.colorAccent)
+                    hasUnreadMessage                            -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, R.attr.vctr_content_tertiary) // same color as unread counter bg would be hard to spot
+                    else                                        -> 0
+                }
+        )
         holder.draftView.isVisible = hasDraft
         avatarRenderer.render(matrixItem, holder.avatarImageView)
         holder.roomAvatarDecorationImageView.render(encryptionTrustLevel)
