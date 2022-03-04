@@ -116,6 +116,12 @@ data class ScBubbleAppearance(
         val textBubbleOutgoingNoTail: Int,
         @DrawableRes
         val textBubbleIncomingNoTail: Int,
+        @DrawableRes
+        val timestampOverlay: Int,
+        @DrawableRes
+        val imageBorderOutgoing: Int,
+        @DrawableRes
+        val imageBorderIncoming: Int,
 ) : Parcelable {
     fun getBubbleRadiusPx(context: Context): Int {
         return context.resources.getDimensionPixelSize(roundness)
@@ -131,6 +137,9 @@ val defaultScBubbleAppearance = ScBubbleAppearance(
         R.drawable.msg_bubble_text_incoming,
         R.drawable.msg_bubble_text_outgoing_notail,
         R.drawable.msg_bubble_text_incoming_notail,
+        R.drawable.timestamp_overlay,
+        R.drawable.background_image_border_outgoing,
+        R.drawable.background_image_border_incoming,
 )
 
 val r1ScBubbleAppearance = ScBubbleAppearance(
@@ -139,6 +148,9 @@ val r1ScBubbleAppearance = ScBubbleAppearance(
         R.drawable.msg_bubble_r1_text_incoming,
         R.drawable.msg_bubble_r1_text_outgoing_notail,
         R.drawable.msg_bubble_r1_text_incoming_notail,
+        R.drawable.timestamp_overlay_r1,
+        R.drawable.background_image_border_outgoing_r1,
+        R.drawable.background_image_border_incoming_r1,
 )
 
 
@@ -148,4 +160,7 @@ val r2ScBubbleAppearance = ScBubbleAppearance(
         R.drawable.msg_bubble_r2_text_incoming,
         R.drawable.msg_bubble_r2_text_outgoing_notail,
         R.drawable.msg_bubble_r2_text_incoming_notail,
+        R.drawable.timestamp_overlay_r2,
+        R.drawable.background_image_border_outgoing_r2,
+        R.drawable.background_image_border_incoming_r2,
 )

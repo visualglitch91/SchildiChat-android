@@ -339,7 +339,7 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
                         bubbleDependentView.reserveFooterSpace(holder, footerWidth, footerHeight)
                     } else {
                         // We have no reserved space -> style it to ensure readability on arbitrary backgrounds
-                        styleFooterOverlay()
+                        styleFooterOverlay(messageLayout)
                     }
                 } else {
                     when {
@@ -437,8 +437,8 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
         views.bubbleFooterMessageTimeView.setTextColor(tintList)
     }
 
-    private fun styleFooterOverlay() {
-        views.bubbleFootView.setBackgroundResource(R.drawable.timestamp_overlay)
+    private fun styleFooterOverlay(messageLayout: TimelineMessageLayout.ScBubble) {
+        views.bubbleFootView.setBackgroundResource(messageLayout.bubbleAppearance.timestampOverlay)
         tintFooter(ThemeUtils.getColor(views.bubbleFootView.context, R.attr.timestamp_overlay_fg))
         val padding = views.bubbleFootView.resources.getDimensionPixelSize(R.dimen.sc_footer_overlay_padding)
         views.bubbleFootView.setPaddingRelative(

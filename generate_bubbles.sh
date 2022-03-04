@@ -6,7 +6,7 @@ my_dir="$(dirname "$(realpath "$0")")"
 pushd "$my_dir" > /dev/null
 
 res_dir="vector/src/main/res"
-god_bubble="vector/src/main/res/drawable/msg_godbubble.xml"
+god_bubble="$res_dir/drawable/msg_godbubble.xml"
 
 # Multiline sed -i
 function mised() {
@@ -91,6 +91,17 @@ function create_msg_bubble() {
     sed -i 's|<size.*/>||g' "$out_bubble"
 }
 
+function create_rounded_xml() {
+    local roundness="$1"
+    local infile="$2"
+    if [ ! -z "$roundness" ]; then
+        local outfile="$(dirname "$infile")/$(basename "$infile" .xml)_$roundness.xml"
+        cp "$infile" "$outfile"
+        echo "$outfile"
+        sed -i "s|sc_bubble_radius|sc_bubble_${roundness}_radius|g" "$outfile"
+    fi
+}
+
 for roundness in "" "r1" "r2"; do
     for is_outgoing in 0 1; do
         for is_rtl in 0 1; do
@@ -103,6 +114,10 @@ for roundness in "" "r1" "r2"; do
             #done
         done
     done
+    create_rounded_xml "$roundness" "$res_dir/drawable/timestamp_overlay.xml"
+    create_rounded_xml "$roundness" "$res_dir/drawable-ldrtl/timestamp_overlay.xml"
+    create_rounded_xml "$roundness" "$res_dir/drawable/background_image_border_incoming.xml"
+    create_rounded_xml "$roundness" "$res_dir/drawable/background_image_border_outgoing.xml"
 done
 
 

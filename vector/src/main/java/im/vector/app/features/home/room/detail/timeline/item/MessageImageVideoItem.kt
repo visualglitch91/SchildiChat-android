@@ -197,15 +197,14 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
         when {
             // Don't show it for non-bubble layouts, don't show for Stickers, ...
             // Also only supported for default corner radius
-            !(messageLayout.isRealBubble || messageLayout.isPseudoBubble) || mode != ImageContentRenderer.Mode.THUMBNAIL
-                    || messageLayout.bubbleAppearance != defaultScBubbleAppearance -> {
+            !(messageLayout.isRealBubble || messageLayout.isPseudoBubble) || mode != ImageContentRenderer.Mode.THUMBNAIL -> {
                 holder.mediaContentView.background = null
             }
             attributes.informationData.sentByMe                                    -> {
-                holder.mediaContentView.setBackgroundResource(R.drawable.background_image_border_outgoing)
+                holder.mediaContentView.setBackgroundResource(messageLayout.bubbleAppearance.imageBorderOutgoing)
             }
             else                                                                   -> {
-                holder.mediaContentView.setBackgroundResource(R.drawable.background_image_border_incoming)
+                holder.mediaContentView.setBackgroundResource(messageLayout.bubbleAppearance.imageBorderIncoming)
             }
         }
     }

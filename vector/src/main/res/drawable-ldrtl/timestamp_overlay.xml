@@ -3,8 +3,8 @@
 
     <solid android:color="?timestamp_overlay_bg" />
 
-    <corners android:bottomLeftRadius="3dp"
-        android:topRightRadius="3dp"/>
+    <corners android:bottomLeftRadius="@dimen/sc_bubble_radius"
+        android:topRightRadius="@dimen/sc_bubble_radius" />
 
 </shape>
 

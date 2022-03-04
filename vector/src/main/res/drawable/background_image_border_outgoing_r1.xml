@@ -6,8 +6,8 @@
     <padding android:left="1dp" android:top="1dp" android:right="1dp"
         android:bottom="1dp" />
     <!-- rounded corners like for message bubbles and the image itself -->
-    <corners android:bottomRightRadius="@dimen/sc_bubble_radius"
-        android:bottomLeftRadius="@dimen/sc_bubble_radius"
-        android:topLeftRadius="@dimen/sc_bubble_radius"
-        android:topRightRadius="@dimen/sc_bubble_radius"/>
+    <corners android:bottomRightRadius="@dimen/sc_bubble_r1_radius"
+        android:bottomLeftRadius="@dimen/sc_bubble_r1_radius"
+        android:topLeftRadius="@dimen/sc_bubble_r1_radius"
+        android:topRightRadius="@dimen/sc_bubble_r1_radius"/>
 </shape>
