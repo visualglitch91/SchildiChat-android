@@ -220,6 +220,9 @@ class PermalinkHandler @Inject constructor(private val activeSessionHolder: Acti
         const val MATRIX_TO_CUSTOM_SCHEME_URL_BASE = "element://"
         const val ROOM_LINK_PREFIX = "${MATRIX_TO_CUSTOM_SCHEME_URL_BASE}room/"
         const val USER_LINK_PREFIX = "${MATRIX_TO_CUSTOM_SCHEME_URL_BASE}user/"
+        const val SC_MATRIX_TO_CUSTOM_SCHEME_URL_BASE = "schildichat://"
+        const val SC_ROOM_LINK_PREFIX = "${SC_MATRIX_TO_CUSTOM_SCHEME_URL_BASE}room/"
+        const val SC_USER_LINK_PREFIX = "${SC_MATRIX_TO_CUSTOM_SCHEME_URL_BASE}user/"
     }
 }
 

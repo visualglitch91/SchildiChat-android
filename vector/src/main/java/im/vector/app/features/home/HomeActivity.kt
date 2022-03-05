@@ -75,6 +75,9 @@ import im.vector.app.features.spaces.share.ShareSpaceBottomSheet
 import im.vector.app.features.themes.ThemeUtils
 import im.vector.app.features.workers.signout.ServerBackupStatusViewModel
 import im.vector.app.core.pushers.UPHelper
+import im.vector.app.features.permalink.PermalinkHandler.Companion.SC_MATRIX_TO_CUSTOM_SCHEME_URL_BASE
+import im.vector.app.features.permalink.PermalinkHandler.Companion.SC_ROOM_LINK_PREFIX
+import im.vector.app.features.permalink.PermalinkHandler.Companion.SC_USER_LINK_PREFIX
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -283,6 +286,15 @@ class HomeActivity :
                         activeSessionHolder.getSafeActiveSession()?.permalinkService()?.createPermalink(permalinkId)
                     }
                 }
+                deepLink.startsWith(SC_MATRIX_TO_CUSTOM_SCHEME_URL_BASE) -> {
+                    when {
+                        deepLink.startsWith(SC_USER_LINK_PREFIX) -> deepLink.substring(SC_USER_LINK_PREFIX.length)
+                        deepLink.startsWith(SC_ROOM_LINK_PREFIX) -> deepLink.substring(SC_ROOM_LINK_PREFIX.length)
+                        else                                     -> null
+                    }?.let { permalinkId ->
+                        activeSessionHolder.getSafeActiveSession()?.permalinkService()?.createPermalink(permalinkId)
+                    }
+                }
                 else                                                  -> deepLink
             }
 
@@ -295,7 +307,8 @@ class HomeActivity :
                 )
                 if (!isHandled) {
                     val isMatrixToLink = deepLink.startsWith(PermalinkService.MATRIX_TO_URL_BASE) ||
-                            deepLink.startsWith(MATRIX_TO_CUSTOM_SCHEME_URL_BASE)
+                            deepLink.startsWith(MATRIX_TO_CUSTOM_SCHEME_URL_BASE) ||
+                            deepLink.startsWith(SC_MATRIX_TO_CUSTOM_SCHEME_URL_BASE)
                     MaterialAlertDialogBuilder(this@HomeActivity)
                             .setTitle(R.string.dialog_title_error)
                             .setMessage(if (isMatrixToLink) R.string.permalink_malformed else R.string.universal_link_malformed)

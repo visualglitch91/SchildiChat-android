@@ -243,6 +243,7 @@
                     android:host="room"
                     android:scheme="element" />
 
+                <data android:scheme="schildichat" />
             </intent-filter>
         </activity-alias>
 
