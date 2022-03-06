@@ -50,7 +50,7 @@ class HtmlCodeSpan(private val theme: MarkwonTheme, var isBlock: Boolean) : Metr
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return theme.codeBlockMargin
+        return if (isBlock) theme.codeBlockMargin else 0
     }
 
     override fun drawLeadingMargin(
