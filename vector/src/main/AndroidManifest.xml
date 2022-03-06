@@ -243,6 +243,8 @@
                     android:host="room"
                     android:scheme="element" />
 
+                <!-- No need to redefine hosts, filter will be merged with element's above:
+                     https://developer.android.com/training/app-links/deep-linking#adding-filters -->
                 <data android:scheme="schildichat" />
             </intent-filter>
         </activity-alias>
