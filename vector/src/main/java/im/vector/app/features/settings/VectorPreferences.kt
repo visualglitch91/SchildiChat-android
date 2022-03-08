@@ -1034,8 +1034,7 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
 
     // SC addition
     fun loadRoomAtFirstUnread(): Boolean {
-        // https://github.com/vector-im/element-android/issues/5092
-        return false // defaultPrefs.getBoolean(SETTINGS_OPEN_CHATS_AT_FIRST_UNREAD, false)
+        return defaultPrefs.getBoolean(SETTINGS_OPEN_CHATS_AT_FIRST_UNREAD, false)
     }
 
     // Element removed this, SC added it back (but this time, default to true)
