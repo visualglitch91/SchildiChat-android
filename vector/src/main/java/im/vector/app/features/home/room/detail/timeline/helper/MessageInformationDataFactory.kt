@@ -54,6 +54,7 @@ import javax.inject.Inject
  * This class compute if data of an event (such has avatar, display name, ...) should be displayed, depending on the previous event in the timeline
  */
 class MessageInformationDataFactory @Inject constructor(private val session: Session,
+                                                        private val vectorPreferences: VectorPreferences,
                                                         private val dateFormatter: VectorDateFormatter,
                                                         private val messageLayoutFactory: TimelineMessageLayoutFactory,
                                                         private val reactionsSummaryFactory: ReactionsSummaryFactory) {
@@ -74,7 +75,13 @@ class MessageInformationDataFactory @Inject constructor(private val session: Ses
         val isLastFromThisSender = prevDisplayableEvent?.root?.senderId != event.root.senderId ||
                 prevDisplayableEvent?.root?.localDateTime()?.toLocalDate() != date.toLocalDate()
 
-        val time = dateFormatter.format(event.root.originServerTs, DateFormatKind.MESSAGE_SIMPLE)
+        val time = dateFormatter.format(event.root.originServerTs, DateFormatKind.MESSAGE_SIMPLE).let {
+            if (vectorPreferences.developerShowDebugInfo()) {
+                "$it | ${event.displayIndex}"
+            } else {
+                it
+            }
+        }
         val e2eDecoration = getE2EDecoration(roomSummary, event)
 
         // Sometimes, member information is not available at this point yet, so let's completely rely on the DM flag for now.
