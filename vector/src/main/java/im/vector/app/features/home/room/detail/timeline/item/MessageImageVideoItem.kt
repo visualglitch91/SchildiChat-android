@@ -110,7 +110,7 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
                 imageCornerTransformation = RoundedCorners(dimensionConverter.dpToPx(cornerRoundnessDp))
             }
         }
-        imageContentRenderer.render(mediaData, effectiveMode, holder.imageView, cornerRoundnessDp, imageCornerTransformation, onImageSizeListener)
+        imageContentRenderer.render(mediaData, effectiveMode, holder.imageView, cornerRoundnessDp, imageCornerTransformation, onImageSizeListener, animate = animate)
         if (!attributes.informationData.sendState.hasFailed()) {
             contentUploadStateTrackerBinder.bind(
                     attributes.informationData.eventId,
