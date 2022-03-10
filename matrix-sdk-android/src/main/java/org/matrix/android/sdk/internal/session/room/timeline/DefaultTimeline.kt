@@ -296,6 +296,10 @@ internal class DefaultTimeline(private val roomId: String,
     private suspend fun postSnapshot() {
         val snapshot = strategy.buildSnapshot()
         Timber.v("Post snapshot of ${snapshot.size} events")
+        // Async debugging to not slow down things
+        timelineScope.launch(coroutineDispatchers.computation) {
+            checkTimelineConsistency("DefaultTimeline.postSnapshot", snapshot)
+        }
         withContext(coroutineDispatchers.main) {
             listeners.forEach {
                 tryOrNull { it.onTimelineUpdated(snapshot) }
@@ -381,5 +385,34 @@ internal class DefaultTimeline(private val roomId: String,
 
     override fun setInitialEventIdOffset(offset: Int) {
         initialEventIdOffset = offset
+    }
+}
+
+fun checkTimelineConsistency(location: String, events: List<TimelineEvent>) {
+    Timber.d("Check timeline consistency from $location for ${events.size} events")
+    try {
+        // Note that the "previous" event is actually newer than the currently looked at event,
+        // since the list is ordered from new to old
+        var prev: TimelineEvent? = null
+        for (i in events.indices) {
+            val event = events[i]
+            if (prev != null) {
+                if (prev.eventId == event.eventId) {
+                    // This should never happen in a bug-free world, as far as I'm aware
+                    Timber.e("Timeline inconsistency found at $location, $i/${events.size}: double event ${event.eventId}")
+                } else if (prev.displayIndex != event.displayIndex + 1 &&
+                        // Jumps from -1 to 1 seem to be normal, have only seen index 0 for local echos yet
+                        (prev.displayIndex != 1 || event.displayIndex != -1)) {
+                    // Note that jumps in either direction may be normal for some scenarios:
+                    // - Events between two chunks lead to a new indexing, so one may start at 1, or even something negative.
+                    // - The list may omit unsupported events (I guess?), thus causing gaps in the indices.
+                    Timber.w("Possible timeline inconsistency found at $location, $i/${events.size}: ${event.displayIndex}->${prev.displayIndex}, ${event.eventId} -> ${prev.eventId}")
+                }
+            }
+            prev = event
+        }
+        Timber.d("Done check timeline consistency from $location")
+    } catch (t: Throwable) {
+        Timber.e("Failed check timeline consistency from $location", t)
     }
 }

@@ -119,6 +119,7 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
             val nextEvents = nextChunk?.builtItems(includesNext = true, includesPrev = false).orEmpty()
             deepBuiltItems.addAll(nextEvents)
         }
+        checkTimelineConsistency("TimelineChunk.builtItems", builtEvents)
         deepBuiltItems.addAll(builtEvents)
         if (includesPrev) {
             val prevEvents = prevChunk?.builtItems(includesNext = false, includesPrev = true).orEmpty()
@@ -294,6 +295,8 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
                 .offsets(direction, count, displayIndex)
                 .findAll()
                 .orEmpty()
+        val builtTimelineEvents = timelineEvents.map { it.buildAndDecryptIfNeeded() }
+        checkTimelineConsistency("TimelineChunk.loadFromStorage-raw-query", builtTimelineEvents)
 
         if (timelineEvents.isEmpty()) return LoadedFromStorage()
 // Disabled due to the new fallback
@@ -303,9 +306,10 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
         if (direction == Timeline.Direction.FORWARDS) {
             builtEventsIndexes.entries.forEach { it.setValue(it.value + timelineEvents.size) }
         }
-        timelineEvents
-                .mapIndexed { index, timelineEventEntity ->
-                    val timelineEvent = timelineEventEntity.buildAndDecryptIfNeeded()
+        //timelineEvents
+        builtTimelineEvents
+                .mapIndexed { index, timelineEvent -> // timelineEventEntity ->
+                    //val timelineEvent = timelineEventEntity.buildAndDecryptIfNeeded()
                     if (timelineEvent.root.type == EventType.STATE_ROOM_CREATE) {
                         isLastBackward.set(true)
                     }
