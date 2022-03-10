@@ -171,7 +171,7 @@ class PreviewUrlViewSc @JvmOverloads constructor(
     }
 
     public fun updateFooterSpace() {
-        val siteText = views.urlPreviewSite.text as String?
+        val siteText = views.urlPreviewSite.text?.toString()
         updateFooterSpaceInternal(siteText)
         requestLayout()
     }
