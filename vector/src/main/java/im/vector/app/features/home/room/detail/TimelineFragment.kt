@@ -50,6 +50,7 @@ import androidx.core.text.toSpannable
 import androidx.core.util.Pair
 import androidx.core.view.ViewCompat
 import androidx.core.view.forEach
+import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResultListener
@@ -1692,14 +1693,24 @@ class TimelineFragment @Inject constructor(
         voiceMessageRecorderView.isVisible = false
     }
 
+    // Fully hide the typing message view with isGone, until the first user actually types
+    inline var View.isInvisibleOrGone: Boolean
+        get() = visibility != View.VISIBLE
+        set(value) {
+            // Set to invisible, unless it is already gone.
+            if (!value || !isGone) {
+                visibility = if (value) View.INVISIBLE else View.VISIBLE
+            }
+        }
+
     private fun renderTypingMessageNotification(roomSummary: RoomSummary?, state: RoomDetailViewState) {
         if (!isThreadTimeLine() && roomSummary != null) {
-            views.typingMessageView.isInvisible = state.typingUsers.isNullOrEmpty()
+            views.typingMessageView.isInvisibleOrGone = state.typingUsers.isNullOrEmpty()
             state.typingUsers
                     ?.take(MAX_TYPING_MESSAGE_USERS_COUNT)
                     ?.let { senders -> views.typingMessageView.render(senders, avatarRenderer) }
         } else {
-            views.typingMessageView.isInvisible = true
+            views.typingMessageView.isInvisibleOrGone = true
         }
     }
 
