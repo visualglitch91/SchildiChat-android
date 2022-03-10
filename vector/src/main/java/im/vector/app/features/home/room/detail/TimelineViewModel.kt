@@ -429,7 +429,6 @@ class TimelineViewModel @AssistedInject constructor(
             is RoomDetailAction.RemoveWidget                     -> handleDeleteWidget(action.widgetId)
             is RoomDetailAction.EnsureNativeWidgetAllowed        -> handleCheckWidgetAllowed(action)
             is RoomDetailAction.CancelSend                       -> handleCancel(action)
-            is RoomDetailAction.OpenOrCreateDm                   -> handleOpenOrCreateDm(action)
             is RoomDetailAction.JumpToReadReceipt                -> handleJumpToReadReceipt(action)
             RoomDetailAction.QuickActionInvitePeople             -> handleInvitePeople()
             RoomDetailAction.QuickActionSetAvatar                -> handleQuickSetAvatar()
@@ -507,20 +506,6 @@ class TimelineViewModel @AssistedInject constructor(
 
     private fun handleQuickSetAvatar() {
         _viewEvents.post(RoomDetailViewEvents.OpenSetRoomAvatarDialog)
-    }
-
-    private fun handleOpenOrCreateDm(action: RoomDetailAction.OpenOrCreateDm) {
-        viewModelScope.launch {
-            val roomId = try {
-                directRoomHelper.ensureDMExists(action.userId)
-            } catch (failure: Throwable) {
-                _viewEvents.post(RoomDetailViewEvents.ActionFailure(action, failure))
-                return@launch
-            }
-            if (roomId != initialState.roomId) {
-                _viewEvents.post(RoomDetailViewEvents.OpenRoom(roomId = roomId))
-            }
-        }
     }
 
     private fun handleJumpToReadReceipt(action: RoomDetailAction.JumpToReadReceipt) {
@@ -760,7 +745,7 @@ class TimelineViewModel @AssistedInject constructor(
     }
 
     private fun handleRedactEvent(action: RoomDetailAction.RedactAction) {
-        val event = room.getTimeLineEvent(action.targetEventId) ?: return
+        val event = room.getTimelineEvent(action.targetEventId) ?: return
         room.redactEvent(event.root, action.reason)
     }
 
@@ -800,7 +785,7 @@ class TimelineViewModel @AssistedInject constructor(
             }
             // We need to update this with the related m.replace also (to move read receipt)
             action.event.annotations?.editSummary?.sourceEvents?.forEach {
-                room.getTimeLineEvent(it)?.let { event ->
+                room.getTimelineEvent(it)?.let { event ->
                     visibleEventsSource.post(RoomDetailAction.TimelineEventTurnsVisible(event))
                 }
             }
@@ -828,7 +813,7 @@ class TimelineViewModel @AssistedInject constructor(
         notificationDrawerManager.updateEvents { it.clearMemberShipNotificationForRoom(initialState.roomId) }
         viewModelScope.launch {
             try {
-               session.leaveRoom(room.roomId)
+                session.leaveRoom(room.roomId)
             } catch (throwable: Throwable) {
                 _viewEvents.post(RoomDetailViewEvents.Failure(throwable, showInDialog = true))
             }
@@ -904,7 +889,7 @@ class TimelineViewModel @AssistedInject constructor(
 
     private fun handleResendEvent(action: RoomDetailAction.ResendMessage) {
         val targetEventId = action.eventId
-        room.getTimeLineEvent(targetEventId)?.let {
+        room.getTimelineEvent(targetEventId)?.let {
             // State must be UNDELIVERED or Failed
             if (!it.root.sendState.hasFailed()) {
                 Timber.e("Cannot resend message, it is not failed, Cancel first")
@@ -922,7 +907,7 @@ class TimelineViewModel @AssistedInject constructor(
 
     private fun handleRemove(action: RoomDetailAction.RemoveFailedEcho) {
         val targetEventId = action.eventId
-        room.getTimeLineEvent(targetEventId)?.let {
+        room.getTimelineEvent(targetEventId)?.let {
             // State must be UNDELIVERED or Failed
             if (!it.root.sendState.hasFailed()) {
                 Timber.e("Cannot resend message, it is not failed, Cancel first")
@@ -938,7 +923,7 @@ class TimelineViewModel @AssistedInject constructor(
             return
         }
         val targetEventId = action.eventId
-        room.getTimeLineEvent(targetEventId)?.let {
+        room.getTimelineEvent(targetEventId)?.let {
             // State must be in one of the sending states
             if (!it.root.sendState.isSending()) {
                 Timber.e("Cannot cancel message, it is not sending")
@@ -1064,14 +1049,14 @@ class TimelineViewModel @AssistedInject constructor(
 
     private fun handleReRequestKeys(action: RoomDetailAction.ReRequestKeys) {
         // Check if this request is still active and handled by me
-        room.getTimeLineEvent(action.eventId)?.let {
+        room.getTimelineEvent(action.eventId)?.let {
             session.cryptoService().reRequestRoomKeyForEvent(it.root)
             _viewEvents.post(RoomDetailViewEvents.ShowMessage(stringProvider.getString(R.string.e2e_re_request_encryption_key_dialog_content)))
         }
     }
 
     private fun handleTapOnFailedToDecrypt(action: RoomDetailAction.TapOnFailedToDecrypt) {
-        room.getTimeLineEvent(action.eventId)?.let {
+        room.getTimelineEvent(action.eventId)?.let {
             val code = when (it.root.mCryptoError) {
                 MXCryptoError.ErrorType.KEYS_WITHHELD -> {
                     WithHeldCode.fromCode(it.root.mCryptoErrorReason)
@@ -1087,7 +1072,7 @@ class TimelineViewModel @AssistedInject constructor(
         // Do not allow to vote unsent local echo of the poll event
         if (LocalEcho.isLocalEchoId(action.eventId)) return
         // Do not allow to vote the same option twice
-        room.getTimeLineEvent(action.eventId)?.let { pollTimelineEvent ->
+        room.getTimelineEvent(action.eventId)?.let { pollTimelineEvent ->
             val currentVote = pollTimelineEvent.annotations?.pollResponseSummary?.aggregatedContent?.myVote
             if (currentVote != action.optionKey) {
                 room.voteToPoll(action.eventId, action.optionKey)
@@ -1205,6 +1190,7 @@ class TimelineViewModel @AssistedInject constructor(
             setState {
                 val typingMessage = typingHelper.getTypingMessage(summary.typingUsers)
                 copy(
+                        typingUsers = summary.typingUsers,
                         formattedTypingUsers = typingMessage,
                         hasFailedSending = summary.hasFailedSending
                 )

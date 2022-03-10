@@ -27,6 +27,7 @@ import org.matrix.android.sdk.api.session.room.members.ChangeMembershipState
 import org.matrix.android.sdk.api.session.room.model.RoomMemberSummary
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import org.matrix.android.sdk.api.session.room.powerlevels.PowerLevelsHelper
+import org.matrix.android.sdk.api.session.room.sender.SenderInfo
 import org.matrix.android.sdk.api.session.sync.SyncState
 import org.matrix.android.sdk.api.session.threads.ThreadNotificationBadgeState
 import org.matrix.android.sdk.api.session.widgets.model.Widget
@@ -75,7 +76,8 @@ data class RoomDetailViewState(
         val jitsiState: JitsiState = JitsiState(),
         val switchToParentSpace: Boolean = false,
         val rootThreadEventId: String? = null,
-        val threadNotificationBadgeState: ThreadNotificationBadgeState = ThreadNotificationBadgeState()
+        val threadNotificationBadgeState: ThreadNotificationBadgeState = ThreadNotificationBadgeState(),
+        val typingUsers: List<SenderInfo>? = null
 ) : MavericksState {
 
     constructor(args: TimelineArgs) : this(

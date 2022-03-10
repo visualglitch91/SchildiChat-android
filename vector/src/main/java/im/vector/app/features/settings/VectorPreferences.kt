@@ -21,6 +21,7 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import androidx.annotation.BoolRes
 import androidx.core.content.edit
 import com.squareup.seismic.ShakeDetector
 import de.spiritcroc.matrixsdk.StaticScSdkHelper
@@ -328,6 +329,8 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
             }
         }
     }
+
+    private fun getDefault(@BoolRes resId: Int) = context.resources.getBoolean(resId)
 
     fun areNotificationEnabledForDevice(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY, true)
@@ -895,7 +898,7 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
      */
     /* SC: use BubbleThemeUtils instead
     fun useMessageBubblesLayout(): Boolean {
-        return defaultPrefs.getBoolean(SETTINGS_INTERFACE_BUBBLE_KEY, false)
+        return defaultPrefs.getBoolean(SETTINGS_INTERFACE_BUBBLE_KEY, getDefault(R.bool.settings_interface_bubble_default))
     }
      */
     fun useElementMessageBubblesLayout(): Boolean {

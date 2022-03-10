@@ -48,6 +48,7 @@
         <item name="vctr_list_separator">@color/list_divider_color_sc</item>
         <item name="vctr_list_separator_system">?vctr_list_separator</item>
         <item name="vctr_list_separator_on_surface">?vctr_list_separator</item>
+        <item name="vctr_unread_background">?colorAccent</item>
 
         <!-- Material color -->
         <item name="colorPrimary">?colorAccent</item>

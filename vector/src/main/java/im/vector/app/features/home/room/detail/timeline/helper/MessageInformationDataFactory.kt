@@ -137,7 +137,7 @@ class MessageInformationDataFactory @Inject constructor(private val session: Ses
                 avatarUrl = event.senderInfo.avatarUrl,
                 memberName = event.senderInfo.disambiguatedDisplayName,
                 messageLayout = messageLayout,
-                reactionsSummary = reactionsSummaryFactory.create(event, params.callback),
+                reactionsSummary = reactionsSummaryFactory.create(event),
                 pollResponseAggregatedSummary = event.annotations?.pollResponseSummary?.let {
                     PollResponseData(
                             myVote = it.aggregatedContent?.myVote,

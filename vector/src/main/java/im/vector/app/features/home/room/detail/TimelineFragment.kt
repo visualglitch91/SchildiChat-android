@@ -22,7 +22,6 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
-import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -276,6 +275,7 @@ class TimelineFragment @Inject constructor(
         CurrentCallsView.Callback {
 
     companion object {
+
         /**
          * Sanitize the display name.
          *
@@ -290,6 +290,7 @@ class TimelineFragment @Inject constructor(
             return displayName
         }
 
+        const val MAX_TYPING_MESSAGE_USERS_COUNT = 4
         private const val ircPattern = " (IRC)"
 
         const val TARGET_SCROLL_OUT_FACTOR = 7f/8f
@@ -1311,8 +1312,6 @@ class TimelineFragment @Inject constructor(
                 timelineViewModel.handle(RoomDetailAction.JumpToReadReceipt(roomDetailPendingAction.userId))
             is RoomDetailPendingAction.MentionUser       ->
                 insertUserDisplayNameInTextEditor(roomDetailPendingAction.userId)
-            is RoomDetailPendingAction.OpenOrCreateDm    ->
-                timelineViewModel.handle(RoomDetailAction.OpenOrCreateDm(roomDetailPendingAction.userId))
             is RoomDetailPendingAction.OpenRoom          ->
                 handleOpenRoom(RoomDetailViewEvents.OpenRoom(roomDetailPendingAction.roomId, roomDetailPendingAction.closeCurrentRoom))
         }.exhaustive
@@ -1635,7 +1634,8 @@ class TimelineFragment @Inject constructor(
     override fun invalidate() = withState(timelineViewModel, messageComposerViewModel) { mainState, messageComposerState ->
         invalidateOptionsMenu()
         val summary = mainState.asyncRoomSummary()
-        renderToolbar(summary, mainState.formattedTypingUsers)
+        renderToolbar(summary)
+        renderTypingMessageNotification(summary, mainState)
         views.removeJitsiWidgetView.render(mainState)
         if (mainState.hasFailedSending) {
             lazyLoadedViews.failedMessagesWarningView(inflateIfNeeded = true, createFailedMessagesWarningCallback())?.isVisible = true
@@ -1648,6 +1648,7 @@ class TimelineFragment @Inject constructor(
             views.jumpToBottomView.drawBadge = summary.scIsUnread()
             timelineEventController.update(mainState)
             lazyLoadedViews.inviteView(false)?.isVisible = false
+
             if (mainState.tombstoneEvent == null) {
                 views.composerLayout.isInvisible = !messageComposerState.isComposerVisible
                 views.voiceMessageRecorderView.isVisible = messageComposerState.isVoiceMessageRecorderVisible
@@ -1691,7 +1692,18 @@ class TimelineFragment @Inject constructor(
         voiceMessageRecorderView.isVisible = false
     }
 
-    private fun renderToolbar(roomSummary: RoomSummary?, typingMessage: String?) {
+    private fun renderTypingMessageNotification(roomSummary: RoomSummary?, state: RoomDetailViewState) {
+        if (!isThreadTimeLine() && roomSummary != null) {
+            views.typingMessageView.isInvisible = state.typingUsers.isNullOrEmpty()
+            state.typingUsers
+                    ?.take(MAX_TYPING_MESSAGE_USERS_COUNT)
+                    ?.let { senders -> views.typingMessageView.render(senders, avatarRenderer) }
+        } else {
+            views.typingMessageView.isInvisible = true
+        }
+    }
+
+    private fun renderToolbar(roomSummary: RoomSummary?) {
         if (!isThreadTimeLine()) {
             views.includeRoomToolbar.roomToolbarContentView.isVisible = true
             views.includeThreadToolbar.roomToolbarThreadConstraintLayout.isVisible = false
@@ -1701,7 +1713,6 @@ class TimelineFragment @Inject constructor(
                 views.includeRoomToolbar.roomToolbarContentView.isClickable = roomSummary.membership == Membership.JOIN
                 views.includeRoomToolbar.roomToolbarTitleView.text = roomSummary.displayName
                 avatarRenderer.render(roomSummary.toMatrixItem(), views.includeRoomToolbar.roomToolbarAvatarImageView)
-                renderSubTitle(typingMessage, roomSummary.topic)
                 views.includeRoomToolbar.roomToolbarDecorationImageView.render(roomSummary.roomEncryptionTrustLevel)
                 views.includeRoomToolbar.roomToolbarPresenceImageView.render(roomSummary.isDirect, roomSummary.directUserPresence)
                 views.includeRoomToolbar.roomToolbarPublicImageView.isVisible = roomSummary.isPublic && !roomSummary.isDirect
@@ -1716,21 +1727,6 @@ class TimelineFragment @Inject constructor(
                 views.includeThreadToolbar.roomToolbarThreadSubtitleTextView.text = it.displayName
             }
             views.includeThreadToolbar.roomToolbarThreadTitleTextView.text = resources.getText(R.string.thread_timeline_title)
-        }
-    }
-
-    private fun renderSubTitle(typingMessage: String?, topic: String) {
-        // TODO Temporary place to put typing data
-        val subtitle = typingMessage?.takeIf { it.isNotBlank() } ?: topic
-        views.includeRoomToolbar.roomToolbarSubtitleView.apply {
-            setTextOrHide(subtitle)
-            if (typingMessage.isNullOrBlank()) {
-                setTextColor(colorProvider.getColorFromAttribute(R.attr.vctr_content_secondary))
-                setTypeface(null, Typeface.NORMAL)
-            } else {
-                setTextColor(colorProvider.getColorFromAttribute(R.attr.colorPrimary))
-                setTypeface(null, Typeface.BOLD)
-            }
         }
     }
 
