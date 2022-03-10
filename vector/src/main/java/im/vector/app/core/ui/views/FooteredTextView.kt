@@ -12,6 +12,7 @@ import androidx.core.text.getSpans
 import androidx.core.text.toSpanned
 import im.vector.app.R
 import im.vector.app.features.html.HtmlCodeSpan
+import io.noties.markwon.core.spans.EmphasisSpan
 import kotlin.math.ceil
 import kotlin.math.max
 
@@ -96,14 +97,20 @@ class FooteredTextView @JvmOverloads constructor(
                 ) + footerWidth
 
         // If the last line is a multi-line code block, we have never space in the last line (as the black background always uses full width)
-        val forceNewlineFooter = if (text is Spannable || text is Spanned) {
+        val forceNewlineFooter: Boolean
+        // For italic text, we need some extra space due to a wrap_content bug: https://stackoverflow.com/q/4353836
+        val addItalicPadding: Boolean
+
+        if (text is Spannable || text is Spanned) {
             val span = text.toSpanned()
             // If not found, -1+1 = 0
             val lastLineStart = span.lastIndexOf("\n") + 1
             val lastLineCodeSpans = span.getSpans<HtmlCodeSpan>(lastLineStart)
-            lastLineCodeSpans.any { it.isBlock }
+            forceNewlineFooter = lastLineCodeSpans.any { it.isBlock }
+            addItalicPadding = span.getSpans<EmphasisSpan>().isNotEmpty()
         } else {
-            false
+            forceNewlineFooter = false
+            addItalicPadding = false
         }
 
         // Is there space for a horizontal footer?
@@ -119,6 +126,10 @@ class FooteredTextView @JvmOverloads constructor(
         } else {
             // Reserve vertical footer space
             newHeight += footerHeight
+        }
+
+        if (addItalicPadding) {
+            newWidth += resources.getDimensionPixelSize(R.dimen.italic_text_view_extra_padding)
         }
 
         setMeasuredDimension(newWidth, newHeight)

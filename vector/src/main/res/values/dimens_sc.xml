@@ -38,6 +38,8 @@
     <!-- sc_footer_margin_start + sc_footer_padding_compensation -->
     <dimen name="sc_footer_reverse_margin_end">8dp</dimen>
     <dimen name="sc_footer_rtl_mismatch_extra_padding">4dp</dimen>
+    <!-- Android TextView's wrap_content has some bug with italic text: https://stackoverflow.com/q/4353836 -->
+    <dimen name="italic_text_view_extra_padding">2sp</dimen>
 
     <dimen name="file_icon_size">32dp</dimen>
 
