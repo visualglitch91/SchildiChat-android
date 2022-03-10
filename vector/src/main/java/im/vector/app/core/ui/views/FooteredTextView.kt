@@ -126,6 +126,10 @@ class FooteredTextView @JvmOverloads constructor(
         } else {
             // Reserve vertical footer space
             newHeight += footerHeight
+            // Ensure enough width for footer bellow
+            newWidth = max(newWidth, footerWidth +
+                    resources.getDimensionPixelSize(R.dimen.sc_footer_padding_compensation) +
+                    2 * resources.getDimensionPixelSize(R.dimen.sc_footer_overlay_padding))
         }
 
         if (addItalicPadding) {
