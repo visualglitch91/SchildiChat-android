@@ -41,7 +41,7 @@
         app:layout_constraintHeight_percent="0.15"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/accountCreatedSpace1"
-        app:tint="@color/element_background_light" />
+        app:tint="?backgroundColorLight" />
 
     <Space
         android:id="@+id/accountCreatedSpace2"
@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/ftue_account_created_congratulations_title"
-        android:textColor="@color/element_background_light"
+        android:textColor="?backgroundColorLight"
         android:transitionName="loginTitleTransition"
         app:layout_constraintBottom_toTopOf="@id/accountCreatedSubtitle"
         app:layout_constraintEnd_toEndOf="@id/ftueAuthGutterEnd"
@@ -72,7 +72,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:gravity="center"
-        android:textColor="@color/element_background_light"
+        android:textColor="?backgroundColorLight"
         app:layout_constraintBottom_toTopOf="@id/accountCreatedSpace4"
         app:layout_constraintEnd_toEndOf="@id/ftueAuthGutterEnd"
         app:layout_constraintStart_toStartOf="@id/ftueAuthGutterStart"
@@ -91,7 +91,7 @@
         style="@style/Widget.Vector.Button.Login"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/element_background_light"
+        android:backgroundTint="?backgroundColorLight"
         android:text="@string/ftue_account_created_personalize"
         android:textAllCaps="true"
         android:textColor="?colorSecondary"
@@ -109,7 +109,7 @@
         android:layout_height="wrap_content"
         android:text="@string/ftue_account_created_take_me_home"
         android:textAllCaps="true"
-        android:textColor="@color/element_background_light"
+        android:textColor="?backgroundColorLight"
         android:transitionName="loginSubmitTransition"
         app:layout_constraintBottom_toTopOf="@id/accountCreatedSpace5"
         app:layout_constraintEnd_toEndOf="@id/ftueAuthGutterEnd"
