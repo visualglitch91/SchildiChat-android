@@ -22,6 +22,7 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -172,6 +173,7 @@ import im.vector.app.features.home.room.detail.upgrade.MigrateRoomBottomSheet
 import im.vector.app.features.home.room.detail.views.RoomDetailLazyLoadedViews
 import im.vector.app.features.home.room.detail.widget.RoomWidgetsBottomSheet
 import im.vector.app.features.home.room.threads.arguments.ThreadTimelineArgs
+import im.vector.app.features.home.room.typing.TypingHelper
 import im.vector.app.features.html.EventHtmlRenderer
 import im.vector.app.features.html.PillImageSpan
 import im.vector.app.features.html.PillsPostProcessor
@@ -265,6 +267,7 @@ class TimelineFragment @Inject constructor(
         private val pillsPostProcessorFactory: PillsPostProcessor.Factory,
         private val callManager: WebRtcCallManager,
         private val voiceMessagePlaybackTracker: VoiceMessagePlaybackTracker,
+        private val typingHelper: TypingHelper,
         private val clock: Clock
 ) :
         VectorBaseFragment<FragmentTimelineBinding>(),
@@ -1704,6 +1707,14 @@ class TimelineFragment @Inject constructor(
         }
 
     private fun renderTypingMessageNotification(roomSummary: RoomSummary?, state: RoomDetailViewState) {
+        // SC-TODO: setting?
+        // Old-school toolbar indicator
+        if (roomSummary != null) {
+            val typingMessage = typingHelper.getTypingMessage(state.typingUsers ?: listOf())
+            renderSubTitle(typingMessage, roomSummary.topic)
+            return
+        }
+        /* New bottom typing indicator
         if (!isThreadTimeLine() && roomSummary != null) {
             views.typingMessageView.isInvisibleOrGone = state.typingUsers.isNullOrEmpty()
             state.typingUsers
@@ -1712,6 +1723,7 @@ class TimelineFragment @Inject constructor(
         } else {
             views.typingMessageView.isInvisibleOrGone = true
         }
+         */
     }
 
     private fun renderToolbar(roomSummary: RoomSummary?) {
@@ -1738,6 +1750,20 @@ class TimelineFragment @Inject constructor(
                 views.includeThreadToolbar.roomToolbarThreadSubtitleTextView.text = it.displayName
             }
             views.includeThreadToolbar.roomToolbarThreadTitleTextView.text = resources.getText(R.string.thread_timeline_title)
+        }
+    }
+
+    private fun renderSubTitle(typingMessage: String?, topic: String) {
+        val subtitle = typingMessage?.takeIf { it.isNotBlank() } ?: topic
+        views.includeRoomToolbar.roomToolbarSubtitleView.apply {
+            setTextOrHide(subtitle)
+            if (typingMessage.isNullOrBlank()) {
+                setTextColor(colorProvider.getColorFromAttribute(R.attr.vctr_content_secondary))
+                setTypeface(null, Typeface.NORMAL)
+            } else {
+                setTextColor(colorProvider.getColorFromAttribute(R.attr.colorPrimary))
+                setTypeface(null, Typeface.BOLD)
+            }
         }
     }
 
