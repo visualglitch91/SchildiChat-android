@@ -259,6 +259,7 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
             }
             // Update the relation of existing event
             builtEvents.getOrNull(builtIndex)?.let { te ->
+                Timber.i("TimelineChunk.rebuildEvent $eventId at $builtIndex, which was ${te.eventId}")
                 val rebuiltEvent = builder(te)
                 builtEvents[builtIndex] = rebuiltEvent!!
                 true
@@ -288,6 +289,7 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
      * whether or not we reached the end/root message
      */
     private fun loadFromStorage(count: Int, direction: Timeline.Direction): LoadedFromStorage {
+        Timber.i("TimelineChunk.loadFromStorage() start")
         val displayIndex = getNextDisplayIndex(direction) ?: return LoadedFromStorage()
         val baseQuery = timelineEventEntities.where()
 
@@ -298,14 +300,18 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
         val builtTimelineEvents = timelineEvents.map { it.buildAndDecryptIfNeeded() }
         checkTimelineConsistency("TimelineChunk.loadFromStorage-raw-query", builtTimelineEvents)
 
-        if (timelineEvents.isEmpty()) return LoadedFromStorage()
+        if (timelineEvents.isEmpty()) return LoadedFromStorage().also { Timber.i("TimelineChunk.loadFromStorage() empty abort") }
 // Disabled due to the new fallback
 //        if(!lightweightSettingsStorage.areThreadMessagesEnabled()) {
 //            fetchRootThreadEventsIfNeeded(timelineEvents)
 //        }
         if (direction == Timeline.Direction.FORWARDS) {
             builtEventsIndexes.entries.forEach { it.setValue(it.value + timelineEvents.size) }
+            Timber.i("TimelineChunk.loadFromStorage: insert ${timelineEvents.size} items forwards at start, old size: ${builtEvents.size}")
+        } else {
+            Timber.i("TimelineChunk.loadFromStorage: insert ${timelineEvents.size} items backwards at end, old size: ${builtEvents.size}")
         }
+        val extraCheck = mutableListOf<TimelineEvent>()
         //timelineEvents
         builtTimelineEvents
                 .mapIndexed { index, timelineEvent -> // timelineEventEntity ->
@@ -320,10 +326,14 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
                         builtEventsIndexes[timelineEvent.eventId] = builtEvents.size
                         builtEvents.add(timelineEvent)
                     }
+                    extraCheck.add(timelineEvent)
                 }
+        checkTimelineConsistency("TimelineChunk.loadFromStorage-extra-check", extraCheck)
         return LoadedFromStorage(
                 threadReachedEnd = threadReachedEnd(timelineEvents),
-                numberOfEvents = timelineEvents.size)
+                numberOfEvents = timelineEvents.size).also {
+                    Timber.i("TimelineChunk.loadFromStorage() end")
+        }
     }
 
     /**
@@ -432,6 +442,7 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
      *
      */
     private fun handleDatabaseChangeSet(results: RealmResults<TimelineEventEntity>, changeSet: OrderedCollectionChangeSet) {
+        Timber.i("TimelineChunk.handleDatabaseChangeSet() start")
         val insertions = changeSet.insertionRanges
         for (range in insertions) {
             val newItems = results
@@ -443,6 +454,7 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
                     isLastBackward.set(true)
                 }
                 val correctedIndex = range.startIndex + index
+                Timber.i("TimelineChunk.handleDatabaseChangeSet: insert ${timelineEvent.eventId} at $correctedIndex (${range.startIndex} + $index)")
                 builtEvents.add(correctedIndex, timelineEvent)
                 builtEventsIndexes[timelineEvent.eventId] = correctedIndex
             }
@@ -452,12 +464,17 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
             for (modificationIndex in (range.startIndex until range.startIndex + range.length)) {
                 val updatedEntity = results[modificationIndex] ?: continue
                 try {
+                    Timber.i("TimelineChunk.handleDatabaseChangeSet: modify ${updatedEntity.eventId} at $modificationIndex (previous: ${builtEvents.getOrNull(modificationIndex)?.eventId})")
+                    if (updatedEntity.eventId != builtEvents.getOrNull(modificationIndex)?.eventId) {
+                        Timber.e("TimelineChunk.handleDatabaseChangeSet: Unexpected modification, bug?!! was using item index $modificationIndex, better could've been ${builtEventsIndexes.getOrDefault(updatedEntity.eventId, null)}")
+                    }
                     builtEvents[modificationIndex] = updatedEntity.buildAndDecryptIfNeeded()
                 } catch (failure: Throwable) {
                     Timber.v("Fail to update items at index: $modificationIndex")
                 }
             }
         }
+        Timber.i("TimelineChunk.handleDatabaseChangeSet() end")
         if (insertions.isNotEmpty() || modifications.isNotEmpty()) {
             onBuiltEvents(true)
         }

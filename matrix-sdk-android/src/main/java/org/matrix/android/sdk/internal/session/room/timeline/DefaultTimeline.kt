@@ -389,8 +389,9 @@ internal class DefaultTimeline(private val roomId: String,
 }
 
 fun checkTimelineConsistency(location: String, events: List<TimelineEvent>) {
-    Timber.d("Check timeline consistency from $location for ${events.size} events")
+    Timber.i("Check timeline consistency from $location for ${events.size} events, from ${events.firstOrNull()?.eventId} to ${events.lastOrNull()?.eventId}")
     try {
+        var potentialIssues = 0
         // Note that the "previous" event is actually newer than the currently looked at event,
         // since the list is ordered from new to old
         var prev: TimelineEvent? = null
@@ -400,6 +401,7 @@ fun checkTimelineConsistency(location: String, events: List<TimelineEvent>) {
                 if (prev.eventId == event.eventId) {
                     // This should never happen in a bug-free world, as far as I'm aware
                     Timber.e("Timeline inconsistency found at $location, $i/${events.size}: double event ${event.eventId}")
+                    potentialIssues++
                 } else if (prev.displayIndex != event.displayIndex + 1 &&
                         // Jumps from -1 to 1 seem to be normal, have only seen index 0 for local echos yet
                         (prev.displayIndex != 1 || event.displayIndex != -1)) {
@@ -407,11 +409,12 @@ fun checkTimelineConsistency(location: String, events: List<TimelineEvent>) {
                     // - Events between two chunks lead to a new indexing, so one may start at 1, or even something negative.
                     // - The list may omit unsupported events (I guess?), thus causing gaps in the indices.
                     Timber.w("Possible timeline inconsistency found at $location, $i/${events.size}: ${event.displayIndex}->${prev.displayIndex}, ${event.eventId} -> ${prev.eventId}")
+                    potentialIssues++
                 }
             }
             prev = event
         }
-        Timber.d("Done check timeline consistency from $location")
+        Timber.i("Done check timeline consistency from $location, found $potentialIssues possible issues")
     } catch (t: Throwable) {
         Timber.e("Failed check timeline consistency from $location", t)
     }
