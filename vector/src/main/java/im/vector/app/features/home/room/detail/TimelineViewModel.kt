@@ -638,6 +638,7 @@ class TimelineViewModel @AssistedInject constructor(
         if (trackUnreadMessages.getAndSet(false)) {
             mostRecentDisplayedEvent?.root?.eventId?.also {
                 session.coroutineScope.launch(NonCancellable) {
+                    Timber.i("ReadMarker debug: set RM and RR to $it")
                     tryOrNull { room.setReadMarker(it) }
                     if (loadRoomAtFirstUnread()) {
                         tryOrNull { room.setReadReceipt(it) }
@@ -1127,6 +1128,7 @@ class TimelineViewModel @AssistedInject constructor(
                     }
                 }
                 .setOnEach {
+                    Timber.i("ReadMarker debug: update unreadState = $it")
                     copy(unreadState = it)
                 }
     }
@@ -1156,11 +1158,13 @@ class TimelineViewModel @AssistedInject constructor(
             if (!isFromMe) {
                 return UnreadState.HasUnread(eventId)
             }
+            Timber.i("ReadMarker debug: hasNoUnread / firstDisplayableEventIndex: $firstDisplayableEventIndex / " +
+                    "latest previewable from summary ${roomSummary.latestPreviewableOriginalContentEvent?.eventId} - ${timeline.getIndexOfEvent(roomSummary.latestPreviewableOriginalContentEvent?.eventId)} / " +
+                    "event-0 ${events.getOrNull(0)?.eventId}")
         }
         Timber.i("ReadMarker debug: hasNoUnread / firstDisplayableEventIndex: $firstDisplayableEventIndex / " +
                 "latest previewable from summary ${roomSummary.latestPreviewableOriginalContentEvent?.eventId} - ${timeline.getIndexOfEvent(roomSummary.latestPreviewableOriginalContentEvent?.eventId)} / " +
                 "event-0 ${events.getOrNull(0)?.eventId}")
-        // TODO: if we return HasNoUnread, we need to be sure, since later HasUnread will be ignored in distinctUntilChanged. However, when loading the room at the last read directly, this doesn't always work
         return UnreadState.HasNoUnread
     }
 

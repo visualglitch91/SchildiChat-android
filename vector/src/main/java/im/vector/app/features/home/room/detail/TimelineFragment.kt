@@ -2039,6 +2039,7 @@ class TimelineFragment @Inject constructor(
     }
 
     override fun onLoadMore(direction: Timeline.Direction) {
+        Timber.i("ReadMarker debug: on load more $direction")
         timelineViewModel.handle(RoomDetailAction.LoadMoreTimelineEvents(direction))
     }
 
