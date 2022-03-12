@@ -463,12 +463,13 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
         for (range in modifications) {
             for (modificationIndex in (range.startIndex until range.startIndex + range.length)) {
                 val updatedEntity = results[modificationIndex] ?: continue
+                val displayIndex = builtEventsIndexes.getOrDefault(updatedEntity.eventId, null)
+                if (displayIndex == null) {
+                    Timber.w("TimelineChunk.handleDatabaseChangeSet: skip modification for ${updatedEntity.eventId} at $modificationIndex, not found in chunk")
+                    continue
+                }
                 try {
-                    Timber.i("TimelineChunk.handleDatabaseChangeSet: modify ${updatedEntity.eventId} at $modificationIndex (previous: ${builtEvents.getOrNull(modificationIndex)?.eventId})")
-                    if (updatedEntity.eventId != builtEvents.getOrNull(modificationIndex)?.eventId) {
-                        Timber.e("TimelineChunk.handleDatabaseChangeSet: Unexpected modification, bug?!! was using item index $modificationIndex, better could've been ${builtEventsIndexes.getOrDefault(updatedEntity.eventId, null)}")
-                    }
-                    builtEvents[modificationIndex] = updatedEntity.buildAndDecryptIfNeeded()
+                    builtEvents[displayIndex] = updatedEntity.buildAndDecryptIfNeeded()
                 } catch (failure: Throwable) {
                     Timber.v("Fail to update items at index: $modificationIndex")
                 }
