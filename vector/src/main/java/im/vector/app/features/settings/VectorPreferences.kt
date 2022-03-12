@@ -21,6 +21,7 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.annotation.BoolRes
 import androidx.core.content.edit
 import com.squareup.seismic.ShakeDetector
@@ -981,6 +982,16 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
 
     override fun includeSpaceMembersAsSpaceRooms(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_SPACE_MEMBERS_IN_SPACE_ROOMS, false)
+    }
+
+    var prevToast: Toast? = null
+    override fun annoyDevelopersWithToast(text: String) {
+        if (developerShowDebugInfo()) {
+            prevToast?.cancel()
+            prevToast = Toast.makeText(context, text, Toast.LENGTH_LONG).also {
+                it.show()
+            }
+        }
     }
 
     // SC addition

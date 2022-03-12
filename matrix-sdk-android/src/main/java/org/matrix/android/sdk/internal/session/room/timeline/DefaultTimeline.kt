@@ -16,6 +16,7 @@
 
 package org.matrix.android.sdk.internal.session.room.timeline
 
+import de.spiritcroc.matrixsdk.StaticScSdkHelper
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import kotlinx.coroutines.CoroutineScope
@@ -296,9 +297,13 @@ internal class DefaultTimeline(private val roomId: String,
     private suspend fun postSnapshot() {
         val snapshot = strategy.buildSnapshot()
         Timber.v("Post snapshot of ${snapshot.size} events")
-        // Async debugging to not slow down things
+        // Async debugging to not slow down things too much
         timelineScope.launch(coroutineDispatchers.computation) {
-            checkTimelineConsistency("DefaultTimeline.postSnapshot", snapshot)
+            checkTimelineConsistency("DefaultTimeline.postSnapshot", snapshot) { msg ->
+                timelineScope.launch(coroutineDispatchers.main) {
+                    StaticScSdkHelper.scSdkPreferenceProvider?.annoyDevelopersWithToast(msg)
+                }
+            }
         }
         withContext(coroutineDispatchers.main) {
             listeners.forEach {
@@ -388,13 +393,14 @@ internal class DefaultTimeline(private val roomId: String,
     }
 }
 
-fun checkTimelineConsistency(location: String, events: List<TimelineEvent>) {
+fun checkTimelineConsistency(location: String, events: List<TimelineEvent>, sendToastFunction: (String) -> Unit = {}) {
     Timber.i("Check timeline consistency from $location for ${events.size} events, from ${events.firstOrNull()?.eventId} to ${events.lastOrNull()?.eventId}")
     try {
         var potentialIssues = 0
         // Note that the "previous" event is actually newer than the currently looked at event,
         // since the list is ordered from new to old
         var prev: TimelineEvent? = null
+        var toastMsg = ""
         for (i in events.indices) {
             val event = events[i]
             if (prev != null) {
@@ -409,10 +415,17 @@ fun checkTimelineConsistency(location: String, events: List<TimelineEvent>) {
                     // - Events between two chunks lead to a new indexing, so one may start at 1, or even something negative.
                     // - The list may omit unsupported events (I guess?), thus causing gaps in the indices.
                     Timber.w("Possible timeline inconsistency found at $location, $i/${events.size}: ${event.displayIndex}->${prev.displayIndex}, ${event.eventId} -> ${prev.eventId}")
+                    // Toast only those which are particularly suspicious
+                    if (prev.displayIndex != 1 && prev.displayIndex >= event.displayIndex) {
+                        toastMsg += "${event.displayIndex}->${prev.displayIndex},"
+                    }
                     potentialIssues++
                 }
             }
             prev = event
+        }
+        if (toastMsg.isNotEmpty()) {
+            sendToastFunction(toastMsg.substring(0, toastMsg.length-1))
         }
         Timber.i("Done check timeline consistency from $location, found $potentialIssues possible issues")
     } catch (t: Throwable) {
