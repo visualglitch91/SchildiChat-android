@@ -99,28 +99,32 @@ class TimelineMessageLayoutFactory @Inject constructor(private val session: Sess
 
         val messageLayout = when (layoutSettingsProvider.getLayoutSettings()) {
             TimelineLayoutSettings.SC_BUBBLE -> {
-                val messageContent = event.getLastMessageContent()
-                val isBubble = event.shouldBuildBubbleLayout()
-                val singleSidedLayout = bubbleThemeUtils.getBubbleStyle() == BubbleThemeUtils.BUBBLE_STYLE_START
-                val pseudoBubble = messageContent.isPseudoBubble()
-                val showTimestamp = showInformation || !singleSidedLayout || vectorPreferences.alwaysShowTimeStamps()
-                return TimelineMessageLayout.ScBubble(
-                        showAvatar = showInformation,
-                        // Display names not required if
-                        // - !showInformation -> multiple messages in a row, already had name before
-                        // - redundantDisplayName -> message content already includes the display name (-> m.emote)
-                        // Display name still required for single sided layout if timestamp is shown (empty space looks bad otherwise)
-                        showDisplayName = showInformation && ((singleSidedLayout && showTimestamp) || !messageContent.redundantDisplayName()),
-                        showTimestamp = showTimestamp,
-                        bubbleAppearance = bubbleThemeUtils.getBubbleAppearance(),
-                        isIncoming = !isSentByMe,
-                        isNotice = messageContent is MessageNoticeContent,
-                        reverseBubble = isSentByMe && !singleSidedLayout,
-                        singleSidedLayout = singleSidedLayout,
-                        isRealBubble = isBubble && !pseudoBubble,
-                        isPseudoBubble = pseudoBubble,
-                        timestampAsOverlay = messageContent.timestampAsOverlay()
-                )
+                if (event.shouldNeverUseScLayout()) {
+                    buildModernLayout(showInformation)
+                } else {
+                    val messageContent = event.getLastMessageContent()
+                    val isBubble = event.shouldBuildBubbleLayout()
+                    val singleSidedLayout = bubbleThemeUtils.getBubbleStyle() == BubbleThemeUtils.BUBBLE_STYLE_START
+                    val pseudoBubble = messageContent.isPseudoBubble()
+                    val showTimestamp = showInformation || !singleSidedLayout || vectorPreferences.alwaysShowTimeStamps()
+                    return TimelineMessageLayout.ScBubble(
+                            showAvatar = showInformation,
+                            // Display names not required if
+                            // - !showInformation -> multiple messages in a row, already had name before
+                            // - redundantDisplayName -> message content already includes the display name (-> m.emote)
+                            // Display name still required for single sided layout if timestamp is shown (empty space looks bad otherwise)
+                            showDisplayName = showInformation && ((singleSidedLayout && showTimestamp) || !messageContent.redundantDisplayName()),
+                            showTimestamp = showTimestamp,
+                            bubbleAppearance = bubbleThemeUtils.getBubbleAppearance(),
+                            isIncoming = !isSentByMe,
+                            isNotice = messageContent is MessageNoticeContent,
+                            reverseBubble = isSentByMe && !singleSidedLayout,
+                            singleSidedLayout = singleSidedLayout,
+                            isRealBubble = isBubble && !pseudoBubble,
+                            isPseudoBubble = pseudoBubble,
+                            timestampAsOverlay = messageContent.timestampAsOverlay()
+                    )
+                }
             }
             TimelineLayoutSettings.MODERN -> {
                 buildModernLayout(showInformation)
@@ -212,6 +216,11 @@ class TimelineMessageLayoutFactory @Inject constructor(private val session: Sess
             return messageContent?.msgType !in MSG_TYPES_WITHOUT_BUBBLE_LAYOUT
         }
         return false
+    }
+
+    private fun TimelineEvent.shouldNeverUseScLayout(): Boolean {
+        val messageContent = getLastMessageContent()
+        return messageContent?.msgType in MSG_TYPES_WITHOUT_BUBBLE_LAYOUT
     }
 
     private fun buildModernLayout(showInformation: Boolean, forScBubbles: Boolean = false): TimelineMessageLayout.Default {
