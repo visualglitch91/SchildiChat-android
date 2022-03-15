@@ -55,6 +55,7 @@ import im.vector.app.features.home.room.list.actions.RoomListQuickActionsSharedA
 import im.vector.app.features.home.room.list.widget.NotifsFabMenuView
 import im.vector.app.features.notifications.NotificationDrawerManager
 import im.vector.app.features.settings.VectorPreferences
+import im.vector.app.space
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.parcelize.Parcelize
@@ -81,7 +82,6 @@ class RoomListFragment @Inject constructor(
 ) : VectorBaseFragment<FragmentRoomListBinding>(),
         RoomListListener,
         OnBackPressed,
-        AppStateHandler.OnSwitchSpaceListener,
         FilteredRoomFooterItem.Listener,
         NotifsFabMenuView.Listener {
 
@@ -157,7 +157,10 @@ class RoomListFragment @Inject constructor(
                         (it.contentEpoxyController as? RoomSummaryPagedController)?.roomChangeMembershipStates = ms
                     }
         }
-        appStateHandler.onSwitchSpaceListener = this
+        roomListViewModel.onEach(RoomListViewState::currentRoomGrouping) {
+            val spaceId = it.invoke()?.space()?.roomId
+            onSwitchSpace(spaceId)
+        }
     }
 
     override fun onPause() {
@@ -574,7 +577,7 @@ class RoomListFragment @Inject constructor(
         const val ROOM_LIST_ROOM_EXPANDED_ANY_PREFIX = "ROOM_LIST_ROOM_EXPANDED"
     }
 
-    override fun onSwitchSpace(spaceId: String?) {
+    private fun onSwitchSpace(spaceId: String?) {
         if (roomListParams.explicitSpaceId == SPACE_ID_FOLLOW_APP) {
             return
         }

@@ -63,8 +63,6 @@ class AppStateHandler @Inject constructor(
 
     val selectedRoomGroupingFlow = selectedSpaceDataSource.stream()
 
-    var onSwitchSpaceListener: OnSwitchSpaceListener? = null
-
     fun getCurrentRoomGroupingMethod(): RoomGroupingMethod? {
         // XXX we should somehow make it live :/ just a work around
         // For example just after creating a space and switching to it the
@@ -99,7 +97,6 @@ class AppStateHandler @Inject constructor(
                 }
             }
         }
-        onSwitchSpaceListener?.onSwitchSpace(spaceId)
     }
 
     fun setCurrentGroup(groupId: String?, session: Session? = null) {
@@ -158,9 +155,5 @@ class AppStateHandler @Inject constructor(
                 uiStateRepository.storeSelectedGroup(currentMethod.groupSummary?.groupId, session.sessionId)
             }
         }
-    }
-
-    interface OnSwitchSpaceListener {
-        fun onSwitchSpace(spaceId: String?)
     }
 }
