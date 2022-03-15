@@ -123,4 +123,12 @@
     <string name="settings_enable_space_pager">Usap daftar obrolan untuk beralih ke space lain</string>
     <string name="settings_enable_space_pager_summary">Perbolehkan untuk beralih ke space root dengan mengusap secara horizontal pada daftar obrolan</string>
     <string name="room_settings_default">Default</string>
+    <string name="bubble_style_element">Element</string>
+    <string name="bubble_rounded_corners">Sudut</string>
+    <string name="bubble_rounded_corners_default">Bawaan</string>
+    <string name="bubble_rounded_corners_r1">Bulat</string>
+    <string name="bubble_tail">Ekor gelembung</string>
+    <string name="bubble_tail_summary">Tampilkan ekor gelembung untuk pesan pertama pengirim</string>
+    <string name="bubble_appearance">Penampilan gelembung</string>
+    <string name="bubble_rounded_corners_r2">Sangat bulat</string>
 </resources>

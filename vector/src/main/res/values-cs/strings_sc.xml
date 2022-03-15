@@ -125,4 +125,12 @@
     <string name="settings_enable_space_pager">Přejetím po seznamu chatů změnit prostor</string>
     <string name="settings_enable_space_pager_summary">Umožnit přepínat mezi hlavními prostory vodorovným přejetím v seznamu chatů</string>
     <string name="room_settings_default">Výchozí</string>
+    <string name="bubble_style_element">Element</string>
+    <string name="bubble_appearance">Vzhled bubliny</string>
+    <string name="bubble_rounded_corners">Rohy</string>
+    <string name="bubble_rounded_corners_default">Výchozí</string>
+    <string name="bubble_rounded_corners_r1">Oblé</string>
+    <string name="bubble_rounded_corners_r2">Kulaté</string>
+    <string name="bubble_tail">Zakončení bubliny</string>
+    <string name="bubble_tail_summary">Použít zakončení bubliny na první zprávě odesílatele</string>
 </resources>
