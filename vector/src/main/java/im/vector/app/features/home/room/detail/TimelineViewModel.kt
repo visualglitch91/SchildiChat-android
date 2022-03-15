@@ -728,8 +728,8 @@ class TimelineViewModel @AssistedInject constructor(
                 R.id.timeline_setting          -> false // replaced by show_room_info (downstream)
                 R.id.invite                    -> false // state.canInvite // SC: disabled, we can do that over show_participants as well
                 R.id.open_matrix_apps          -> session.integrationManagerService().isIntegrationEnabled()
-                R.id.voice_call                -> state.isWebRTCCallOptionAvailable()
-                R.id.video_call                -> state.isWebRTCCallOptionAvailable() || state.jitsiState.confId == null || state.jitsiState.hasJoined
+                R.id.voice_call                -> !vectorPreferences.hideCallButtons() && state.isWebRTCCallOptionAvailable()
+                R.id.video_call                -> !vectorPreferences.hideCallButtons() && (state.isWebRTCCallOptionAvailable() || state.jitsiState.confId == null || state.jitsiState.hasJoined)
                 // Show Join conference button only if there is an active conf id not joined. Otherwise fallback to default video disabled. ^
                 R.id.join_conference           -> !state.isWebRTCCallOptionAvailable() && state.jitsiState.confId != null && !state.jitsiState.hasJoined
                 R.id.search                    -> state.isSearchAvailable()

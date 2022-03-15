@@ -165,6 +165,8 @@
 
     <string name="settings_notif_only_alert_once">Only alert once</string>
     <string name="settings_notif_only_alert_once_summary">Omit alert sounds for new messages if there is already an open notification for that chat</string>
+    <string name="settings_hide_call_buttons">Hide call buttons</string>
+    <string name="settings_hide_call_buttons_summary">Never show buttons in the room toolbar to start voice or video calls</string>
 
     <!-- Default notification rule -->
     <string name="room_settings_default">Default</string>

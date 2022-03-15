@@ -216,6 +216,7 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
         private const val SETTINGS_SPACE_MEMBERS_IN_SPACE_ROOMS = "SETTINGS_SPACE_MEMBERS_IN_SPACE_ROOMS"
         private const val SETTINGS_ENABLE_SPACE_PAGER = "SETTINGS_ENABLE_SPACE_PAGER"
         private const val SETTINGS_NOTIF_ONLY_ALERT_ONCE = "SETTINGS_NOTIF_ONLY_ALERT_ONCE"
+        private const val SETTINGS_HIDE_CALL_BUTTONS = "SETTINGS_HIDE_CALL_BUTTONS"
 
         private const val DID_ASK_TO_ENABLE_SESSION_PUSH = "DID_ASK_TO_ENABLE_SESSION_PUSH"
 
@@ -1081,6 +1082,11 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
     // SC addition
     fun onlyAlertOnce(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_NOTIF_ONLY_ALERT_ONCE, true)
+    }
+
+    // SC addition
+    fun hideCallButtons(): Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_HIDE_CALL_BUTTONS, false)
     }
 
     /**
