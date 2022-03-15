@@ -28,6 +28,8 @@ import com.airbnb.mvrx.Uninitialized
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import de.spiritcroc.matrixsdk.util.DbgUtil
+import de.spiritcroc.matrixsdk.util.Dimber
 import im.vector.app.AppStateHandler
 import im.vector.app.BuildConfig
 import im.vector.app.R
@@ -142,6 +144,8 @@ class TimelineViewModel @AssistedInject constructor(
             setInitialEventIdOffset(-1)
         }
     }
+
+    private val rmDimber = Dimber("ReadMarkerDbg", DbgUtil.DBG_READ_MARKER)
 
     // Same lifecycle than the ViewModel (survive to screen rotation)
     val previewUrlRetriever = PreviewUrlRetriever(session, viewModelScope)
@@ -638,7 +642,7 @@ class TimelineViewModel @AssistedInject constructor(
         if (trackUnreadMessages.getAndSet(false)) {
             mostRecentDisplayedEvent?.root?.eventId?.also {
                 session.coroutineScope.launch(NonCancellable) {
-                    Timber.i("ReadMarker debug: set RM and RR to $it")
+                    rmDimber.i{"set RM and RR to $it"}
                     tryOrNull { room.setReadMarker(it) }
                     if (loadRoomAtFirstUnread()) {
                         tryOrNull { room.setReadReceipt(it) }
@@ -1128,21 +1132,21 @@ class TimelineViewModel @AssistedInject constructor(
                     }
                 }
                 .setOnEach {
-                    Timber.i("ReadMarker debug: update unreadState = $it")
+                    rmDimber.i{"update unreadState = $it"}
                     copy(unreadState = it)
                 }
     }
 
     private fun computeUnreadState(events: List<TimelineEvent>, roomSummary: RoomSummary): UnreadState {
-        Timber.i("ReadMarker debug: computeUnreadState, empty = ${events.isEmpty()}, markerId = ${roomSummary.readMarkerId}")
+        rmDimber.i{"computeUnreadState, empty = ${events.isEmpty()}, markerId = ${roomSummary.readMarkerId}"}
         if (events.isEmpty()) return UnreadState.Unknown
         val readMarkerIdSnapshot = roomSummary.readMarkerId ?: return UnreadState.Unknown
         val firstDisplayableEventIndex = timeline.getIndexOfEvent(readMarkerIdSnapshot)
                 ?: return if (timeline.isLive) {
-                    Timber.i("ReadMarker debug: is live, but did not get index")
+                    rmDimber.i{"is live, but did not get index"}
                     UnreadState.ReadMarkerNotLoaded(readMarkerIdSnapshot)
                 } else {
-                    Timber.i("ReadMarker debug: not live")
+                    rmDimber.i{"not live"}
                     UnreadState.Unknown
                 }
         // If the read marker is at the bottom-most event, this doesn't mean we read all, in case we just haven't loaded more events.
@@ -1154,17 +1158,14 @@ class TimelineViewModel @AssistedInject constructor(
             val timelineEvent = events.getOrNull(i) ?: return UnreadState.Unknown
             val eventId = timelineEvent.root.eventId ?: return UnreadState.Unknown
             val isFromMe = timelineEvent.root.senderId == session.myUserId
-            Timber.i("ReadMarker debug: isFromMe = $isFromMe")
+            rmDimber.i{"isFromMe = $isFromMe"}
             if (!isFromMe) {
                 return UnreadState.HasUnread(eventId)
             }
-            Timber.i("ReadMarker debug: hasNoUnread / firstDisplayableEventIndex: $firstDisplayableEventIndex / " +
-                    "latest previewable from summary ${roomSummary.latestPreviewableOriginalContentEvent?.eventId} - ${timeline.getIndexOfEvent(roomSummary.latestPreviewableOriginalContentEvent?.eventId)} / " +
-                    "event-0 ${events.getOrNull(0)?.eventId}")
         }
-        Timber.i("ReadMarker debug: hasNoUnread / firstDisplayableEventIndex: $firstDisplayableEventIndex / " +
+        rmDimber.i{"hasNoUnread / firstDisplayableEventIndex: $firstDisplayableEventIndex / " +
                 "latest previewable from summary ${roomSummary.latestPreviewableOriginalContentEvent?.eventId} - ${timeline.getIndexOfEvent(roomSummary.latestPreviewableOriginalContentEvent?.eventId)} / " +
-                "event-0 ${events.getOrNull(0)?.eventId}")
+                "event-0 ${events.getOrNull(0)?.eventId}"}
         return UnreadState.HasNoUnread
     }
 
@@ -1213,7 +1214,7 @@ class TimelineViewModel @AssistedInject constructor(
     }
 
     override fun onTimelineUpdated(snapshot: List<TimelineEvent>) {
-        Timber.i("ReadMarker debug: onTimelineUpdated")
+        rmDimber.i{"onTimelineUpdated"}
         viewModelScope.launch {
             // tryEmit doesn't work with SharedFlow without cache
             timelineEvents.emit(snapshot)

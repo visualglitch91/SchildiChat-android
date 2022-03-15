@@ -17,6 +17,8 @@
 package org.matrix.android.sdk.internal.session.room.timeline
 
 import de.spiritcroc.matrixsdk.StaticScSdkHelper
+import de.spiritcroc.matrixsdk.util.DbgUtil
+import de.spiritcroc.matrixsdk.util.Dimber
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import kotlinx.coroutines.CoroutineScope
@@ -85,6 +87,8 @@ internal class DefaultTimeline(private val roomId: String,
 
     private var isFromThreadTimeline = false
     private var rootThreadEventId: String? = null
+
+    private val dimber = Dimber("TimelineChunks", DbgUtil.DBG_TIMELINE_CHUNKS)
 
     private val strategyDependencies = LoadTimelineStrategy.Dependencies(
             timelineSettings = settings,
@@ -298,10 +302,14 @@ internal class DefaultTimeline(private val roomId: String,
         val snapshot = strategy.buildSnapshot()
         Timber.v("Post snapshot of ${snapshot.size} events")
         // Async debugging to not slow down things too much
-        timelineScope.launch(coroutineDispatchers.computation) {
-            checkTimelineConsistency("DefaultTimeline.postSnapshot", snapshot, verbose = false) { msg ->
-                timelineScope.launch(coroutineDispatchers.main) {
-                    StaticScSdkHelper.scSdkPreferenceProvider?.annoyDevelopersWithToast(msg)
+        dimber.exec {
+            timelineScope.launch(coroutineDispatchers.computation) {
+                checkTimelineConsistency("DefaultTimeline.postSnapshot", snapshot, verbose = false) { msg ->
+                    if (DbgUtil.isDbgEnabled(DbgUtil.DBG_SHOW_DISPLAY_INDEX)) {
+                        timelineScope.launch(coroutineDispatchers.main) {
+                            StaticScSdkHelper.scSdkPreferenceProvider?.annoyDevelopersWithToast(msg)
+                        }
+                    }
                 }
             }
         }

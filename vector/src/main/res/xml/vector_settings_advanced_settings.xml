@@ -44,6 +44,11 @@
             android:summary="@string/settings_developer_mode_fail_fast_summary"
             android:title="@string/settings_developer_mode_fail_fast_title" />
 
+        <im.vector.app.core.preference.VectorPreference
+            android:title="@string/settings_sc_debugging"
+            android:summary="@string/settings_sc_debugging_summary"
+            app:fragment="im.vector.app.features.settings.VectorSettingsScDebuggingFragment" />
+
     </im.vector.app.core.preference.VectorPreferenceCategory>
 
     <im.vector.app.core.preference.VectorPreferenceCategory

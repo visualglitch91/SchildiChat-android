@@ -18,6 +18,8 @@ package im.vector.app.features.home.room.detail.timeline.helper
 
 import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.VisibilityState
+import de.spiritcroc.matrixsdk.util.DbgUtil
+import de.spiritcroc.matrixsdk.util.Dimber
 import im.vector.app.core.epoxy.LoadingItem_
 import im.vector.app.features.home.room.detail.UnreadState
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
@@ -36,6 +38,8 @@ class TimelineControllerInterceptorHelper(private val positionOfReadMarker: KMut
 
     private var previousModelsSize = 0
 
+    private val rmDimber = Dimber("ReadMarkerDbg", DbgUtil.DBG_READ_MARKER)
+
     // Update position when we are building new items
     fun intercept(
             models: MutableList<EpoxyModel<*>>,
@@ -50,7 +54,7 @@ class TimelineControllerInterceptorHelper(private val positionOfReadMarker: KMut
         models.addBackwardPrefetchIfNeeded(timeline, callback)
         models.addForwardPrefetchIfNeeded(timeline, callback)
 
-        Timber.i("ReadMarker debug: intercept $unreadState")
+        rmDimber.i{"intercept $unreadState"}
 
         val modelsIterator = models.listIterator()
         var index = 0
@@ -84,7 +88,7 @@ class TimelineControllerInterceptorHelper(private val positionOfReadMarker: KMut
                 index++
                 positionOfReadMarker.set(index)
                 appendReadMarker = false
-                Timber.i("ReadMarker debug: read marker appended at $index")
+                rmDimber.i{"ReadMarker debug: read marker appended at $index"}
             }
             index++
         }

@@ -165,4 +165,11 @@
 
     <!-- Default notification rule -->
     <string name="room_settings_default">Default</string>
+
+    <!-- SC debugging -->
+    <string name="settings_sc_debugging">Schildi-debugging</string>
+    <string name="settings_sc_debugging_summary">Enable additional logs or debugging features</string>
+    <string name="settings_sc_dbg_read_marker">Debug read markers</string>
+    <string name="settings_sc_dbg_timeline_chunks">Debug timeline consistency</string>
+    <string name="settings_sc_dbg_show_display_index">Show displayIndex in timeline</string>
 </resources>

@@ -69,6 +69,8 @@ import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.vanniktech.emoji.EmojiPopup
+import de.spiritcroc.matrixsdk.util.DbgUtil
+import de.spiritcroc.matrixsdk.util.Dimber
 import de.spiritcroc.recyclerview.widget.BetterLinearLayoutManager
 import im.vector.app.R
 import im.vector.app.core.dialogs.ConfirmationDialogBuilder
@@ -277,6 +279,8 @@ class TimelineFragment @Inject constructor(
         AttachmentsHelper.Callback,
         GalleryOrCameraDialogHelper.Listener,
         CurrentCallsView.Callback {
+
+    private val rmDimber = Dimber("ReadMarkerDbg", DbgUtil.DBG_READ_MARKER)
 
     companion object {
 
@@ -2039,7 +2043,7 @@ class TimelineFragment @Inject constructor(
     }
 
     override fun onLoadMore(direction: Timeline.Direction) {
-        Timber.i("ReadMarker debug: on load more $direction")
+        rmDimber.i{"on load more $direction"}
         timelineViewModel.handle(RoomDetailAction.LoadMoreTimelineEvents(direction))
     }
 

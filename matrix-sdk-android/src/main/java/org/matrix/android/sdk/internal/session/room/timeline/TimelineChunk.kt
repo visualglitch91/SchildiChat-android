@@ -16,6 +16,8 @@
 
 package org.matrix.android.sdk.internal.session.room.timeline
 
+import de.spiritcroc.matrixsdk.util.DbgUtil
+import de.spiritcroc.matrixsdk.util.Dimber
 import io.realm.OrderedCollectionChangeSet
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.RealmObjectChangeListener
@@ -66,6 +68,8 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
     private var nextChunkLatch: CompletableDeferred<Unit>? = null
     private val dbgId = chunkEntity.identifier()
 
+    private val dimber = Dimber("TimelineChunks", DbgUtil.DBG_TIMELINE_CHUNKS)
+
     private val chunkObjectListener = RealmObjectChangeListener<ChunkEntity> { _, changeSet ->
         if (changeSet == null) return@RealmObjectChangeListener
         if (changeSet.isDeleted.orFalse()) {
@@ -80,12 +84,12 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
         }
         if (changeSet.isFieldChanged(ChunkEntityFields.NEXT_CHUNK.`$`)) {
             nextChunk = createTimelineChunk(chunkEntity.nextChunk)
-            Timber.i("TimelineChunk.$dbgId set next to ${nextChunk?.dbgId}")
+            dimber.i{"TimelineChunk.$dbgId set next to ${nextChunk?.dbgId}"}
             nextChunkLatch?.complete(Unit)
         }
         if (changeSet.isFieldChanged(ChunkEntityFields.PREV_CHUNK.`$`)) {
             prevChunk = createTimelineChunk(chunkEntity.prevChunk)
-            Timber.i("TimelineChunk.$dbgId set prev to ${prevChunk?.dbgId}")
+            dimber.i{"TimelineChunk.$dbgId set prev to ${prevChunk?.dbgId}"}
             prevChunkLatch?.complete(Unit)
         }
     }
@@ -104,7 +108,7 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
     private var prevChunk: TimelineChunk? = null
 
     init {
-        Timber.i("TimelineChunk.init.$dbgId prev ${chunkEntity.prevChunk?.identifier()} next ${chunkEntity.nextChunk?.identifier()}")
+        dimber.i{"TimelineChunk.init.$dbgId prev ${chunkEntity.prevChunk?.identifier()} next ${chunkEntity.nextChunk?.identifier()}"}
         timelineEventEntities.addChangeListener(timelineEventsChangeListener)
         chunkEntity.addChangeListener(chunkObjectListener)
     }
@@ -123,7 +127,9 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
             val nextEvents = nextChunk?.builtItems(includesNext = true, includesPrev = false).orEmpty()
             deepBuiltItems.addAll(nextEvents)
         }
-        checkTimelineConsistency("TimelineChunk.builtItems.$dbgId", builtEvents, verbose = false)
+        dimber.exec {
+            checkTimelineConsistency("TimelineChunk.builtItems.$dbgId", builtEvents, verbose = false)
+        }
         deepBuiltItems.addAll(builtEvents)
         if (includesPrev) {
             val prevEvents = prevChunk?.builtItems(includesNext = false, includesPrev = true).orEmpty()
@@ -149,7 +155,7 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
 
         val offsetCount = count - loadFromStorage.numberOfEvents
 
-        Timber.i("TimelineChunk.loadMore.$dbgId: $direction, count = $count, loaded = ${loadFromStorage.numberOfEvents}, offsetCount = $offsetCount, builtEvents = ${builtEvents.size}, available = ${timelineEventEntities.size}")
+        dimber.i{"TimelineChunk.loadMore.$dbgId: $direction, count = $count, loaded = ${loadFromStorage.numberOfEvents}, offsetCount = $offsetCount, builtEvents = ${builtEvents.size}, available = ${timelineEventEntities.size}"}
 
         return if (offsetCount == 0) {
             LoadMoreResult.SUCCESS
@@ -265,7 +271,7 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
             }
             // Update the relation of existing event
             builtEvents.getOrNull(builtIndex)?.let { te ->
-                Timber.i("TimelineChunk.rebuildEvent.$dbgId $eventId at $builtIndex, which was ${te.eventId}")
+                dimber.i{"TimelineChunk.rebuildEvent.$dbgId $eventId at $builtIndex, which was ${te.eventId}"}
                 val rebuiltEvent = builder(te)
                 builtEvents[builtIndex] = rebuiltEvent!!
                 true
@@ -303,7 +309,9 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
                 .findAll()
                 .orEmpty()
         val builtTimelineEvents = timelineEvents.map { it.buildAndDecryptIfNeeded() }
-        checkTimelineConsistency("TimelineChunk.loadFromStorage-raw-query.$dbgId", builtTimelineEvents)
+        dimber.exec {
+            checkTimelineConsistency("TimelineChunk.loadFromStorage-raw-query.$dbgId", builtTimelineEvents)
+        }
 
         if (timelineEvents.isEmpty()) return LoadedFromStorage()
 // Disabled due to the new fallback
@@ -312,9 +320,9 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
 //        }
         if (direction == Timeline.Direction.FORWARDS) {
             builtEventsIndexes.entries.forEach { it.setValue(it.value + timelineEvents.size) }
-            Timber.i("TimelineChunk.loadFromStorage.$dbgId: insert ${timelineEvents.size} items forwards at start, old size: ${builtEvents.size}")
+            dimber.i{"TimelineChunk.loadFromStorage.$dbgId: insert ${timelineEvents.size} items forwards at start, old size: ${builtEvents.size}"}
         } else {
-            Timber.i("TimelineChunk.loadFromStorage.$dbgId: insert ${timelineEvents.size} items backwards at end, old size: ${builtEvents.size}")
+            dimber.i{"TimelineChunk.loadFromStorage.$dbgId: insert ${timelineEvents.size} items backwards at end, old size: ${builtEvents.size}"}
         }
         val extraCheck = mutableListOf<TimelineEvent>()
         //timelineEvents
@@ -333,7 +341,9 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
                     }
                     extraCheck.add(timelineEvent)
                 }
-        checkTimelineConsistency("TimelineChunk.loadFromStorage-extra-check.$dbgId", extraCheck)
+        dimber.exec {
+            checkTimelineConsistency("TimelineChunk.loadFromStorage-extra-check.$dbgId", extraCheck)
+        }
         return LoadedFromStorage(
                 threadReachedEnd = threadReachedEnd(timelineEvents),
                 numberOfEvents = timelineEvents.size)
@@ -456,7 +466,7 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
                     isLastBackward.set(true)
                 }
                 val correctedIndex = range.startIndex + index
-                Timber.i("TimelineChunk.handleDatabaseChangeSet.$dbgId: insert ${timelineEvent.eventId} at $correctedIndex (${range.startIndex} + $index)")
+                dimber.i{"TimelineChunk.handleDatabaseChangeSet.$dbgId: insert ${timelineEvent.eventId} at $correctedIndex (${range.startIndex} + $index)"}
                 builtEvents.add(correctedIndex, timelineEvent)
                 builtEventsIndexes[timelineEvent.eventId] = correctedIndex
             }
@@ -467,7 +477,7 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
                 val updatedEntity = results[modificationIndex] ?: continue
                 val displayIndex = builtEventsIndexes.getOrDefault(updatedEntity.eventId, null)
                 if (displayIndex == null) {
-                    Timber.w("TimelineChunk.handleDatabaseChangeSet.$dbgId: skip modification for ${updatedEntity.eventId} at $modificationIndex, not found in chunk")
+                    dimber.w{"TimelineChunk.handleDatabaseChangeSet.$dbgId: skip modification for ${updatedEntity.eventId} at $modificationIndex, not found in chunk"}
                     continue
                 }
                 try {

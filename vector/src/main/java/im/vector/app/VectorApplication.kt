@@ -41,6 +41,7 @@ import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider
 import dagger.hilt.android.HiltAndroidApp
 import de.spiritcroc.matrixsdk.StaticScSdkHelper
+import de.spiritcroc.matrixsdk.util.DbgUtil
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.extensions.configureAndStart
 import im.vector.app.core.extensions.startSyncing
@@ -123,6 +124,7 @@ class VectorApplication :
 
         // SC SDK helper initialization
         StaticScSdkHelper.scSdkPreferenceProvider = vectorPreferences
+        DbgUtil.load(appContext)
 
         // Remove Log handler statically added by Jitsi
         Timber.forest()

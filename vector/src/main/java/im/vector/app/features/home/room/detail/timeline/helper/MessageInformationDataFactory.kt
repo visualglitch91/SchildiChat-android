@@ -16,6 +16,7 @@
 
 package im.vector.app.features.home.room.detail.timeline.helper
 
+import de.spiritcroc.matrixsdk.util.DbgUtil
 import im.vector.app.core.date.DateFormatKind
 import im.vector.app.core.date.VectorDateFormatter
 import im.vector.app.core.extensions.localDateTime
@@ -76,7 +77,7 @@ class MessageInformationDataFactory @Inject constructor(private val session: Ses
                 prevDisplayableEvent?.root?.localDateTime()?.toLocalDate() != date.toLocalDate()
 
         val time = dateFormatter.format(event.root.originServerTs, DateFormatKind.MESSAGE_SIMPLE).let {
-            if (vectorPreferences.developerShowDebugInfo()) {
+            if (DbgUtil.isDbgEnabled(DbgUtil.DBG_SHOW_DISPLAY_INDEX)) {
                 "$it | ${event.displayIndex}"
             } else {
                 it
