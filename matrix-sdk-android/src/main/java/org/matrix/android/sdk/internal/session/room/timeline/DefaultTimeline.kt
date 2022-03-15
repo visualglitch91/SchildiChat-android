@@ -299,7 +299,7 @@ internal class DefaultTimeline(private val roomId: String,
         Timber.v("Post snapshot of ${snapshot.size} events")
         // Async debugging to not slow down things too much
         timelineScope.launch(coroutineDispatchers.computation) {
-            checkTimelineConsistency("DefaultTimeline.postSnapshot", snapshot) { msg ->
+            checkTimelineConsistency("DefaultTimeline.postSnapshot", snapshot, verbose = false) { msg ->
                 timelineScope.launch(coroutineDispatchers.main) {
                     StaticScSdkHelper.scSdkPreferenceProvider?.annoyDevelopersWithToast(msg)
                 }
@@ -393,8 +393,8 @@ internal class DefaultTimeline(private val roomId: String,
     }
 }
 
-fun checkTimelineConsistency(location: String, events: List<TimelineEvent>, sendToastFunction: (String) -> Unit = {}) {
-    Timber.i("Check timeline consistency from $location for ${events.size} events, from ${events.firstOrNull()?.eventId} to ${events.lastOrNull()?.eventId}")
+fun checkTimelineConsistency(location: String, events: List<TimelineEvent>, verbose: Boolean = true, sendToastFunction: (String) -> Unit = {}) {
+    // Set verbose = false if this is a much repeated check and not close to the likely issue source -> in this case, we only want to complain about actually found issues
     try {
         var potentialIssues = 0
         // Note that the "previous" event is actually newer than the currently looked at event,
@@ -427,7 +427,9 @@ fun checkTimelineConsistency(location: String, events: List<TimelineEvent>, send
         if (toastMsg.isNotEmpty()) {
             sendToastFunction(toastMsg.substring(0, toastMsg.length-1))
         }
-        Timber.i("Done check timeline consistency from $location, found $potentialIssues possible issues")
+        if (verbose || potentialIssues > 0) {
+            Timber.i("Check timeline consistency from $location for ${events.size} events from ${events.firstOrNull()?.eventId} to ${events.lastOrNull()?.eventId}, found $potentialIssues possible issues")
+        }
     } catch (t: Throwable) {
         Timber.e("Failed check timeline consistency from $location", t)
     }

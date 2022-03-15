@@ -65,7 +65,7 @@ internal class TokenChunkEventPersistor @Inject constructor(
                            direction: PaginationDirection): Result {
         monarchy
                 .awaitTransaction { realm ->
-                    Timber.v("Start persisting ${receivedChunk.events.size} events in $roomId towards $direction")
+                    Timber.i("Start persisting ${receivedChunk.events.size} events in $roomId towards $direction | first ${receivedChunk.events.firstOrNull()?.eventId} last ${receivedChunk.events.lastOrNull()?.eventId}")
 
                     val nextToken: String?
                     val prevToken: String?
