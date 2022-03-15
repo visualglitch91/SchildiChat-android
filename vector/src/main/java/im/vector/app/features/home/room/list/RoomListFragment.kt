@@ -578,7 +578,7 @@ class RoomListFragment @Inject constructor(
     }
 
     private fun onSwitchSpace(spaceId: String?) {
-        if (roomListParams.explicitSpaceId == SPACE_ID_FOLLOW_APP) {
+        if (roomListParams.explicitSpaceId != SPACE_ID_FOLLOW_APP && roomListParams.explicitSpaceId != spaceId) {
             return
         }
         if (spaceId != expandStatusSpaceId) {
