@@ -77,6 +77,14 @@
             android:summary="@string/settings_system_preferences_summary"
             android:title="@string/settings_call_notifications_preferences" />
 
+        <!-- SC addition -->
+        <im.vector.app.core.preference.VectorSwitchPreference
+            android:defaultValue="true"
+            android:dependency="SETTINGS_ENABLE_ALL_NOTIF_PREFERENCE_KEY"
+            android:key="SETTINGS_NOTIF_ONLY_ALERT_ONCE"
+            android:title="@string/settings_notif_only_alert_once"
+            android:summary="@string/settings_notif_only_alert_once_summary" />
+
     </im.vector.app.core.preference.VectorPreferenceCategory>
 
     <im.vector.app.core.preference.VectorPreferenceCategory

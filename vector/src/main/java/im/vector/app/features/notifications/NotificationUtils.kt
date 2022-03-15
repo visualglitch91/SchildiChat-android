@@ -559,7 +559,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
 
         val channelID = if (roomInfo.shouldBing) NOISY_NOTIFICATION_CHANNEL_ID else SILENT_NOTIFICATION_CHANNEL_ID
         return NotificationCompat.Builder(context, channelID)
-                .setOnlyAlertOnce(true)
+                .setOnlyAlertOnce(vectorPreferences.onlyAlertOnce())
                 .setWhen(lastMessageTimestamp)
                 // MESSAGING_STYLE sets title and content for API 16 and above devices.
                 .setStyle(messageStyle)
@@ -743,7 +743,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
         val channelID = if (simpleNotifiableEvent.noisy) NOISY_NOTIFICATION_CHANNEL_ID else SILENT_NOTIFICATION_CHANNEL_ID
 
         return NotificationCompat.Builder(context, channelID)
-                .setOnlyAlertOnce(true)
+                .setOnlyAlertOnce(vectorPreferences.onlyAlertOnce())
                 .setContentTitle(stringProvider.getString(R.string.app_name))
                 .setContentText(simpleNotifiableEvent.description)
                 .setGroup(stringProvider.getString(R.string.app_name))
@@ -853,7 +853,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
         val smallIcon = R.drawable.ic_status_bar_sc
 
         return NotificationCompat.Builder(context, if (noisy) NOISY_NOTIFICATION_CHANNEL_ID else SILENT_NOTIFICATION_CHANNEL_ID)
-                .setOnlyAlertOnce(true)
+                .setOnlyAlertOnce(vectorPreferences.onlyAlertOnce())
                 // used in compat < N, after summary is built based on child notifications
                 .setWhen(lastMessageTimestamp)
                 .setStyle(style)

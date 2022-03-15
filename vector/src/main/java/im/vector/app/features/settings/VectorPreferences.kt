@@ -215,6 +215,7 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
         private const val SETTINGS_JUMP_TO_BOTTOM_ON_SEND = "SETTINGS_JUMP_TO_BOTTOM_ON_SEND"
         private const val SETTINGS_SPACE_MEMBERS_IN_SPACE_ROOMS = "SETTINGS_SPACE_MEMBERS_IN_SPACE_ROOMS"
         private const val SETTINGS_ENABLE_SPACE_PAGER = "SETTINGS_ENABLE_SPACE_PAGER"
+        private const val SETTINGS_NOTIF_ONLY_ALERT_ONCE = "SETTINGS_NOTIF_ONLY_ALERT_ONCE"
 
         private const val DID_ASK_TO_ENABLE_SESSION_PUSH = "DID_ASK_TO_ENABLE_SESSION_PUSH"
 
@@ -1075,6 +1076,11 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
     // SC addition
     fun enableSpacePager(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_ENABLE_SPACE_PAGER, false)
+    }
+
+    // SC addition
+    fun onlyAlertOnce(): Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_NOTIF_ONLY_ALERT_ONCE, true)
     }
 
     /**
