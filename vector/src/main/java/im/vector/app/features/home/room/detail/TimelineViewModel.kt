@@ -947,12 +947,12 @@ class TimelineViewModel @AssistedInject constructor(
     }
 
     private fun observeEventDisplayedActions() {
-        // We are buffering scroll events for half a second
+        // We are buffering scroll events 200 ms
         // and keep the most recent one to set the read receipt on.
 
         visibleEventsSource
                 .stream()
-                .chunk(500)
+                .chunk(200)
                 .filter { it.isNotEmpty() }
                 .onEach { actions ->
                     val bufferedMostRecentDisplayedEvent = actions.minByOrNull { it.event.indexOfEvent() }?.event ?: return@onEach
