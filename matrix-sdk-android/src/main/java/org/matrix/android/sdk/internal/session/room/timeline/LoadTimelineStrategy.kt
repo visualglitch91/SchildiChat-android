@@ -230,6 +230,10 @@ internal class LoadTimelineStrategy(
         return timelineChunk?.hasReachedLastForward().orFalse()
     }
 
+    fun hasFullyLoadedForward(): Boolean {
+        return timelineChunk?.hasLoadedAllEventsForwards().orFalse()
+    }
+
     private fun RealmResults<ChunkEntity>.createTimelineChunk(): TimelineChunk? {
         return firstOrNull()?.let {
             return TimelineChunk(

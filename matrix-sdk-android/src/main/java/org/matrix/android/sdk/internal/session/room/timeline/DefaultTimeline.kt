@@ -229,7 +229,17 @@ internal class DefaultTimeline(private val roomId: String,
         Timber.v("$baseLogMessage: result $loadMoreResult")
         val hasMoreToLoad = loadMoreResult != LoadMoreResult.REACHED_END
         updateState(direction) {
-            it.copy(loading = false, hasMoreToLoad = hasMoreToLoad)
+            it.copy(loading = false, hasMoreToLoad = hasMoreToLoad, hasLoadedAtLeastOnce = true)
+        }
+        // Stop forward-loading animation also when backwards loading, if we know we have all already
+        if (direction == Timeline.Direction.BACKWARDS) {
+            updateState(Timeline.Direction.FORWARDS) {
+                if (!it.hasLoadedAtLeastOnce && strategy.hasFullyLoadedForward()) {
+                    it.copy(hasMoreToLoad = false)
+                } else {
+                    it
+                }
+            }
         }
         return true
     }
@@ -263,10 +273,10 @@ internal class DefaultTimeline(private val roomId: String,
 
     private fun initPaginationStates(eventId: String?) {
         updateState(Timeline.Direction.FORWARDS) {
-            it.copy(loading = false, hasMoreToLoad = eventId != null)
+            it.copy(loading = false, hasMoreToLoad = eventId != null, hasLoadedAtLeastOnce = false)
         }
         updateState(Timeline.Direction.BACKWARDS) {
-            it.copy(loading = false, hasMoreToLoad = true)
+            it.copy(loading = false, hasMoreToLoad = true, hasLoadedAtLeastOnce = false)
         }
     }
 

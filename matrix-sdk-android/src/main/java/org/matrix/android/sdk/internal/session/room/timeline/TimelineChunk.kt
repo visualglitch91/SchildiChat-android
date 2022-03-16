@@ -121,6 +121,16 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
         }
     }
 
+    fun hasLoadedAllEventsForwards(recurse: Boolean = false): Boolean {
+        return if (isLastForward.get()) {
+            builtEvents.isNotEmpty() && timelineEventEntities.first(null)?.displayIndex == builtEvents.firstOrNull()?.displayIndex
+        } else if (recurse) {
+            nextChunk?.hasLoadedAllEventsForwards().orFalse()
+        } else {
+            false
+        }
+    }
+
     fun builtItems(includesNext: Boolean, includesPrev: Boolean): List<TimelineEvent> {
         val deepBuiltItems = ArrayList<TimelineEvent>(builtEvents.size)
         if (includesNext) {
