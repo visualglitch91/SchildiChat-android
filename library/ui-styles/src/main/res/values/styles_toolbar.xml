@@ -36,7 +36,7 @@
         <item name="android:textColor">?vctr_content_secondary</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">13sp</item>
     </style>
 
 </resources>
