@@ -17,6 +17,8 @@
 package org.matrix.android.sdk.internal.session.room.read
 
 import com.zhuinden.monarchy.Monarchy
+import de.spiritcroc.matrixsdk.util.DbgUtil
+import de.spiritcroc.matrixsdk.util.Dimber
 import io.realm.Realm
 import org.matrix.android.sdk.api.session.events.model.LocalEcho
 import org.matrix.android.sdk.internal.database.model.RoomSummaryEntity
@@ -61,6 +63,8 @@ internal class DefaultSetReadMarkersTask @Inject constructor(
         private val globalErrorReceiver: GlobalErrorReceiver
 ) : SetReadMarkersTask {
 
+    private val rmDimber = Dimber("ReadMarkerDbg", DbgUtil.DBG_READ_MARKER)
+
     override suspend fun execute(params: SetReadMarkersTask.Params) {
         val markers = mutableMapOf<String, String>()
         Timber.v("Execute set read marker with params: $params")
@@ -75,12 +79,15 @@ internal class DefaultSetReadMarkersTask @Inject constructor(
         } else {
             params.readReceiptEventId
         }
-        if (fullyReadEventId != null && !isReadMarkerMoreRecent(monarchy.realmConfiguration, params.roomId, fullyReadEventId)) {
+        if (fullyReadEventId != null && !isReadMarkerMoreRecent(monarchy.realmConfiguration, params.roomId, fullyReadEventId, rmDimber)) {
+            rmDimber.i { "Set to $fullyReadEventId if it's not local..." }
             if (LocalEcho.isLocalEchoId(fullyReadEventId)) {
                 Timber.w("Can't set read marker for local event $fullyReadEventId")
             } else {
                 markers[READ_MARKER] = fullyReadEventId
             }
+        } else {
+            rmDimber.i { "Did not set to $fullyReadEventId" }
         }
         if (readReceiptEventId != null &&
                 !isEventRead(monarchy.realmConfiguration, userId, params.roomId, readReceiptEventId)) {

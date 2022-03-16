@@ -16,6 +16,7 @@
 
 package org.matrix.android.sdk.internal.database.helper
 
+import de.spiritcroc.matrixsdk.util.Dimber
 import io.realm.Realm
 import io.realm.Sort
 import io.realm.kotlin.createObject
@@ -216,20 +217,20 @@ internal fun ChunkEntity.doesNextChunksVerifyCondition(linkCondition: (ChunkEnti
     return false
 }
 
-internal fun ChunkEntity.isMoreRecentThan(chunkToCheck: ChunkEntity): Boolean {
-    if (this.isLastForward) return true
-    if (chunkToCheck.isLastForward) return false
+internal fun ChunkEntity.isMoreRecentThan(chunkToCheck: ChunkEntity, dimber: Dimber? = null): Boolean {
+    if (this.isLastForward) return true.also { dimber?.i { "isMoreReacentThan = true (this.isLastForward)" } }
+    if (chunkToCheck.isLastForward) return false.also { dimber?.i { "isMoreReacentThan = false (ctc.isLastForward)" } }
     // Check if the chunk to check is linked to this one
     if (chunkToCheck.doesNextChunksVerifyCondition { it == this }) {
-        return true
+        return true.also { dimber?.i { "isMoreReacentThan = true (ctc->this)" } }
     }
     if (this.doesNextChunksVerifyCondition { it == chunkToCheck }) {
-        return false
+        return false.also { dimber?.i { "isMoreReacentThan = false (this->ctc)" } }
     }
     // Otherwise check if this chunk is linked to last forward
     if (this.doesNextChunksVerifyCondition { it.isLastForward }) {
-        return true
+        return true.also { dimber?.i { "isMoreReacentThan = true (this->isLastForward)" } }
     }
     // We don't know, so we assume it's false
-    return false
+    return false.also { dimber?.i { "isMoreReacentThan = false (fallback)" } }
 }

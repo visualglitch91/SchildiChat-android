@@ -15,6 +15,7 @@
  */
 package org.matrix.android.sdk.internal.database.query
 
+import de.spiritcroc.matrixsdk.util.Dimber
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import org.matrix.android.sdk.api.session.events.model.LocalEcho
@@ -80,9 +81,10 @@ private fun Realm.hasReadReceiptInLatestChunk(latestChunkEntity: ChunkEntity, ro
 
 internal fun isReadMarkerMoreRecent(realmConfiguration: RealmConfiguration,
                                     roomId: String?,
-                                    eventId: String?): Boolean {
+                                    eventId: String?,
+                                    dimber: Dimber? = null): Boolean {
     if (roomId.isNullOrBlank() || eventId.isNullOrBlank()) {
-        return false
+        return false.also { dimber?.i { "isReadMarkerMoreRecent = false (roomId ${roomId.isNullOrBlank()} || eventId ${eventId.isNullOrBlank()}" } }
     }
     return Realm.getInstance(realmConfiguration).use { realm ->
         val eventToCheck = TimelineEventEntity.where(realm, roomId = roomId, eventId = eventId).findFirst()
@@ -93,11 +95,13 @@ internal fun isReadMarkerMoreRecent(realmConfiguration: RealmConfiguration,
         if (eventToCheckChunk == readMarkerChunk) {
             val readMarkerIndex = readMarkerEvent?.displayIndex ?: Int.MIN_VALUE
             val eventToCheckIndex = eventToCheck?.displayIndex ?: Int.MAX_VALUE
+            dimber?.i { "isReadMarkerMoreRecent = ($eventToCheckIndex <= $readMarkerIndex)" }
             eventToCheckIndex <= readMarkerIndex
         } else {
-            eventToCheckChunk != null && readMarkerChunk?.isMoreRecentThan(eventToCheckChunk) == true
+            dimber?.i { "isReadMarkerMoreRecent = (non-null ${eventToCheckChunk!=null} && ${readMarkerChunk!=null} && ...)" }
+            eventToCheckChunk != null && readMarkerChunk?.isMoreRecentThan(eventToCheckChunk, dimber) == true
         }
-    }
+    }.also { dimber?.i { "isReadMarkerMoreRecent result $it" } }
 }
 internal fun isMarkedUnread(realmConfiguration: RealmConfiguration,
                             roomId: String?): Boolean {
