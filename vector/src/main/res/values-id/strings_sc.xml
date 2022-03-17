@@ -140,4 +140,5 @@
     <string name="settings_hide_call_buttons_summary">Jangan tampilkan tombol di bilah alat ruangan untuk memulai panggilan suara atau video</string>
     <string name="settings_sc_dbg_read_marker">Awakutu tanda baca</string>
     <string name="settings_sc_dbg_timeline_chunks">Awakutu konsistensi linimasa</string>
+    <string name="settings_sc_dbg_show_read_tracking">Tampilkan pelacakan bacaan</string>
 </resources>
