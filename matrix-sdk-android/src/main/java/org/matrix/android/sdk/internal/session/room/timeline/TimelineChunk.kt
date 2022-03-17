@@ -83,12 +83,16 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
             isLastBackward.set(chunkEntity.isLastBackward)
         }
         if (changeSet.isFieldChanged(ChunkEntityFields.NEXT_CHUNK.`$`)) {
-            nextChunk = createTimelineChunk(chunkEntity.nextChunk)
+            nextChunk = createTimelineChunk(chunkEntity.nextChunk).also {
+                it?.prevChunk = this
+            }
             dimber.i{"TimelineChunk.$dbgId set next to ${nextChunk?.dbgId}"}
             nextChunkLatch?.complete(Unit)
         }
         if (changeSet.isFieldChanged(ChunkEntityFields.PREV_CHUNK.`$`)) {
-            prevChunk = createTimelineChunk(chunkEntity.prevChunk)
+            prevChunk = createTimelineChunk(chunkEntity.prevChunk).also {
+                it?.nextChunk = this
+            }
             dimber.i{"TimelineChunk.$dbgId set prev to ${prevChunk?.dbgId}"}
             prevChunkLatch?.complete(Unit)
         }
@@ -186,7 +190,9 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
             when {
                 nextChunkEntity != null -> {
                     if (nextChunk == null) {
-                        nextChunk = createTimelineChunk(nextChunkEntity)
+                        nextChunk = createTimelineChunk(nextChunkEntity).also {
+                            it?.prevChunk = this
+                        }
                     }
                     nextChunk?.loadMore(offsetCount, direction, fetchFromServerIfNeeded) ?: LoadMoreResult.FAILURE
                 }
@@ -202,7 +208,9 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
             when {
                 prevChunkEntity != null -> {
                     if (prevChunk == null) {
-                        prevChunk = createTimelineChunk(prevChunkEntity)
+                        prevChunk = createTimelineChunk(prevChunkEntity).also {
+                            it?.nextChunk = this
+                        }
                     }
                     prevChunk?.loadMore(offsetCount, direction, fetchFromServerIfNeeded) ?: LoadMoreResult.FAILURE
                 }
