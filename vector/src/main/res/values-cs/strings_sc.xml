@@ -142,4 +142,5 @@
     <string name="settings_sc_debugging_summary">Povolit další logy nebo funkce ladění</string>
     <string name="settings_sc_dbg_read_marker">Ladit potvrzení přečetení</string>
     <string name="settings_sc_dbg_timeline_chunks">Ladit konzistenci časové osy</string>
+    <string name="settings_sc_dbg_show_read_tracking">Zobrazit sledování čtení</string>
 </resources>
