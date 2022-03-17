@@ -19,6 +19,7 @@ class VectorSettingsScDebuggingFragment @Inject constructor(
             DbgPref(DbgUtil.DBG_TIMELINE_CHUNKS, R.string.settings_sc_dbg_timeline_chunks),
             DbgPref(DbgUtil.DBG_SHOW_DISPLAY_INDEX, R.string.settings_sc_dbg_show_display_index),
             DbgPref(DbgUtil.DBG_READ_MARKER, R.string.settings_sc_dbg_read_marker),
+            DbgPref(DbgUtil.DBG_SHOW_READ_TRACKING, R.string.settings_sc_dbg_show_read_tracking),
     )
 
     override fun bindPref() {

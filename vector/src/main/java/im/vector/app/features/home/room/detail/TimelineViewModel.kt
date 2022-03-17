@@ -158,6 +158,12 @@ class TimelineViewModel @AssistedInject constructor(
 
     private var trackUnreadMessages = AtomicBoolean(false)
     private var mostRecentDisplayedEvent: TimelineEvent? = null
+        set(value) {
+            field = value
+            if (DbgUtil.isDbgEnabled(DbgUtil.DBG_SHOW_READ_TRACKING)) {
+                _viewEvents.post(RoomDetailViewEvents.ScDbgReadTracking(mostRecentDisplayedEvent))
+            }
+        }
 
     private var prepareToEncrypt: Async<Unit> = Uninitialized
 

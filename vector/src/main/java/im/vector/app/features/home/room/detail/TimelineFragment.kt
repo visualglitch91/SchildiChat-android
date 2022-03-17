@@ -395,6 +395,8 @@ class TimelineFragment @Inject constructor(
         setupRemoveJitsiWidgetView()
         setupVoiceMessageView()
 
+        views.scRoomDebugView.isVisible = DbgUtil.isDbgEnabled(DbgUtil.DBG_SHOW_READ_TRACKING)
+
         views.includeRoomToolbar.roomToolbarContentView.debouncedClicks {
             navigator.openRoomProfile(requireActivity(), timelineArgs.roomId)
         }
@@ -494,6 +496,7 @@ class TimelineFragment @Inject constructor(
                 RoomDetailViewEvents.StopChatEffects                     -> handleStopChatEffects()
                 is RoomDetailViewEvents.DisplayAndAcceptCall             -> acceptIncomingCall(it)
                 RoomDetailViewEvents.RoomReplacementStarted              -> handleRoomReplacement()
+                is RoomDetailViewEvents.ScDbgReadTracking                -> handleScDbgReadTracking(it)
             }.exhaustive
         }
 
@@ -604,6 +607,10 @@ class TimelineFragment @Inject constructor(
         views.viewSnowFall.isVisible = false
         // when gone the effect is a bit buggy
         views.viewKonfetti.isInvisible = true
+    }
+
+    private fun handleScDbgReadTracking(action: RoomDetailViewEvents.ScDbgReadTracking) {
+        views.scRoomDebugView.text = "Read: ${action.event?.eventId}/${action.event?.displayIndex}"
     }
 
     override fun onImageReady(uri: Uri?) {

@@ -177,4 +177,5 @@
     <string name="settings_sc_dbg_read_marker">Debug read markers</string>
     <string name="settings_sc_dbg_timeline_chunks">Debug timeline consistency</string>
     <string name="settings_sc_dbg_show_display_index">Show displayIndex in timeline</string>
+    <string name="settings_sc_dbg_show_read_tracking">Show read tracking</string>
 </resources>

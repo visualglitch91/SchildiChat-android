@@ -52,6 +52,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout" />
 
+    <TextView
+        android:id="@+id/scRoomDebugView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.Vector.TextView.Caption"
+        android:layout_gravity="end|center_vertical"
+        android:fontFamily="monospace"
+        android:padding="2dp"
+        android:visibility="gone"
+        tools:text="SC-dbg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/syncStateView" />
+
     <im.vector.app.features.call.conference.RemoveJitsiWidgetView
         android:id="@+id/removeJitsiWidgetView"
         android:layout_width="match_parent"
@@ -59,7 +73,7 @@
         android:background="?android:colorBackground"
         android:minHeight="54dp"
         android:visibility="visible"
-        app:layout_constraintTop_toBottomOf="@id/syncStateView" />
+        app:layout_constraintTop_toBottomOf="@id/scRoomDebugView" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/timelineRecyclerView"
