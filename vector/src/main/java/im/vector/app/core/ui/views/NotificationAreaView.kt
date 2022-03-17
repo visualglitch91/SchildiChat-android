@@ -28,6 +28,7 @@ import im.vector.app.R
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.error.ResourceLimitErrorFormatter
 import im.vector.app.core.utils.DimensionConverter
+import im.vector.app.core.utils.SafeBetterLinkMovementMethod
 import im.vector.app.databinding.ViewNotificationAreaBinding
 import im.vector.app.features.themes.ThemeUtils
 import me.gujun.android.span.span
@@ -156,7 +157,7 @@ class NotificationAreaView @JvmOverloads constructor(
                 onClick = { delegate?.onTombstoneEventClicked() }
             }
         }
-        views.roomNotificationMessage.movementMethod = BetterLinkMovementMethod.getInstance()
+        views.roomNotificationMessage.movementMethod = SafeBetterLinkMovementMethod
         views.roomNotificationMessage.text = message
     }
 

@@ -36,11 +36,16 @@ class EvenBetterLinkMovementMethod(private val onLinkClickListener: OnLinkClickL
     }
 
     override fun dispatchUrlClick(textView: TextView, clickableSpan: ClickableSpan) {
-        val spanned = textView.text as Spanned
-        val actualText = textView.text.subSequence(spanned.getSpanStart(clickableSpan), spanned.getSpanEnd(clickableSpan)).toString()
-        val url = (clickableSpan as? URLSpan)?.url ?: actualText
+        try {
+            val spanned = textView.text as Spanned
+            val actualText = textView.text.subSequence(spanned.getSpanStart(clickableSpan), spanned.getSpanEnd(clickableSpan)).toString()
+            val url = (clickableSpan as? URLSpan)?.url ?: actualText
 
-        if (onLinkClickListener == null || !onLinkClickListener.onLinkClicked(textView, clickableSpan, url, actualText)) {
+            if (onLinkClickListener == null || !onLinkClickListener.onLinkClicked(textView, clickableSpan, url, actualText)) {
+                // Let Android handle this long click as a short-click.
+                clickableSpan.onClick(textView)
+            }
+        } catch (e: StringIndexOutOfBoundsException) {
             // Let Android handle this long click as a short-click.
             clickableSpan.onClick(textView)
         }
