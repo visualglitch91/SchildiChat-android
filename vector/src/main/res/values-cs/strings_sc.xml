@@ -126,13 +126,13 @@
     <string name="settings_enable_space_pager_summary">Umožnit přepínat mezi hlavními prostory vodorovným přejetím v seznamu chatů</string>
     <string name="room_settings_default">Výchozí</string>
     <string name="bubble_style_element">Element</string>
-    <string name="bubble_appearance">Vzhled bubliny</string>
+    <string name="bubble_appearance">Vzhled bublin</string>
     <string name="bubble_rounded_corners">Rohy</string>
     <string name="bubble_rounded_corners_default">Výchozí</string>
     <string name="bubble_rounded_corners_r1">Oblé</string>
     <string name="bubble_rounded_corners_r2">Kulaté</string>
-    <string name="bubble_tail">Zakončení bubliny</string>
-    <string name="bubble_tail_summary">Použít zakončení bubliny na první zprávě odesílatele</string>
+    <string name="bubble_tail">Chvost bublin</string>
+    <string name="bubble_tail_summary">Vykreslit chvost bubliny na první zprávě odesílatele</string>
     <string name="settings_notif_only_alert_once">Upozornit pouze jednou</string>
     <string name="settings_notif_only_alert_once_summary">Nepřehrávat zvuky upozornění na nové zprávy, pokud je pro daný chat již otevřené oznámení</string>
     <string name="settings_hide_call_buttons_summary">Nikdy nezobrazovat tlačítka zahájení hlasových nebo video hovorů na panelu nástrojů místnosti</string>
