@@ -610,7 +610,7 @@ class TimelineFragment @Inject constructor(
     }
 
     private fun handleScDbgReadTracking(action: RoomDetailViewEvents.ScDbgReadTracking) {
-        views.scRoomDebugView.text = "Read: ${action.event?.eventId}/${action.event?.displayIndex}"
+        views.scRoomDebugView.text = "UnreadState: ${action.unreadState.javaClass.simpleName}\nRead: ${action.event?.eventId}/${action.event?.displayIndex}"
     }
 
     override fun onImageReady(uri: Uri?) {

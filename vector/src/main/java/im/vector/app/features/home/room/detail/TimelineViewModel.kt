@@ -161,7 +161,9 @@ class TimelineViewModel @AssistedInject constructor(
         set(value) {
             field = value
             if (DbgUtil.isDbgEnabled(DbgUtil.DBG_SHOW_READ_TRACKING)) {
-                _viewEvents.post(RoomDetailViewEvents.ScDbgReadTracking(mostRecentDisplayedEvent))
+                withState {
+                    _viewEvents.post(RoomDetailViewEvents.ScDbgReadTracking(mostRecentDisplayedEvent, it.unreadState))
+                }
             }
         }
 
@@ -1178,6 +1180,9 @@ class TimelineViewModel @AssistedInject constructor(
     private fun observeUnreadState() {
         onEach(RoomDetailViewState::unreadState) {
             Timber.v("Unread state: $it")
+            if (DbgUtil.isDbgEnabled(DbgUtil.DBG_SHOW_READ_TRACKING)) {
+                _viewEvents.post(RoomDetailViewEvents.ScDbgReadTracking(mostRecentDisplayedEvent, it))
+            }
             if (it is UnreadState.HasNoUnread) {
                 startTrackingUnreadMessages()
             }
