@@ -25,7 +25,10 @@ class ReadMarkerVisibilityStateChangedListener(private val callback: TimelineEve
     VectorEpoxyModel.OnVisibilityStateChangedListener {
 
     override fun onVisibilityStateChanged(visibilityState: Int) {
-        if (visibilityState == VisibilityState.VISIBLE) {
+        if (visibilityState in listOf(VisibilityState.VISIBLE,
+                        VisibilityState.FOCUSED_VISIBLE,
+                        VisibilityState.UNFOCUSED_VISIBLE,
+                        VisibilityState.FULL_IMPRESSION_VISIBLE)) {
             callback?.onReadMarkerVisible()
         }
     }
