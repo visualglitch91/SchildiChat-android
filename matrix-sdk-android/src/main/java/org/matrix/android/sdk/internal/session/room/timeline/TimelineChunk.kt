@@ -493,7 +493,7 @@ internal class TimelineChunk(private val chunkEntity: ChunkEntity,
         for (range in modifications) {
             for (modificationIndex in (range.startIndex until range.startIndex + range.length)) {
                 val updatedEntity = results[modificationIndex] ?: continue
-                val displayIndex = builtEventsIndexes.getOrDefault(updatedEntity.eventId, null)
+                val displayIndex = builtEventsIndexes[updatedEntity.eventId]
                 if (displayIndex == null) {
                     dimber.w{"TimelineChunk.handleDatabaseChangeSet.$dbgId: skip modification for ${updatedEntity.eventId} at $modificationIndex, not found in chunk"}
                     continue
