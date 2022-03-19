@@ -15,6 +15,7 @@
 /tmp
 /fastlane/private
 /fastlane/report.xml
+/fastlane/README.md
 
 /library/build
 
