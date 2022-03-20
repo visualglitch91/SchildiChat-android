@@ -302,6 +302,7 @@ class BugReporter @Inject constructor(
                             .addFormDataPart("unifiedpush_is_embedded_distributor", UPHelper.isEmbeddedDistributor(context).toString())
                     // More Schildi-specific fields
                             .addFormDataPart("reportTime", reportTime)
+                            .addFormDataPart("packageName", BuildConfig.APPLICATION_ID)
 
                     val buildNumber = BuildConfig.BUILD_NUMBER
                     if (buildNumber.isNotEmpty() && buildNumber != "0") {
@@ -358,6 +359,7 @@ class BugReporter @Inject constructor(
                     } else {
                         builder.addFormDataPart("label", "unifiedpush:none")
                     }
+                    builder.addFormDataPart("label", "hs:${userId.substringAfter(":")}")
 
                     // Special for Element
                     //builder.addFormDataPart("label", "[SchildiChat]")
