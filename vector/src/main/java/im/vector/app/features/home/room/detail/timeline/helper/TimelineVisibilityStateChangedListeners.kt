@@ -17,6 +17,8 @@
 package im.vector.app.features.home.room.detail.timeline.helper
 
 import com.airbnb.epoxy.VisibilityState
+import de.spiritcroc.matrixsdk.util.DbgUtil
+import de.spiritcroc.matrixsdk.util.Dimber
 import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
@@ -24,7 +26,10 @@ import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 class ReadMarkerVisibilityStateChangedListener(private val callback: TimelineEventController.Callback?) :
     VectorEpoxyModel.OnVisibilityStateChangedListener {
 
+    private val rmDimber = Dimber("ReadMarkerDbg", DbgUtil.DBG_READ_MARKER)
+
     override fun onVisibilityStateChanged(visibilityState: Int) {
+        rmDimber.i { "onVisibilityChanged: $visibilityState" }
         if (visibilityState in listOf(VisibilityState.VISIBLE,
                         VisibilityState.FOCUSED_VISIBLE,
                         VisibilityState.UNFOCUSED_VISIBLE,
