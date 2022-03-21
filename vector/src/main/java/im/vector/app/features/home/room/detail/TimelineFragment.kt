@@ -959,7 +959,7 @@ class TimelineFragment @Inject constructor(
             scrollOnNewMessageCallback.forceScrollOnNextUpdate()
             timelineViewModel.timeline.restartWithEventId(null)
         } else {
-            timelineViewModel.timeline.setInitialEventId(null)
+            timelineViewModel.timeline.setTargetEventId(null)
             layoutManager.scrollToPositionWithOffset(0, 0)
         }
     }

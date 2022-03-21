@@ -53,7 +53,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 internal class DefaultTimeline(private val roomId: String,
                                private val initialEventId: String?,
-                               private var initialEventIdOffset: Int = 0,
+                               private var targetEventOffset: Int = 0,
                                private val realmConfiguration: RealmConfiguration,
                                private val loadRoomMembersTask: LoadRoomMembersTask,
                                private val readReceiptHandler: ReadReceiptHandler,
@@ -88,6 +88,7 @@ internal class DefaultTimeline(private val roomId: String,
     private var isFromThreadTimeline = false
     private var rootThreadEventId: String? = null
 
+    private var targetEventId = initialEventId
     private val dimber = Dimber("TimelineChunks", DbgUtil.DBG_TIMELINE_CHUNKS)
 
     private val strategyDependencies = LoadTimelineStrategy.Dependencies(
@@ -252,6 +253,8 @@ internal class DefaultTimeline(private val roomId: String,
         }
         strategy.onStop()
 
+        setTargetEventId(eventId)
+
         strategy = when {
             rootThreadEventId != null -> buildStrategy(LoadTimelineStrategy.Mode.Thread(rootThreadEventId))
             eventId == null           -> buildStrategy(LoadTimelineStrategy.Mode.Live)
@@ -393,21 +396,20 @@ internal class DefaultTimeline(private val roomId: String,
                 }
     }
 
-    override fun getInitialEventId(): String? {
-        return initialEventId
+    override fun getTargetEventId(): String? {
+        return targetEventId
     }
 
-    override fun setInitialEventId(eventId: String?) {
-        // SC-TODO?? -- just changing initialEventId to var is not enough, we get duplicated timelines :O
-        //initialEventId = eventId
+    override fun setTargetEventId(eventId: String?) {
+        targetEventId = eventId
     }
 
-    override fun getInitialEventIdOffset(): Int {
-        return initialEventIdOffset
+    override fun getTargetEventOffset(): Int {
+        return targetEventOffset
     }
 
-    override fun setInitialEventIdOffset(offset: Int) {
-        initialEventIdOffset = offset
+    override fun getTargetEventOffset(offset: Int) {
+        targetEventOffset = offset
     }
 }
 

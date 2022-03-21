@@ -141,7 +141,7 @@ class TimelineViewModel @AssistedInject constructor(
     val timeline = timelineFactory.createTimeline(viewModelScope, room, eventId, initialState.rootThreadEventId).apply {
         // Target the event just below $eventId in case that it is the readMarkerId
         if (initialState.eventId == null && eventId != null) {
-            setInitialEventIdOffset(-1)
+            getTargetEventOffset(-1)
         }
     }
 

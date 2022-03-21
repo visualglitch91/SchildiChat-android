@@ -59,22 +59,22 @@ interface Timeline {
     /**
      * Event that should be displayed first, before the user scrolls.
      */
-    fun getInitialEventId(): String?
+    fun getTargetEventId(): String?
 
     /**
-     * Change initial event id
+     * The event id we want to display first when showing the timeline
      */
-    fun setInitialEventId(eventId: String?)
+    fun setTargetEventId(eventId: String?)
 
     /**
-     * Offset for the initial event, e.g. if we want to load the event just below said id
+     * Offset for the target event, e.g. if we want to load the event just below said id
      */
-    fun getInitialEventIdOffset(): Int
+    fun getTargetEventOffset(): Int
 
     /**
-     * Set the offset for the initial event, e.g. if we want to load the event just below said id
+     * Set the offset for the target event, e.g. if we want to load the event just below said id
      */
-    fun setInitialEventIdOffset(offset: Int)
+    fun getTargetEventOffset(offset: Int)
 
     /**
      * Check if the timeline can be enriched by paginating.

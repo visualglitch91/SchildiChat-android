@@ -65,8 +65,8 @@ class ScrollOnNewMessageCallback(private val layoutManager: BetterLinearLayoutMa
             var scrollToEvent = initialForceScrollEventId
             var scrollOffset = 0
             if (initialForceScrollEventId == null) {
-                scrollToEvent = timelineEventController.timeline?.getInitialEventId()
-                scrollOffset = timelineEventController.timeline?.getInitialEventIdOffset() ?: 0
+                scrollToEvent = timelineEventController.timeline?.getTargetEventId()
+                scrollOffset = timelineEventController.timeline?.getTargetEventOffset() ?: 0
             }
             if (scrollToEvent == null) {
                 layoutManager.scrollToPositionWithOffset(0, 0)
