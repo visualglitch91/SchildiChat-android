@@ -942,6 +942,7 @@ class TimelineFragment @Inject constructor(
         views.jumpToBottomView.visibility = View.INVISIBLE
         views.jumpToBottomView.debouncedClicks {
             views.jumpToBottomView.visibility = View.INVISIBLE
+            timelineViewModel.handle(RoomDetailAction.ExitTrackingUnreadMessagesState)
             doJumpToBottom()
         }
 
@@ -954,7 +955,6 @@ class TimelineFragment @Inject constructor(
     }
 
     private fun doJumpToBottom() {
-        timelineViewModel.handle(RoomDetailAction.ExitTrackingUnreadMessagesState)
         if (!timelineViewModel.timeline.isLive) {
             scrollOnNewMessageCallback.forceScrollOnNextUpdate()
             timelineViewModel.timeline.restartWithEventId(null)
