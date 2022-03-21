@@ -84,5 +84,5 @@ sealed class RoomDetailViewEvents : VectorViewEvents {
     object StopChatEffects : RoomDetailViewEvents()
     object RoomReplacementStarted : RoomDetailViewEvents()
 
-    data class ScDbgReadTracking(val event: TimelineEvent?, val unreadState: UnreadState) : RoomDetailViewEvents()
+    data class ScDbgReadTracking(val event: TimelineEvent?, val unreadState: UnreadState, val trackUnreadMessages: Boolean) : RoomDetailViewEvents()
 }
