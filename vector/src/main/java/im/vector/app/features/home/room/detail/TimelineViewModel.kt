@@ -1134,7 +1134,8 @@ class TimelineViewModel @AssistedInject constructor(
                 .distinctUntilChanged { previous, current ->
                     when {
                         previous is UnreadState.Unknown || previous is UnreadState.ReadMarkerNotLoaded -> false
-                        previous is UnreadState.HasUnread && current is UnreadState.HasUnread          -> false
+                        previous is UnreadState.HasUnread && current is UnreadState.HasUnread &&
+                                previous.readMarkerId == current.readMarkerId                          -> false
                         current is UnreadState.HasUnread || current is UnreadState.HasNoUnread         -> true
                         else                                                                           -> false
                     }
@@ -1168,7 +1169,7 @@ class TimelineViewModel @AssistedInject constructor(
             val isFromMe = timelineEvent.root.senderId == session.myUserId
             rmDimber.i{"isFromMe = $isFromMe"}
             if (!isFromMe) {
-                return UnreadState.HasUnread(eventId)
+                return UnreadState.HasUnread(eventId, readMarkerIdSnapshot)
             }
         }
         rmDimber.i{"hasNoUnread / firstDisplayableEventIndex: $firstDisplayableEventIndex / " +
