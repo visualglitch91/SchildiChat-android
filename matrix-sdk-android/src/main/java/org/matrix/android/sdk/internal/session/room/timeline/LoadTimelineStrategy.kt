@@ -90,6 +90,7 @@ internal class LoadTimelineStrategy(
     private var getContextLatch: CompletableDeferred<Unit>? = null
     private var chunkEntity: RealmResults<ChunkEntity>? = null
     private var timelineChunk: TimelineChunk? = null
+    private var sendingEventCount: Int = 0
 
     private val chunkEntityListener = OrderedRealmCollectionChangeListener { _: RealmResults<ChunkEntity>, changeSet: OrderedCollectionChangeSet ->
         // Can be call either when you open a permalink on an unknown event
@@ -189,7 +190,7 @@ internal class LoadTimelineStrategy(
     }
 
     fun getBuiltEventIndex(eventId: String): Int? {
-        return timelineChunk?.getBuiltEventIndex(eventId, searchInNext = true, searchInPrev = true)
+        return timelineChunk?.getBuiltEventIndex(eventId, searchInNext = true, searchInPrev = true)?.let { it + sendingEventCount }
     }
 
     fun getBuiltEvent(eventId: String): TimelineEvent? {
@@ -205,6 +206,8 @@ internal class LoadTimelineStrategy(
             sendingEventsDataSource.buildSendingEvents()
         } else {
             emptyList()
+        }.also {
+            sendingEventCount = it.size
         }
     }
 
