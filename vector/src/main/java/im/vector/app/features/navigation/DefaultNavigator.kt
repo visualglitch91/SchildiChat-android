@@ -149,13 +149,14 @@ class DefaultNavigator @Inject constructor(
             eventId: String?,
             buildTask: Boolean,
             isInviteAlreadyAccepted: Boolean,
-            openAtFirstUnread: Boolean?
+            openAtFirstUnread: Boolean?,
+            openAnonymously: Boolean
     ) {
         if (sessionHolder.getSafeActiveSession()?.getRoom(roomId) == null) {
             fatalError("Trying to open an unknown room $roomId", vectorPreferences.failFast())
             return
         }
-        val args = TimelineArgs(roomId = roomId, eventId = eventId, isInviteAlreadyAccepted = isInviteAlreadyAccepted, openAtFirstUnread = openAtFirstUnread)
+        val args = TimelineArgs(roomId = roomId, eventId = eventId, isInviteAlreadyAccepted = isInviteAlreadyAccepted, openAtFirstUnread = openAtFirstUnread, openAnonymously = openAnonymously)
         val intent = RoomDetailActivity.newIntent(context, args)
         startActivity(context, intent, buildTask)
     }

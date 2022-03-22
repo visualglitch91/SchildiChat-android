@@ -76,6 +76,10 @@ class RoomListQuickActionsEpoxyController @Inject constructor(
             }
         }
 
+        if (vectorPreferences.showOpenAnonymous()) {
+            RoomListQuickActionsSharedAction.OpenAnonymous(roomSummary.roomId).toBottomSheetItem("action_open_anonymous")
+        }
+
         if (vectorPreferences.loadRoomAtFirstUnread()) {
             // TODO can we check if position of roomSummary.readMarkerId is below or equal to
             // roomSummary.latestPreviewableOriginalContentEvent, and hide this otherwise?

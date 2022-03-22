@@ -218,6 +218,7 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
         private const val SETTINGS_NOTIF_ONLY_ALERT_ONCE = "SETTINGS_NOTIF_ONLY_ALERT_ONCE"
         private const val SETTINGS_HIDE_CALL_BUTTONS = "SETTINGS_HIDE_CALL_BUTTONS"
         private const val SETTINGS_READ_RECEIPT_FOLLOWS_READ_MARKER = "SETTINGS_READ_RECEIPT_FOLLOWS_READ_MARKER"
+        private const val SETTINGS_SHOW_OPEN_ANONYMOUS = "SETTINGS_SHOW_OPEN_ANONYMOUS"
 
         private const val DID_ASK_TO_ENABLE_SESSION_PUSH = "DID_ASK_TO_ENABLE_SESSION_PUSH"
 
@@ -1095,6 +1096,11 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
         return defaultPrefs.getBoolean(SETTINGS_READ_RECEIPT_FOLLOWS_READ_MARKER, false)
     }
 
+    // SC addition
+    fun showOpenAnonymous(): Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_SHOW_OPEN_ANONYMOUS, false)
+    }
+
     /**
      * I likely do more fresh installs of the app than anyone else, so a shortcut to change some of the default settings to
      * my preferred values can safe me some time
@@ -1119,6 +1125,7 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
                 .putBoolean(SETTINGS_AGGREGATE_UNREAD_COUNTS, false)
                 .putBoolean(SETTINGS_ENABLE_SPACE_PAGER, true)
                 .putBoolean(SETTINGS_READ_RECEIPT_FOLLOWS_READ_MARKER, true)
+                .putBoolean(SETTINGS_SHOW_OPEN_ANONYMOUS, true)
                 .apply()
     }
 

@@ -28,6 +28,7 @@ data class TimelineArgs(
         val sharedData: SharedData? = null,
         val openShareSpaceForId: String? = null,
         val openAtFirstUnread: Boolean? = null,
+        val openAnonymously: Boolean = false,
         val threadTimelineArgs: ThreadTimelineArgs? = null,
         val switchToParentSpace: Boolean = false,
         val isInviteAlreadyAccepted: Boolean = false

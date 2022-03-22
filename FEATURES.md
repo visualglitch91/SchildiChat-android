@@ -19,6 +19,7 @@ Here you can find some extra features and changes compared to Element Android (w
 - Possibility to open rooms at first unread message instead of at the bottom of the chat
 - Possibility to hide the voice message button in the composer
 - Experimental feature to switch between top-level spaces by swiping the room list
+- Option to open a room without marking anything as read automatically
 - Remember across app restarts which categories in the chat overview are expanded or collapsed
 - Message count passed to the notification badge (visible next to the launcher icon on recent Android versions)
 - Bigger stickers

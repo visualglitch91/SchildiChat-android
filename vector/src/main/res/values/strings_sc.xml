@@ -186,4 +186,8 @@
 
     <string name="settings_read_receipt_follows_read_marker">Only mark chats as read if fully read</string>
     <string name="settings_read_receipt_follows_read_marker_summary">Do not update your read receipt when opening the room, but only gradually while reading</string>
+
+    <string name="room_list_quick_actions_open_anonymous">Open without reading</string>
+    <string name="settings_show_open_anonymous">Open without reading</string>
+    <string name="settings_show_open_anonymous_summary">Show option to open a room without automatically marking it read</string>
 </resources>

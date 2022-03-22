@@ -453,6 +453,9 @@ class RoomListFragment @Inject constructor(
             is RoomListQuickActionsSharedAction.OpenAtBottom              -> {
                 navigator.openRoom(requireActivity(), quickAction.roomId, openAtFirstUnread = false)
             }
+            is RoomListQuickActionsSharedAction.OpenAnonymous             -> {
+                navigator.openRoom(requireActivity(), quickAction.roomId, openAnonymously = true)
+            }
             is RoomListQuickActionsSharedAction.Leave                     -> {
                 promptLeaveRoom(quickAction.roomId)
             }

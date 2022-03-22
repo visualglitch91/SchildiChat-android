@@ -57,6 +57,7 @@ data class RoomDetailViewState(
         val asyncRoomSummary: Async<RoomSummary> = Uninitialized,
         val powerLevelsHelper: PowerLevelsHelper? = null,
         val openAtFirstUnread: Boolean? = null,
+        val openAnonymously: Boolean = false,
         val activeRoomWidgets: Async<List<Widget>> = Uninitialized,
         val formattedTypingUsers: String? = null,
         val tombstoneEvent: Event? = null,
@@ -87,6 +88,7 @@ data class RoomDetailViewState(
             // Also highlight the target event, if any
             highlightedEventId = args.eventId,
             openAtFirstUnread = args.openAtFirstUnread,
+            openAnonymously = args.openAnonymously,
             switchToParentSpace = args.switchToParentSpace,
             rootThreadEventId = args.threadTimelineArgs?.rootThreadEventId
     )

@@ -197,17 +197,17 @@ class TimelineViewModel @AssistedInject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if (loadRoomAtFirstUnread()) {
                 if (vectorPreferences.readReceiptFollowsReadMarker()) {
-                    tryOrNull { room.setMarkedUnreadFlag(false) }
+                    tryOrNullAnon { room.setMarkedUnreadFlag(false) }
                 } else {
-                    tryOrNull { room.setMarkedUnread(false) }
+                    tryOrNullAnon { room.setMarkedUnread(false) }
                 }
             } else {
-                tryOrNull { room.markAsRead(ReadService.MarkAsReadParams.READ_RECEIPT) }
+                tryOrNullAnon { room.markAsRead(ReadService.MarkAsReadParams.READ_RECEIPT) }
             }
         }
         // Inform the SDK that the room is displayed
         viewModelScope.launch(Dispatchers.IO) {
-            tryOrNull { session.onRoomDisplayed(initialState.roomId) }
+            tryOrNullAnon { session.onRoomDisplayed(initialState.roomId) }
         }
         callManager.addProtocolsCheckerListener(this)
         callManager.checkForProtocolsSupportIfNeeded()
@@ -371,6 +371,9 @@ class TimelineViewModel @AssistedInject constructor(
      * This is a local implementation has nothing to do with APIs
      */
     private fun markThreadTimelineAsReadLocal() {
+        if (initialState.openAnonymously) {
+            return
+        }
         initialState.rootThreadEventId?.let {
             session.coroutineScope.launch {
                 room.markThreadAsRead(it)
@@ -658,9 +661,9 @@ class TimelineViewModel @AssistedInject constructor(
             mostRecentDisplayedEvent?.root?.eventId?.also {
                 session.coroutineScope.launch(NonCancellable) {
                     rmDimber.i{"set RM and RR to $it"}
-                    tryOrNull { room.setReadMarker(it) }
+                    tryOrNullAnon { room.setReadMarker(it) }
                     if (loadRoomAtFirstUnread()) {
-                        tryOrNull { room.setReadReceipt(it) }
+                        tryOrNullAnon { room.setReadReceipt(it) }
                     }
                 }
             }
@@ -981,7 +984,7 @@ class TimelineViewModel @AssistedInject constructor(
                     }
                     bufferedMostRecentDisplayedEvent.root.eventId?.let { eventId ->
                         session.coroutineScope.launch {
-                            tryOrNull { room.setReadReceipt(eventId) }
+                            tryOrNullAnon { room.setReadReceipt(eventId) }
                         }
                     }
                 }
@@ -998,7 +1001,7 @@ class TimelineViewModel @AssistedInject constructor(
     private fun handleMarkAllAsRead() {
         setState { copy(unreadState = UnreadState.HasNoUnread) }
         viewModelScope.launch {
-            tryOrNull { room.markAsRead(ReadService.MarkAsReadParams.BOTH) }
+            tryOrNullAnon { room.markAsRead(ReadService.MarkAsReadParams.BOTH) }
         }
     }
 
@@ -1269,5 +1272,12 @@ class TimelineViewModel @AssistedInject constructor(
 
     private fun loadRoomAtFirstUnread(): Boolean {
         return initialState.openAtFirstUnread ?: vectorPreferences.loadRoomAtFirstUnread()
+    }
+
+    private inline fun <A>tryOrNullAnon(operation: () -> A): A? {
+        if (initialState.openAnonymously) {
+            return null
+        }
+        return tryOrNull { operation() }
     }
 }
