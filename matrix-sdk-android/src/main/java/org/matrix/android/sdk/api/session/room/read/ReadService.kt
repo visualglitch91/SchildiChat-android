@@ -52,6 +52,11 @@ interface ReadService {
     suspend fun setMarkedUnread(markedUnread: Boolean)
 
     /**
+     * Change the explicitly set unread marker flag
+     */
+    suspend fun setMarkedUnreadFlag(markedUnread: Boolean)
+
+    /**
      * Check if an event is already read, ie. your read receipt is set on a more recent event.
      */
     fun isEventRead(eventId: String): Boolean

@@ -195,10 +195,14 @@ class TimelineViewModel @AssistedInject constructor(
         setupPreviewUrlObservers()
         room.getRoomSummaryLive()
         viewModelScope.launch(Dispatchers.IO) {
-            if (!loadRoomAtFirstUnread()) {
-                tryOrNull { room.markAsRead(ReadService.MarkAsReadParams.READ_RECEIPT) }
+            if (loadRoomAtFirstUnread()) {
+                if (vectorPreferences.readReceiptFollowsReadMarker()) {
+                    tryOrNull { room.setMarkedUnreadFlag(false) }
+                } else {
+                    tryOrNull { room.setMarkedUnread(false) }
+                }
             } else {
-                tryOrNull { room.setMarkedUnread(false) }
+                tryOrNull { room.markAsRead(ReadService.MarkAsReadParams.READ_RECEIPT) }
             }
         }
         // Inform the SDK that the room is displayed

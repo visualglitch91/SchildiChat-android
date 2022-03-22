@@ -183,4 +183,7 @@
     <string name="settings_upstream_labs">Element features</string>
     <string name="settings_labs_room_list">Room list</string>
     <string name="settings_labs_timeline">Timeline</string>
+
+    <string name="settings_read_receipt_follows_read_marker">Only mark chats as read if fully read</string>
+    <string name="settings_read_receipt_follows_read_marker_summary">Do not update your read receipt when opening the room, but only gradually while reading</string>
 </resources>

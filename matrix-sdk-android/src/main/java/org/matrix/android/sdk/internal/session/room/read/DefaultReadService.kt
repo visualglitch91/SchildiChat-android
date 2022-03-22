@@ -80,7 +80,7 @@ internal class DefaultReadService @AssistedInject constructor(
         }
     }
 
-    private suspend fun setMarkedUnreadFlag(markedUnread: Boolean) {
+    override suspend fun setMarkedUnreadFlag(markedUnread: Boolean) {
         val params = SetMarkedUnreadTask.Params(roomId, markedUnread = markedUnread)
         setMarkedUnreadTask.execute(params)
     }

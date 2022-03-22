@@ -31,6 +31,13 @@
 
         <im.vector.app.core.preference.VectorSwitchPreference
             android:defaultValue="false"
+            android:key="SETTINGS_READ_RECEIPT_FOLLOWS_READ_MARKER"
+            android:dependency="SETTINGS_OPEN_CHATS_AT_FIRST_UNREAD"
+            android:title="@string/settings_read_receipt_follows_read_marker"
+            android:summary="@string/settings_read_receipt_follows_read_marker_summary" />
+
+        <im.vector.app.core.preference.VectorSwitchPreference
+            android:defaultValue="false"
             android:key="SETTINGS_ALLOW_URL_PREVIEW_IN_ENCRYPTED_ROOM_KEY"
             android:title="@string/url_previews_in_encrypted_rooms"
             android:summary="@string/url_previews_in_encrypted_rooms_summary" />
