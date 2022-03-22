@@ -10,6 +10,64 @@
         android:key="labs_warning"
         android:summary="@string/room_settings_labs_warning_message" />
 
+
+    <!-- SC additions -->
+
+    <im.vector.app.core.preference.VectorSwitchPreference
+        android:defaultValue="false"
+        android:key="SYSTEM_DARK_THEME_PRE_TEN"
+        android:title="@string/settings_system_dark_theme_pre_ten"
+        android:summary="@string/settings_system_dark_theme_pre_ten_summary" />
+
+    <im.vector.app.core.preference.VectorPreferenceCategory
+        android:key="SETTINGS_LABS_TIMELINE"
+        android:title="@string/settings_labs_timeline">
+
+        <im.vector.app.core.preference.VectorSwitchPreference
+            android:defaultValue="false"
+            android:key="SETTINGS_OPEN_CHATS_AT_FIRST_UNREAD"
+            android:title="@string/settings_open_chats_at_first_unread"
+            android:summary="@string/settings_open_chats_at_first_unread_summary" />
+
+        <im.vector.app.core.preference.VectorSwitchPreference
+            android:defaultValue="false"
+            android:key="SETTINGS_ALLOW_URL_PREVIEW_IN_ENCRYPTED_ROOM_KEY"
+            android:title="@string/url_previews_in_encrypted_rooms"
+            android:summary="@string/url_previews_in_encrypted_rooms_summary" />
+
+        <im.vector.app.core.preference.VectorSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_VOICE_MESSAGE"
+            android:title="@string/settings_show_voice_message_recorder_ui"
+            android:summary="@string/settings_show_voice_message_recorder_ui_summary" />
+
+    </im.vector.app.core.preference.VectorPreferenceCategory>
+
+    <im.vector.app.core.preference.VectorPreferenceCategory
+        android:key="SETTINGS_LABS_ROOM_OVERVIEW"
+        android:title="@string/settings_labs_room_list">
+
+        <im.vector.app.core.preference.VectorSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_LABS_ALLOW_MARK_UNREAD"
+            android:title="@string/labs_mark_rooms_unread"
+            android:summary="@string/labs_mark_rooms_unread_summary" />
+
+        <im.vector.app.core.preference.VectorSwitchPreference
+            android:defaultValue="false"
+            android:key="SETTINGS_ENABLE_SPACE_PAGER"
+            android:title="@string/settings_enable_space_pager"
+            android:summary="@string/settings_enable_space_pager_summary" />
+
+    </im.vector.app.core.preference.VectorPreferenceCategory>
+
+
+    <!-- Upstream -->
+
+    <im.vector.app.core.preference.VectorPreferenceCategory
+        android:key="SETTINGS_LABS_PREFERENCE_KEY"
+        android:title="@string/settings_upstream_labs">
+
     <!--<im.vector.app.core.preference.VectorSwitchPreference-->
     <!--android:key="SETTINGS_ROOM_SETTINGS_LABS_END_TO_END_PREFERENCE_KEY"-->
     <!--android:title="@string/room_settings_labs_end_to_end" />-->
@@ -35,50 +93,14 @@
     <!--android:title="@string/settings_labs_enable_send_voice" />-->
 
     <im.vector.app.core.preference.VectorSwitchPreference
-        android:defaultValue="false"
-        android:key="SETTINGS_OPEN_CHATS_AT_FIRST_UNREAD"
-        android:title="@string/settings_open_chats_at_first_unread"
-        android:summary="@string/settings_open_chats_at_first_unread_summary" />
-
-    <im.vector.app.core.preference.VectorSwitchPreference
-        android:defaultValue="false"
-        android:key="SYSTEM_DARK_THEME_PRE_TEN"
-        android:title="@string/settings_system_dark_theme_pre_ten"
-        android:summary="@string/settings_system_dark_theme_pre_ten_summary" />
-
-    <im.vector.app.core.preference.VectorSwitchPreference
-        android:defaultValue="false"
-        android:key="SETTINGS_ALLOW_URL_PREVIEW_IN_ENCRYPTED_ROOM_KEY"
-        android:title="@string/url_previews_in_encrypted_rooms"
-        android:summary="@string/url_previews_in_encrypted_rooms_summary" />
-
-    <im.vector.app.core.preference.VectorSwitchPreference
-        android:defaultValue="true"
-        android:key="SETTINGS_LABS_ALLOW_MARK_UNREAD"
-        android:title="@string/labs_mark_rooms_unread"
-        android:summary="@string/labs_mark_rooms_unread_summary" />
-
-    <im.vector.app.core.preference.VectorSwitchPreference
         android:defaultValue="true"
         android:key="SETTINGS_LABS_ENABLE_SWIPE_TO_REPLY"
         android:title="@string/labs_swipe_to_reply_in_timeline" />
 
     <im.vector.app.core.preference.VectorSwitchPreference
-        android:defaultValue="true"
-        android:key="SETTINGS_VOICE_MESSAGE"
-        android:title="@string/settings_show_voice_message_recorder_ui"
-        android:summary="@string/settings_show_voice_message_recorder_ui_summary" />
-
-    <im.vector.app.core.preference.VectorSwitchPreference
         android:defaultValue="false"
         android:key="SETTINGS_LABS_UNREAD_NOTIFICATIONS_AS_TAB"
         android:title="@string/labs_show_unread_notifications_as_tab" />
-
-    <im.vector.app.core.preference.VectorSwitchPreference
-        android:defaultValue="false"
-        android:key="SETTINGS_ENABLE_SPACE_PAGER"
-        android:title="@string/settings_enable_space_pager"
-        android:summary="@string/settings_enable_space_pager_summary" />
 
     <im.vector.app.core.preference.VectorSwitchPreference
         android:defaultValue="false"
@@ -103,5 +125,7 @@
         android:defaultValue="true"
         android:key="SETTINGS_LABS_RENDER_LOCATIONS_IN_TIMELINE"
         android:title="@string/labs_render_locations_in_timeline" />
+
+    </im.vector.app.core.preference.VectorPreferenceCategory>
 
 </androidx.preference.PreferenceScreen>

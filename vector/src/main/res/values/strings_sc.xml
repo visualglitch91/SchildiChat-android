@@ -178,4 +178,9 @@
     <string name="settings_sc_dbg_timeline_chunks">Debug timeline consistency</string>
     <string name="settings_sc_dbg_show_display_index">Show displayIndex in timeline</string>
     <string name="settings_sc_dbg_show_read_tracking">Show read tracking</string>
+
+    <!-- SC labs -->
+    <string name="settings_upstream_labs">Element features</string>
+    <string name="settings_labs_room_list">Room list</string>
+    <string name="settings_labs_timeline">Timeline</string>
 </resources>
