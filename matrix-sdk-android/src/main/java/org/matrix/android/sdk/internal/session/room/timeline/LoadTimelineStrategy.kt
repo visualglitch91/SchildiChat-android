@@ -22,6 +22,8 @@ import io.realm.Realm
 import io.realm.RealmResults
 import kotlinx.coroutines.CompletableDeferred
 import org.matrix.android.sdk.api.extensions.orFalse
+import org.matrix.android.sdk.api.failure.Failure
+import org.matrix.android.sdk.api.failure.MatrixError
 import org.matrix.android.sdk.api.session.room.send.SendState
 import org.matrix.android.sdk.api.session.room.timeline.Timeline
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
@@ -183,6 +185,10 @@ internal class LoadTimelineStrategy(
                 getContextLatch?.await()
                 getContextLatch = null
             } catch (failure: Throwable) {
+                if (failure is Failure.ServerError && failure.error.code == MatrixError.M_NOT_FOUND) {
+                    // This failure is likely permanent, so handle in DefaultTimeline to restart without eventId
+                    throw failure
+                }
                 return LoadMoreResult.FAILURE
             }
         }
