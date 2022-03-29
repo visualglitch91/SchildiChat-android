@@ -94,4 +94,15 @@
     <string name="settings_unimportant_counter_badge_summary_v2">Afficher le nombre de messages silencieux dans la vue d\'ensemble de la discussion</string>
     <string name="settings_aggregate_unread_counts">Compter les discussions au lieu des messages</string>
     <string name="unifiedpush_getdistributors_dialog_title">Choisissez un distributeur</string>
+    <string name="bubble_style_element">Element</string>
+    <string name="settings_jump_to_bottom_on_send_summary">Défiler automatiquement vers le bas en envoyant un message</string>
+    <string name="bubble_appearance">Apparence de la bulle</string>
+    <string name="bubble_rounded_corners">Coins</string>
+    <string name="bubble_rounded_corners_default">Par défaut</string>
+    <string name="bubble_rounded_corners_r1">Rond</string>
+    <string name="bubble_rounded_corners_r2">Extra rond</string>
+    <string name="bubble_tail">Queue de la bulle</string>
+    <string name="bubble_tail_summary">Inclure la queue de la bulle pour le premier message d\'un expéditeur</string>
+    <string name="room_list_quick_actions_open_at_bottom">Ouvrir dans les messages récents</string>
+    <string name="settings_apply_sc_default_settings_dialog_summary">Si vous continuez, ceci interfèrera avec les paramètres de votre appli !</string>
 </resources>
