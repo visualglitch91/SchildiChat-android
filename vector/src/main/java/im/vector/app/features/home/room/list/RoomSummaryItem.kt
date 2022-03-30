@@ -83,7 +83,7 @@ abstract class RoomSummaryItem : VectorEpoxyModel<RoomSummaryItem.Holder>() {
                 when {
                     showHighlighted                             -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, R.attr.colorError)
                     unreadNotificationCount > 0 || markedUnread -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, R.attr.colorAccent)
-                    hasUnreadMessage                            -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, R.attr.vctr_content_tertiary) // same color as unread counter bg would be hard to spot
+                    hasUnreadMessage                            -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, R.attr.unread_line_unimportant)
                     else                                        -> 0
                 }
         )
