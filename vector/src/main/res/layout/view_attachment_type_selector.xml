@@ -41,7 +41,7 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:contentDescription="@string/attachment_type_gallery"
                 android:src="@drawable/ic_attachment_gallery"
-                app:tint="?colorPrimary"/>
+                app:tint="?colorPrimary" />
 
             <ImageButton
                 android:id="@+id/attachmentStickersButton"

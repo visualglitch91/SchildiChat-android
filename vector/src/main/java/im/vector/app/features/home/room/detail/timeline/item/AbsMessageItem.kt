@@ -82,41 +82,47 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
 
     override fun bind(holder: H) {
         super.bind(holder)
+
         if ((holder.view as? ScMessageBubbleWrapView)?.customBind(this, holder, attributes, _avatarClickListener, _memberNameClickListener) != true) {
-            if (attributes.informationData.messageLayout.showAvatar) {
-                holder.avatarImageView.layoutParams = holder.avatarImageView.layoutParams?.apply {
-                    height = attributes.avatarSize
-                    width = attributes.avatarSize
-                }
-                attributes.avatarRenderer.render(attributes.informationData.matrixItem, holder.avatarImageView)
-                holder.avatarImageView.setOnLongClickListener(attributes.itemLongClickListener)
-                holder.avatarImageView.isVisible = true
-                holder.avatarImageView.onClick(_avatarClickListener)
-            } else {
-                holder.avatarImageView.setOnClickListener(null)
-                holder.avatarImageView.setOnLongClickListener(null)
-                holder.avatarImageView.isVisible = false
+        // Wrong indention for merge-ability
+
+        if (attributes.informationData.messageLayout.showAvatar) {
+            holder.avatarImageView.layoutParams = holder.avatarImageView.layoutParams?.apply {
+                height = attributes.avatarSize
+                width = attributes.avatarSize
             }
-            if (attributes.informationData.messageLayout.showDisplayName) {
-                holder.memberNameView.isVisible = true
-                holder.memberNameView.text = attributes.informationData.memberName
-                holder.memberNameView.setTextColor(attributes.getMemberNameColor())
-                holder.memberNameView.onClick(_memberNameClickListener)
-                holder.memberNameView.setOnLongClickListener(attributes.itemLongClickListener)
-            } else {
-                holder.memberNameView.setOnClickListener(null)
-                holder.memberNameView.setOnLongClickListener(null)
-                holder.memberNameView.isVisible = false
-            }
-            if (attributes.informationData.messageLayout.showTimestamp) {
-                holder.timeView.isVisible = true
-                holder.timeView.text = attributes.informationData.time
-            } else {
-                holder.timeView.isVisible = false
-            }
-            // Render send state indicator
-            holder.sendStateImageView.render(attributes.informationData.sendStateDecoration)
-            holder.eventSendingIndicator.isVisible = attributes.informationData.sendStateDecoration == SendStateDecoration.SENDING_MEDIA
+            attributes.avatarRenderer.render(attributes.informationData.matrixItem, holder.avatarImageView)
+            holder.avatarImageView.setOnLongClickListener(attributes.itemLongClickListener)
+            holder.avatarImageView.isVisible = true
+            holder.avatarImageView.onClick(_avatarClickListener)
+        } else {
+            holder.avatarImageView.setOnClickListener(null)
+            holder.avatarImageView.setOnLongClickListener(null)
+            holder.avatarImageView.isVisible = false
+        }
+        if (attributes.informationData.messageLayout.showDisplayName) {
+            holder.memberNameView.isVisible = true
+            holder.memberNameView.text = attributes.informationData.memberName
+            holder.memberNameView.setTextColor(attributes.getMemberNameColor())
+            holder.memberNameView.onClick(_memberNameClickListener)
+            holder.memberNameView.setOnLongClickListener(attributes.itemLongClickListener)
+        } else {
+            holder.memberNameView.setOnClickListener(null)
+            holder.memberNameView.setOnLongClickListener(null)
+            holder.memberNameView.isVisible = false
+        }
+        if (attributes.informationData.messageLayout.showTimestamp) {
+            holder.timeView.isVisible = true
+            holder.timeView.text = attributes.informationData.time
+        } else {
+            holder.timeView.isVisible = false
+        }
+
+        // Render send state indicator
+        holder.sendStateImageView.render(attributes.informationData.sendStateDecoration)
+        holder.eventSendingIndicator.isVisible = attributes.informationData.sendStateDecoration == SendStateDecoration.SENDING_MEDIA
+
+        // Wrong indention for merge-ability - end
         }
 
         // Threads
@@ -125,7 +131,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
             attributes.threadDetails?.let { threadDetails ->
                 holder.threadSummaryConstraintLayout.isVisible = threadDetails.isRootThread
                 holder.threadSummaryCounterTextView.text = threadDetails.numberOfThreads.toString()
-                holder.threadSummaryInfoTextView.text = threadDetails.threadSummaryLatestTextMessage ?: attributes.decryptionErrorMessage
+                holder.threadSummaryInfoTextView.text = attributes.threadSummaryFormatted ?: attributes.decryptionErrorMessage
 
                 val userId = threadDetails.threadSummarySenderInfo?.userId ?: return@let
                 val displayName = threadDetails.threadSummarySenderInfo?.displayName
@@ -193,6 +199,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>
             val isNotice: Boolean = false,
             val emojiTypeFace: Typeface? = null,
             val decryptionErrorMessage: String? = null,
+            val threadSummaryFormatted: String? = null,
             val threadDetails: ThreadDetails? = null,
             val areThreadMessagesEnabled: Boolean = false,
             override val reactionsSummaryEvents: ReactionsSummaryEvents? = null,

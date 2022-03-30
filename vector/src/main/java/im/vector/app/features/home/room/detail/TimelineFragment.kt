@@ -21,7 +21,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Configuration
-import android.graphics.Color
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
@@ -73,6 +72,7 @@ import de.spiritcroc.matrixsdk.util.DbgUtil
 import de.spiritcroc.matrixsdk.util.Dimber
 import de.spiritcroc.recyclerview.widget.BetterLinearLayoutManager
 import im.vector.app.R
+import im.vector.app.core.animations.play
 import im.vector.app.core.dialogs.ConfirmationDialogBuilder
 import im.vector.app.core.dialogs.GalleryOrCameraDialogHelper
 import im.vector.app.core.epoxy.LayoutManagerStateRestorer
@@ -123,7 +123,8 @@ import im.vector.app.core.utils.startInstallFromSourceIntent
 import im.vector.app.core.utils.toast
 import im.vector.app.databinding.DialogReportContentBinding
 import im.vector.app.databinding.FragmentTimelineBinding
-import im.vector.app.features.analytics.plan.Composer
+import im.vector.app.features.analytics.extensions.toAnalyticsInteraction
+import im.vector.app.features.analytics.plan.Interaction
 import im.vector.app.features.analytics.plan.MobileScreen
 import im.vector.app.features.attachments.AttachmentTypeSelectorView
 import im.vector.app.features.attachments.AttachmentsHelper
@@ -182,6 +183,7 @@ import im.vector.app.features.html.PillsPostProcessor
 import im.vector.app.features.invite.VectorInviteView
 import im.vector.app.features.location.LocationSharingMode
 import im.vector.app.features.location.toLocationData
+import im.vector.app.features.media.AttachmentData
 import im.vector.app.features.media.ImageContentRenderer
 import im.vector.app.features.media.VideoContentRenderer
 import im.vector.app.features.notifications.NotificationDrawerManager
@@ -210,10 +212,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import nl.dionsegijn.konfetti.models.Shape
-import nl.dionsegijn.konfetti.models.Size
 import org.billcarsonfr.jsonviewer.JSonViewerDialog
 import org.commonmark.parser.Parser
+import org.matrix.android.sdk.api.MatrixConfiguration
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.content.ContentAttachmentData
 import org.matrix.android.sdk.api.session.events.model.EventType
@@ -270,7 +271,8 @@ class TimelineFragment @Inject constructor(
         private val callManager: WebRtcCallManager,
         private val voiceMessagePlaybackTracker: VoiceMessagePlaybackTracker,
         private val typingHelper: TypingHelper,
-        private val clock: Clock
+        private val clock: Clock,
+        private val matrixConfiguration: MatrixConfiguration
 ) :
         VectorBaseFragment<FragmentTimelineBinding>(),
         TimelineEventController.Callback,
@@ -584,16 +586,7 @@ class TimelineFragment @Inject constructor(
         when (chatEffect) {
             ChatEffect.CONFETTI -> {
                 views.viewKonfetti.isVisible = true
-                views.viewKonfetti.build()
-                        .addColors(Color.YELLOW, Color.GREEN, Color.MAGENTA)
-                        .setDirection(0.0, 359.0)
-                        .setSpeed(2f, 5f)
-                        .setFadeOutEnabled(true)
-                        .setTimeToLive(2000L)
-                        .addShapes(Shape.Square, Shape.Circle)
-                        .addSizes(Size(12))
-                        .setPosition(-50f, views.viewKonfetti.width + 50f, -50f, -50f)
-                        .streamFor(150, 3000L)
+                views.viewKonfetti.play()
             }
             ChatEffect.SNOWFALL -> {
                 views.viewSnowFall.isVisible = true
@@ -1271,7 +1264,7 @@ class TimelineFragment @Inject constructor(
             val formattedDuration = DateUtils.formatElapsedTime(((messageContent.audioInfo?.duration ?: 0) / 1000).toLong())
             getString(R.string.voice_message_reply_content, formattedDuration)
         } else if (messageContent is MessagePollContent) {
-            messageContent.pollCreationInfo?.question?.question
+            messageContent.getBestPollCreationInfo()?.question?.getBestQuestion()
         } else {
             messageContent?.body ?: ""
         }
@@ -1600,9 +1593,6 @@ class TimelineFragment @Inject constructor(
             return
         }
         if (text.isNotBlank()) {
-            withState(messageComposerViewModel) { state ->
-                analyticsTracker.capture(Composer(isThreadTimeLine(), isEditing = state.sendMode is SendMode.Edit, isReply = state.sendMode is SendMode.Reply))
-            }
             // We collapse ASAP, if not there will be a slight annoying delay
             views.composerLayout.collapse(true)
             lockSendButton = true
@@ -1748,8 +1738,11 @@ class TimelineFragment @Inject constructor(
                 views.includeRoomToolbar.roomToolbarContentView.isClickable = roomSummary.membership == Membership.JOIN
                 views.includeRoomToolbar.roomToolbarTitleView.text = roomSummary.displayName
                 avatarRenderer.render(roomSummary.toMatrixItem(), views.includeRoomToolbar.roomToolbarAvatarImageView)
-                views.includeRoomToolbar.roomToolbarDecorationImageView.render(roomSummary.roomEncryptionTrustLevel)
-                views.includeRoomToolbar.roomToolbarPresenceImageView.render(roomSummary.isDirect, roomSummary.directUserPresence)
+                val showPresence = roomSummary.isDirect && matrixConfiguration.presenceSyncEnabled
+                views.includeRoomToolbar.roomToolbarPresenceImageView.render(showPresence, roomSummary.directUserPresence)
+                //val shieldView = if (showPresence) views.includeRoomToolbar.roomToolbarTitleShield else views.includeRoomToolbar.roomToolbarAvatarShield
+                val shieldView = views.includeRoomToolbar.roomToolbarDecorationImageView
+                shieldView.render(roomSummary.roomEncryptionTrustLevel)
                 views.includeRoomToolbar.roomToolbarPublicImageView.isVisible = roomSummary.isPublic && !roomSummary.isDirect
             }
         } else {
@@ -1923,13 +1916,11 @@ class TimelineFragment @Inject constructor(
             }
             is RoomDetailAction.ResumeVerification        -> {
                 val otherUserId = data.otherUserId ?: return
-                VerificationBottomSheet().apply {
-                    setArguments(VerificationBottomSheet.VerificationArgs(
-                            otherUserId = otherUserId,
-                            verificationId = data.transactionId,
-                            roomId = timelineArgs.roomId
-                    ))
-                }.show(parentFragmentManager, "REQ")
+                VerificationBottomSheet.withArgs(
+                        roomId = timelineArgs.roomId,
+                        otherUserId = otherUserId,
+                        transactionId = data.transactionId,
+                ).show(parentFragmentManager, "REQ")
             }
         }
     }
@@ -2020,12 +2011,16 @@ class TimelineFragment @Inject constructor(
         vectorBaseActivity.notImplemented("encrypted message click")
     }
 
-    override fun onImageMessageClicked(messageImageContent: MessageImageInfoContent, mediaData: ImageContentRenderer.Data, view: View) {
+    override fun onImageMessageClicked(messageImageContent: MessageImageInfoContent,
+                                       mediaData: ImageContentRenderer.Data,
+                                       view: View,
+                                       inMemory: List<AttachmentData>) {
         navigator.openMediaViewer(
                 activity = requireActivity(),
                 roomId = timelineArgs.roomId,
                 mediaData = mediaData,
-                view = view
+                view = view,
+                inMemory = inMemory
         ) { pairs ->
             pairs.add(Pair(views.roomToolbar, ViewCompat.getTransitionName(views.roomToolbar) ?: ""))
             pairs.add(Pair(views.composerLayout, ViewCompat.getTransitionName(views.composerLayout) ?: ""))
@@ -2306,7 +2301,7 @@ class TimelineFragment @Inject constructor(
                 timelineViewModel.handle(RoomDetailAction.UpdateQuickReactAction(action.eventId, action.clickedOn, action.add))
             }
             is EventSharedAction.Edit                       -> {
-                if (action.eventType == EventType.POLL_START) {
+                if (action.eventType in EventType.POLL_START) {
                     navigator.openCreatePoll(requireContext(), timelineArgs.roomId, action.eventId, PollMode.EDIT)
                 } else if (withState(messageComposerViewModel) { it.isVoiceMessageIdle }) {
                     messageComposerViewModel.handle(MessageComposerAction.EnterEditMode(action.eventId, views.composerLayout.text.toString()))
@@ -2326,7 +2321,7 @@ class TimelineFragment @Inject constructor(
             }
             is EventSharedAction.ReplyInThread              -> {
                 if (withState(messageComposerViewModel) { it.isVoiceMessageIdle }) {
-                    navigateToThreadTimeline(action.eventId)
+                    navigateToThreadTimeline(action.eventId, action.startsThread)
                 } else {
                     requireActivity().toast(R.string.error_voice_message_cannot_reply_or_edit)
                 }
@@ -2486,9 +2481,11 @@ class TimelineFragment @Inject constructor(
      * using the ThreadsActivity
      */
 
-    private fun navigateToThreadTimeline(rootThreadEventId: String) {
+    private fun navigateToThreadTimeline(rootThreadEventId: String, startsThread: Boolean = false) {
+        analyticsTracker.capture(Interaction.Name.MobileRoomThreadSummaryItem.toAnalyticsInteraction())
         context?.let {
             val roomThreadDetailArgs = ThreadTimelineArgs(
+                    startsThread = startsThread,
                     roomId = timelineArgs.roomId,
                     displayName = timelineViewModel.getRoomSummary()?.displayName,
                     avatarUrl = timelineViewModel.getRoomSummary()?.avatarUrl,
@@ -2504,6 +2501,7 @@ class TimelineFragment @Inject constructor(
      */
 
     private fun navigateToThreadList() {
+        analyticsTracker.capture(Interaction.Name.MobileRoomThreadListButton.toAnalyticsInteraction())
         context?.let {
             val roomThreadDetailArgs = ThreadTimelineArgs(
                     roomId = timelineArgs.roomId,
