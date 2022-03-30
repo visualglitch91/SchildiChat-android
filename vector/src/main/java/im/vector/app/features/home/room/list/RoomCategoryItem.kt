@@ -29,7 +29,7 @@ import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.features.themes.ThemeUtils
 
-@EpoxyModelClass(layout = R.layout.item_room_category)
+@EpoxyModelClass(layout = R.layout.item_room_category_sc)
 abstract class RoomCategoryItem : VectorEpoxyModel<RoomCategoryItem.Holder>() {
 
     @EpoxyAttribute lateinit var title: String
@@ -50,15 +50,16 @@ abstract class RoomCategoryItem : VectorEpoxyModel<RoomCategoryItem.Holder>() {
         }
         holder.unreadCounterBadgeView.render(UnreadCounterBadgeView.State(unreadNotificationCount, showHighlighted, unreadMessages, markedUnread))
         holder.titleView.text = title
-        holder.counterView.text = itemCount.takeIf { it > 0 }?.toString().orEmpty()
-        holder.counterView.setCompoundDrawablesWithIntrinsicBounds(null, null, expandedArrowDrawable, null)
+        //holder.counterView.text = itemCount.takeIf { it > 0 }?.toString().orEmpty()
+        //holder.counterView.setCompoundDrawablesWithIntrinsicBounds(null, null, expandedArrowDrawable, null)
+        holder.titleView.setCompoundDrawablesWithIntrinsicBounds(null, null, expandedArrowDrawable, null)
         holder.rootView.onClick(listener)
     }
 
     class Holder : VectorEpoxyHolder() {
         val unreadCounterBadgeView by bind<UnreadCounterBadgeView>(R.id.roomCategoryUnreadCounterBadgeView)
         val titleView by bind<TextView>(R.id.roomCategoryTitleView)
-        val counterView by bind<TextView>(R.id.roomCategoryCounterView)
+        //val counterView by bind<TextView>(R.id.roomCategoryCounterView)
         val rootView by bind<ViewGroup>(R.id.roomCategoryRootView)
     }
 }

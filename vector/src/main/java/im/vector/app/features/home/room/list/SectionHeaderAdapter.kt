@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import im.vector.app.R
 import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.onClick
-import im.vector.app.databinding.ItemRoomCategoryBinding
+import im.vector.app.databinding.ItemRoomCategoryScBinding
 import im.vector.app.features.themes.ThemeUtils
 
 class SectionHeaderAdapter constructor(
@@ -66,7 +66,7 @@ class SectionHeaderAdapter constructor(
 
     override fun getItemId(position: Int) = roomsSectionData.hashCode().toLong()
 
-    override fun getItemViewType(position: Int) = R.layout.item_room_category
+    override fun getItemViewType(position: Int) = R.layout.item_room_category_sc
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         return VH.create(parent, onClickAction)
@@ -79,7 +79,7 @@ class SectionHeaderAdapter constructor(
     override fun getItemCount(): Int = if (roomsSectionData.isHidden) 0 else 1
 
     class VH constructor(
-            private val binding: ItemRoomCategoryBinding,
+            private val binding: ItemRoomCategoryScBinding,
             onClickAction: ClickListener
     ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -99,16 +99,17 @@ class SectionHeaderAdapter constructor(
                 null
             }
             binding.root.isClickable = roomsSectionData.isCollapsable
-            binding.roomCategoryCounterView.setCompoundDrawablesWithIntrinsicBounds(null, null, collapsableArrowDrawable, null)
-            binding.roomCategoryCounterView.text = roomsSectionData.itemCount.takeIf { it > 0 }?.toString().orEmpty()
+            binding.roomCategoryTitleView.setCompoundDrawablesWithIntrinsicBounds(null, null, collapsableArrowDrawable, null)
+            //binding.roomCategoryCounterView.setCompoundDrawablesWithIntrinsicBounds(null, null, collapsableArrowDrawable, null)
+            //binding.roomCategoryCounterView.text = roomsSectionData.itemCount.takeIf { it > 0 }?.toString().orEmpty()
             binding.roomCategoryUnreadCounterBadgeView.render(UnreadCounterBadgeView.State(roomsSectionData.notificationCount, roomsSectionData.isHighlighted, roomsSectionData.unread, roomsSectionData.markedUnread))
         }
 
         companion object {
             fun create(parent: ViewGroup, onClickAction: ClickListener): VH {
                 val view = LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_room_category, parent, false)
-                val binding = ItemRoomCategoryBinding.bind(view)
+                        .inflate(R.layout.item_room_category_sc, parent, false)
+                val binding = ItemRoomCategoryScBinding.bind(view)
                 return VH(binding, onClickAction)
             }
         }
