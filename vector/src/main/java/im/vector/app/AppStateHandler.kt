@@ -164,4 +164,19 @@ class AppStateHandler @Inject constructor(
             }
         }
     }
+
+    fun persistSelectedSpace() {
+        val currentValue = selectedSpaceDataSourceSc.currentValue?.orNull() ?: return
+        val currentMethod = currentValue.first as? RoomGroupingMethod.BySpace ?: return
+        val uSession = activeSessionHolder.getSafeActiveSession() ?: return
+
+        // We want to persist it, so we also want to remove the pendingSwipe status
+        if (currentValue.second) {
+            selectedSpaceDataSourceSc.post(Option.just(Pair(currentMethod, false)))
+        }
+
+        // Persist it across app restarts
+        uiStateRepository.storeGroupingMethod(true, uSession.sessionId)
+        uiStateRepository.storeSelectedSpace(currentMethod.spaceSummary?.roomId, uSession.sessionId)
+    }
 }

@@ -274,6 +274,13 @@ class HomeDetailFragment @Inject constructor(
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        // Persist swiped
+        appStateHandler.persistSelectedSpace()
+    }
+
     private fun checkNotificationTabStatus(enableDialPad: Boolean? = null) {
         val wasVisible = views.bottomNavigationView.menu.findItem(R.id.bottom_action_notification).isVisible
         val combinedOverview = vectorPreferences.combinedOverview()
