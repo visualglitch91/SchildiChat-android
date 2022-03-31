@@ -123,4 +123,8 @@
     <string name="room_settings_default">默认</string>
     <string name="settings_enable_space_pager">滑动聊天列表来切换空间</string>
     <string name="settings_enable_space_pager_summary">允许通过在聊天列表中水平滑动来在根空间之间切换</string>
+    <string name="bubble_style_element">元素</string>
+    <string name="bubble_appearance">气泡外观</string>
+    <string name="bubble_rounded_corners_default">默认</string>
+    <string name="bubble_rounded_corners_r1">圆角</string>
 </resources>

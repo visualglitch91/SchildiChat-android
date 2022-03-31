@@ -141,4 +141,12 @@
     <string name="settings_sc_dbg_read_marker">Awakutu tanda baca</string>
     <string name="settings_sc_dbg_timeline_chunks">Awakutu konsistensi linimasa</string>
     <string name="settings_sc_dbg_show_read_tracking">Tampilkan pelacakan bacaan</string>
+    <string name="settings_labs_room_list">Daftar ruangan</string>
+    <string name="settings_labs_timeline">Linimasa</string>
+    <string name="settings_read_receipt_follows_read_marker_summary">Jangan perbarui laporan dibaca ketika membuka ruangan, tetapi secara urutan saat membaca</string>
+    <string name="room_list_quick_actions_open_anonymous">Buka tanpa membaca</string>
+    <string name="settings_show_open_anonymous">Buka tanpa membaca</string>
+    <string name="settings_upstream_labs">Fitur Element</string>
+    <string name="settings_read_receipt_follows_read_marker">Hanya tandai obrolan sebagai terbaca jika dibaca seluruhnya</string>
+    <string name="settings_show_open_anonymous_summary">Tampilkan opsi untuk membuka ruangan tanpa menandainya sebagai terbaca secara otomatis</string>
 </resources>
