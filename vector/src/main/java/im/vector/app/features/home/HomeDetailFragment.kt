@@ -36,6 +36,7 @@ import im.vector.app.R
 import im.vector.app.RoomGroupingMethod
 import im.vector.app.core.extensions.restart
 import im.vector.app.core.extensions.toMvRxBundle
+import im.vector.app.core.platform.StateView
 import im.vector.app.core.platform.VectorBaseActivity
 import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.core.resources.ColorProvider
@@ -521,6 +522,13 @@ class HomeDetailFragment @Inject constructor(
     private fun setupViewPager(roomGroupingMethod: RoomGroupingMethod, spaces: List<RoomSummary>?, tab: HomeTab) {
         val oldAdapter = views.roomListContainerPager.adapter as? FragmentStateAdapter
         val pagingAllowed = vectorPreferences.enableSpacePager() && tab is HomeTab.RoomList
+        if (pagingAllowed && spaces == null) {
+            Timber.i("Home pager: Skip initial setup, root spaces not known yet")
+            views.roomListContainerStateView.state = StateView.State.Loading
+            return
+        } else {
+            views.roomListContainerStateView.state = StateView.State.Content
+        }
         if (DEBUG_VIEW_PAGER) Timber.i("Home pager: setup, old adapter: $oldAdapter")
         val unsafeSpaces = spaces?.map { it.roomId } ?: listOf()
         val selectedSpaceId = (roomGroupingMethod as? RoomGroupingMethod.BySpace)?.spaceSummary?.roomId
