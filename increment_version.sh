@@ -147,7 +147,8 @@ git_changelog() {
     git log $git_args --pretty=format:"- %s" "$last_tag".. --committer="$(git config user.name)" \
         | grep -v 'Automatic revert to unchanged upstream strings' \
         | grep -v 'Automatic upstream merge preparation' \
-        | sed "s|Merge tag '\\(.*\\)' into sc|Update codebase to Element \1|" \
+        | sed "s|Merge tag '\\(.*\\)' into sc.*|Update codebase to Element \1|" \
+        | sed "s|Merge tag '\\(.*\\)' into merge.*|Update codebase to Element \1|" \
         | grep -v "Merge .*branch" \
         | grep -v "Automatic color correction" \
         | grep -v "Automatic upstream merge postprocessing" \
