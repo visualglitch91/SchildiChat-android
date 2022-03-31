@@ -87,7 +87,8 @@ internal class RoomSummaryUpdater @Inject constructor(
                unreadNotifications: RoomSyncUnreadNotifications? = null,
                unreadCount: Int? = null,
                updateMembers: Boolean = false,
-               inviterId: String? = null) {
+               inviterId: String? = null,
+               updateCounts: Boolean = true) {
         val roomSummaryEntity = RoomSummaryEntity.getOrCreate(realm, roomId)
         if (roomSummary != null) {
             if (roomSummary.heroes.isNotEmpty()) {
@@ -101,11 +102,13 @@ internal class RoomSummaryUpdater @Inject constructor(
                 roomSummaryEntity.joinedMembersCount = roomSummary.joinedMembersCount
             }
         }
-        roomSummaryEntity.highlightCount = unreadNotifications?.highlightCount ?: 0
-        roomSummaryEntity.notificationCount = unreadNotifications?.notificationCount ?: 0
-        roomSummaryEntity.unreadCount = unreadCount
-        roomSummaryEntity.aggregatedNotificationCount = roomSummaryEntity.notificationCount
-        roomSummaryEntity.aggregatedUnreadCount = roomSummaryEntity.safeUnreadCount()
+        if (updateCounts) {
+            roomSummaryEntity.highlightCount = unreadNotifications?.highlightCount ?: 0
+            roomSummaryEntity.notificationCount = unreadNotifications?.notificationCount ?: 0
+            roomSummaryEntity.unreadCount = unreadCount
+            roomSummaryEntity.aggregatedNotificationCount = roomSummaryEntity.notificationCount
+            roomSummaryEntity.aggregatedUnreadCount = roomSummaryEntity.safeUnreadCount()
+        }
 
         if (membership != null) {
             roomSummaryEntity.membership = membership

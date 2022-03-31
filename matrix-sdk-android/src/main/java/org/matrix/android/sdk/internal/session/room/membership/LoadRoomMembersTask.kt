@@ -126,7 +126,7 @@ internal class DefaultLoadRoomMembersTask @Inject constructor(
                 roomMemberEventHandler.handle(realm, roomId, roomMemberEvent)
             }
             roomEntity.membersLoadStatus = RoomMembersLoadStatusType.LOADED
-            roomSummaryUpdater.update(realm, roomId, updateMembers = true)
+            roomSummaryUpdater.update(realm, roomId, updateMembers = true, updateCounts = false)
         }
 
         if (cryptoSessionInfoProvider.isRoomEncrypted(roomId)) {
