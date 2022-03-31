@@ -212,6 +212,12 @@ class HomeDetailViewModel @AssistedInject constructor(
                             roomGroupingMethod = it.orNull() ?: RoomGroupingMethod.BySpace(null)
                     )
                 }
+        appStateHandler.selectedRoomGroupingFlowIgnoreSwipe
+                .setOnEach {
+                    copy(
+                            roomGroupingMethodIgnoreSwipe = it.orNull() ?: RoomGroupingMethod.BySpace(null)
+                    )
+                }
     }
 
     private fun observeRoomSummaries() {

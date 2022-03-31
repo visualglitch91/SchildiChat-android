@@ -19,6 +19,7 @@ package im.vector.app
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import arrow.core.Option
+import arrow.core.getOrElse
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.utils.BehaviorDataSource
 import im.vector.app.features.session.coroutineScope
@@ -28,7 +29,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.matrix.android.sdk.api.extensions.tryOrNull
@@ -59,16 +62,21 @@ class AppStateHandler @Inject constructor(
 ) : DefaultLifecycleObserver {
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    private val selectedSpaceDataSource = BehaviorDataSource<Option<RoomGroupingMethod>>(Option.empty())
+    ///private val selectedSpaceDataSource = BehaviorDataSource<Option<RoomGroupingMethod>>(Option.empty())
 
-    val selectedRoomGroupingFlow = selectedSpaceDataSource.stream()
+    // SchildiChat: the boolean means pendingSwipe and defaults to false. Set to true for swiping spaces, so you want to ignore updates which have pendingSwipe = true.
+    // Call it different then the upstream one so we don't forget adding `first` to upstream's logic.
+    private val selectedSpaceDataSourceSc = BehaviorDataSource<Option<Pair<RoomGroupingMethod, Boolean>>>(Option.empty())
+
+    val selectedRoomGroupingFlow = selectedSpaceDataSourceSc.stream().map { it.map { it.first } }
+    val selectedRoomGroupingFlowIgnoreSwipe = selectedSpaceDataSourceSc.stream().filter { it.getOrElse{ null }?.second != true }.map { it.map { it.first } }
 
     fun getCurrentRoomGroupingMethod(): RoomGroupingMethod? {
         // XXX we should somehow make it live :/ just a work around
         // For example just after creating a space and switching to it the
         // name in the app Bar could show Empty Room, and it will not update unless you
         // switch space
-        return selectedSpaceDataSource.currentValue?.orNull()?.let {
+        return selectedSpaceDataSourceSc.currentValue?.orNull()?.first?.let {
             if (it is RoomGroupingMethod.BySpace) {
                 // try to refresh sum?
                 it.spaceSummary?.roomId?.let { activeSessionHolder.getSafeActiveSession()?.getRoomSummary(it) }?.let {
@@ -78,10 +86,10 @@ class AppStateHandler @Inject constructor(
         }
     }
 
-    fun setCurrentSpace(spaceId: String?, session: Session? = null, persistNow: Boolean = false) {
+    fun setCurrentSpace(spaceId: String?, session: Session? = null, persistNow: Boolean = false, pendingSwipe: Boolean = false) {
         val uSession = session ?: activeSessionHolder.getSafeActiveSession() ?: return
-        if (selectedSpaceDataSource.currentValue?.orNull() is RoomGroupingMethod.BySpace &&
-                spaceId == selectedSpaceDataSource.currentValue?.orNull()?.space()?.roomId) return
+        if (selectedSpaceDataSourceSc.currentValue?.orNull()?.first is RoomGroupingMethod.BySpace &&
+                spaceId == selectedSpaceDataSourceSc.currentValue?.orNull()?.first?.space()?.roomId) return
         val spaceSum = spaceId?.let { uSession.getRoomSummary(spaceId) }
 
         if (persistNow) {
@@ -89,7 +97,7 @@ class AppStateHandler @Inject constructor(
             uiStateRepository.storeSelectedSpace(spaceSum?.roomId, uSession.sessionId)
         }
 
-        selectedSpaceDataSource.post(Option.just(RoomGroupingMethod.BySpace(spaceSum)))
+        selectedSpaceDataSourceSc.post(Option.just(Pair(RoomGroupingMethod.BySpace(spaceSum), pendingSwipe)))
         if (spaceId != null) {
             uSession.coroutineScope.launch(Dispatchers.IO) {
                 tryOrNull {
@@ -101,10 +109,10 @@ class AppStateHandler @Inject constructor(
 
     fun setCurrentGroup(groupId: String?, session: Session? = null) {
         val uSession = session ?: activeSessionHolder.getSafeActiveSession() ?: return
-        if (selectedSpaceDataSource.currentValue?.orNull() is RoomGroupingMethod.ByLegacyGroup &&
-                groupId == selectedSpaceDataSource.currentValue?.orNull()?.group()?.groupId) return
+        if (selectedSpaceDataSourceSc.currentValue?.orNull()?.first is RoomGroupingMethod.ByLegacyGroup &&
+                groupId == selectedSpaceDataSourceSc.currentValue?.orNull()?.first?.group()?.groupId) return
         val activeGroup = groupId?.let { uSession.getGroupSummary(groupId) }
-        selectedSpaceDataSource.post(Option.just(RoomGroupingMethod.ByLegacyGroup(activeGroup)))
+        selectedSpaceDataSourceSc.post(Option.just(Pair(RoomGroupingMethod.ByLegacyGroup(activeGroup), false)))
         if (groupId != null) {
             uSession.coroutineScope.launch {
                 tryOrNull {
@@ -131,11 +139,11 @@ class AppStateHandler @Inject constructor(
     }
 
     fun safeActiveSpaceId(): String? {
-        return (selectedSpaceDataSource.currentValue?.orNull() as? RoomGroupingMethod.BySpace)?.spaceSummary?.roomId
+        return (selectedSpaceDataSourceSc.currentValue?.orNull()?.first as? RoomGroupingMethod.BySpace)?.spaceSummary?.roomId
     }
 
     fun safeActiveGroupId(): String? {
-        return (selectedSpaceDataSource.currentValue?.orNull() as? RoomGroupingMethod.ByLegacyGroup)?.groupSummary?.groupId
+        return (selectedSpaceDataSourceSc.currentValue?.orNull()?.first as? RoomGroupingMethod.ByLegacyGroup)?.groupSummary?.groupId
     }
 
     override fun onResume(owner: LifecycleOwner) {
@@ -145,7 +153,7 @@ class AppStateHandler @Inject constructor(
     override fun onPause(owner: LifecycleOwner) {
         coroutineScope.coroutineContext.cancelChildren()
         val session = activeSessionHolder.getSafeActiveSession() ?: return
-        when (val currentMethod = selectedSpaceDataSource.currentValue?.orNull() ?: RoomGroupingMethod.BySpace(null)) {
+        when (val currentMethod = selectedSpaceDataSourceSc.currentValue?.orNull()?.first ?: RoomGroupingMethod.BySpace(null)) {
             is RoomGroupingMethod.BySpace       -> {
                 uiStateRepository.storeGroupingMethod(true, session.sessionId)
                 uiStateRepository.storeSelectedSpace(currentMethod.spaceSummary?.roomId, session.sessionId)

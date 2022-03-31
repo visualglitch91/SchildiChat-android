@@ -105,7 +105,6 @@ class HomeDetailFragment @Inject constructor(
     private var pagerSpaces: List<String?>? = null
     private var pagerTab: HomeTab? = null
     private var pagerPagingEnabled: Boolean = false
-    private val pendingSpaceIds = mutableListOf<String?>()
 
     override fun getMenuRes() = R.menu.room_list
 
@@ -163,8 +162,7 @@ class HomeDetailFragment @Inject constructor(
                     }
                 }
                 val selectedId = getSpaceIdForPageIndex(position)
-                pendingSpaceIds.add(selectedId)
-                appStateHandler.setCurrentSpace(selectedId)
+                appStateHandler.setCurrentSpace(selectedId, pendingSwipe = true)
             }
         })
 
@@ -225,7 +223,7 @@ class HomeDetailFragment @Inject constructor(
             )
         }
 
-        viewModel.onEach(HomeDetailViewState::roomGroupingMethod, HomeDetailViewState::rootSpacesOrdered, HomeDetailViewState::currentTab) { roomGroupingMethod, rootSpacesOrdered, currentTab ->
+        viewModel.onEach(HomeDetailViewState::roomGroupingMethodIgnoreSwipe, HomeDetailViewState::rootSpacesOrdered, HomeDetailViewState::currentTab) { roomGroupingMethod, rootSpacesOrdered, currentTab ->
             setupViewPager(roomGroupingMethod, rootSpacesOrdered, currentTab)
         }
 
@@ -529,13 +527,6 @@ class HomeDetailFragment @Inject constructor(
             if (!changed) {
                 if (pagingEnabled) {
                     // No need to re-setup pager, just check for selected page
-                    // Discard state changes that we created ourselves by swiping on the pager
-                    while (pendingSpaceIds.size > 0) {
-                        val pendingSpaceId = pendingSpaceIds.removeAt(0)
-                        if (pendingSpaceId == selectedSpaceId) {
-                            return
-                        }
-                    }
                     if (selectedIndex != null) {
                         if (selectedIndex != views.roomListContainerPager.currentItem) {
                             // post() mitigates a case where we could end up in an endless loop circling around the same few spaces
@@ -566,7 +557,6 @@ class HomeDetailFragment @Inject constructor(
         pagerTab = tab
         pagerPagingEnabled = pagingEnabled
         initialPageSelected = false
-        pendingSpaceIds.clear()
 
         // OFFSCREEN_PAGE_LIMIT_DEFAULT: default recyclerview caching mechanism instead of explicit fixed prefetching
         //views.roomListContainerPager.offscreenPageLimit = 2
