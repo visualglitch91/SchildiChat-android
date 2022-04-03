@@ -140,8 +140,8 @@
     <string name="settings_hide_call_buttons">Skrýt tlačítka volání</string>
     <string name="settings_sc_debugging">Schildi-ladění</string>
     <string name="settings_sc_debugging_summary">Povolit další logy nebo funkce ladění</string>
-    <string name="settings_sc_dbg_read_marker">Ladit potvrzení přečetení</string>
-    <string name="settings_sc_dbg_timeline_chunks">Ladit konzistenci časové osy</string>
+    <string name="settings_sc_dbg_read_marker">Ladění potvrzení přečtení</string>
+    <string name="settings_sc_dbg_timeline_chunks">Ladění konzistence časové osy</string>
     <string name="settings_sc_dbg_show_read_tracking">Zobrazit sledování čtení</string>
     <string name="settings_labs_room_list">Seznam místností</string>
     <string name="settings_labs_timeline">Časová osa</string>
@@ -151,4 +151,5 @@
     <string name="settings_read_receipt_follows_read_marker">Označit chaty jako přečtené, pouze pokud jsou zcela přečtené</string>
     <string name="settings_read_receipt_follows_read_marker_summary">Neaktualizovat potvrzení o přečtení při otevření místnosti, ale pouze postupně během čtení</string>
     <string name="settings_show_open_anonymous_summary">Zobrazit možnost otevřít místnost bez automatického označení za přečtenou</string>
+    <string name="settings_sc_dbg_view_pager">Ladění ViewPageru</string>
 </resources>
