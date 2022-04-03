@@ -38,6 +38,7 @@ import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import im.vector.app.AppStateHandler
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import de.spiritcroc.matrixsdk.util.DbgUtil
 import im.vector.app.R
 import im.vector.app.core.epoxy.LayoutManagerStateRestorer
 import im.vector.app.core.extensions.cleanup
@@ -166,12 +167,26 @@ class RoomListFragment @Inject constructor(
             val spaceId = it.invoke()?.space()?.roomId
             onSwitchSpace(spaceId)
         }
+
+        updateDebugView()
     }
 
     override fun onPause() {
         super.onPause()
 
         persistExpandStatus()
+    }
+
+    private fun updateDebugView() {
+        if (DbgUtil.isDbgEnabled(DbgUtil.DBG_VIEW_PAGER)) {
+            views.scRoomListDebugView.isVisible = true
+            withState(roomListViewModel) {
+                val currentSpace = it.currentRoomGrouping.invoke()?.space()
+                views.scRoomListDebugView.text = "explicit: ${roomListParams.explicitSpaceId}\nexpanded: $expandStatusSpaceId\ngrouping: ${currentSpace?.roomId} | ${currentSpace?.displayName}"
+            }
+        } else {
+            views.scRoomListDebugView.isVisible = false
+        }
     }
 
     private fun refreshCollapseStates() {
@@ -631,6 +646,7 @@ class RoomListFragment @Inject constructor(
             expandStatusSpaceId = spaceId
             loadExpandStatus()
         }
+        updateDebugView()
     }
 
     private fun persistExpandStatus() {

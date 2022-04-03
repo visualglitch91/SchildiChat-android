@@ -174,10 +174,11 @@
     <!-- SC debugging -->
     <string name="settings_sc_debugging">Schildi-debugging</string>
     <string name="settings_sc_debugging_summary">Enable additional logs or debugging features</string>
-    <string name="settings_sc_dbg_read_marker">Debug read markers</string>
-    <string name="settings_sc_dbg_timeline_chunks">Debug timeline consistency</string>
+    <string name="settings_sc_dbg_read_marker">Read marker debugging</string>
+    <string name="settings_sc_dbg_timeline_chunks">Timeline consistency debugging</string>
     <string name="settings_sc_dbg_show_display_index">Show displayIndex in timeline</string>
     <string name="settings_sc_dbg_show_read_tracking">Show read tracking</string>
+    <string name="settings_sc_dbg_view_pager">ViewPager debugging</string>
 
     <!-- SC labs -->
     <string name="settings_upstream_labs">Element features</string>
