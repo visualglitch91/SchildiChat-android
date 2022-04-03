@@ -149,4 +149,5 @@
     <string name="settings_upstream_labs">Fitur Element</string>
     <string name="settings_read_receipt_follows_read_marker">Hanya tandai obrolan sebagai terbaca jika dibaca seluruhnya</string>
     <string name="settings_show_open_anonymous_summary">Tampilkan opsi untuk membuka ruangan tanpa menandainya sebagai terbaca secara otomatis</string>
+    <string name="settings_sc_dbg_view_pager">Awakutu ViewPager</string>
 </resources>
