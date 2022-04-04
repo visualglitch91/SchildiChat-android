@@ -22,6 +22,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -30,6 +31,7 @@ import com.airbnb.mvrx.activityViewModel
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.google.android.material.badge.BadgeDrawable
+import de.spiritcroc.matrixsdk.util.DbgUtil
 import de.spiritcroc.viewpager.reduceDragSensitivity
 import im.vector.app.AppStateHandler
 import im.vector.app.R
@@ -78,9 +80,7 @@ class HomeDetailFragment @Inject constructor(
         KeysBackupBanner.Delegate,
         CurrentCallsView.Callback {
 
-    companion object {
-        const val DEBUG_VIEW_PAGER = true
-    }
+    private val DEBUG_VIEW_PAGER = DbgUtil.isDbgEnabled(DbgUtil.DBG_VIEW_PAGER)
 
     private val viewModel: HomeDetailViewModel by fragmentViewModel()
     private val unknownDeviceDetectorSharedViewModel: UnknownDeviceDetectorSharedViewModel by activityViewModel()
@@ -593,8 +593,11 @@ class HomeDetailFragment @Inject constructor(
                     is HomeTab.DialPad -> createDialPadFragment()
                     is HomeTab.RoomList -> {
                         val params = if (pagingEnabled) {
-                            RoomListParams(tab.displayMode, getSpaceIdForPageIndex(position)).toMvRxBundle()
+                            val spaceId = getSpaceIdForPageIndex(position)
+                            if (DEBUG_VIEW_PAGER) Timber.i("Home pager: position $position -> space $spaceId")
+                            RoomListParams(tab.displayMode, spaceId).toMvRxBundle()
                         } else {
+                            if (DEBUG_VIEW_PAGER) Timber.i("Home pager: paging disabled; position $position -> follow")
                             RoomListParams(tab.displayMode, SPACE_ID_FOLLOW_APP).toMvRxBundle()
                         }
                         childFragmentManager.fragmentFactory.instantiate(activity!!.classLoader, RoomListFragment::class.java.name).apply {
@@ -631,8 +634,18 @@ class HomeDetailFragment @Inject constructor(
     }
 
     private fun getSpaceIdForPageIndex(position: Int, spaces: List<String?>? = pagerSpaces): String? {
-        val safeSpaces = spaces ?: return null
-        return if (position == 0) null else safeSpaces[position-1]
+        if (spaces == null) {
+            Timber.e(Exception("getSpaceIdForPageIndex: null spaces!"))
+            if (DEBUG_VIEW_PAGER) {
+                Toast.makeText(requireContext(), "AAAAAAAA1", Toast.LENGTH_SHORT).show()
+            }
+            return null
+        }
+        if (DEBUG_VIEW_PAGER && position > 0 && spaces[position-1] == null) {
+            Timber.e(Exception("getSpaceIdForPageIndex: null space!"))
+            Toast.makeText(requireContext(), "AAAAAAAA2", Toast.LENGTH_SHORT).show()
+        }
+        return if (position == 0) null else spaces[position-1]
     }
 
     private fun createDialPadFragment(): Fragment {

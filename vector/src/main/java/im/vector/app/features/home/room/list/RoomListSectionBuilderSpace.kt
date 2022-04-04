@@ -23,6 +23,8 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.liveData
 import androidx.paging.PagedList
 import com.airbnb.mvrx.Async
+import de.spiritcroc.matrixsdk.util.DbgUtil
+import de.spiritcroc.matrixsdk.util.Dimber
 import im.vector.app.AppStateHandler
 import im.vector.app.R
 import im.vector.app.core.resources.StringProvider
@@ -76,7 +78,10 @@ class RoomListSectionBuilderSpace(
             .setPrefetchDistance(10)
             .build()
 
+    private val dimber = Dimber("ViewPager", DbgUtil.DBG_VIEW_PAGER)
+
     override fun buildSections(mode: RoomListDisplayMode, explicitSpaceId: String?): List<RoomsSection> {
+        dimber.i { "Build sections for $mode, $explicitSpaceId" }
         val sections = mutableListOf<RoomsSection>()
         val activeSpaceAwareQueries = mutableListOf<RoomListViewModel.ActiveSpaceQueryUpdater>()
         when (mode) {
