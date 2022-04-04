@@ -53,7 +53,7 @@ logo_alternative() {
     logo_replace_color "$mydir/graphics/ic_launcher_sc.svg" "$@"
     logo_replace_color "$mydir/graphics/feature_image.svg" "$@"
     logo_replace_color "$mydir/graphics/store_icon.svg" "$@"
-    logo_replace_color "$mydir/vector/src/main/res/mipmap-anydpi-v26/ic_launcher_background_sc.xml" "$@"
+    logo_replace_color "$mydir/vector/src/release/res/drawable/ic_launcher_background_sc.xml" "$@"
     "$mydir/graphics/icon_gen.sh"
 }
 
