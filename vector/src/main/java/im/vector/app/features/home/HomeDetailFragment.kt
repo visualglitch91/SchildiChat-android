@@ -568,6 +568,8 @@ class HomeDetailFragment @Inject constructor(
                 transaction.commit()
             }
         }
+        // In case the last space change was caused by swiping, we don't want to lose it
+        appStateHandler.persistSelectedSpace()
         pagerSpaces = safeSpaces
         pagerTab = tab
         pagerPagingEnabled = pagingEnabled
