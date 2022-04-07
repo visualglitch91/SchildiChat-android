@@ -53,6 +53,7 @@ import org.matrix.android.sdk.api.query.RoomCategoryFilter
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.events.model.toModel
 import org.matrix.android.sdk.api.session.initsync.SyncStatusService
+import org.matrix.android.sdk.api.session.room.Room
 import org.matrix.android.sdk.api.session.room.RoomSortOrder
 import org.matrix.android.sdk.api.session.room.accountdata.RoomAccountDataTypes
 import org.matrix.android.sdk.api.session.room.model.Membership
@@ -332,5 +333,9 @@ class HomeDetailViewModel @AssistedInject constructor(
                             //spaceOrderInfo = orders
                     )
                 }
+    }
+
+    fun getRoom(roomId: String): Room? {
+        return session.getRoom(roomId)
     }
 }

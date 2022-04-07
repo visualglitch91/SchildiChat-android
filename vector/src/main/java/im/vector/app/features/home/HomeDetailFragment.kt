@@ -164,10 +164,19 @@ class HomeDetailFragment @Inject constructor(
                 }
                 val selectedId = getSpaceIdForPageIndex(position)
                 appStateHandler.setCurrentSpace(selectedId, pendingSwipe = true)
+                if (pagerPagingEnabled) {
+                    onSpaceChange(
+                            selectedId?.let { viewModel.getRoom(it)?.roomSummary() }
+                    )
+                }
             }
         })
 
         viewModel.onEach(HomeDetailViewState::roomGroupingMethod) { roomGroupingMethod ->
+            // While paging is enabled, make title follow the view pager directly
+            if (pagerPagingEnabled) {
+                return@onEach
+            }
             when (roomGroupingMethod) {
                 is RoomGroupingMethod.ByLegacyGroup -> {
                     onGroupChange(roomGroupingMethod.groupSummary)
@@ -264,6 +273,10 @@ class HomeDetailFragment @Inject constructor(
 
         // Current space/group is not live so at least refresh toolbar on resume
         appStateHandler.getCurrentRoomGroupingMethod()?.let { roomGroupingMethod ->
+            // While paging is enabled, make title follow the view pager directly
+            if (pagerPagingEnabled) {
+                return@let
+            }
             when (roomGroupingMethod) {
                 is RoomGroupingMethod.ByLegacyGroup -> {
                     onGroupChange(roomGroupingMethod.groupSummary)
@@ -619,6 +632,16 @@ class HomeDetailFragment @Inject constructor(
                     initialPageSelected = true
                 } catch (e: Exception) {
                     Timber.e("Home pager: Could not set initial page after creating adapter: $e")
+                }
+            }
+        } else {
+            // Set title, in case we missed it while paging
+            when (roomGroupingMethod) {
+                is RoomGroupingMethod.ByLegacyGroup -> {
+                    onGroupChange(roomGroupingMethod.groupSummary)
+                }
+                is RoomGroupingMethod.BySpace       -> {
+                    onSpaceChange(roomGroupingMethod.spaceSummary)
                 }
             }
         }
