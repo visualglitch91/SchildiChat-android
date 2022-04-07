@@ -25,6 +25,8 @@ import com.airbnb.mvrx.Success
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import de.spiritcroc.matrixsdk.util.DbgUtil
+import de.spiritcroc.matrixsdk.util.Dimber
 import im.vector.app.AppStateHandler
 import im.vector.app.RoomGroupingMethod
 import im.vector.app.core.di.MavericksAssistedViewModelFactory
@@ -69,6 +71,16 @@ class RoomListViewModel @AssistedInject constructor(
     private var updatableQuery: UpdatableLivePageResult? = null
 
     private val suggestedRoomJoiningState: MutableLiveData<Map<String, Async<Unit>>> = MutableLiveData(emptyMap())
+
+    val dbgId = System.identityHashCode(this)
+    private val viewPagerDimber = Dimber("Home pager rlvm/$dbgId", DbgUtil.DBG_VIEW_PAGER)
+
+    // Look up the explicitSpaceId used for building sections for debugging purposes
+    val dbgExplicitSpaceId = initialState.explicitSpaceId
+
+    init {
+        viewPagerDimber.i { "init rlvm -> ${initialState.explicitSpaceId} | $dbgExplicitSpaceId" }
+    }
 
     interface ActiveSpaceQueryUpdater {
         fun updateForSpaceId(roomId: String?)
@@ -148,6 +160,7 @@ class RoomListViewModel @AssistedInject constructor(
     }
 
     val sections: List<RoomsSection> by lazy {
+        viewPagerDimber.i { "Build sections for ${initialState.displayMode}, ${initialState.explicitSpaceId}" }
         roomListSectionBuilder.buildSections(initialState.displayMode, initialState.explicitSpaceId)
     }
 

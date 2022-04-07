@@ -39,6 +39,7 @@ import com.airbnb.mvrx.withState
 import im.vector.app.AppStateHandler
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.spiritcroc.matrixsdk.util.DbgUtil
+import de.spiritcroc.matrixsdk.util.Dimber
 import im.vector.app.R
 import im.vector.app.core.epoxy.LayoutManagerStateRestorer
 import im.vector.app.core.extensions.cleanup
@@ -99,6 +100,13 @@ class RoomListFragment @Inject constructor(
 
     private var expandStatusSpaceId: String? = null
 
+    val dbgId = System.identityHashCode(this)
+    private val viewPagerDimber = Dimber("Home pager rlf/$dbgId", DbgUtil.DBG_VIEW_PAGER)
+
+    init {
+        viewPagerDimber.i { "init rlf" }
+    }
+
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentRoomListBinding {
         return FragmentRoomListBinding.inflate(inflater, container, false)
     }
@@ -120,6 +128,7 @@ class RoomListFragment @Inject constructor(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewPagerDimber.i { "onCreate rlf -> ${roomListParams.explicitSpaceId}" }
         analyticsScreenName = when (roomListParams.displayMode) {
             RoomListDisplayMode.PEOPLE -> MobileScreen.ScreenName.People
             RoomListDisplayMode.ROOMS  -> MobileScreen.ScreenName.Rooms
@@ -181,8 +190,31 @@ class RoomListFragment @Inject constructor(
         if (DbgUtil.isDbgEnabled(DbgUtil.DBG_VIEW_PAGER)) {
             views.scRoomListDebugView.isVisible = true
             withState(roomListViewModel) {
+                viewPagerDimber.i {
+                    "dbgUpdate rlvm/${roomListViewModel.dbgId} explicit ${roomListParams.explicitSpaceId} expand $expandStatusSpaceId vm-space ${roomListViewModel.dbgExplicitSpaceId}"
+                }
                 val currentSpace = it.currentRoomGrouping.invoke()?.space()
-                views.scRoomListDebugView.text = "explicit: ${roomListParams.explicitSpaceId}\nexpanded: $expandStatusSpaceId\ngrouping: ${currentSpace?.roomId} | ${currentSpace?.displayName}"
+                var text = "rlf/$dbgId rlvm/${roomListViewModel.dbgId}\nexplicit: ${roomListParams.explicitSpaceId}"
+                if (currentSpace?.roomId != roomListParams.explicitSpaceId) {
+                    text += "\ngrouping: ${currentSpace?.roomId}"
+                }
+                text += " | ${currentSpace?.displayName}"
+                /*
+                if (expandStatusSpaceId != roomListParams.explicitSpaceId) {
+                    text += "\nexpanded: $expandStatusSpaceId"
+                }
+                 */
+                if (roomListViewModel.dbgExplicitSpaceId != roomListParams.explicitSpaceId) {
+                    text += "\nmodel: ${roomListViewModel.dbgExplicitSpaceId}"
+                }
+                // Append text to previous text to maintain history
+                /*
+                val previousText = views.scRoomListDebugView.text.toString()
+                if (previousText.isNotEmpty() && !previousText.endsWith(text)) {
+                    text = "$previousText\n...\n$text"
+                }
+                 */
+                views.scRoomListDebugView.text = text
             }
         } else {
             views.scRoomListDebugView.isVisible = false
