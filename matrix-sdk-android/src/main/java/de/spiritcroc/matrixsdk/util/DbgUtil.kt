@@ -14,7 +14,7 @@ object DbgUtil {
 
     private val prefs = HashMap<String, Boolean>()
 
-    private val ALL_PREFS = arrayOf(
+    val ALL_PREFS = arrayOf(
             DBG_READ_MARKER,
             DBG_SHOW_READ_TRACKING,
             DBG_TIMELINE_CHUNKS,

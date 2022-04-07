@@ -25,6 +25,7 @@ import android.view.View
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import com.squareup.moshi.Types
+import de.spiritcroc.matrixsdk.util.DbgUtil
 import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.di.ActiveSessionHolder
@@ -300,7 +301,10 @@ class BugReporter @Inject constructor(
                             .addFormDataPart("unifiedpush_gateway", UPHelper.getPushGateway(context).toString())
                             .addFormDataPart("unifiedpush_distributor_exists", UPHelper.distributorExists(context).toString())
                             .addFormDataPart("unifiedpush_is_embedded_distributor", UPHelper.isEmbeddedDistributor(context).toString())
+
                     // More Schildi-specific fields
+                    val enabledDebugSettings = DbgUtil.ALL_PREFS.filter { DbgUtil.isDbgEnabled(it) }
+                    builder.addFormDataPart("enabledDebugSettings", enabledDebugSettings.joinToString())
                             .addFormDataPart("reportTime", reportTime)
                             .addFormDataPart("packageName", BuildConfig.APPLICATION_ID)
 
