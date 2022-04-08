@@ -22,6 +22,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -546,7 +547,7 @@ class HomeDetailFragment @Inject constructor(
         val unsafeSpaces = spaces?.map { it.roomId } ?: listOf()
         val selectedSpaceId = (roomGroupingMethod as? RoomGroupingMethod.BySpace)?.spaceSummary?.roomId
         val selectedIndex = getPageIndexForSpaceId(selectedSpaceId, unsafeSpaces)
-        val pagingEnabled = pagingAllowed && roomGroupingMethod is RoomGroupingMethod.BySpace && unsafeSpaces.size > 0 && selectedIndex != null
+        val pagingEnabled = pagingAllowed && roomGroupingMethod is RoomGroupingMethod.BySpace && unsafeSpaces.isNotEmpty() && selectedIndex != null
         val safeSpaces = if (pagingEnabled) unsafeSpaces else listOf()
         // Check if we need to recreate the adapter for a new tab
         if (oldAdapter != null) {
@@ -625,14 +626,24 @@ class HomeDetailFragment @Inject constructor(
 
         views.roomListContainerPager.adapter = adapter
         if (pagingEnabled) {
-            views.roomListContainerPager.post {
-                try {
-                    if (DEBUG_VIEW_PAGER) Timber.i("Home pager: set initial page $selectedIndex")
-                    views.roomListContainerPager.setCurrentItem(selectedIndex ?: 0, false)
-                    initialPageSelected = true
-                } catch (e: Exception) {
-                    Timber.e("Home pager: Could not set initial page after creating adapter: $e")
-                }
+            // May be better than viewPager.post()? https://stackoverflow.com/a/57516428
+            val pagerRecyclerView = views.roomListContainerPager.getChildAt(0)
+            pagerRecyclerView.apply {
+                viewTreeObserver.addOnGlobalLayoutListener(object: ViewTreeObserver.OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        if (initialPageSelected) {
+                            return
+                        }
+                        try {
+                            if (DEBUG_VIEW_PAGER) Timber.i("Home pager: set initial page $selectedIndex")
+                            views.roomListContainerPager.setCurrentItem(selectedIndex ?: 0, false)
+                            initialPageSelected = true
+                        } catch (e: Exception) {
+                            Timber.e("Home pager: Could not set initial page after creating adapter: $e")
+                        }
+                    }
+                })
             }
         } else {
             // Set title, in case we missed it while paging
