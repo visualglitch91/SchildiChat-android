@@ -91,7 +91,8 @@ abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
             holder.progressLayout.isVisible = false
         }
 
-        holder.voicePlaybackWaveform.doOnLayout {
+        //holder.voicePlaybackWaveform.doOnLayout {
+        holder.voicePlaybackWaveform.post {
             onWaveformViewReady(holder)
         }
 
