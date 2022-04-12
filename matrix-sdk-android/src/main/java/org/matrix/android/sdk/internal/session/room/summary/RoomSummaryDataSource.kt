@@ -340,6 +340,7 @@ internal class RoomSummaryDataSource @Inject constructor(
                     .greaterThan(RoomSummaryEntityFields.NOTIFICATION_COUNT, 0).or()
                     .equalTo(RoomSummaryEntityFields.MARKED_UNREAD, true).endGroup()
             RoomCategoryFilter.ALL                     -> Unit // nop
+            null                                       -> Unit
         }
 
         // Timber.w("VAL: activeSpaceId : ${queryParams.activeSpaceId}")

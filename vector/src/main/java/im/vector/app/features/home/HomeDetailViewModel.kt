@@ -62,6 +62,7 @@ import org.matrix.android.sdk.api.session.space.model.SpaceOrderContent
 import org.matrix.android.sdk.api.session.space.model.TopLevelSpaceComparator
 import org.matrix.android.sdk.api.util.toMatrixItem
 import org.matrix.android.sdk.flow.flow
+import org.matrix.android.sdk.internal.crypto.NewSessionListener
 import timber.log.Timber
 
 /**
@@ -96,9 +97,16 @@ class HomeDetailViewModel @AssistedInject constructor(
         }
     }
 
+    private val refreshRoomSummariesOnCryptoSessionChange = object : NewSessionListener {
+        override fun onNewSession(roomId: String?, senderKey: String, sessionId: String) {
+            session.refreshJoinedRoomSummaryPreviews(roomId)
+        }
+    }
+
     init {
         observeSyncState()
         observeRoomGroupingMethod()
+        session.cryptoService().addNewSessionListener(refreshRoomSummariesOnCryptoSessionChange)
         observeRoomSummaries()
         updatePstnSupportFlag()
         observeDataStore()
@@ -159,6 +167,7 @@ class HomeDetailViewModel @AssistedInject constructor(
     override fun onCleared() {
         super.onCleared()
         callManager.removeProtocolsCheckerListener(this)
+        session.cryptoService().removeSessionListener(refreshRoomSummariesOnCryptoSessionChange)
     }
 
     override fun onPSTNSupportUpdated() {
@@ -288,6 +297,7 @@ class HomeDetailViewModel @AssistedInject constructor(
                                 )
                             }
                         }
+                        null                                -> Unit
                     }
                 }
                 .launchIn(viewModelScope)

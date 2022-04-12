@@ -38,7 +38,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.AppStateHandler
 import im.vector.app.R
 import im.vector.app.core.di.ActiveSessionHolder
-import im.vector.app.core.extensions.exhaustive
 import im.vector.app.core.extensions.hideKeyboard
 import im.vector.app.core.extensions.registerStartForActivityResult
 import im.vector.app.core.extensions.replaceFragment
@@ -112,6 +111,7 @@ class HomeActivity :
 
     @Suppress("UNUSED")
     private val analyticsAccountDataViewModel: AnalyticsAccountDataViewModel by viewModel()
+
     @Suppress("UNUSED")
     private val userColorAccountDataViewModel: UserColorAccountDataViewModel by viewModel()
 
@@ -237,7 +237,7 @@ class HomeActivity :
                         HomeActivitySharedAction.SendSpaceFeedBack    -> {
                             bugReporter.openBugReportScreen(this, ReportType.SPACE_BETA_FEEDBACK)
                         }
-                    }.exhaustive
+                    }
                 }
                 .launchIn(lifecycleScope)
 
@@ -261,7 +261,7 @@ class HomeActivity :
                 HomeActivityViewEvents.ShowAnalyticsOptIn               -> handleShowAnalyticsOptIn()
                 HomeActivityViewEvents.NotifyUserForThreadsMigration    -> handleNotifyUserForThreadsMigration()
                 is HomeActivityViewEvents.MigrateThreads                -> migrateThreadsIfNeeded(it.checkSession)
-            }.exhaustive
+            }
         }
         homeActivityViewModel.onEach { renderState(it) }
 
@@ -389,7 +389,7 @@ class HomeActivity :
                 // Idle or Incremental sync status
                 views.waitingView.root.isVisible = false
             }
-        }.exhaustive
+        }
     }
 
     private fun handleAskPasswordToInitCrossSigning(events: HomeActivityViewEvents.AskPasswordToInitCrossSigning) {

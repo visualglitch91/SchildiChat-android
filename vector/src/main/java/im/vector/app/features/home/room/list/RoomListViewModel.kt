@@ -31,7 +31,6 @@ import im.vector.app.AppStateHandler
 import im.vector.app.RoomGroupingMethod
 import im.vector.app.core.di.MavericksAssistedViewModelFactory
 import im.vector.app.core.di.hiltMavericksViewModelFactory
-import im.vector.app.core.extensions.exhaustive
 import im.vector.app.core.platform.VectorViewModel
 import im.vector.app.core.resources.StringProvider
 import im.vector.app.features.analytics.AnalyticsTracker
@@ -180,7 +179,7 @@ class RoomListViewModel @AssistedInject constructor(
             is RoomListAction.ToggleSection               -> handleToggleSection(action.section)
             is RoomListAction.JoinSuggestedRoom           -> handleJoinSuggestedRoom(action)
             is RoomListAction.ShowRoomDetails             -> handleShowRoomDetails(action)
-        }.exhaustive
+        }
     }
 
     fun isPublicRoom(roomId: String): Boolean {

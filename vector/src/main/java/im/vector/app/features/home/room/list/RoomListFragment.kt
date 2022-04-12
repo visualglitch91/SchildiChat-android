@@ -43,7 +43,6 @@ import de.spiritcroc.matrixsdk.util.Dimber
 import im.vector.app.R
 import im.vector.app.core.epoxy.LayoutManagerStateRestorer
 import im.vector.app.core.extensions.cleanup
-import im.vector.app.core.extensions.exhaustive
 import im.vector.app.core.platform.OnBackPressed
 import im.vector.app.core.platform.StateView
 import im.vector.app.core.platform.VectorBaseFragment
@@ -150,7 +149,7 @@ class RoomListFragment @Inject constructor(
                 is RoomListViewEvents.SelectRoom                -> handleSelectRoom(it, it.isInviteAlreadyAccepted)
                 is RoomListViewEvents.Done                      -> Unit
                 is RoomListViewEvents.NavigateToMxToBottomSheet -> handleShowMxToLink(it.link)
-            }.exhaustive
+            }
         }
 
         views.createChatFabMenu.listener = this
@@ -548,7 +547,7 @@ class RoomListFragment @Inject constructor(
             is RoomListQuickActionsSharedAction.Leave                     -> {
                 promptLeaveRoom(quickAction.roomId)
             }
-        }.exhaustive
+        }
     }
 
     private fun promptLeaveRoom(roomId: String) {

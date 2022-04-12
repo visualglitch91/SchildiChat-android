@@ -35,7 +35,6 @@ import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.di.MavericksAssistedViewModelFactory
 import im.vector.app.core.di.hiltMavericksViewModelFactory
-import im.vector.app.core.extensions.exhaustive
 import im.vector.app.core.mvrx.runCatchingToAsync
 import im.vector.app.core.platform.VectorViewModel
 import im.vector.app.core.resources.StringProvider
@@ -55,6 +54,7 @@ import im.vector.app.features.home.room.detail.sticker.StickerPickerActionHandle
 import im.vector.app.features.home.room.detail.timeline.factory.TimelineFactory
 import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlRetriever
 import im.vector.app.features.home.room.typing.TypingHelper
+import im.vector.app.features.location.LocationSharingServiceConnection
 import im.vector.app.features.notifications.NotificationDrawerManager
 import im.vector.app.features.powerlevel.PowerLevelsFlowFactory
 import im.vector.app.features.session.coroutineScope
@@ -128,10 +128,11 @@ class TimelineViewModel @AssistedInject constructor(
         private val activeConferenceHolder: JitsiActiveConferenceHolder,
         private val decryptionFailureTracker: DecryptionFailureTracker,
         private val notificationDrawerManager: NotificationDrawerManager,
+        private val locationSharingServiceConnection: LocationSharingServiceConnection,
         timelineFactory: TimelineFactory,
         appStateHandler: AppStateHandler
 ) : VectorViewModel<RoomDetailViewState, RoomDetailAction, RoomDetailViewEvents>(initialState),
-        Timeline.Listener, ChatEffectManager.Delegate, CallProtocolsChecker.Listener {
+        Timeline.Listener, ChatEffectManager.Delegate, CallProtocolsChecker.Listener, LocationSharingServiceConnection.Callback {
 
     private val room = session.getRoom(initialState.roomId)!!
     private val eventId = initialState.eventId ?: if (loadRoomAtFirstUnread()) room.roomSummary()?.readMarkerId else null
@@ -246,6 +247,9 @@ class TimelineViewModel @AssistedInject constructor(
 
         // Threads
         initThreads()
+
+        // Observe location service lifecycle to be able to warn the user
+        locationSharingServiceConnection.bind(this)
     }
 
     /**
@@ -471,7 +475,7 @@ class TimelineViewModel @AssistedInject constructor(
                 _viewEvents.post(RoomDetailViewEvents.OpenRoom(action.replacementRoomId, closeCurrentRoom = true))
             }
             is RoomDetailAction.EndPoll                          -> handleEndPoll(action.eventId)
-        }.exhaustive
+        }
     }
 
     private fun handleJitsiCallJoinStatus(action: RoomDetailAction.UpdateJoinJitsiCallStatus) = withState { state ->
@@ -744,18 +748,20 @@ class TimelineViewModel @AssistedInject constructor(
 
         if (initialState.isThreadTimeline()) {
             when (itemId) {
-                R.id.menu_thread_timeline_more -> true
-                else                           -> false
+                R.id.menu_thread_timeline_view_in_room,
+                R.id.menu_thread_timeline_copy_link,
+                R.id.menu_thread_timeline_share -> true
+                else                            -> false
             }
         } else {
             when (itemId) {
                 R.id.timeline_setting          -> false // replaced by show_room_info (downstream)
                 R.id.invite                    -> false // state.canInvite // SC: disabled, we can do that over show_participants as well
                 R.id.open_matrix_apps          -> session.integrationManagerService().isIntegrationEnabled()
-                R.id.voice_call                -> !vectorPreferences.hideCallButtons() && state.isWebRTCCallOptionAvailable()
-                R.id.video_call                -> !vectorPreferences.hideCallButtons() && (state.isWebRTCCallOptionAvailable() || state.jitsiState.confId == null || state.jitsiState.hasJoined)
+                R.id.voice_call                -> !vectorPreferences.hideCallButtons() && state.isCallOptionAvailable()
+                R.id.video_call                -> !vectorPreferences.hideCallButtons() && (state.isCallOptionAvailable() || state.jitsiState.confId == null || state.jitsiState.hasJoined)
                 // Show Join conference button only if there is an active conf id not joined. Otherwise fallback to default video disabled. ^
-                R.id.join_conference           -> !state.isWebRTCCallOptionAvailable() && state.jitsiState.confId != null && !state.jitsiState.hasJoined
+                R.id.join_conference           -> !state.isCallOptionAvailable() && state.jitsiState.confId != null && !state.jitsiState.hasJoined
                 R.id.search                    -> state.isSearchAvailable()
                 R.id.menu_timeline_thread_list -> vectorPreferences.areThreadMessagesEnabled()
                 R.id.show_room_info            -> true // SC
@@ -1280,6 +1286,16 @@ class TimelineViewModel @AssistedInject constructor(
         _viewEvents.post(RoomDetailViewEvents.OnNewTimelineEvents(eventIds))
     }
 
+    override fun onLocationServiceRunning() {
+        _viewEvents.post(RoomDetailViewEvents.ChangeLocationIndicator(isVisible = true))
+    }
+
+    override fun onLocationServiceStopped() {
+        _viewEvents.post(RoomDetailViewEvents.ChangeLocationIndicator(isVisible = false))
+        // Bind again in case user decides to share live location without leaving the room
+        locationSharingServiceConnection.bind(this)
+    }
+
     override fun onCleared() {
         timeline.dispose()
         timeline.removeAllListeners()
@@ -1293,6 +1309,7 @@ class TimelineViewModel @AssistedInject constructor(
         // we should also mark it as read here, for the scenario that the user
         // is already in the thread timeline
         markThreadTimelineAsReadLocal()
+        locationSharingServiceConnection.unbind()
         super.onCleared()
     }
 

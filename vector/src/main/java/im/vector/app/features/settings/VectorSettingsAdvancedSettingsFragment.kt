@@ -16,6 +16,7 @@
 
 package im.vector.app.features.settings
 
+import android.os.Bundle
 import androidx.preference.Preference
 import androidx.preference.SeekBarPreference
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -24,6 +25,7 @@ import im.vector.app.core.platform.VectorBaseActivity
 import im.vector.app.core.preference.VectorPreference
 import im.vector.app.core.preference.VectorPreferenceCategory
 import im.vector.app.core.preference.VectorSwitchPreference
+import im.vector.app.features.analytics.plan.MobileScreen
 import im.vector.app.features.rageshake.RageShake
 import javax.inject.Inject
 
@@ -35,6 +37,11 @@ class VectorSettingsAdvancedSettingsFragment @Inject constructor(
     override val preferenceXmlRes = R.xml.vector_settings_advanced_settings
 
     private var rageshake: RageShake? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        analyticsScreenName = MobileScreen.ScreenName.SettingsAdvanced
+    }
 
     override fun onResume() {
         super.onResume()
