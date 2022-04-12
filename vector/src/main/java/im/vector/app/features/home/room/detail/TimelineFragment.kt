@@ -626,7 +626,7 @@ class TimelineFragment @Inject constructor(
     }
 
     private fun handleOpenRoom(openRoom: RoomDetailViewEvents.OpenRoom) {
-        navigator.openRoom(requireContext(), openRoom.roomId, null)
+        navigator.openRoom(requireContext(), openRoom.roomId, null, openAnonymously = timelineArgs.openAnonymously)
         if (openRoom.closeCurrentRoom) {
             requireActivity().finish()
         }
@@ -889,7 +889,7 @@ class TimelineFragment @Inject constructor(
     private fun handleJoinedToAnotherRoom(action: MessageComposerViewEvents.JoinRoomCommandSuccess) {
         views.composerLayout.setTextIfDifferent("")
         lockSendButton = false
-        navigator.openRoom(vectorBaseActivity, action.roomId)
+        navigator.openRoom(vectorBaseActivity, action.roomId, openAnonymously = timelineArgs.openAnonymously)
     }
 
     private fun handleShareData() {
@@ -1965,7 +1965,7 @@ class TimelineFragment @Inject constructor(
                             openRoomMemberProfile(userId)
                             return true
                         }
-                    })
+                    }, openAnonymously = timelineArgs.openAnonymously)
             if (!isManaged) {
                 if (title.isValidUrl() && url.isValidUrl() && URL(title).host != URL(url).host) {
                     MaterialAlertDialogBuilder(requireActivity(), R.style.ThemeOverlay_Vector_MaterialAlertDialog_NegativeDestructive)

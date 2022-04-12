@@ -48,17 +48,19 @@ class PermalinkHandler @Inject constructor(private val activeSessionHolder: Acti
             context: Context,
             deepLink: String?,
             navigationInterceptor: NavigationInterceptor? = null,
-            buildTask: Boolean = false
+            buildTask: Boolean = false,
+            openAnonymously: Boolean = false
     ): Boolean {
         val uri = deepLink?.let { Uri.parse(it) }
-        return launch(context, uri, navigationInterceptor, buildTask)
+        return launch(context, uri, navigationInterceptor, buildTask, openAnonymously = openAnonymously)
     }
 
     suspend fun launch(
             context: Context,
             deepLink: Uri?,
             navigationInterceptor: NavigationInterceptor? = null,
-            buildTask: Boolean = false
+            buildTask: Boolean = false,
+            openAnonymously: Boolean = false
     ): Boolean {
         return when {
             deepLink == null                                    -> false
@@ -68,7 +70,7 @@ class PermalinkHandler @Inject constructor(private val activeSessionHolder: Acti
                 tryOrNull {
                     withContext(Dispatchers.Default) {
                         val permalinkData = PermalinkParser.parse(deepLink)
-                        handlePermalink(permalinkData, deepLink, context, navigationInterceptor, buildTask)
+                        handlePermalink(permalinkData, deepLink, context, navigationInterceptor, buildTask, openAnonymously = openAnonymously)
                     }
                 } ?: false
             }
@@ -80,7 +82,8 @@ class PermalinkHandler @Inject constructor(private val activeSessionHolder: Acti
             rawLink: Uri,
             context: Context,
             navigationInterceptor: NavigationInterceptor?,
-            buildTask: Boolean
+            buildTask: Boolean,
+            openAnonymously: Boolean = false
     ): Boolean {
         return when (permalinkData) {
             is PermalinkData.RoomLink            -> {
@@ -98,7 +101,8 @@ class PermalinkHandler @Inject constructor(private val activeSessionHolder: Acti
                         permalinkData = permalinkData,
                         rawLink = rawLink,
                         buildTask = buildTask,
-                        rootThreadEventId = rootThreadEventId
+                        rootThreadEventId = rootThreadEventId,
+                        openAnonymously = openAnonymously
                 )
                 true
             }
@@ -163,7 +167,8 @@ class PermalinkHandler @Inject constructor(private val activeSessionHolder: Acti
             permalinkData: PermalinkData.RoomLink,
             rawLink: Uri,
             buildTask: Boolean,
-            rootThreadEventId: String? = null
+            rootThreadEventId: String? = null,
+            openAnonymously: Boolean = false
     ) {
         val session = activeSessionHolder.getSafeActiveSession() ?: return
         if (roomId == null) {
@@ -180,7 +185,7 @@ class PermalinkHandler @Inject constructor(private val activeSessionHolder: Acti
             membership?.isActive().orFalse() -> {
                 if (!isSpace && membership == Membership.JOIN) {
                     // If it's a room you're in, let's just open it, you can tap back if needed
-                    navigationInterceptor.openJoinedRoomScreen(buildTask, roomId, eventId, rawLink, context, rootThreadEventId, roomSummary)
+                    navigationInterceptor.openJoinedRoomScreen(buildTask, roomId, eventId, rawLink, context, rootThreadEventId, roomSummary, openAnonymously = openAnonymously)
                 } else {
                     // maybe open space preview navigator.openSpacePreview(context, roomId)? if already joined?
                     navigator.openMatrixToBottomSheet(context, rawLink.toString())
@@ -199,7 +204,8 @@ class PermalinkHandler @Inject constructor(private val activeSessionHolder: Acti
                                                             rawLink: Uri,
                                                             context: Context,
                                                             rootThreadEventId: String?,
-                                                            roomSummary: RoomSummary
+                                                            roomSummary: RoomSummary,
+                                                            openAnonymously: Boolean = false
     ) {
         if (this?.navToRoom(roomId, eventId, rawLink, rootThreadEventId) != true) {
             if (rootThreadEventId != null && userPreferencesProvider.areThreadMessagesEnabled()) {
@@ -211,7 +217,7 @@ class PermalinkHandler @Inject constructor(private val activeSessionHolder: Acti
                         rootThreadEventId = rootThreadEventId)
                 navigator.openThread(context, threadTimelineArgs, eventId)
             } else {
-                navigator.openRoom(context, roomId, eventId, buildTask)
+                navigator.openRoom(context, roomId, eventId, buildTask, openAnonymously = openAnonymously)
             }
         }
     }
