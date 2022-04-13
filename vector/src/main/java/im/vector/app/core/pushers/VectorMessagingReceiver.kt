@@ -152,14 +152,19 @@ val upHandler = object: VectorMessagingReceiverHandler {
                 .build()
         lateinit var notification: Notification
 
-        if (UPHelper.isEmbeddedDistributor(context!!)) {
-            notification = moshi.adapter(Notification::class.java)
-                    .fromJson(message) ?: return
-        } else {
-            val data = moshi.adapter(UnifiedPushMessage::class.java)
-                    .fromJson(message) ?: return
-            notification = data.notification
-            notification.unread = notification.counts.unread
+        try {
+            if (UPHelper.isEmbeddedDistributor(context!!)) {
+                notification = moshi.adapter(Notification::class.java)
+                        .fromJson(message) ?: return
+            } else {
+                val data = moshi.adapter(UnifiedPushMessage::class.java)
+                        .fromJson(message) ?: return
+                notification = data.notification
+                notification.unread = notification.counts.unread
+            }
+        } catch (t: Throwable) {
+            Timber.e(t, "Error parsing push notification")
+            return
         }
 
         // Diagnostic Push
