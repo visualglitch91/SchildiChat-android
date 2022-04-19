@@ -462,7 +462,7 @@ fun checkTimelineConsistency(location: String, events: List<TimelineEvent>, verb
                     // - The list may omit unsupported events (I guess?), thus causing gaps in the indices.
                     Timber.w("Possible timeline inconsistency found at $location, $i/${events.size}: ${event.displayIndex}->${prev.displayIndex}, ${event.eventId} -> ${prev.eventId}")
                     // Toast only those which are particularly suspicious
-                    if (prev.displayIndex != 1 && prev.displayIndex != 0 && prev.displayIndex >= event.displayIndex) {
+                    if (prev.displayIndex != 1 && prev.displayIndex != 0 && prev.displayIndex >= event.displayIndex && !(prev.displayIndex == -1 && event.displayIndex == -1)) {
                         toastMsg += "${event.displayIndex}->${prev.displayIndex},"
                     }
                     potentialIssues++
