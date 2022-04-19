@@ -150,6 +150,10 @@ function generate_accent_dark() {
         "Do not change this comment for automatic dark colored theme insertion" \
         "\"$name_lc\" -> R.style.AppTheme_SC_Dark_Colored_$name" \
         "                    "
+    insert_above_java_comment "vector/src/main/java/im/vector/app/features/themes/ThemeUtils.kt" \
+        "Do not change this comment for automatic attachment theme insertion" \
+        "\"$name_lc\" -> R.style.AppTheme_AttachmentsPreview_SC_$name" \
+        "                    "
 }
 
 function generate_accent() {

@@ -506,6 +506,31 @@ object ThemeUtils {
                     else -> resId
                 }
             }
+            R.style.AppTheme_AttachmentsPreview_SC -> {
+                when (themeAccent) {
+                    "green" -> resId
+                    "amber" -> R.style.AppTheme_AttachmentsPreview_SC_Amber
+                    "bluelight" -> R.style.AppTheme_AttachmentsPreview_SC_BlueLight
+                    "blue" -> R.style.AppTheme_AttachmentsPreview_SC_Blue
+                    "carnation" -> R.style.AppTheme_AttachmentsPreview_SC_Carnation
+                    "cyan" -> R.style.AppTheme_AttachmentsPreview_SC_Cyan
+                    "denim" -> R.style.AppTheme_AttachmentsPreview_SC_Denim
+                    "gold" -> R.style.AppTheme_AttachmentsPreview_SC_Gold
+                    "greendark" -> R.style.AppTheme_AttachmentsPreview_SC_GreenDark
+                    "indigo" -> R.style.AppTheme_AttachmentsPreview_SC_Indigo
+                    "lava" -> R.style.AppTheme_AttachmentsPreview_SC_Lava
+                    "lime" -> R.style.AppTheme_AttachmentsPreview_SC_Lime
+                    "orange" -> R.style.AppTheme_AttachmentsPreview_SC_Orange
+                    "pink" -> R.style.AppTheme_AttachmentsPreview_SC_Pink
+                    "purple" -> R.style.AppTheme_AttachmentsPreview_SC_Purple
+                    "red" -> R.style.AppTheme_AttachmentsPreview_SC_Red
+                    "teal" -> R.style.AppTheme_AttachmentsPreview_SC_Teal
+                    "turquoise" -> R.style.AppTheme_AttachmentsPreview_SC_Turquoise
+                    "yellow" -> R.style.AppTheme_AttachmentsPreview_SC_Yellow
+                    // Do not change this comment for automatic attachment theme insertion
+                    else -> resId
+                }
+            }
             else -> resId
         }
     }
