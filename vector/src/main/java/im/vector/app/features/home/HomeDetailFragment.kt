@@ -683,14 +683,10 @@ class HomeDetailFragment @Inject constructor(
     private fun getSpaceIdForPageIndex(position: Int, spaces: List<String?>? = pagerSpaces): String? {
         if (spaces == null) {
             Timber.e(Exception("getSpaceIdForPageIndex: null spaces!"))
-            if (DEBUG_VIEW_PAGER) {
-                Toast.makeText(requireContext(), "AAAAAAAA1", Toast.LENGTH_SHORT).show()
-            }
             return null
         }
         if (DEBUG_VIEW_PAGER && position > 0 && spaces[position-1] == null) {
             Timber.e(Exception("getSpaceIdForPageIndex: null space!"))
-            Toast.makeText(requireContext(), "AAAAAAAA2", Toast.LENGTH_SHORT).show()
         }
         return if (position == 0) null else spaces[position-1]
     }
