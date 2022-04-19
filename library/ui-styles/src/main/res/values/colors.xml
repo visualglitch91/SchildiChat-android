@@ -10,7 +10,8 @@
     <color name="hard_resource_limit_exceeded">?colorError</color>
 
     <!-- Notification (do not depends on theme) -->
-    <color name="notification_accent_color">@color/palette_azure</color>
+    <!-- Schildi note: notification_accent_color = unread marker color right now. Use color from blue accent theme. -->
+    <color name="notification_accent_color">@color/sc_blue</color>
     <color name="key_share_req_accent_color">@color/palette_melon</color>
 
     <!-- Source: https://zpl.io/aBKw9Mk -->
