@@ -209,12 +209,35 @@ internal fun ChunkEntity.nextDisplayIndex(direction: PaginationDirection): Int {
     }
 }
 
+internal fun ChunkEntity.doesPrevChunksVerifyCondition(linkCondition: (ChunkEntity) -> Boolean): Boolean {
+    var prevChunkToCheck = this.prevChunk
+    val visitedChunks = hashSetOf(identifier())
+    while (prevChunkToCheck != null) {
+        if (visitedChunks.contains(prevChunkToCheck.identifier())) {
+            Timber.e("doesPrevChunksVerifyCondition: infinite loop detected at ${prevChunkToCheck.identifier()} while checking ${identifier()}")
+            return false
+        }
+        if (linkCondition(prevChunkToCheck)) {
+            return true
+        }
+        visitedChunks.add(prevChunkToCheck.identifier())
+        prevChunkToCheck = prevChunkToCheck.prevChunk
+    }
+    return false
+}
+
 internal fun ChunkEntity.doesNextChunksVerifyCondition(linkCondition: (ChunkEntity) -> Boolean): Boolean {
     var nextChunkToCheck = this.nextChunk
+    val visitedChunks = hashSetOf(identifier())
     while (nextChunkToCheck != null) {
+        if (visitedChunks.contains(nextChunkToCheck.identifier())) {
+            Timber.e("doesNextChunksVerifyCondition: infinite loop detected at ${nextChunkToCheck.identifier()} while checking ${identifier()}")
+            return false
+        }
         if (linkCondition(nextChunkToCheck)) {
             return true
         }
+        visitedChunks.add(nextChunkToCheck.identifier())
         nextChunkToCheck = nextChunkToCheck.nextChunk
     }
     return false

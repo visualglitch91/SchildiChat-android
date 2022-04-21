@@ -26,6 +26,8 @@ import org.matrix.android.sdk.api.session.room.send.SendState
 import org.matrix.android.sdk.internal.database.helper.addIfNecessary
 import org.matrix.android.sdk.internal.database.helper.addStateEvent
 import org.matrix.android.sdk.internal.database.helper.addTimelineEvent
+import org.matrix.android.sdk.internal.database.helper.doesNextChunksVerifyCondition
+import org.matrix.android.sdk.internal.database.helper.doesPrevChunksVerifyCondition
 import org.matrix.android.sdk.internal.database.helper.updateThreadSummaryIfNeeded
 import org.matrix.android.sdk.internal.database.lightweight.LightweightSettingsStorage
 import org.matrix.android.sdk.internal.database.mapper.toEntity
@@ -183,22 +185,30 @@ internal class TokenChunkEventPersistor @Inject constructor(
                 // If it exists, we want to stop here, just link the prevChunk
                 val existingChunk = existingTimelineEvent?.chunk?.firstOrNull()
                 if (existingChunk != null) {
+                    val alreadyLinkedNext = currentChunk.doesNextChunksVerifyCondition { it == existingChunk }
+                    val alreadyLinkedPrev = currentChunk.doesPrevChunksVerifyCondition { it == existingChunk }
+                    if (alreadyLinkedNext || alreadyLinkedPrev) {
+                        Timber.w("Avoid double link, shouldn't happen in an ideal world | " +
+                                "direction: $direction " +
+                                "room: $roomId event: $eventId" +
+                                "linkedPrev: $alreadyLinkedPrev linkedNext: $alreadyLinkedNext " +
+                                "oldChunk: ${existingChunk.identifier()} newChunk: ${existingChunk.identifier()} " +
+                                "oldBackwardCheck: ${currentChunk.nextChunk == existingChunk} " +
+                                "oldForwardCheck: ${currentChunk.prevChunk == existingChunk}"
+                        )
+                        // Stop processing here
+                        return@processTimelineEvents
+                    }
                     when (direction) {
                         PaginationDirection.BACKWARDS -> {
-                            if (currentChunk.nextChunk == existingChunk) {
-                                Timber.w("Avoid double link, shouldn't happen in an ideal world")
-                            } else {
-                                currentChunk.prevChunk = existingChunk
-                                existingChunk.nextChunk = currentChunk
-                            }
+                            Timber.i("Backwards insert chunk: ${existingChunk.identifier()} -> ${currentChunk.identifier()}")
+                            currentChunk.prevChunk = existingChunk
+                            existingChunk.nextChunk = currentChunk
                         }
                         PaginationDirection.FORWARDS  -> {
-                            if (currentChunk.prevChunk == existingChunk) {
-                                Timber.w("Avoid double link, shouldn't happen in an ideal world")
-                            } else {
-                                currentChunk.nextChunk = existingChunk
-                                existingChunk.prevChunk = currentChunk
-                            }
+                            Timber.i("Forward insert chunk: ${currentChunk.identifier()} -> ${existingChunk.identifier()}")
+                            currentChunk.nextChunk = existingChunk
+                            existingChunk.prevChunk = currentChunk
                         }
                     }
                     // Stop processing here
