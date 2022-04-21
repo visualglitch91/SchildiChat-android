@@ -106,7 +106,7 @@ class TimelineMessageLayoutFactory @Inject constructor(private val session: Sess
                     val messageContent = event.getLastMessageContent()
                     val isBubble = event.shouldBuildBubbleLayout()
                     val singleSidedLayout = bubbleThemeUtils.getBubbleStyle() == BubbleThemeUtils.BUBBLE_STYLE_START
-                    val pseudoBubble = messageContent.isPseudoBubble()
+                    val pseudoBubble = messageContent.isPseudoBubble(event)
                     val showTimestamp = showInformation || !singleSidedLayout || vectorPreferences.alwaysShowTimeStamps()
                     return TimelineMessageLayout.ScBubble(
                             showAvatar = showInformation,
@@ -153,7 +153,7 @@ class TimelineMessageLayoutFactory @Inject constructor(private val session: Sess
                             addTopMargin = isFirstFromThisSender && isSentByMe,
                             isIncoming = !isSentByMe,
                             cornersRadius = cornersRadius,
-                            isPseudoBubble = messageContent.isPseudoBubble(),
+                            isPseudoBubble = messageContent.isPseudoBubble(event),
                             timestampAsOverlay = messageContent.timestampAsOverlay()
                     )
                 } else {
@@ -194,8 +194,9 @@ class TimelineMessageLayoutFactory @Inject constructor(private val session: Sess
         }
     }
 
-    private fun MessageContent?.isPseudoBubble(): Boolean {
+    private fun MessageContent?.isPseudoBubble(event: TimelineEvent): Boolean {
         if (this == null) return false
+        if (event.root.isRedacted()) return false
         if (msgType == MessageType.MSGTYPE_LOCATION) return vectorPreferences.labsRenderLocationsInTimeline()
         return this.msgType in MSG_TYPES_WITH_PSEUDO_BUBBLE_LAYOUT
     }
@@ -212,6 +213,10 @@ class TimelineMessageLayoutFactory @Inject constructor(private val session: Sess
     }
 
     private fun TimelineEvent.shouldBuildBubbleLayout(): Boolean {
+        if (root.isRedacted()) {
+            // Redacted messages always go into bubbles
+            return true
+        }
         val type = root.getClearType()
         if (type in EVENT_TYPES_WITH_BUBBLE_LAYOUT) {
             val messageContent = getLastMessageContent()
