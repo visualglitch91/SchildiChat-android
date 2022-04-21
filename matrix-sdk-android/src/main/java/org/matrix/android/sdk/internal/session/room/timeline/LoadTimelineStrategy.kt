@@ -20,6 +20,7 @@ import io.realm.OrderedCollectionChangeSet
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
 import io.realm.RealmConfiguration
+import io.realm.RealmList
 import io.realm.RealmResults
 import io.realm.kotlin.createObject
 import kotlinx.coroutines.CompletableDeferred
@@ -36,6 +37,8 @@ import org.matrix.android.sdk.internal.database.mapper.TimelineEventMapper
 import org.matrix.android.sdk.internal.database.model.ChunkEntity
 import org.matrix.android.sdk.internal.database.model.ChunkEntityFields
 import org.matrix.android.sdk.internal.database.model.RoomEntity
+import org.matrix.android.sdk.internal.database.model.TimelineEventEntity
+import org.matrix.android.sdk.internal.database.model.TimelineEventEntityFields
 import org.matrix.android.sdk.internal.database.model.deleteAndClearThreadEvents
 import org.matrix.android.sdk.internal.database.query.findAllIncludingEvents
 import org.matrix.android.sdk.internal.database.query.findLastForwardChunkOfThread
@@ -52,6 +55,11 @@ import java.util.concurrent.atomic.AtomicReference
  * In Permalink, we will query for the chunk including the eventId we are looking for.
  * Once we got a ChunkEntity we wrap it with TimelineChunk class so we dispatch any methods for loading data.
  */
+
+// Whether to search for timeline loops, and fix them.
+// TODO: once we feel comfortable that this is no longer necessary,
+// we probably want to disable this again for improving performance.
+const val ENABLE_TIMELINE_LOOP_SPLITTING = true
 
 internal class LoadTimelineStrategy(
         private val roomId: String,
@@ -295,6 +303,10 @@ internal class LoadTimelineStrategy(
 
     private fun RealmResults<ChunkEntity>.createTimelineChunk(): TimelineChunk? {
         return firstOrNull()?.let {
+            if (ENABLE_TIMELINE_LOOP_SPLITTING) {
+                // Before creating timeline chunks, make sure that the ChunkEntities do not form a loop
+                it.fixChunkLoops()
+            }
             return TimelineChunk(
                     chunkEntity = it,
                     timelineSettings = dependencies.timelineSettings,
@@ -312,6 +324,104 @@ internal class LoadTimelineStrategy(
                     initialEventId = mode.originEventId(),
                     onBuiltEvents = dependencies.onEventsUpdated
             )
+        }
+    }
+
+    private fun ChunkEntity.fixChunkLoops() {
+        fixChunkLoopsInDirection("backward",
+                { it.prevChunk },
+                { it.sort(TimelineEventEntityFields.DISPLAY_INDEX).firstOrNull() },
+                { it.sort(TimelineEventEntityFields.DISPLAY_INDEX).lastOrNull() },
+                { a, b -> b - a },
+                {
+                    if (it.prevChunk?.nextChunk == it) {
+                        it.prevChunk?.nextChunk = null
+                    }
+                    it.prevChunk = null
+                }
+        )
+        fixChunkLoopsInDirection(
+                "forward",
+                { it.nextChunk },
+                { it.sort(TimelineEventEntityFields.DISPLAY_INDEX).lastOrNull() },
+                { it.sort(TimelineEventEntityFields.DISPLAY_INDEX).firstOrNull() },
+                { a, b -> a - b },
+                {
+                    if (it.nextChunk?.prevChunk == it) {
+                        it.nextChunk?.prevChunk = null
+                    }
+                    it.nextChunk = null
+                }
+        )
+    }
+
+
+    private fun ChunkEntity.fixChunkLoopsInDirection(directionName: String,
+                                                     directionFun: (ChunkEntity) -> ChunkEntity?,
+                                                     lastEventFun: (RealmList<TimelineEventEntity>) -> TimelineEventEntity?,
+                                                     firstEventFun: (RealmList<TimelineEventEntity>) -> TimelineEventEntity?,
+                                                     rateGapFun: (Long, Long) -> Long,
+                                                     unlinkFun: (ChunkEntity) -> Unit) {
+        var firstRepeatedChunk: String? = null
+        val visited = hashSetOf<String>()
+        var chunk: ChunkEntity? = this
+        while (chunk != null) {
+            if (chunk.identifier() in visited) {
+                firstRepeatedChunk = chunk.identifier()
+                break
+            }
+            visited.add(chunk.identifier())
+            chunk = directionFun(chunk)
+        }
+
+        if (firstRepeatedChunk != null) {
+            Timber.e("Timeline loop detected ($directionName), searching for a good place to break it up")
+            // Iterate all chunks again. This time, we know which chunks included in the loop,
+            // so we want to compare the events between these chunks to find the one which seems
+            chunk = this
+            var foundRepetition = false
+            var lastEventTs: Long? = null
+            var lastEventChunk: ChunkEntity? = null
+            var worstFoundTsJump: Long = 0
+            var worstChunk: ChunkEntity? = null
+            var done = false
+            var loopSize = -1
+            while (chunk != null && !done) {
+                if (chunk.identifier() == firstRepeatedChunk) {
+                    if (foundRepetition) {
+                        // Do not break yet, or we might skip the best chunk for unlinking
+                        done = true
+                    } else {
+                        foundRepetition = true
+                    }
+                }
+                if (foundRepetition) {
+                    loopSize++
+                    val nextEventTs = firstEventFun(chunk.timelineEvents)?.root?.originServerTs
+                    if (lastEventTs != null && nextEventTs != null) {
+                        val tsJump = rateGapFun(lastEventTs, nextEventTs)
+                        if (tsJump > worstFoundTsJump) {
+                            worstChunk = lastEventChunk
+                            worstFoundTsJump = tsJump
+                        }
+                    }
+                    Timber.v("Loop breakup: compare ${lastEventChunk?.identifier()}/$lastEventTs to ${chunk.identifier()}$nextEventTs")
+                    val newLastEventTs = lastEventFun(chunk.timelineEvents)?.root?.originServerTs
+                    if (newLastEventTs != null) {
+                        lastEventTs = newLastEventTs
+                        lastEventChunk = chunk
+                    }
+                }
+                chunk = directionFun(chunk)
+            }
+            if (worstChunk != null) {
+                Timber.w("Splitting $directionName timeline chain between ${worstChunk.identifier()} and ${directionFun(worstChunk)?.identifier()} | room $roomId loopSize $loopSize loadedChunk ${identifier()}")
+                realm.executeTransaction {
+                    unlinkFun(worstChunk)
+                }
+            } else {
+                Timber.e("Splitting $directionName timeline failed, no worst chunk found | room $roomId loopSize $loopSize loadedChunk ${identifier()}")
+            }
         }
     }
 }
