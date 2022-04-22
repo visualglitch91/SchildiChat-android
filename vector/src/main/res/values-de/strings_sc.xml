@@ -125,4 +125,10 @@
     <string name="settings_enable_space_pager">Chatliste wischen um Space zu wechseln</string>
     <string name="settings_enable_space_pager_summary">Erlaube das Wechseln zwischen Wurzelspaces durch horizontales Wischen in der Chatliste</string>
     <string name="bubble_style_element">Element</string>
+    <string name="bubble_appearance">Erscheinungsbild</string>
+    <string name="bubble_rounded_corners">Ecken</string>
+    <string name="bubble_rounded_corners_default">Standard</string>
+    <string name="bubble_rounded_corners_r1">Rund</string>
+    <string name="bubble_rounded_corners_r2">Extra rund</string>
+    <string name="bubble_tail">Blasenschweif</string>
 </resources>
