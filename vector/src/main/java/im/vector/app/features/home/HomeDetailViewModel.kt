@@ -48,7 +48,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.matrix.android.sdk.api.query.ActiveSpaceFilter
-import org.matrix.android.sdk.api.query.QueryStringValue
 import org.matrix.android.sdk.api.query.RoomCategoryFilter
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.crypto.NewSessionListener
@@ -305,11 +304,8 @@ class HomeDetailViewModel @AssistedInject constructor(
 
     // Taken from SpaceListViewModel.observeSpaceSummaries()
     private fun observeRootSpaces() {
-        val spaceSummaryQueryParams = roomSummaryQueryParams {
-            memberships = listOf(Membership.JOIN, Membership.INVITE)
-            displayName = QueryStringValue.IsNotEmpty
-            excludeType = listOf(/**RoomType.MESSAGING,$*/
-                    null)
+        val params = roomSummaryQueryParams {
+            memberships = listOf(Membership.JOIN)
         }
 
         val flowSession = session.flow()
@@ -321,7 +317,7 @@ class HomeDetailViewModel @AssistedInject constructor(
                             it.getOrNull()
                         },
                 flowSession
-                        .liveSpaceSummaries(spaceSummaryQueryParams),
+                        .liveSpaceSummaries(params),
                 session
                         .accountDataService()
                         .getLiveRoomAccountDataEvents(setOf(RoomAccountDataTypes.EVENT_TYPE_SPACE_ORDER))
