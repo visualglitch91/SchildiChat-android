@@ -70,8 +70,6 @@ import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.abs
 
-private const val NO_PENDING_SPACE_ID = "de.spiritcroc.riotx.SPACE_ID_NONE"
-
 class HomeDetailFragment @Inject constructor(
         private val avatarRenderer: AvatarRenderer,
         private val colorProvider: ColorProvider,
@@ -109,7 +107,6 @@ class HomeDetailFragment @Inject constructor(
     private var pagerSpaces: List<String?>? = null
     private var pagerTab: HomeTab? = null
     private var pagerPagingEnabled: Boolean = false
-    private var pendingSpaceId: String? = NO_PENDING_SPACE_ID
 
     override fun getMenuRes() = R.menu.room_list
 
@@ -297,8 +294,6 @@ class HomeDetailFragment @Inject constructor(
 
         // Persist swiped
         appStateHandler.persistSelectedSpace()
-        // Remember the persisted value, so we can ignore it once the listeners are running again
-        pendingSpaceId = getSpaceIdForPageIndex(views.roomListContainerPager.currentItem)
     }
 
     private fun checkNotificationTabStatus(enableDialPad: Boolean? = null) {
@@ -561,11 +556,6 @@ class HomeDetailFragment @Inject constructor(
             if (!changed) {
                 if (pagingEnabled) {
                     // No need to re-setup pager, just check for selected page
-                    // If it's a pendingSpaceId, we want to ignore it too, since we created it
-                    if (pendingSpaceId == selectedSpaceId) {
-                        pendingSpaceId = NO_PENDING_SPACE_ID
-                        return
-                    }
                     if (selectedIndex != null) {
                         if (selectedIndex != views.roomListContainerPager.currentItem) {
                             // post() mitigates a case where we could end up in an endless loop circling around the same few spaces
@@ -598,7 +588,6 @@ class HomeDetailFragment @Inject constructor(
         pagerTab = tab
         pagerPagingEnabled = pagingEnabled
         initialPageSelected = false
-        pendingSpaceId = NO_PENDING_SPACE_ID
 
         // OFFSCREEN_PAGE_LIMIT_DEFAULT: default recyclerview caching mechanism instead of explicit fixed prefetching
         //views.roomListContainerPager.offscreenPageLimit = 2
