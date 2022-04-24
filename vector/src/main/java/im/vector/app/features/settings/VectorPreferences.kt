@@ -108,6 +108,7 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
         private const val SETTINGS_ENABLE_CHAT_EFFECTS = "SETTINGS_ENABLE_CHAT_EFFECTS"
         private const val SETTINGS_SHOW_EMOJI_KEYBOARD = "SETTINGS_SHOW_EMOJI_KEYBOARD"
         private const val SETTINGS_LABS_ENABLE_LATEX_MATHS = "SETTINGS_LABS_ENABLE_LATEX_MATHS"
+        const val SETTINGS_PRESENCE_USER_ALWAYS_APPEARS_OFFLINE = "SETTINGS_PRESENCE_USER_ALWAYS_APPEARS_OFFLINE"
 
         // Room directory
         private const val SETTINGS_ROOM_DIRECTORY_SHOW_ALL_PUBLIC_ROOMS = "SETTINGS_ROOM_DIRECTORY_SHOW_ALL_PUBLIC_ROOMS"
@@ -911,6 +912,16 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
      */
     fun useElementMessageBubblesLayout(): Boolean {
         return bubbleThemeUtils.getBubbleStyle() == BubbleThemeUtils.BUBBLE_STYLE_ELEMENT
+    }
+
+    /**
+     * Tells if user should always appear offline or not.
+     *
+     * @return true if user should always appear offline
+     */
+    fun userAlwaysAppearsOffline(): Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_PRESENCE_USER_ALWAYS_APPEARS_OFFLINE,
+                getDefault(R.bool.settings_presence_user_always_appears_offline_default))
     }
 
     /**

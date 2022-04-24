@@ -119,7 +119,7 @@ internal fun ChunkEntity.addTimelineEvent(roomId: String,
     return timelineEventEntity
 }
 
-fun computeIsUnique(
+internal fun computeIsUnique(
         realm: Realm,
         roomId: String,
         isLastForward: Boolean,
@@ -252,6 +252,9 @@ internal fun ChunkEntity.isMoreRecentThan(chunkToCheck: ChunkEntity, dimber: Dim
     }
     if (this.doesNextChunksVerifyCondition { it == chunkToCheck }) {
         return false.also { dimber?.i { "isMoreReacentThan = false (this->ctc)" } }
+    }
+    if (this.doesNextChunksVerifyCondition { it == chunkToCheck }) {
+        return false
     }
     // Otherwise check if this chunk is linked to last forward
     if (this.doesNextChunksVerifyCondition { it.isLastForward }) {

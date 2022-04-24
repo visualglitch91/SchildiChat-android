@@ -4,7 +4,7 @@ import de.spiritcroc.android.sdk.internal.util.database.ScRealmMigrator
 import io.realm.DynamicRealm
 import org.matrix.android.sdk.internal.database.model.RoomSummaryEntityFields
 
-class MigrateScSessionTo002(realm: DynamicRealm) : ScRealmMigrator(realm, 2) {
+internal class MigrateScSessionTo002(realm: DynamicRealm) : ScRealmMigrator(realm, 2) {
 
     override fun doMigrate(realm: DynamicRealm) {
         realm.schema.get("RoomSummaryEntity")
