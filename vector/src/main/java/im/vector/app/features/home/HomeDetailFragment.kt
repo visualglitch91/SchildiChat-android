@@ -28,6 +28,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.airbnb.mvrx.UniqueOnly
 import com.airbnb.mvrx.activityViewModel
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
@@ -234,7 +235,15 @@ class HomeDetailFragment @Inject constructor(
             )
         }
 
-        viewModel.onEach(HomeDetailViewState::roomGroupingMethodIgnoreSwipe, HomeDetailViewState::rootSpacesOrdered, HomeDetailViewState::currentTab) { roomGroupingMethod, rootSpacesOrdered, currentTab ->
+        viewModel.onEach(HomeDetailViewState::roomGroupingMethodIgnoreSwipe,
+                HomeDetailViewState::rootSpacesOrdered,
+                HomeDetailViewState::currentTab,
+                UniqueOnly("HomeDetail_${System.identityHashCode(this)}"))
+        { roomGroupingMethod, rootSpacesOrdered, currentTab ->
+            if (roomGroupingMethod == null) {
+                // Uninitialized
+                return@onEach
+            }
             setupViewPager(roomGroupingMethod, rootSpacesOrdered, currentTab)
         }
 

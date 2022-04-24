@@ -29,7 +29,7 @@ import org.matrix.android.sdk.api.util.MatrixItem
 
 data class HomeDetailViewState(
         val roomGroupingMethod: RoomGroupingMethod = RoomGroupingMethod.BySpace(null),
-        val roomGroupingMethodIgnoreSwipe: RoomGroupingMethod = RoomGroupingMethod.BySpace(null),
+        val roomGroupingMethodIgnoreSwipe: RoomGroupingMethod? = null,
         val myMatrixItem: MatrixItem? = null,
         val asyncRooms: Async<List<RoomSummary>> = Uninitialized,
         val currentTab: HomeTab = HomeTab.RoomList(RoomListDisplayMode.ALL),
