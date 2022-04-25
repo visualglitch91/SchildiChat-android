@@ -139,12 +139,13 @@ class AppStateHandler @Inject constructor(
                         } else {
                             setCurrentGroup(uiStateRepository.getSelectedGroup(session.sessionId), session)
                         }
-                        observeSyncStatus(session)
+                        //observeSyncStatus(session)
                     }
                 }
                 .launchIn(coroutineScope)
     }
 
+    /*
     private fun observeSyncStatus(session: Session) {
         session.getSyncStatusLive()
                 .asFlow()
@@ -155,6 +156,7 @@ class AppStateHandler @Inject constructor(
                     analyticsTracker.updateUserProperties(UserProperties(numSpaces = spacesNumber))
                 }.launchIn(session.coroutineScope)
     }
+    */
 
     fun safeActiveSpaceId(): String? {
         return (selectedSpaceDataSourceSc.currentValue?.orNull()?.first as? RoomGroupingMethod.BySpace)?.spaceSummary?.roomId
