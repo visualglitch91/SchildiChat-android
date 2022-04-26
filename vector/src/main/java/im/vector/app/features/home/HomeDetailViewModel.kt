@@ -308,26 +308,18 @@ class HomeDetailViewModel @AssistedInject constructor(
             memberships = listOf(Membership.JOIN)
         }
 
-        val flowSession = session.flow()
-
         combine(
-                flowSession
-                        .liveUser(session.myUserId)
-                        .map {
-                            it.getOrNull()
-                        },
-                flowSession
+                session.flow()
                         .liveSpaceSummaries(params),
-                session
-                        .accountDataService()
+                session.accountDataService()
                         .getLiveRoomAccountDataEvents(setOf(RoomAccountDataTypes.EVENT_TYPE_SPACE_ORDER))
                         .asFlow()
-        ) { _, communityGroups, _ ->
-            communityGroups
+        ) { spaces, _ ->
+            spaces
         }
-                .execute { //async ->
-                    val rootSpaces = session.spaceService().getRootSpaceSummaries()
-                    val orders = rootSpaces.map {
+                .execute { async ->
+                    val rootSpaces = async.invoke().orEmpty().filter { it.flattenParentIds.isEmpty() }
+                    val orders = rootSpaces.associate {
                         it.roomId to session.getRoom(it.roomId)
                                 ?.getAccountDataEvent(RoomAccountDataTypes.EVENT_TYPE_SPACE_ORDER)
                                 ?.content.toModel<SpaceOrderContent>()
