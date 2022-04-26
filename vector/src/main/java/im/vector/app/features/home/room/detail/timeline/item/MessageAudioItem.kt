@@ -96,7 +96,8 @@ abstract class MessageAudioItem : AbsMessageItem<MessageAudioItem.Holder>() {
     }
 
     private fun applyLayoutTint(holder: Holder) {
-        val backgroundTint = if (attributes.informationData.messageLayout is TimelineMessageLayout.Bubble) {
+        val backgroundTint = if (attributes.informationData.messageLayout is TimelineMessageLayout.Bubble ||
+                attributes.informationData.messageLayout is TimelineMessageLayout.ScBubble) {
             Color.TRANSPARENT
         } else {
             ThemeUtils.getColor(holder.view.context, R.attr.vctr_content_quinary)

@@ -419,7 +419,6 @@ class MessageItemFactory @Inject constructor(
             .contentDownloadStateTrackerBinder(contentDownloadStateTrackerBinder)
             .highlighted(highlight)
             .leftGuideline(avatarSizeProvider.leftGuideline)
-            .filename(messageContent.body)
     }
 
     private fun buildVerificationRequestMessageItem(
@@ -489,7 +488,7 @@ class MessageItemFactory @Inject constructor(
             informationData: MessageInformationData,
             highlight: Boolean,
             attributes: AbsMessageItem.Attributes,
-    ) = if (true || messageContent.voiceMessageIndicator != null) {
+    ) = if (messageContent.voiceMessageIndicator != null) {
                 buildVoiceMessageItem(params, messageContent, informationData, highlight, attributes)
             } else {
                 buildAudioMessageItem(params, messageContent, informationData, highlight, attributes)

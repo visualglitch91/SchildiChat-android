@@ -61,9 +61,6 @@ abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
     var isLocalFile = false
 
     @EpoxyAttribute
-    var filename: CharSequence? = null
-
-    @EpoxyAttribute
     lateinit var contentUploadStateTrackerBinder: ContentUploadStateTrackerBinder
 
     @EpoxyAttribute
@@ -115,16 +112,6 @@ abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
             holder.voicePlaybackWaveform.add(AudioWaveformView.FFT(amplitude.toFloat(), waveformColorIdle))
         }
         holder.voicePlaybackWaveform.summarize()
-
-        // SC: fallback audio name if no waveform (we also use this for audio messages!)
-        if (waveform.isEmpty() && !filename.isNullOrBlank()) {
-            holder.voicePlaybackWaveform.isInvisible = true
-            holder.voiceMessageName.isVisible = true
-            holder.voiceMessageName.text = filename
-        } else {
-            holder.voicePlaybackWaveform.isVisible = true
-            holder.voiceMessageName.isGone = true
-        }
 
         holder.voicePlaybackWaveform.setOnTouchListener { view, motionEvent ->
             when (motionEvent.action) {
@@ -198,7 +185,6 @@ abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
         val voicePlaybackTime by bind<TextView>(R.id.voicePlaybackTime)
         val voicePlaybackWaveform by bind<AudioWaveformView>(R.id.voicePlaybackWaveform)
         val progressLayout by bind<ViewGroup>(R.id.messageFileUploadProgressLayout)
-        val voiceMessageName by bind<TextView>(R.id.voiceMessageName)
     }
 
     companion object {
