@@ -44,10 +44,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.matrix.android.sdk.api.query.ActiveSpaceFilter
+import org.matrix.android.sdk.api.query.QueryStringValue
 import org.matrix.android.sdk.api.query.RoomCategoryFilter
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.crypto.NewSessionListener
@@ -58,6 +58,7 @@ import org.matrix.android.sdk.api.session.room.RoomSortOrder
 import org.matrix.android.sdk.api.session.room.accountdata.RoomAccountDataTypes
 import org.matrix.android.sdk.api.session.room.model.Membership
 import org.matrix.android.sdk.api.session.room.roomSummaryQueryParams
+import org.matrix.android.sdk.api.session.room.spaceSummaryQueryParams
 import org.matrix.android.sdk.api.session.space.model.SpaceOrderContent
 import org.matrix.android.sdk.api.session.space.model.TopLevelSpaceComparator
 import org.matrix.android.sdk.api.util.toMatrixItem
@@ -304,8 +305,9 @@ class HomeDetailViewModel @AssistedInject constructor(
 
     // Taken from SpaceListViewModel.observeSpaceSummaries()
     private fun observeRootSpaces() {
-        val params = roomSummaryQueryParams {
+        val params = spaceSummaryQueryParams {
             memberships = listOf(Membership.JOIN)
+            displayName = QueryStringValue.IsNotEmpty
         }
 
         combine(
