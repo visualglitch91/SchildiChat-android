@@ -17,9 +17,6 @@
 package org.matrix.android.sdk.internal.crypto.actions
 
 import androidx.annotation.WorkerThread
-import com.zhuinden.monarchy.Monarchy
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.matrix.android.sdk.api.listeners.ProgressListener
 import org.matrix.android.sdk.api.session.crypto.model.ImportRoomKeysResult
 import org.matrix.android.sdk.api.session.crypto.model.RoomKeyRequestBody
@@ -29,17 +26,12 @@ import org.matrix.android.sdk.internal.crypto.OutgoingGossipingRequestManager
 import org.matrix.android.sdk.internal.crypto.RoomDecryptorProvider
 import org.matrix.android.sdk.internal.crypto.algorithms.megolm.MXMegolmDecryption
 import org.matrix.android.sdk.internal.crypto.store.IMXCryptoStore
-import org.matrix.android.sdk.internal.di.SessionDatabase
 import org.matrix.android.sdk.internal.session.room.summary.RoomSummaryUpdater
-import org.matrix.android.sdk.internal.util.awaitTransaction
 import timber.log.Timber
 import javax.inject.Inject
 
 internal class MegolmSessionDataImporter @Inject constructor(private val olmDevice: MXOlmDevice,
                                                              private val roomDecryptorProvider: RoomDecryptorProvider,
-                                                             @SessionDatabase private val monarchy: Monarchy,
-                                                             private val roomSummaryUpdater: RoomSummaryUpdater,
-                                                             private val cryptoCoroutineScope: CoroutineScope,
                                                              private val outgoingGossipingRequestManager: OutgoingGossipingRequestManager,
                                                              private val cryptoStore: IMXCryptoStore) {
 
@@ -115,13 +107,6 @@ internal class MegolmSessionDataImporter @Inject constructor(private val olmDevi
         val t1 = System.currentTimeMillis()
 
         Timber.v("## importMegolmSessionsData : sessions import " + (t1 - t0) + " ms (" + megolmSessionsData.size + " sessions)")
-
-        // Retry decrypting room previews for the room list
-        cryptoCoroutineScope.launch {
-            monarchy.awaitTransaction { realm ->
-                roomSummaryUpdater.updateRoomPreviews(realm)
-            }
-        }
 
         return ImportRoomKeysResult(totalNumbersOfKeys, totalNumbersOfImportedKeys)
     }
