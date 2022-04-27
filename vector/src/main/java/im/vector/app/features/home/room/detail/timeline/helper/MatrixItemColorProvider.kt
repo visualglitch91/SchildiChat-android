@@ -35,8 +35,10 @@ class MatrixItemColorProvider @Inject constructor(
         private val vectorPreferences: VectorPreferences,
         private val colorProvider: ColorProvider
 ) {
-    // Note: compared to Element, we do not cache the actual color, but the color-attr, to remain theme-safe
-    private val cache = mutableMapOf<String, Int>()
+    // Note: compared to Element, we do not cache the actual color, but the color-attr, to remain theme-safe.
+    // For user overrides, however, we still need to store the actual color, so store that separately.
+    private val attrCache = mutableMapOf<String, Int>()
+    private val overrideCache = mutableMapOf<String, Int>()
 
     @ColorInt
     @Suppress("UNUSED_PARAMETER")
@@ -57,8 +59,8 @@ class MatrixItemColorProvider @Inject constructor(
                 )
             }
             USER_COLORING_FROM_ID -> {
-                return colorProvider.getColorFromAttribute(
-                        cache.getOrPut(matrixItem.id) {
+                return overrideCache[matrixItem.id] ?: colorProvider.getColorFromAttribute(
+                        attrCache.getOrPut(matrixItem.id) {
                             when (matrixItem) {
                                 is MatrixItem.UserItem -> getColorAttrFromUserId(matrixItem.id)
                                 else                   -> getColorAttrFromRoomId(matrixItem.id)
@@ -100,7 +102,7 @@ class MatrixItemColorProvider @Inject constructor(
     }
 
     fun setOverrideColors(overrideColors: Map<String, String>?) {
-        cache.clear()
+        overrideCache.clear()
         overrideColors?.forEach {
             setOverrideColor(it.key, it.value)
         }
@@ -109,10 +111,10 @@ class MatrixItemColorProvider @Inject constructor(
     fun setOverrideColor(id: String, colorSpec: String?): Boolean {
         val color = parseUserColorSpec(colorSpec)
         return if (color == null) {
-            cache.remove(id)
+            overrideCache.remove(id)
             false
         } else {
-            cache[id] = color
+            overrideCache[id] = color
             true
         }
     }
