@@ -29,6 +29,7 @@ Here you can find some extra features and changes compared to Element Android (w
 - Compose area: emoji button on the left, attachments button on the right (flipped compared to Element, but what most other messengers do, thus more familiar to most users)
 - Setting to re-alert for new messages even if there's still an old notification for that room
 - Setting to hide start call buttons from the room's toolbar
+- Render inline images / custom emojis in the timeline
 
 - Branding (name, app icon, links)
 - Show a toast instead of a snackbar after copying text, in order to not block the input area right after copying
