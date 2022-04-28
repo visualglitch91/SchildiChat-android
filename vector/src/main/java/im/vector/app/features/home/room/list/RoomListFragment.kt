@@ -24,6 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.view.size
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -137,8 +138,15 @@ class RoomListFragment @Inject constructor(
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Having both sizes zero can be normal, but might be not if we viewed this space before? // Debugging blank list on viewpager switch
+        viewPagerDimber.i { "onResume rlf -> ${views.roomListView.size} | ${views.roomListView.adapter?.itemCount}" }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewPagerDimber.i { "onViewCreated rlf -> ${roomListParams.explicitSpaceId}" }
         views.stateView.contentView = views.roomListView
         views.stateView.state = StateView.State.Loading
         setupCreateRoomButton()
@@ -365,7 +373,7 @@ class RoomListFragment @Inject constructor(
         stateRestorer = LayoutManagerStateRestorer(layoutManager).register()
         views.roomListView.layoutManager = layoutManager
         views.roomListView.itemAnimator = RoomListAnimator()
-        layoutManager.recycleChildrenOnDetach = true
+        //layoutManager.recycleChildrenOnDetach = true
 
         modelBuildListener = OnModelBuildFinishedListener { it.dispatchTo(stateRestorer) }
 
