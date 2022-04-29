@@ -108,6 +108,7 @@ internal class DefaultTimeline(private val roomId: String,
             lightweightSettingsStorage = lightweightSettingsStorage,
             onEventsUpdated = this::sendSignalToPostSnapshot,
             onLimitedTimeline = this::onLimitedTimeline,
+            onLastForwardDeleted = this::onLastForwardDeleted,
             onNewTimelineEvents = this::onNewTimelineEvents
     )
 
@@ -317,11 +318,31 @@ internal class DefaultTimeline(private val roomId: String,
 
     private fun onLimitedTimeline() {
         timelineScope.launch {
+            Timber.i("onLimitedTimeline: load more backwards")
             initPaginationStates(null)
             loadMore(settings.initialSize, Timeline.Direction.BACKWARDS, false)
             postSnapshot()
         }
     }
+
+    private fun onLastForwardDeleted() {
+        timelineScope.launch {
+            // If we noticed before we don't have more to load, we want to re-try now.
+            // Since the last forward chunk got deleted, more may be available now using pagination.
+            if (hasMoreToLoad(Timeline.Direction.FORWARDS)) {
+                Timber.i("onLastForwardDeleted: no action necessary")
+                return@launch
+            }
+            Timber.i("onLastForwardDeleted: load more forwards")
+            //initPaginationStates(null)
+            updateState(Timeline.Direction.FORWARDS) {
+                it.copy(hasMoreToLoad = true)
+            }
+            loadMore(settings.initialSize, Timeline.Direction.FORWARDS, true)
+            postSnapshot()
+        }
+    }
+
 
     private suspend fun postSnapshot() {
         val snapshot = strategy.buildSnapshot()

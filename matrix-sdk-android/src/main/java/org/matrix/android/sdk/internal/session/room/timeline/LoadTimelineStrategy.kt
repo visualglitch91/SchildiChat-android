@@ -104,6 +104,7 @@ internal class LoadTimelineStrategy(
             val lightweightSettingsStorage: LightweightSettingsStorage,
             val onEventsUpdated: (Boolean) -> Unit,
             val onLimitedTimeline: () -> Unit,
+            val onLastForwardDeleted: () -> Unit,
             val onNewTimelineEvents: (List<String>) -> Unit
     )
 
@@ -111,6 +112,7 @@ internal class LoadTimelineStrategy(
     private var chunkEntity: RealmResults<ChunkEntity>? = null
     private var timelineChunk: TimelineChunk? = null
     private var sendingEventCount: Int = 0
+    private var lastForwardChunkEntity: RealmResults<ChunkEntity>? = null
 
     private val chunkEntityListener = OrderedRealmCollectionChangeListener { _: RealmResults<ChunkEntity>, changeSet: OrderedCollectionChangeSet ->
         // Can be call either when you open a permalink on an unknown event
@@ -125,6 +127,14 @@ internal class LoadTimelineStrategy(
             if (timelineChunk?.hasReachedLastForward().orFalse()) {
                 dependencies.onLimitedTimeline()
             }
+        }
+    }
+
+    private val lastForwardChunkEntityListener = OrderedRealmCollectionChangeListener { _: RealmResults<ChunkEntity>, changeSet: OrderedCollectionChangeSet ->
+        // When the last forward chunk changes and we had previously reached that, load forward again to avoid a stuck timeline
+        val shouldRebuildChunk = changeSet.deletions.isNotEmpty()
+        if (shouldRebuildChunk) {
+            dependencies.onLastForwardDeleted()
         }
     }
 
@@ -180,12 +190,16 @@ internal class LoadTimelineStrategy(
             it.addChangeListener(chunkEntityListener)
             timelineChunk = it.createTimelineChunk()
         }
+        lastForwardChunkEntity = getLastForwardChunkEntity(realm).also {
+            it.addChangeListener(lastForwardChunkEntityListener)
+        }
     }
 
     fun onStop() {
         dependencies.eventDecryptor.destroy()
         dependencies.timelineInput.listeners.remove(timelineInputListener)
         chunkEntity?.removeChangeListener(chunkEntityListener)
+        lastForwardChunkEntity?.removeChangeListener(lastForwardChunkEntityListener)
         sendingEventsDataSource.stop()
         timelineChunk?.close(closeNext = true, closePrev = true)
         getContextLatch?.cancel()
@@ -194,6 +208,7 @@ internal class LoadTimelineStrategy(
         if (mode is Mode.Thread) {
             clearThreadChunkEntity(dependencies.realm.get(), mode.rootThreadEventId)
         }
+        lastForwardChunkEntity = null
     }
 
     suspend fun loadMore(count: Int, direction: Timeline.Direction, fetchOnServerIfNeeded: Boolean = true): LoadMoreResult {
@@ -291,6 +306,12 @@ internal class LoadTimelineStrategy(
                 Timber.i("###THREADS LoadTimelineStrategy [onStop] thread chunk cleared..")
             }
         }
+    }
+
+    private fun getLastForwardChunkEntity(realm: Realm): RealmResults<ChunkEntity> {
+        return ChunkEntity.where(realm, roomId)
+                .equalTo(ChunkEntityFields.IS_LAST_FORWARD, true)
+                .findAll()
     }
 
     private fun hasReachedLastForward(): Boolean {
