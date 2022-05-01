@@ -225,7 +225,7 @@ class HomeDetailViewModel @AssistedInject constructor(
         appStateHandler.selectedRoomGroupingFlowIgnoreSwipe
                 .setOnEach {
                     copy(
-                            roomGroupingMethodIgnoreSwipe = it.orNull() ?: RoomGroupingMethod.BySpace(null)
+                            roomGroupingMethodIgnoreSwipe = it.orNull()
                     )
                 }
     }

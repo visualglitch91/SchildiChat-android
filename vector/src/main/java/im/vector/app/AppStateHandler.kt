@@ -21,6 +21,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.asFlow
 import arrow.core.Option
 import arrow.core.getOrElse
+import de.spiritcroc.matrixsdk.util.DbgUtil
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.utils.BehaviorDataSource
 import im.vector.app.features.analytics.AnalyticsTracker
@@ -45,12 +46,24 @@ import org.matrix.android.sdk.api.session.getRoomSummary
 import org.matrix.android.sdk.api.session.group.model.GroupSummary
 import org.matrix.android.sdk.api.session.initsync.SyncStatusService
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 sealed class RoomGroupingMethod {
     data class ByLegacyGroup(val groupSummary: GroupSummary?) : RoomGroupingMethod()
     data class BySpace(val spaceSummary: RoomSummary?) : RoomGroupingMethod()
+}
+
+enum class SelectSpaceFrom {
+    // Initialized / uiStateRepository
+    INIT,
+    // Swiped in home pager
+    SWIPE,
+    // Persisted after swipe in home pager
+    PERSIST_SWIPE,
+    // Selected from non-pager UI
+    SELECT,
 }
 
 fun RoomGroupingMethod.space() = (this as? RoomGroupingMethod.BySpace)?.spaceSummary
@@ -74,10 +87,11 @@ class AppStateHandler @Inject constructor(
 
     // SchildiChat: the boolean means pendingSwipe and defaults to false. Set to true for swiping spaces, so you want to ignore updates which have pendingSwipe = true.
     // Call it different then the upstream one so we don't forget adding `first` to upstream's logic.
-    private val selectedSpaceDataSourceSc = BehaviorDataSource<Option<Pair<RoomGroupingMethod, Boolean>>>(Option.empty())
+    private val selectedSpaceDataSourceSc = BehaviorDataSource<Option<Pair<RoomGroupingMethod, SelectSpaceFrom>>>(Option.empty())
 
     val selectedRoomGroupingFlow = selectedSpaceDataSourceSc.stream().map { it.map { it.first } }
-    val selectedRoomGroupingFlowIgnoreSwipe = selectedSpaceDataSourceSc.stream().filter { it.getOrElse{ null }?.second != true }.map { it.map { it.first } }
+    val selectedRoomGroupingFlowIgnoreSwipe = selectedSpaceDataSourceSc.stream()
+            .filter { it.getOrElse{ null }?.second != SelectSpaceFrom.SWIPE }
 
     fun getCurrentRoomGroupingMethod(): RoomGroupingMethod? {
         // XXX we should somehow make it live :/ just a work around
@@ -94,7 +108,12 @@ class AppStateHandler @Inject constructor(
         }
     }
 
-    fun setCurrentSpace(spaceId: String?, session: Session? = null, persistNow: Boolean = false, pendingSwipe: Boolean = false) {
+    fun setCurrentSpace(spaceId: String?, session: Session? = null, persistNow: Boolean = false, from: SelectSpaceFrom = SelectSpaceFrom.SELECT) {
+        if (DbgUtil.isDbgEnabled(DbgUtil.DBG_VIEW_PAGER) && from == SelectSpaceFrom.SELECT) {
+            // We want a stack trace
+            Timber.w(Exception("Home pager: setCurrentSpace/SELECT"))
+        }
+
         val uSession = session ?: activeSessionHolder.getSafeActiveSession() ?: return
         if (selectedSpaceDataSourceSc.currentValue?.orNull()?.first is RoomGroupingMethod.BySpace &&
                 spaceId == selectedSpaceDataSourceSc.currentValue?.orNull()?.first?.space()?.roomId) return
@@ -105,7 +124,7 @@ class AppStateHandler @Inject constructor(
             uiStateRepository.storeSelectedSpace(spaceSum?.roomId, uSession.sessionId)
         }
 
-        selectedSpaceDataSourceSc.post(Option.just(Pair(RoomGroupingMethod.BySpace(spaceSum), pendingSwipe)))
+        selectedSpaceDataSourceSc.post(Option.just(Pair(RoomGroupingMethod.BySpace(spaceSum), from)))
         if (spaceId != null) {
             uSession.coroutineScope.launch(Dispatchers.IO) {
                 tryOrNull {
@@ -120,7 +139,7 @@ class AppStateHandler @Inject constructor(
         if (selectedSpaceDataSourceSc.currentValue?.orNull()?.first is RoomGroupingMethod.ByLegacyGroup &&
                 groupId == selectedSpaceDataSourceSc.currentValue?.orNull()?.first?.group()?.groupId) return
         val activeGroup = groupId?.let { uSession.groupService().getGroupSummary(groupId) }
-        selectedSpaceDataSourceSc.post(Option.just(Pair(RoomGroupingMethod.ByLegacyGroup(activeGroup), false)))
+        selectedSpaceDataSourceSc.post(Option.just(Pair(RoomGroupingMethod.ByLegacyGroup(activeGroup), SelectSpaceFrom.SELECT)))
         if (groupId != null) {
             uSession.coroutineScope.launch {
                 tryOrNull {
@@ -137,7 +156,7 @@ class AppStateHandler @Inject constructor(
                     // sessionDataSource could already return a session while activeSession holder still returns null
                     it.orNull()?.let { session ->
                         if (uiStateRepository.isGroupingMethodSpace(session.sessionId)) {
-                            setCurrentSpace(uiStateRepository.getSelectedSpace(session.sessionId), session)
+                            setCurrentSpace(uiStateRepository.getSelectedSpace(session.sessionId), session, from = SelectSpaceFrom.INIT)
                         } else {
                             setCurrentGroup(uiStateRepository.getSelectedGroup(session.sessionId), session)
                         }
@@ -193,8 +212,8 @@ class AppStateHandler @Inject constructor(
         val uSession = activeSessionHolder.getSafeActiveSession() ?: return
 
         // We want to persist it, so we also want to remove the pendingSwipe status
-        if (currentValue.second) {
-            selectedSpaceDataSourceSc.post(Option.just(Pair(currentMethod, false)))
+        if (currentValue.second == SelectSpaceFrom.SWIPE) {
+            selectedSpaceDataSourceSc.post(Option.just(Pair(currentMethod, SelectSpaceFrom.PERSIST_SWIPE)))
         }
 
         // Persist it across app restarts

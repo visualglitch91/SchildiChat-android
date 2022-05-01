@@ -34,10 +34,12 @@ import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.google.android.material.badge.BadgeDrawable
 import de.spiritcroc.matrixsdk.util.DbgUtil
+import de.spiritcroc.matrixsdk.util.Dimber
 import de.spiritcroc.viewpager.reduceDragSensitivity
 import im.vector.app.AppStateHandler
 import im.vector.app.R
 import im.vector.app.RoomGroupingMethod
+import im.vector.app.SelectSpaceFrom
 import im.vector.app.core.extensions.restart
 import im.vector.app.core.extensions.toMvRxBundle
 import im.vector.app.core.platform.StateView
@@ -83,6 +85,7 @@ class HomeDetailFragment @Inject constructor(
         CurrentCallsView.Callback {
 
     private val DEBUG_VIEW_PAGER = DbgUtil.isDbgEnabled(DbgUtil.DBG_VIEW_PAGER)
+    private val viewPagerDimber = Dimber("Home pager", DbgUtil.DBG_VIEW_PAGER)
 
     private val viewModel: HomeDetailViewModel by fragmentViewModel()
     private val unknownDeviceDetectorSharedViewModel: UnknownDeviceDetectorSharedViewModel by activityViewModel()
@@ -153,7 +156,7 @@ class HomeDetailFragment @Inject constructor(
         // space pager: update appStateHandler's current page to update rest of the UI accordingly
         views.roomListContainerPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                if (DEBUG_VIEW_PAGER) Timber.i("Home pager: selected page $position $initialPageSelected")
+                viewPagerDimber.i{"Home pager: selected page $position $initialPageSelected"}
                 super.onPageSelected(position)
                 if (!initialPageSelected) {
                     // Do not apply before we have restored the previous value
@@ -164,13 +167,7 @@ class HomeDetailFragment @Inject constructor(
                         initialPageSelected = true
                     }
                 }
-                val selectedId = getSpaceIdForPageIndex(position)
-                appStateHandler.setCurrentSpace(selectedId, pendingSwipe = true)
-                if (pagerPagingEnabled) {
-                    onSpaceChange(
-                            selectedId?.let { viewModel.getRoom(it)?.roomSummary() }
-                    )
-                }
+                selectSpaceFromSwipe(position)
             }
         })
 
@@ -253,6 +250,16 @@ class HomeDetailFragment @Inject constructor(
                     currentCallsViewPresenter.updateCall(callManager.getCurrentCall(), callManager.getCalls())
                     invalidateOptionsMenu()
                 }
+    }
+
+    private fun selectSpaceFromSwipe(position: Int) {
+        val selectedId = getSpaceIdForPageIndex(position)
+        appStateHandler.setCurrentSpace(selectedId, from = SelectSpaceFrom.SWIPE)
+        if (pagerPagingEnabled) {
+            onSpaceChange(
+                    selectedId?.let { viewModel.getRoom(it)?.roomSummary() }
+            )
+        }
     }
 
     private fun handleCallStarted() {
@@ -542,17 +549,18 @@ class HomeDetailFragment @Inject constructor(
     }
      */
 
-    private fun setupViewPager(roomGroupingMethod: RoomGroupingMethod, spaces: List<RoomSummary>?, tab: HomeTab) {
+    private fun setupViewPager(roomGroupingMethodPair: Pair<RoomGroupingMethod, SelectSpaceFrom>, spaces: List<RoomSummary>?, tab: HomeTab) {
+        val roomGroupingMethod = roomGroupingMethodPair.first
         val oldAdapter = views.roomListContainerPager.adapter as? FragmentStateAdapter
         val pagingAllowed = vectorPreferences.enableSpacePager() && tab is HomeTab.RoomList
         if (pagingAllowed && spaces == null) {
-            Timber.i("Home pager: Skip initial setup, root spaces not known yet")
+            viewPagerDimber.i{"Home pager: Skip initial setup, root spaces not known yet"}
             views.roomListContainerStateView.state = StateView.State.Loading
             return
         } else {
             views.roomListContainerStateView.state = StateView.State.Content
         }
-        if (DEBUG_VIEW_PAGER) Timber.i("Home pager: setup, old adapter: $oldAdapter")
+        viewPagerDimber.i{"Home pager: setup, old adapter: $oldAdapter"}
         val unsafeSpaces = spaces?.map { it.roomId } ?: listOf()
         val selectedSpaceId = (roomGroupingMethod as? RoomGroupingMethod.BySpace)?.spaceSummary?.roomId
         val selectedIndex = getPageIndexForSpaceId(selectedSpaceId, unsafeSpaces)
@@ -561,10 +569,20 @@ class HomeDetailFragment @Inject constructor(
         // Check if we need to recreate the adapter for a new tab
         if (oldAdapter != null) {
             val changed = pagerTab != tab || pagerSpaces != safeSpaces || pagerPagingEnabled != pagingEnabled
-            if (DEBUG_VIEW_PAGER) Timber.i("Home pager: has changed: $changed (${pagerTab != tab} ${pagerSpaces != safeSpaces} ${pagerPagingEnabled != pagingEnabled} $selectedIndex ${views.roomListContainerPager.currentItem}) | $safeSpaces")
+            viewPagerDimber.i{ "has changed: $changed (${pagerTab != tab} ${pagerSpaces != safeSpaces} ${pagerPagingEnabled != pagingEnabled} $selectedIndex ${roomGroupingMethodPair.second} ${views.roomListContainerPager.currentItem}) | $safeSpaces" }
             if (!changed) {
+                // No need to re-setup pager, just check for selected page
                 if (pagingEnabled) {
-                    // No need to re-setup pager, just check for selected page
+                    // Prioritize the actually displayed space for all space changes except for SELECT ones, to avoid
+                    // unexpected page changes onResume for old updates
+                    if (roomGroupingMethodPair.second != SelectSpaceFrom.SELECT) {
+                        // Tell the rest of the UI that we want to keep displaying the current space
+                        viewPagerDimber.i { "Discard space change from ${roomGroupingMethodPair.second} (${selectedSpaceId}/$selectedIndex), persist own (${views.roomListContainerPager.currentItem})" }
+                        if (views.roomListContainerPager.currentItem != selectedIndex) {
+                            selectSpaceFromSwipe(views.roomListContainerPager.currentItem)
+                        }
+                        return
+                    }
                     if (selectedIndex != null) {
                         if (selectedIndex != views.roomListContainerPager.currentItem) {
                             // post() mitigates a case where we could end up in an endless loop circling around the same few spaces
@@ -613,16 +631,16 @@ class HomeDetailFragment @Inject constructor(
             }
 
             override fun createFragment(position: Int): Fragment {
-                if (DEBUG_VIEW_PAGER) Timber.i("Home pager: create fragment for position $position")
+                viewPagerDimber.i{"Home pager: create fragment for position $position"}
                 return when (tab) {
                     is HomeTab.DialPad -> createDialPadFragment()
                     is HomeTab.RoomList -> {
                         val params = if (pagingEnabled) {
                             val spaceId = getSpaceIdForPageIndex(position)
-                            if (DEBUG_VIEW_PAGER) Timber.i("Home pager: position $position -> space $spaceId")
+                            viewPagerDimber.i{"Home pager: position $position -> space $spaceId"}
                             RoomListParams(tab.displayMode, spaceId).toMvRxBundle()
                         } else {
-                            if (DEBUG_VIEW_PAGER) Timber.i("Home pager: paging disabled; position $position -> follow")
+                            viewPagerDimber.i{"Home pager: paging disabled; position $position -> follow"}
                             RoomListParams(tab.displayMode, SPACE_ID_FOLLOW_APP).toMvRxBundle()
                         }
                         childFragmentManager.fragmentFactory.instantiate(activity!!.classLoader, RoomListFragment::class.java.name).apply {
@@ -645,7 +663,7 @@ class HomeDetailFragment @Inject constructor(
                             return
                         }
                         try {
-                            if (DEBUG_VIEW_PAGER) Timber.i("Home pager: set initial page $selectedIndex")
+                            viewPagerDimber.i{"Home pager: set initial page $selectedIndex"}
                             views.roomListContainerPager.setCurrentItem(selectedIndex ?: 0, false)
                             initialPageSelected = true
                         } catch (e: Exception) {
