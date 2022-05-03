@@ -116,4 +116,18 @@
     <string name="settings_apply_sc_default_settings">Не нажимайте на эту настройку</string>
     <string name="settings_apply_sc_default_settings_dialog_title">Нарушение настроек</string>
     <string name="settings_apply_sc_default_settings_dialog_summary">Если вы продолжите, это нарушит настройки вашего приложения!</string>
+    <string name="settings_labs_room_list">Список комнат</string>
+    <string name="settings_jump_to_bottom_on_send">Переходить в самый низ после отправления</string>
+    <string name="bubble_style_element">Element</string>
+    <string name="settings_include_space_members_as_rooms">Показывать людей в Пространствах</string>
+    <string name="room_settings_default">По умолчанию</string>
+    <string name="room_list_quick_actions_open_at_bottom">Открывать на недавних сообщениях</string>
+    <string name="bubble_appearance">Внешний вид пузырей</string>
+    <string name="bubble_rounded_corners">Углы</string>
+    <string name="bubble_rounded_corners_default">По умолчанию</string>
+    <string name="bubble_rounded_corners_r1">Круглые</string>
+    <string name="bubble_rounded_corners_r2">Особо круглые</string>
+    <string name="bubble_tail_summary">Добавлять хвостик к пузырю первого сообщения отправителя</string>
+    <string name="bubble_tail">Хвостики пузырей</string>
+    <string name="settings_jump_to_bottom_on_send_summary">Автоматически проматывать вниз при отправлении сообщения</string>
 </resources>
