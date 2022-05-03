@@ -182,6 +182,7 @@ internal class TokenChunkEventPersistor @Inject constructor(
         }
         val optimizedThreadSummaryMap = hashMapOf<String, EventEntity>()
         var hasNewEvents = false
+        var existingChunkToLink: ChunkEntity? = null
         run processTimelineEvents@{
             eventList.forEach { event ->
                 if (event.eventId == null || event.senderId == null) {
@@ -196,13 +197,6 @@ internal class TokenChunkEventPersistor @Inject constructor(
                 // If it exists, we want to stop here, just link the prevChunk
                 val existingChunk = existingTimelineEvent?.chunk?.firstOrNull()
                 if (existingChunk != null) {
-                    // If we haven't found a single new event yet, we don't want to link in the pagination direction, as that might cause a
-                    // timeline loop if the other chunk is in the other direction.
-                    if (!hasNewEvents) {
-                        Timber.i("Skip adding event $eventId, already exists")
-                        // Only skip this event, but still process other events
-                        return@forEach
-                    }
                     val alreadyLinkedNext = currentChunk.doesNextChunksVerifyCondition { it == existingChunk }
                     val alreadyLinkedPrev = currentChunk.doesPrevChunksVerifyCondition { it == existingChunk }
                     if (alreadyLinkedNext || alreadyLinkedPrev) {
@@ -216,6 +210,18 @@ internal class TokenChunkEventPersistor @Inject constructor(
                         )
                         // Stop processing here
                         return@processTimelineEvents
+                    }
+                    // If we haven't found a single new event yet, we don't want to link in the pagination direction, as that might cause a
+                    // timeline loop if the other chunk is in the other direction.
+                    if (!hasNewEvents) {
+                        Timber.i("Skip adding event $eventId, already exists")
+                        // Only skip this event, but still process other events.
+                        // Remember this chunk, since in case we don't find any new events, we still want to link this in pagination direction
+                        // in order to link a chunk to the /sync chunk
+                        if (existingChunkToLink == null) {
+                            existingChunkToLink = existingChunk
+                        }
+                        return@forEach
                     }
                     when (direction) {
                         PaginationDirection.BACKWARDS -> {
@@ -261,6 +267,22 @@ internal class TokenChunkEventPersistor @Inject constructor(
                         optimizedThreadSummaryMap[eventEntity.eventId] = eventEntity
                     }
                 }
+            }
+        }
+        val existingChunk = existingChunkToLink
+        if (!hasNewEvents && existingChunk != null) {
+            when (direction) {
+                PaginationDirection.BACKWARDS -> {
+                    Timber.i("Backwards insert chunk: ${existingChunk.identifier()} -> ${currentChunk.identifier()}")
+                    currentChunk.prevChunk = existingChunk
+                    existingChunk.nextChunk = currentChunk
+                }
+                PaginationDirection.FORWARDS  -> {
+                    Timber.i("Forward insert chunk: ${currentChunk.identifier()} -> ${existingChunk.identifier()}")
+                    currentChunk.nextChunk = existingChunk
+                    existingChunk.prevChunk = currentChunk
+                }
+
             }
         }
         if (currentChunk.isValid) {
