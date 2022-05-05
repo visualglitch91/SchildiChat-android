@@ -67,6 +67,11 @@ class EventHtmlRenderer @Inject constructor(
         fun afterRender(renderedText: Spannable)
     }
 
+    private fun String.removeHeightWidthAttrs(): String {
+        return replace(Regex("""height="([^"]*)""""), "")
+                .replace(Regex("""width="([^"]*)""""), "")
+    }
+
     private fun buildMarkwon() = Markwon.builder(context)
             .usePlugins(listOf(
                     HtmlPlugin.create(htmlConfigure),
@@ -76,6 +81,15 @@ class EventHtmlRenderer @Inject constructor(
                             builder.codeBlockBackgroundColor(codeBlockBackground)
                                     .codeBackgroundColor(codeBlockBackground)
                                     .blockQuoteColor(quoteBarColor)
+                        }
+                    },
+                    object : AbstractMarkwonPlugin() { // Overwrite height for data-mx-emoticon, to ensure emoji-like height
+                        override fun processMarkdown(markdown: String): String {
+                            return markdown
+                                    .replace(Regex("""<img\s+([^>]*)data-mx-emoticon([^>]*)>""")) { matchResult ->
+                                        """<img height="1.2em" """ + matchResult.groupValues[1].removeHeightWidthAttrs() +
+                                                " data-mx-emoticon" + matchResult.groupValues[2].removeHeightWidthAttrs() + ">"
+                                    }
                         }
                     },
                     GlideImagesPlugin.create(object: GlideImagesPlugin.GlideStore {
