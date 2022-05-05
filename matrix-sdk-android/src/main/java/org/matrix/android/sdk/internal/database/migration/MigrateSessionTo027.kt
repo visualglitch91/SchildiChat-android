@@ -38,6 +38,7 @@ internal class MigrateSessionTo027(realm: DynamicRealm) : RealmMigrator(realm, 2
                         .addField(LiveLocationShareAggregatedSummaryEntityFields.END_OF_LIVE_TIMESTAMP_MILLIS, Long::class.java)
                         .setNullable(LiveLocationShareAggregatedSummaryEntityFields.END_OF_LIVE_TIMESTAMP_MILLIS, true)
                         .addField(LiveLocationShareAggregatedSummaryEntityFields.LAST_LOCATION_CONTENT, String::class.java)
+                        .addPrimaryKey(LiveLocationShareAggregatedSummaryEntityFields.EVENT_ID)
                 ?: return
 
         realm.schema.get("EventAnnotationsSummaryEntity")
