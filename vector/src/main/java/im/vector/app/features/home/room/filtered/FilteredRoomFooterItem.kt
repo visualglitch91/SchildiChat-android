@@ -25,6 +25,7 @@ import im.vector.app.R
 import im.vector.app.core.epoxy.VectorEpoxyHolder
 import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.core.epoxy.onClick
+import im.vector.app.core.time.DefaultClock
 import im.vector.app.features.settings.VectorPreferences
 
 @EpoxyModelClass(layout = R.layout.item_room_filter_footer)
@@ -41,7 +42,7 @@ abstract class FilteredRoomFooterItem : VectorEpoxyModel<FilteredRoomFooterItem.
 
     override fun bind(holder: Holder) {
         super.bind(holder)
-        val vectorPreferences = VectorPreferences(holder.createRoomButton.context)
+        val vectorPreferences = VectorPreferences(holder.createRoomButton.context, DefaultClock())
         holder.createRoomButton.onClick { listener?.createRoom(currentFilter) }
         holder.createDirectChat.onClick { listener?.createDirectChat() }
         holder.openRoomDirectory.onClick { listener?.openRoomDirectory(currentFilter) }

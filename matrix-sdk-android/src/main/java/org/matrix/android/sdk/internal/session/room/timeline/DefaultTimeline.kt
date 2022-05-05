@@ -46,29 +46,33 @@ import org.matrix.android.sdk.internal.session.sync.handler.room.ReadReceiptHand
 import org.matrix.android.sdk.internal.session.sync.handler.room.ThreadsAwarenessHandler
 import org.matrix.android.sdk.internal.task.SemaphoreCoroutineSequencer
 import org.matrix.android.sdk.internal.util.createBackgroundHandler
+import org.matrix.android.sdk.internal.util.time.Clock
 import timber.log.Timber
 import java.util.UUID
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
-internal class DefaultTimeline(private val roomId: String,
-                               private val initialEventId: String?,
-                               private var targetEventOffset: Int = 0,
-                               private val realmConfiguration: RealmConfiguration,
-                               private val loadRoomMembersTask: LoadRoomMembersTask,
-                               private val readReceiptHandler: ReadReceiptHandler,
-                               private val settings: TimelineSettings,
-                               private val coroutineDispatchers: MatrixCoroutineDispatchers,
-                               paginationTask: PaginationTask,
-                               getEventTask: GetContextOfEventTask,
-                               fetchTokenAndPaginateTask: FetchTokenAndPaginateTask,
-                               fetchThreadTimelineTask: FetchThreadTimelineTask,
-                               timelineEventMapper: TimelineEventMapper,
-                               timelineInput: TimelineInput,
-                               threadsAwarenessHandler: ThreadsAwarenessHandler,
-                               lightweightSettingsStorage: LightweightSettingsStorage,
-                               eventDecryptor: TimelineEventDecryptor) : Timeline {
+internal class DefaultTimeline(
+        private val roomId: String,
+        private val initialEventId: String?,
+        private var targetEventOffset: Int = 0,
+        private val realmConfiguration: RealmConfiguration,
+        private val loadRoomMembersTask: LoadRoomMembersTask,
+        private val readReceiptHandler: ReadReceiptHandler,
+        private val settings: TimelineSettings,
+        private val coroutineDispatchers: MatrixCoroutineDispatchers,
+        private val clock: Clock,
+        paginationTask: PaginationTask,
+        getEventTask: GetContextOfEventTask,
+        fetchTokenAndPaginateTask: FetchTokenAndPaginateTask,
+        fetchThreadTimelineTask: FetchThreadTimelineTask,
+        timelineEventMapper: TimelineEventMapper,
+        timelineInput: TimelineInput,
+        threadsAwarenessHandler: ThreadsAwarenessHandler,
+        lightweightSettingsStorage: LightweightSettingsStorage,
+        eventDecryptor: TimelineEventDecryptor,
+) : Timeline {
 
     companion object {
         val BACKGROUND_HANDLER = createBackgroundHandler("DefaultTimeline_Thread")
@@ -107,6 +111,7 @@ internal class DefaultTimeline(private val roomId: String,
             threadsAwarenessHandler = threadsAwarenessHandler,
             lightweightSettingsStorage = lightweightSettingsStorage,
             onEventsUpdated = this::sendSignalToPostSnapshot,
+            onEventsDeleted = this::onEventsDeleted,
             onLimitedTimeline = this::onLimitedTimeline,
             onLastForwardDeleted = this::onLastForwardDeleted,
             onNewTimelineEvents = this::onNewTimelineEvents
@@ -343,6 +348,11 @@ internal class DefaultTimeline(private val roomId: String,
         }
     }
 
+    private fun onEventsDeleted() {
+        // Some event have been deleted, for instance when a user has been ignored.
+        // Restart the timeline (live)
+        restartWithEventId(null)
+    }
 
     private suspend fun postSnapshot() {
         val snapshot = strategy.buildSnapshot()
@@ -415,7 +425,8 @@ internal class DefaultTimeline(private val roomId: String,
                 roomId = roomId,
                 timelineId = timelineID,
                 mode = mode,
-                dependencies = strategyDependencies
+                dependencies = strategyDependencies,
+                clock = clock,
         )
     }
 

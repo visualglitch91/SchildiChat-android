@@ -291,7 +291,7 @@ val upHandler = object: VectorMessagingReceiverHandler {
 
         coroutineScope.launch {
             Timber.tag(loggerTag.value).d("Fast lane: start request")
-            val event = tryOrNull { session.getEvent(roomId, eventId) } ?: return@launch
+            val event = tryOrNull { session.eventService().getEvent(roomId, eventId) } ?: return@launch
 
             val resolvedEvent = notifiableEventResolver.resolveInMemoryEvent(session, event, canBeReplaced = true)
 
@@ -309,8 +309,8 @@ val upHandler = object: VectorMessagingReceiverHandler {
         if (null != eventId && null != roomId) {
             try {
                 val session = activeSessionHolder.getSafeActiveSession() ?: return false
-                val room = session.getRoom(roomId) ?: return false
-                return room.getTimelineEvent(eventId) != null
+                val room = session.roomService().getRoom(roomId) ?: return false
+                return room.timelineService().getTimelineEvent(eventId) != null
             } catch (e: Exception) {
                 Timber.tag(loggerTag.value).e(e, "## isEventAlreadyKnown() : failed to check if the event was already defined")
             }

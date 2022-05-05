@@ -18,6 +18,12 @@
 package im.vector.app.push.fcm
 
 import android.content.Context
+import im.vector.app.core.di.ActiveSessionHolder
+import im.vector.app.core.pushers.PushersManager
+import im.vector.app.core.time.Clock
+import im.vector.app.fdroid.BackgroundSyncStarter
+import im.vector.app.fdroid.receiver.AlarmSyncBroadcastReceiver
+import im.vector.app.features.settings.VectorPreferences
 
 /**
  * This class has an alter ego in the gplay variant.

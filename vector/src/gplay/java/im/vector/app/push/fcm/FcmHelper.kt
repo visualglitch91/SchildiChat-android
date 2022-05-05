@@ -18,6 +18,14 @@ package im.vector.app.push.fcm
 import android.content.Context
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.firebase.messaging.FirebaseMessaging
+import im.vector.app.R
+import im.vector.app.core.di.ActiveSessionHolder
+import im.vector.app.core.di.DefaultSharedPreferences
+import im.vector.app.core.pushers.PushersManager
+import im.vector.app.core.time.Clock
+import im.vector.app.features.settings.VectorPreferences
+import timber.log.Timber
 
 /**
  * This class store the FCM token in SharedPrefs and ensure this token is retrieved.

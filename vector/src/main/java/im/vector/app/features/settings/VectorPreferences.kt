@@ -29,6 +29,7 @@ import de.spiritcroc.matrixsdk.StaticScSdkHelper
 import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.di.DefaultSharedPreferences
+import im.vector.app.core.time.Clock
 import im.vector.app.features.disclaimer.SHARED_PREF_KEY
 import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
 import im.vector.app.features.homeserver.ServerUrlsRepository
@@ -39,9 +40,13 @@ import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import timber.log.Timber
 import javax.inject.Inject
 
-class VectorPreferences @Inject constructor(private val context: Context, private val bubbleThemeUtils: BubbleThemeUtils): StaticScSdkHelper.ScSdkPreferenceProvider {
+class VectorPreferences @Inject constructor(
+        private val context: Context,
+        private val bubbleThemeUtils: BubbleThemeUtils,
+        private val clock: Clock,
+) : StaticScSdkHelper.ScSdkPreferenceProvider {
 
-    constructor(context: Context) : this(context, BubbleThemeUtils(context))
+    constructor(context: Context, clock: Clock) : this(context, BubbleThemeUtils(context), clock)
 
     companion object {
         const val SETTINGS_HELP_PREFERENCE_KEY = "SETTINGS_HELP_PREFERENCE_KEY"
@@ -698,9 +703,9 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
      */
     fun getMinMediasLastAccessTime(): Long {
         return when (getSelectedMediasSavingPeriod()) {
-            MEDIA_SAVING_3_DAYS  -> System.currentTimeMillis() / 1000 - 3 * 24 * 60 * 60
-            MEDIA_SAVING_1_WEEK  -> System.currentTimeMillis() / 1000 - 7 * 24 * 60 * 60
-            MEDIA_SAVING_1_MONTH -> System.currentTimeMillis() / 1000 - 30 * 24 * 60 * 60
+            MEDIA_SAVING_3_DAYS  -> clock.epochMillis() / 1000 - 3 * 24 * 60 * 60
+            MEDIA_SAVING_1_WEEK  -> clock.epochMillis() / 1000 - 7 * 24 * 60 * 60
+            MEDIA_SAVING_1_MONTH -> clock.epochMillis() / 1000 - 30 * 24 * 60 * 60
             MEDIA_SAVING_FOREVER -> 0
             else                 -> 0
         }
@@ -920,8 +925,10 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
      * @return true if user should always appear offline
      */
     fun userAlwaysAppearsOffline(): Boolean {
-        return defaultPrefs.getBoolean(SETTINGS_PRESENCE_USER_ALWAYS_APPEARS_OFFLINE,
-                getDefault(R.bool.settings_presence_user_always_appears_offline_default))
+        return defaultPrefs.getBoolean(
+                SETTINGS_PRESENCE_USER_ALWAYS_APPEARS_OFFLINE,
+                getDefault(R.bool.settings_presence_user_always_appears_offline_default)
+        )
     }
 
     /**
@@ -1240,11 +1247,13 @@ class VectorPreferences @Inject constructor(private val context: Context, privat
     }
 
     fun prefSpacesShowAllRoomInHome(): Boolean {
-        return defaultPrefs.getBoolean(SETTINGS_PREF_SPACE_SHOW_ALL_ROOM_IN_HOME,
-                true)
+        return defaultPrefs.getBoolean(
+                SETTINGS_PREF_SPACE_SHOW_ALL_ROOM_IN_HOME,
+                true
                 // migration of old property - leads to unexpected results, since we don't do the same in the xml
                 // - and who cares nowadays either way
-                //!labsSpacesOnlyOrphansInHome())
+                //!labsSpacesOnlyOrphansInHome()
+        )
     }
 
     /*

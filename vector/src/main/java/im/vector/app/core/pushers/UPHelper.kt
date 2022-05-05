@@ -24,6 +24,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.di.DefaultSharedPreferences
+import im.vector.app.core.time.DefaultClock
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.push.fcm.FcmHelper
 import org.unifiedpush.android.connector.Registration
@@ -191,7 +192,7 @@ object UPHelper {
              * if GET custom returns """{"unifiedpush":{"gateway":"matrix"}}"""
              * return custom
              */
-            val vectorPreferences = VectorPreferences(context)
+            val vectorPreferences = VectorPreferences(context, DefaultClock())
             if (vectorPreferences.forceUseCustomUpGateway()) {
                 return custom
             }
@@ -210,7 +211,7 @@ object UPHelper {
         if (!hasEndpoint(context)) {
             return true
         }
-        val vectorPreferences = VectorPreferences(context)
+        val vectorPreferences = VectorPreferences(context, DefaultClock())
         return vectorPreferences.forceAllowBackgroundSync()
     }
 

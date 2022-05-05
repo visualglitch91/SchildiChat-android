@@ -128,9 +128,11 @@ abstract class MessageAudioItem : AbsMessageItem<MessageAudioItem.Holder>() {
                         (duration * (progress.toFloat() / 100)).toInt()
                 )
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar) {
                 isUserSeeking = true
             }
+
             override fun onStopTrackingTouch(seekBar: SeekBar) {
                 isUserSeeking = false
                 val percentage = seekBar.progress.toFloat() / 100

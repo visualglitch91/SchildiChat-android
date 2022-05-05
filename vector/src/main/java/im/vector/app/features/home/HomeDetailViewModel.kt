@@ -99,7 +99,7 @@ class HomeDetailViewModel @AssistedInject constructor(
 
     private val refreshRoomSummariesOnCryptoSessionChange = object : NewSessionListener {
         override fun onNewSession(roomId: String?, senderKey: String, sessionId: String) {
-            session.refreshJoinedRoomSummaryPreviews(roomId)
+            session.roomService().refreshJoinedRoomSummaryPreviews(roomId)
         }
     }
 
@@ -185,7 +185,7 @@ class HomeDetailViewModel @AssistedInject constructor(
     private fun handleMarkAllRoomsRead() = withState { _ ->
         // questionable to use viewmodelscope
         viewModelScope.launch(Dispatchers.Default) {
-            val roomIds = session.getRoomSummaries(
+            val roomIds = session.roomService().getRoomSummaries(
                     roomSummaryQueryParams {
                         memberships = listOf(Membership.JOIN)
                         roomCategoryFilter = RoomCategoryFilter.ONLY_WITH_NOTIFICATIONS
@@ -193,7 +193,7 @@ class HomeDetailViewModel @AssistedInject constructor(
             )
                     .map { it.roomId }
             try {
-                session.markAllAsRead(roomIds)
+                session.roomService().markAllAsRead(roomIds)
             } catch (failure: Throwable) {
                 Timber.d(failure, "Failed to mark all as read")
             }
@@ -207,7 +207,7 @@ class HomeDetailViewModel @AssistedInject constructor(
                     copy(syncState = syncState)
                 }
 
-        session.getSyncStatusLive()
+        session.syncStatusService().getSyncStatusLive()
                 .asFlow()
                 .filterIsInstance<SyncStatusService.Status.IncrementalSyncStatus>()
                 .setOnEach {
@@ -234,7 +234,7 @@ class HomeDetailViewModel @AssistedInject constructor(
         appStateHandler.selectedRoomGroupingFlow.distinctUntilChanged().flatMapLatest {
             // we use it as a trigger to all changes in room, but do not really load
             // the actual models
-            session.getPagedRoomSummariesLive(
+            session.roomService().getPagedRoomSummariesLive(
                     roomSummaryQueryParams {
                         memberships = Membership.activeMemberships()
                     },
@@ -252,7 +252,7 @@ class HomeDetailViewModel @AssistedInject constructor(
                             var dmInvites = 0
                             var roomsInvite = 0
                             if (autoAcceptInvites.showInvites()) {
-                                dmInvites = session.getRoomSummaries(
+                                dmInvites = session.roomService().getRoomSummaries(
                                         roomSummaryQueryParams {
                                             memberships = listOf(Membership.INVITE)
                                             roomCategoryFilter = RoomCategoryFilter.ONLY_DM
@@ -260,7 +260,7 @@ class HomeDetailViewModel @AssistedInject constructor(
                                         }
                                 ).size
 
-                                roomsInvite = session.getRoomSummaries(
+                                roomsInvite = session.roomService().getRoomSummaries(
                                         roomSummaryQueryParams {
                                             memberships = listOf(Membership.INVITE)
                                             roomCategoryFilter = RoomCategoryFilter.ONLY_ROOMS
@@ -269,7 +269,7 @@ class HomeDetailViewModel @AssistedInject constructor(
                                 ).size
                             }
 
-                            val dmRooms = session.getNotificationCountForRooms(
+                            val dmRooms = session.roomService().getNotificationCountForRooms(
                                     roomSummaryQueryParams {
                                         memberships = listOf(Membership.JOIN)
                                         roomCategoryFilter = RoomCategoryFilter.ONLY_DM
@@ -277,7 +277,7 @@ class HomeDetailViewModel @AssistedInject constructor(
                                     }
                             )
 
-                            val otherRooms = session.getNotificationCountForRooms(
+                            val otherRooms = session.roomService().getNotificationCountForRooms(
                                     roomSummaryQueryParams {
                                         memberships = listOf(Membership.JOIN)
                                         roomCategoryFilter = RoomCategoryFilter.ONLY_ROOMS
@@ -322,7 +322,8 @@ class HomeDetailViewModel @AssistedInject constructor(
                 .execute { async ->
                     val rootSpaces = async.invoke().orEmpty().filter { it.flattenParentIds.isEmpty() }
                     val orders = rootSpaces.associate {
-                        it.roomId to session.getRoom(it.roomId)
+                        it.roomId to session.roomService().getRoom(it.roomId)
+                                ?.roomAccountDataService()
                                 ?.getAccountDataEvent(RoomAccountDataTypes.EVENT_TYPE_SPACE_ORDER)
                                 ?.content.toModel<SpaceOrderContent>()
                                 ?.safeOrder()
@@ -336,6 +337,6 @@ class HomeDetailViewModel @AssistedInject constructor(
     }
 
     fun getRoom(roomId: String): Room? {
-        return session.getRoom(roomId)
+        return session.roomService().getRoom(roomId)
     }
 }

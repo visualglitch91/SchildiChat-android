@@ -56,11 +56,11 @@ import im.vector.app.features.settings.VectorSettingsFragmentInteractionListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.matrix.android.sdk.api.extensions.tryOrNull
-import org.matrix.android.sdk.api.pushrules.RuleIds
-import org.matrix.android.sdk.api.pushrules.RuleKind
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.identity.ThreePid
 import org.matrix.android.sdk.api.session.pushers.Pusher
+import org.matrix.android.sdk.api.session.pushrules.RuleIds
+import org.matrix.android.sdk.api.session.pushrules.RuleKind
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -85,7 +85,7 @@ class VectorSettingsNotificationPreferenceFragment @Inject constructor(
 
     override fun bindPref() {
         findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_ENABLE_ALL_NOTIF_PREFERENCE_KEY)!!.let { pref ->
-            val pushRuleService = session
+            val pushRuleService = session.pushRuleService()
             val mRuleMaster = pushRuleService.getPushRules().getAllRules()
                     .find { it.ruleId == RuleIds.RULE_ID_DISABLE_ALL }
 
@@ -345,7 +345,7 @@ class VectorSettingsNotificationPreferenceFragment @Inject constructor(
 
     override fun onResume() {
         super.onResume()
-        activeSessionHolder.getSafeActiveSession()?.refreshPushers()
+        activeSessionHolder.getSafeActiveSession()?.pushersService()?.refreshPushers()
 
         interactionListener?.requestedKeyToHighlight()?.let { key ->
             interactionListener?.requestHighlightPreferenceKeyOnResume(null)
@@ -408,13 +408,13 @@ class VectorSettingsNotificationPreferenceFragment @Inject constructor(
                 } catch (e: Exception) {
                     Timber.d("Probably unregistering to a non-saved distributor")
                 }
-                session.refreshPushers()
+                session.pushersService().refreshPushers()
             }
         }
     }
 
     private fun updateEnabledForAccount(preference: Preference?) {
-        val pushRuleService = session
+        val pushRuleService = session.pushRuleService()
         val switchPref = preference as SwitchPreference
         pushRuleService.getPushRules().getAllRules()
                 .find { it.ruleId == RuleIds.RULE_ID_DISABLE_ALL }
@@ -467,15 +467,15 @@ private fun SwitchPreference.setTransactionalSwitchChangeListener(scope: Corouti
  * @see ThreePid.Email
  */
 private fun Session.getEmailsWithPushInformation(): List<Pair<ThreePid.Email, Boolean>> {
-    val emailPushers = getPushers().filter { it.kind == Pusher.KIND_EMAIL }
-    return getThreePids()
+    val emailPushers = pushersService().getPushers().filter { it.kind == Pusher.KIND_EMAIL }
+    return profileService().getThreePids()
             .filterIsInstance<ThreePid.Email>()
             .map { it to emailPushers.any { pusher -> pusher.pushKey == it.email } }
 }
 
 private fun Session.getEmailsWithPushInformationLive(): LiveData<List<Pair<ThreePid.Email, Boolean>>> {
-    val emailThreePids = getThreePidsLive(refreshData = true).map { it.filterIsInstance<ThreePid.Email>() }
-    val emailPushers = getPushersLive().map { it.filter { pusher -> pusher.kind == Pusher.KIND_EMAIL } }
+    val emailThreePids = profileService().getThreePidsLive(refreshData = true).map { it.filterIsInstance<ThreePid.Email>() }
+    val emailPushers = pushersService().getPushersLive().map { it.filter { pusher -> pusher.kind == Pusher.KIND_EMAIL } }
     return combineLatest(emailThreePids, emailPushers) { emailThreePidsResult, emailPushersResult ->
         emailThreePidsResult.map { it to emailPushersResult.any { pusher -> pusher.pushKey == it.email } }
     }.distinctUntilChanged()

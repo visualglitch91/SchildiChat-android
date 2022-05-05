@@ -51,8 +51,10 @@ import im.vector.app.features.MainActivity
 import im.vector.app.features.MainActivityArgs
 import im.vector.app.features.analytics.accountdata.AnalyticsAccountDataViewModel
 import im.vector.app.features.analytics.plan.MobileScreen
+import im.vector.app.features.analytics.plan.ViewRoom
 import im.vector.app.features.disclaimer.showDisclaimerDialog
 import im.vector.app.features.matrixto.MatrixToBottomSheet
+import im.vector.app.features.matrixto.OriginOfMatrixTo
 import im.vector.app.features.navigation.Navigator
 import im.vector.app.features.notifications.NotificationDrawerManager
 import im.vector.app.features.permalink.NavigationInterceptor
@@ -248,7 +250,7 @@ class HomeActivity :
         }
         if (args?.inviteNotificationRoomId != null) {
             activeSessionHolder.getSafeActiveSession()?.permalinkService()?.createPermalink(args.inviteNotificationRoomId)?.let {
-                navigator.openMatrixToBottomSheet(this, it)
+                navigator.openMatrixToBottomSheet(this, it, OriginOfMatrixTo.NOTIFICATION)
             }
         }
 
@@ -385,7 +387,7 @@ class HomeActivity :
                 }
                 views.waitingView.root.isVisible = true
             }
-            else                                    -> {
+            else                                               -> {
                 // Idle or Incremental sync status
                 views.waitingView.root.isVisible = false
             }
@@ -495,7 +497,7 @@ class HomeActivity :
             activeSessionHolder.getSafeActiveSession()
                     ?.permalinkService()
                     ?.createPermalink(parcelableExtra.inviteNotificationRoomId)?.let {
-                        navigator.openMatrixToBottomSheet(this, it)
+                        navigator.openMatrixToBottomSheet(this, it, OriginOfMatrixTo.NOTIFICATION)
                     }
         }
         handleIntent(intent)
@@ -584,14 +586,14 @@ class HomeActivity :
 
     override fun navToMemberProfile(userId: String, deepLink: Uri): Boolean {
         // TODO check if there is already one??
-        MatrixToBottomSheet.withLink(deepLink.toString())
+        MatrixToBottomSheet.withLink(deepLink.toString(), OriginOfMatrixTo.LINK)
                 .show(supportFragmentManager, "HA#MatrixToBottomSheet")
         return true
     }
 
     override fun navToRoom(roomId: String?, eventId: String?, deepLink: Uri?, rootThreadEventId: String?): Boolean {
         if (roomId == null) return false
-        MatrixToBottomSheet.withLink(deepLink.toString())
+        MatrixToBottomSheet.withLink(deepLink.toString(), OriginOfMatrixTo.LINK)
                 .show(supportFragmentManager, "HA#MatrixToBottomSheet")
         return true
     }
@@ -625,8 +627,8 @@ class HomeActivity :
         }
     }
 
-    override fun mxToBottomSheetNavigateToRoom(roomId: String) {
-        navigator.openRoom(this, roomId)
+    override fun mxToBottomSheetNavigateToRoom(roomId: String, trigger: ViewRoom.Trigger?) {
+        navigator.openRoom(this, roomId, trigger = trigger)
     }
 
     override fun mxToBottomSheetSwitchToSpace(spaceId: String) {

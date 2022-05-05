@@ -20,6 +20,7 @@ import android.util.AttributeSet
 import android.view.View
 import com.google.android.material.textview.MaterialTextView
 import im.vector.app.R
+import im.vector.app.core.time.DefaultClock
 import im.vector.app.features.settings.VectorPreferences
 
 class UnreadCounterBadgeView : MaterialTextView {
@@ -30,7 +31,7 @@ class UnreadCounterBadgeView : MaterialTextView {
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
-    var vectorPreferences: VectorPreferences = VectorPreferences(context)
+    var vectorPreferences: VectorPreferences = VectorPreferences(context, DefaultClock())
 
     fun render(state: State) {
         if (state.count == 0 && !state.markedUnread && (state.unread == 0 || !vectorPreferences.shouldShowUnimportantCounterBadge())) {

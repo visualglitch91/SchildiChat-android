@@ -95,7 +95,8 @@ class MessageInformationDataFactory @Inject constructor(private val session: Ses
         //var isEffectivelyDirect = false
         var dmOtherMemberId: String? = null
         if ((roomSummary?.isDirect == true) && event.root.roomId != null) {
-            val members = session.getRoom(event.root.roomId!!)
+            val members = session.roomService().getRoom(event.root.roomId!!)
+                    ?.membershipService()
                     ?.getRoomMembers(roomMemberQueryParams { memberships = listOf(Membership.JOIN) })
                     ?.map { it.userId }
                     .orEmpty()

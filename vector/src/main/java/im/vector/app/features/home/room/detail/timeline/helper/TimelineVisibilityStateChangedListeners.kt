@@ -24,7 +24,7 @@ import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 
 class ReadMarkerVisibilityStateChangedListener(private val callback: TimelineEventController.Callback?) :
-    VectorEpoxyModel.OnVisibilityStateChangedListener {
+        VectorEpoxyModel.OnVisibilityStateChangedListener {
 
     private val rmDimber = Dimber("ReadMarkerDbg", DbgUtil.DBG_READ_MARKER)
 
@@ -41,7 +41,7 @@ class ReadMarkerVisibilityStateChangedListener(private val callback: TimelineEve
 
 class TimelineEventVisibilityStateChangedListener(private val callback: TimelineEventController.Callback?,
                                                   private val event: TimelineEvent) :
-    VectorEpoxyModel.OnVisibilityStateChangedListener {
+        VectorEpoxyModel.OnVisibilityStateChangedListener {
 
     override fun onVisibilityStateChanged(visibilityState: Int) {
         if (visibilityState == VisibilityState.VISIBLE) {
@@ -54,7 +54,7 @@ class TimelineEventVisibilityStateChangedListener(private val callback: Timeline
 
 class MergedTimelineEventVisibilityStateChangedListener(private val callback: TimelineEventController.Callback?,
                                                         private val events: List<TimelineEvent>) :
-    VectorEpoxyModel.OnVisibilityStateChangedListener {
+        VectorEpoxyModel.OnVisibilityStateChangedListener {
 
     override fun onVisibilityStateChanged(visibilityState: Int) {
         if (visibilityState == VisibilityState.VISIBLE) {

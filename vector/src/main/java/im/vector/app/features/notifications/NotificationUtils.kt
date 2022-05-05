@@ -50,6 +50,7 @@ import im.vector.app.core.extensions.createIgnoredUri
 import im.vector.app.core.platform.PendingIntentCompat
 import im.vector.app.core.resources.StringProvider
 import im.vector.app.core.services.CallService
+import im.vector.app.core.time.Clock
 import im.vector.app.core.utils.startNotificationChannelSettingsIntent
 import im.vector.app.features.call.VectorCallActivity
 import im.vector.app.features.call.service.CallHeadsUpActionReceiver
@@ -71,9 +72,12 @@ import kotlin.random.Random
  * Note: Cannot inject ColorProvider in the constructor, because it requires an Activity
  */
 @Singleton
-class NotificationUtils @Inject constructor(private val context: Context,
-                                            private val stringProvider: StringProvider,
-                                            private val vectorPreferences: VectorPreferences) {
+class NotificationUtils @Inject constructor(
+        private val context: Context,
+        private val stringProvider: StringProvider,
+        private val vectorPreferences: VectorPreferences,
+        private val clock: Clock,
+) {
 
     companion object {
         /* ==========================================================================================
@@ -322,7 +326,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
         }
         val contentPendingIntent = PendingIntent.getActivity(
                 context,
-                System.currentTimeMillis().toInt(),
+                clock.epochMillis().toInt(),
                 contentIntent,
                 PendingIntentCompat.FLAG_IMMUTABLE
         )
@@ -336,7 +340,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
                                 mode = VectorCallActivity.INCOMING_ACCEPT
                         )
                 )
-                .getPendingIntent(System.currentTimeMillis().toInt(), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_IMMUTABLE)
+                .getPendingIntent(clock.epochMillis().toInt(), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_IMMUTABLE)
 
         val rejectCallPendingIntent = buildRejectCallPendingIntent(call.callId)
 
@@ -391,7 +395,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
         }
         val contentPendingIntent = PendingIntent.getActivity(
                 context,
-                System.currentTimeMillis().toInt(),
+                clock.epochMillis().toInt(),
                 contentIntent,
                 PendingIntentCompat.FLAG_IMMUTABLE
         )
@@ -452,7 +456,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
         val contentPendingIntent = TaskStackBuilder.create(context)
                 .addNextIntentWithParentStack(HomeActivity.newIntent(context))
                 .addNextIntent(VectorCallActivity.newIntent(context, call, null))
-                .getPendingIntent(System.currentTimeMillis().toInt(), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_IMMUTABLE)
+                .getPendingIntent(clock.epochMillis().toInt(), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_IMMUTABLE)
 
         builder.setContentIntent(contentPendingIntent)
 
@@ -466,7 +470,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
         }
         return PendingIntent.getBroadcast(
                 context,
-                System.currentTimeMillis().toInt(),
+                clock.epochMillis().toInt(),
                 rejectCallActionReceiver,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_IMMUTABLE
         )
@@ -514,7 +518,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
         val contentPendingIntent = TaskStackBuilder.create(context)
                 .addNextIntentWithParentStack(HomeActivity.newIntent(context))
                 .addNextIntent(RoomDetailActivity.newIntent(context, TimelineArgs(callInformation.nativeRoomId)))
-                .getPendingIntent(System.currentTimeMillis().toInt(), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_IMMUTABLE)
+                .getPendingIntent(clock.epochMillis().toInt(), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_IMMUTABLE)
 
         builder.setContentIntent(contentPendingIntent)
         return builder.build()
@@ -534,6 +538,20 @@ class NotificationUtils @Inject constructor(private val context: Context,
                 .build()
     }
 
+    /**
+     * Creates a notification that indicates the application is capturing the screen.
+     */
+    fun buildScreenSharingNotification(): Notification {
+        return NotificationCompat.Builder(context, SILENT_NOTIFICATION_CHANNEL_ID)
+                .setContentTitle(stringProvider.getString(R.string.screen_sharing_notification_title))
+                .setContentText(stringProvider.getString(R.string.screen_sharing_notification_description))
+                .setSmallIcon(R.drawable.ic_share_screen)
+                .setColor(ThemeUtils.getColor(context, android.R.attr.colorPrimary))
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .setContentIntent(buildOpenHomePendingIntentForSummary())
+                .build()
+    }
+
     fun buildDownloadFileNotification(uri: Uri, fileName: String, mimeType: String): Notification {
         return NotificationCompat.Builder(context, SILENT_NOTIFICATION_CHANNEL_ID)
                 .setGroup(stringProvider.getString(R.string.app_name))
@@ -547,7 +565,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
                     }
                     PendingIntent.getActivity(
                             context,
-                            System.currentTimeMillis().toInt(),
+                            clock.epochMillis().toInt(),
                             intent,
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_IMMUTABLE
                     ).let {
@@ -623,7 +641,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
                     markRoomReadIntent.putExtra(NotificationBroadcastReceiver.KEY_ROOM_ID, roomInfo.roomId)
                     val markRoomReadPendingIntent = PendingIntent.getBroadcast(
                             context,
-                            System.currentTimeMillis().toInt(),
+                            clock.epochMillis().toInt(),
                             markRoomReadIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_IMMUTABLE
                     )
@@ -664,7 +682,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
                     intent.action = DISMISS_ROOM_NOTIF_ACTION
                     val pendingIntent = PendingIntent.getBroadcast(
                             context.applicationContext,
-                            System.currentTimeMillis().toInt(),
+                            clock.epochMillis().toInt(),
                             intent,
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_IMMUTABLE
                     )
@@ -699,7 +717,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
                     rejectIntent.putExtra(NotificationBroadcastReceiver.KEY_ROOM_ID, roomId)
                     val rejectIntentPendingIntent = PendingIntent.getBroadcast(
                             context,
-                            System.currentTimeMillis().toInt(),
+                            clock.epochMillis().toInt(),
                             rejectIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_IMMUTABLE
                     )
@@ -717,7 +735,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
                     joinIntent.putExtra(NotificationBroadcastReceiver.KEY_ROOM_ID, roomId)
                     val joinIntentPendingIntent = PendingIntent.getBroadcast(
                             context,
-                            System.currentTimeMillis().toInt(),
+                            clock.epochMillis().toInt(),
                             joinIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_IMMUTABLE
                     )
@@ -798,7 +816,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
                 .addNextIntentWithParentStack(HomeActivity.newIntent(context))
                 .addNextIntent(roomIntentTap)
                 .getPendingIntent(
-                        System.currentTimeMillis().toInt(),
+                        clock.epochMillis().toInt(),
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_IMMUTABLE
                 )
     }
@@ -831,7 +849,7 @@ class NotificationUtils @Inject constructor(private val context: Context,
             intent.putExtra(NotificationBroadcastReceiver.KEY_ROOM_ID, roomId)
             return PendingIntent.getBroadcast(
                     context,
-                    System.currentTimeMillis().toInt(),
+                    clock.epochMillis().toInt(),
                     intent,
                     // PendingIntents attached to actions with remote inputs must be mutable
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntentCompat.FLAG_MUTABLE

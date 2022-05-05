@@ -18,6 +18,7 @@ package im.vector.app.core.pushers
 
 import android.content.Context
 import im.vector.app.core.di.ActiveSessionHolder
+import im.vector.app.core.time.Clock
 import im.vector.app.core.receiver.AlarmSyncBroadcastReceiver
 import im.vector.app.core.receiver.BackgroundSyncStarter
 import im.vector.app.features.settings.VectorPreferences
@@ -29,7 +30,7 @@ object StateHelper {
         AlarmSyncBroadcastReceiver.cancelAlarm(context)
     }
 
-    fun onEnterBackground(context: Context, vectorPreferences: VectorPreferences, activeSessionHolder: ActiveSessionHolder) {
-        BackgroundSyncStarter.start(context, vectorPreferences, activeSessionHolder)
+    fun onEnterBackground(context: Context, vectorPreferences: VectorPreferences, activeSessionHolder: ActiveSessionHolder, clock: Clock) {
+        BackgroundSyncStarter.start(context, vectorPreferences, activeSessionHolder, clock)
     }
 }

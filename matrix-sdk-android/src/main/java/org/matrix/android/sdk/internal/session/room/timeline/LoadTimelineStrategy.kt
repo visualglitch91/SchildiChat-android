@@ -45,6 +45,7 @@ import org.matrix.android.sdk.internal.database.query.findLastForwardChunkOfThre
 import org.matrix.android.sdk.internal.database.query.where
 import org.matrix.android.sdk.internal.session.room.relation.threads.FetchThreadTimelineTask
 import org.matrix.android.sdk.internal.session.sync.handler.room.ThreadsAwarenessHandler
+import org.matrix.android.sdk.internal.util.time.Clock
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicReference
 
@@ -61,11 +62,13 @@ import java.util.concurrent.atomic.AtomicReference
 // we probably want to disable this again for improving performance.
 const val ENABLE_TIMELINE_LOOP_SPLITTING = true
 
-internal class LoadTimelineStrategy(
+internal class LoadTimelineStrategy constructor(
         private val roomId: String,
         private val timelineId: String,
         private val mode: Mode,
-        private val dependencies: Dependencies) {
+        private val dependencies: Dependencies,
+        clock: Clock,
+) {
 
     sealed interface Mode {
         object Live : Mode
@@ -103,6 +106,7 @@ internal class LoadTimelineStrategy(
             val threadsAwarenessHandler: ThreadsAwarenessHandler,
             val lightweightSettingsStorage: LightweightSettingsStorage,
             val onEventsUpdated: (Boolean) -> Unit,
+            val onEventsDeleted: () -> Unit,
             val onLimitedTimeline: () -> Unit,
             val onLastForwardDeleted: () -> Unit,
             val onNewTimelineEvents: (List<String>) -> Unit
@@ -172,7 +176,7 @@ internal class LoadTimelineStrategy(
         }
     }
 
-    private val uiEchoManager = UIEchoManager(uiEchoManagerListener)
+    private val uiEchoManager = UIEchoManager(uiEchoManagerListener, clock)
     private val sendingEventsDataSource: SendingEventsDataSource = RealmSendingEventsDataSource(
             roomId = roomId,
             realm = dependencies.realm,
@@ -343,7 +347,8 @@ internal class LoadTimelineStrategy(
                     threadsAwarenessHandler = dependencies.threadsAwarenessHandler,
                     lightweightSettingsStorage = dependencies.lightweightSettingsStorage,
                     initialEventId = mode.originEventId(),
-                    onBuiltEvents = dependencies.onEventsUpdated
+                    onBuiltEvents = dependencies.onEventsUpdated,
+                    onEventsDeleted = dependencies.onEventsDeleted,
             )
         }
     }
