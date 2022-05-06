@@ -46,7 +46,7 @@ sealed class RoomDetailAction : VectorViewModelAction {
     object AcceptInvite : RoomDetailAction()
     object RejectInvite : RoomDetailAction()
 
-    object EnterTrackingUnreadMessagesState : RoomDetailAction()
+    data class EnterTrackingUnreadMessagesState(val mostRecentDisplayedEvent: TimelineEvent?) : RoomDetailAction()
     object ExitTrackingUnreadMessagesState : RoomDetailAction()
 
     data class ResendMessage(val eventId: String) : RoomDetailAction()

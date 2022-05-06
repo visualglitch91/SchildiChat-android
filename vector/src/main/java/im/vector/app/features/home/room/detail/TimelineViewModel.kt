@@ -172,6 +172,8 @@ class TimelineViewModel @AssistedInject constructor(
             }
         }
 
+    fun mostRecentDisplayedEvent() = mostRecentDisplayedEvent
+
     private var prepareToEncrypt: Async<Unit> = Uninitialized
 
     @AssistedFactory
@@ -437,7 +439,7 @@ class TimelineViewModel @AssistedInject constructor(
             is RoomDetailAction.MarkAllAsRead                    -> handleMarkAllAsRead()
             is RoomDetailAction.ReportContent                    -> handleReportContent(action)
             is RoomDetailAction.IgnoreUser                       -> handleIgnoreUser(action)
-            is RoomDetailAction.EnterTrackingUnreadMessagesState -> startTrackingUnreadMessages()
+            is RoomDetailAction.EnterTrackingUnreadMessagesState -> startTrackingUnreadMessages(action)
             is RoomDetailAction.ExitTrackingUnreadMessagesState  -> stopTrackingUnreadMessages()
             is RoomDetailAction.VoteToPoll                       -> handleVoteToPoll(action)
             is RoomDetailAction.AcceptVerificationRequest        -> handleAcceptVerification(action)
@@ -663,8 +665,11 @@ class TimelineViewModel @AssistedInject constructor(
         }
     }
 
-    private fun startTrackingUnreadMessages() {
+    private fun startTrackingUnreadMessages(action: RoomDetailAction.EnterTrackingUnreadMessagesState? = null) {
         trackUnreadMessages.set(true)
+        if (mostRecentDisplayedEvent == null && action != null) {
+            mostRecentDisplayedEvent = action.mostRecentDisplayedEvent
+        }
         withState {
             _viewEvents.post(RoomDetailViewEvents.ScDbgReadTracking(mostRecentDisplayedEvent, it.unreadState, trackUnreadMessages.get()))
         }

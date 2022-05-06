@@ -73,6 +73,7 @@ import com.vanniktech.emoji.EmojiPopup
 import de.spiritcroc.matrixsdk.util.DbgUtil
 import de.spiritcroc.matrixsdk.util.Dimber
 import de.spiritcroc.recyclerview.widget.BetterLinearLayoutManager
+import de.spiritcroc.recyclerview.widget.LinearLayoutManager
 import im.vector.app.R
 import im.vector.app.core.animations.play
 import im.vector.app.core.dialogs.ConfirmationDialogBuilder
@@ -166,6 +167,7 @@ import im.vector.app.features.home.room.detail.timeline.helper.AudioMessagePlayb
 import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
 import im.vector.app.features.home.room.detail.timeline.image.buildImageContentRendererData
 import im.vector.app.features.home.room.detail.timeline.item.AbsMessageItem
+import im.vector.app.features.home.room.detail.timeline.item.ItemWithEvents
 import im.vector.app.features.home.room.detail.timeline.item.MessageAudioItem
 import im.vector.app.features.home.room.detail.timeline.item.MessageFileItem
 import im.vector.app.features.home.room.detail.timeline.item.MessageImageVideoItem
@@ -224,6 +226,7 @@ import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.events.model.content.EncryptedEventContent
 import org.matrix.android.sdk.api.session.events.model.content.WithHeldCode
 import org.matrix.android.sdk.api.session.events.model.toModel
+import org.matrix.android.sdk.api.session.room.getTimelineEvent
 import org.matrix.android.sdk.api.session.room.model.Membership
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import org.matrix.android.sdk.api.session.room.model.message.MessageAudioContent
@@ -2246,7 +2249,37 @@ class TimelineFragment @Inject constructor(
     }
 
     override fun onReadMarkerVisible() {
-        timelineViewModel.handle(RoomDetailAction.EnterTrackingUnreadMessagesState)
+        var mostRecentDisplayedEvent: TimelineEvent? = timelineViewModel.mostRecentDisplayedEvent()
+        val lm = views.timelineRecyclerView.layoutManager as? LinearLayoutManager
+        val room = session.roomService().getRoom(timelineArgs.roomId)
+        rmDimber.i { "Most recent check: ${mostRecentDisplayedEvent == null} ${lm?.findFirstVisibleItemPosition()}..${lm?.findLastVisibleItemPosition()}" }
+        if (mostRecentDisplayedEvent == null && lm != null && room != null) {
+            for (i in lm.findFirstVisibleItemPosition()..lm.findLastVisibleItemPosition()) {
+                val model = timelineEventController.adapter.getModelAtPosition(i)
+                rmDimber.i { "Most recent check: ${model.javaClass} / ${(model as? ItemWithEvents)?.isVisible()}" }
+                if (model is ItemWithEvents) {
+                    if (!model.isVisible()) {
+                        continue
+                    }
+                    rmDimber.i { "Most recent displayed model: ${model.getEventIds().firstOrNull()} - ${model.getEventIds().lastOrNull()}" }
+                    model.getEventIds().reversed().forEach { eventId ->
+                        if (mostRecentDisplayedEvent != null) {
+                            return@forEach
+                        }
+                        val event = room.getTimelineEvent(eventId)
+                        if (event != null) {
+                            rmDimber.i { "Most recent displayed event: $eventId" }
+                            mostRecentDisplayedEvent = event
+                            return@forEach
+                        }
+                    }
+                }
+                if (mostRecentDisplayedEvent != null) {
+                    break
+                }
+            }
+        }
+        timelineViewModel.handle(RoomDetailAction.EnterTrackingUnreadMessagesState(mostRecentDisplayedEvent))
     }
 
     override fun onPreviewUrlClicked(url: String) {
