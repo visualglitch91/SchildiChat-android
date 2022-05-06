@@ -39,7 +39,7 @@ class ReactionsSummaryFactory @Inject constructor() {
         val showAllStates = showAllReactionsByEvent.contains(eventId)
         val reactions = event.annotations?.reactionsSummary
                 ?.map {
-                    ReactionInfoData(it.key, it.count, it.addedByMe, it.localEchoEvents.isEmpty())
+                    ReactionInfoData(it.key, it.url, it.count, it.addedByMe, it.localEchoEvents.isEmpty())
                 }
         return ReactionsSummaryData(
                 reactions = reactions,

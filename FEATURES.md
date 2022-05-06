@@ -30,6 +30,7 @@ Here you can find some extra features and changes compared to Element Android (w
 - Setting to re-alert for new messages even if there's still an old notification for that room
 - Setting to hide start call buttons from the room's toolbar
 - Render inline images / custom emojis in the timeline
+- Render image reactions
 
 - Branding (name, app icon, links)
 - Show a toast instead of a snackbar after copying text, in order to not block the input area right after copying

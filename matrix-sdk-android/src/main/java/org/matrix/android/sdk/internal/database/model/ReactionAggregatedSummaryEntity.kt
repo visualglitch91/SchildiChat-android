@@ -25,6 +25,8 @@ import io.realm.RealmObject
 internal open class ReactionAggregatedSummaryEntity(
         // The reaction String 😀
         var key: String = "",
+        // mxc url
+        var url: String? = null,
         // Number of time this reaction was selected
         var count: Int = 0,
         // Did the current user sent this reaction

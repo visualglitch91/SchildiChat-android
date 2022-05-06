@@ -23,9 +23,11 @@ import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import im.vector.app.EmojiSpanify
 import im.vector.app.R
+import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.resources.StringProvider
 import im.vector.app.core.ui.list.genericFooterItem
 import im.vector.app.core.ui.list.genericLoaderItem
+import im.vector.app.core.utils.DimensionConverter
 import im.vector.lib.core.utils.epoxy.charsequence.toEpoxyCharSequence
 import javax.inject.Inject
 
@@ -34,6 +36,8 @@ import javax.inject.Inject
  */
 class ViewReactionsEpoxyController @Inject constructor(
         private val stringProvider: StringProvider,
+        private val dimensionConverter: DimensionConverter,
+        private val activeSessionHolder: ActiveSessionHolder,
         private val emojiSpanify: EmojiSpanify) :
         TypedEpoxyController<DisplayReactionsViewState>() {
 
@@ -60,6 +64,9 @@ class ViewReactionsEpoxyController @Inject constructor(
                         id(reactionInfo.eventId)
                         timeStamp(reactionInfo.timestamp)
                         reactionKey(host.emojiSpanify.spanify(reactionInfo.reactionKey).toEpoxyCharSequence())
+                        reactionUrl(reactionInfo.reactionUrl)
+                        dimensionConverter(host.dimensionConverter)
+                        activeSessionHolder(host.activeSessionHolder)
                         authorDisplayName(reactionInfo.authorName ?: reactionInfo.authorId)
                         userClicked { host.listener?.didSelectUser(reactionInfo.authorId) }
                     }

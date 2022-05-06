@@ -120,6 +120,7 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder> : BaseEventItem
                 reactionButton.reactedListener = reactionClickListener
                 reactionButton.setTag(R.id.reactionsContainer, reaction.key)
                 reactionButton.reactionString = reaction.key
+                reactionButton.reactionUrl = reaction.url
                 reactionButton.reactionCount = reaction.count
                 reactionButton.setChecked(reaction.addedByMe)
                 reactionButton.isEnabled = reaction.synced

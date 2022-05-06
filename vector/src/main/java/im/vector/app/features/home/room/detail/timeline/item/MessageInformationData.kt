@@ -75,6 +75,7 @@ data class ReactionsSummaryEvents(
 @Parcelize
 data class ReactionInfoData(
         val key: String,
+        val url: String?,
         val count: Int,
         val addedByMe: Boolean,
         val synced: Boolean

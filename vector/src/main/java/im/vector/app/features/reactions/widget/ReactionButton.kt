@@ -25,6 +25,9 @@ import androidx.core.content.withStyledAttributes
 import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.EmojiSpanify
 import im.vector.app.R
+import im.vector.app.core.di.ActiveSessionHolder
+import im.vector.app.core.glide.renderReactionImage
+import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.core.utils.TextUtils
 import im.vector.app.databinding.ReactionButtonBinding
 import javax.inject.Inject
@@ -39,6 +42,9 @@ class ReactionButton @JvmOverloads constructor(context: Context,
                                                defStyleAttr: Int = 0,
                                                defStyleRes: Int = R.style.TimelineReactionView) :
         LinearLayout(context, attrs, defStyleAttr, defStyleRes), View.OnClickListener, View.OnLongClickListener {
+
+    @Inject lateinit var activeSessionHolder: ActiveSessionHolder
+    @Inject lateinit var dimensionConverter: DimensionConverter
 
     @Inject lateinit var emojiSpanify: EmojiSpanify
 
@@ -58,6 +64,16 @@ class ReactionButton @JvmOverloads constructor(context: Context,
             // maybe cache this for performances?
             val emojiSpanned = emojiSpanify.spanify(value)
             views.reactionText.text = emojiSpanned
+        }
+
+    var reactionUrl: String? = null
+        set(value) {
+            field = value
+
+            activeSessionHolder.getSafeActiveSession()?.let { session ->
+                val size = dimensionConverter.dpToPx(12)
+                renderReactionImage(reactionUrl, reactionString, size, session,views.reactionText, views.reactionImage)
+            }
         }
 
     private var isChecked: Boolean = false

@@ -52,7 +52,8 @@ data class ReactionInfo(
         val reactionKey: String,
         val authorId: String,
         val authorName: String? = null,
-        val timestamp: String? = null
+        val timestamp: String? = null,
+        val reactionUrl: String? = null
 )
 
 /**
@@ -95,7 +96,8 @@ class ViewReactionsViewModel @AssistedInject constructor(
                                             reactionsSummary.key,
                                             event.root.senderId ?: "",
                                             event.senderInfo.disambiguatedDisplayName,
-                                            dateFormatter.format(event.root.originServerTs, DateFormatKind.DEFAULT_DATE_AND_TIME)
+                                            dateFormatter.format(event.root.originServerTs, DateFormatKind.DEFAULT_DATE_AND_TIME),
+                                            reactionUrl = reactionsSummary.url
 
                                     )
                                 }

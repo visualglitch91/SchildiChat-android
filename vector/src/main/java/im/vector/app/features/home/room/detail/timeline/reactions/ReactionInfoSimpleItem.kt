@@ -16,15 +16,19 @@
 
 package im.vector.app.features.home.room.detail.timeline.reactions
 
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
 import im.vector.app.R
+import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.VectorEpoxyHolder
 import im.vector.app.core.epoxy.onClick
+import im.vector.app.core.glide.renderReactionImage
+import im.vector.app.core.utils.DimensionConverter
 import im.vector.lib.core.utils.epoxy.charsequence.EpoxyCharSequence
 
 /**
@@ -37,6 +41,9 @@ abstract class ReactionInfoSimpleItem : EpoxyModelWithHolder<ReactionInfoSimpleI
     lateinit var reactionKey: EpoxyCharSequence
 
     @EpoxyAttribute
+    var reactionUrl: String? = null
+
+    @EpoxyAttribute
     lateinit var authorDisplayName: String
 
     @EpoxyAttribute
@@ -44,6 +51,12 @@ abstract class ReactionInfoSimpleItem : EpoxyModelWithHolder<ReactionInfoSimpleI
 
     @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash)
     var userClicked: ClickListener? = null
+
+    @EpoxyAttribute
+    lateinit var dimensionConverter: DimensionConverter
+
+    @EpoxyAttribute
+    lateinit var activeSessionHolder: ActiveSessionHolder
 
     override fun bind(holder: Holder) {
         super.bind(holder)
@@ -56,10 +69,16 @@ abstract class ReactionInfoSimpleItem : EpoxyModelWithHolder<ReactionInfoSimpleI
             holder.timeStampView.isVisible = false
         }
         holder.view.onClick(userClicked)
+
+        activeSessionHolder.getSafeActiveSession()?.let { session ->
+            val size = dimensionConverter.dpToPx(16)
+            renderReactionImage(reactionUrl, reactionKey.charSequence.toString(), size, session, holder.emojiReactionView, holder.emojiReactionImageView)
+        }
     }
 
     class Holder : VectorEpoxyHolder() {
         val emojiReactionView by bind<TextView>(R.id.itemSimpleReactionInfoKey)
+        val emojiReactionImageView by bind<ImageView>(R.id.itemSimpleReactionInfoImage)
         val displayNameView by bind<TextView>(R.id.itemSimpleReactionInfoMemberName)
         val timeStampView by bind<TextView>(R.id.itemSimpleReactionInfoTime)
     }

@@ -28,6 +28,7 @@ internal object EventAnnotationsSummaryMapper {
                 reactionsSummary = annotationsSummary.reactionsSummary.toList().map {
                     ReactionAggregatedSummary(
                             it.key,
+                            it.url,
                             it.count,
                             it.addedByMe,
                             it.firstTimestamp,

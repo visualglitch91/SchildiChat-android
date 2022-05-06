@@ -111,6 +111,7 @@ internal class UIEchoManager(
                 // just add the new key
                 ReactionAggregatedSummary(
                         key = uiEchoReaction.reaction,
+                        url = null,
                         count = 1,
                         addedByMe = true,
                         firstTimestamp = clock.epochMillis(),
@@ -125,6 +126,7 @@ internal class UIEchoManager(
                     // only update if echo is not yet there
                     ReactionAggregatedSummary(
                             key = existing.key,
+                            url = existing.url,
                             count = existing.count + 1,
                             addedByMe = true,
                             firstTimestamp = existing.firstTimestamp,

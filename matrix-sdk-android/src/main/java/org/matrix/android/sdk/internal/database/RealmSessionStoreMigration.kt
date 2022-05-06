@@ -20,6 +20,7 @@ import de.spiritcroc.android.sdk.internal.database.migration.MigrateScSessionTo0
 import de.spiritcroc.android.sdk.internal.database.migration.MigrateScSessionTo002
 import de.spiritcroc.android.sdk.internal.database.migration.MigrateScSessionTo003
 import de.spiritcroc.android.sdk.internal.database.migration.MigrateScSessionTo004
+import de.spiritcroc.android.sdk.internal.database.migration.MigrateScSessionTo005
 import io.realm.DynamicRealm
 import io.realm.RealmMigration
 import org.matrix.android.sdk.internal.database.migration.MigrateSessionTo001
@@ -64,7 +65,7 @@ internal class RealmSessionStoreMigration @Inject constructor(
     override fun hashCode() = 1000
 
     // SC-specific DB changes on top of Element
-    private val scSchemaVersion = 4L
+    private val scSchemaVersion = 5L
     private val scSchemaVersionOffset = (1L shl 12)
 
     val schemaVersion = 27L +
@@ -108,5 +109,6 @@ internal class RealmSessionStoreMigration @Inject constructor(
         if (oldScVersion <= 1) MigrateScSessionTo002(realm).perform()
         if (oldScVersion <= 2) MigrateScSessionTo003(realm).perform()
         if (oldScVersion <= 3) MigrateScSessionTo004(realm).perform()
+        if (oldScVersion <= 4) MigrateScSessionTo005(realm).perform()
     }
 }

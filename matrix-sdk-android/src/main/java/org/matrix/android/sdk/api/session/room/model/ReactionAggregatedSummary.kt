@@ -18,6 +18,7 @@ package org.matrix.android.sdk.api.session.room.model
 
 data class ReactionAggregatedSummary(
         val key: String,                // "👍"
+        val url: String?,               // mxc://...
         val count: Int,                 // 8
         val addedByMe: Boolean,         // true
         val firstTimestamp: Long,       // unix timestamp

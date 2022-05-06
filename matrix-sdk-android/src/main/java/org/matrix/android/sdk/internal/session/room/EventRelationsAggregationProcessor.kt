@@ -597,12 +597,13 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
         // rel_type must be m.annotation
         if (RelationType.ANNOTATION == content.relatesTo?.type) {
             val reaction = content.relatesTo.key
+            val url = content.url
             val relatedEventID = content.relatesTo.eventId
             val reactionEventId = event.eventId
             Timber.v("Reaction $reactionEventId relates to $relatedEventID")
             val eventSummary = EventAnnotationsSummaryEntity.getOrCreate(realm, roomId, relatedEventID)
 
-            var sum = eventSummary.reactionsSummary.find { it.key == reaction }
+            var sum = eventSummary.reactionsSummary.find { it.key == reaction && it.url == url }
             val txId = event.unsignedData?.transactionId
             if (isLocalEcho && txId.isNullOrBlank()) {
                 Timber.w("Received a local echo with no transaction ID")
@@ -610,6 +611,7 @@ internal class EventRelationsAggregationProcessor @Inject constructor(
             if (sum == null) {
                 sum = realm.createObject(ReactionAggregatedSummaryEntity::class.java)
                 sum.key = reaction
+                sum.url = url
                 sum.firstTimestamp = event.originServerTs ?: 0
                 if (isLocalEcho) {
                     Timber.v("Adding local echo reaction")
