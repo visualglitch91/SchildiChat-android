@@ -222,6 +222,7 @@ class VectorPreferences @Inject constructor(
         private const val SETTINGS_HIDE_CALL_BUTTONS = "SETTINGS_HIDE_CALL_BUTTONS"
         private const val SETTINGS_READ_RECEIPT_FOLLOWS_READ_MARKER = "SETTINGS_READ_RECEIPT_FOLLOWS_READ_MARKER"
         private const val SETTINGS_SHOW_OPEN_ANONYMOUS = "SETTINGS_SHOW_OPEN_ANONYMOUS"
+        private const val SETTINGS_FLOATING_DATE = "SETTINGS_FLOATING_DATE"
 
         private const val DID_ASK_TO_ENABLE_SESSION_PUSH = "DID_ASK_TO_ENABLE_SESSION_PUSH"
 
@@ -1133,6 +1134,10 @@ class VectorPreferences @Inject constructor(
         return defaultPrefs.getBoolean(SETTINGS_SHOW_OPEN_ANONYMOUS, false)
     }
 
+    fun floatingDate(): Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_FLOATING_DATE, true)
+    }
+
     /**
      * I likely do more fresh installs of the app than anyone else, so a shortcut to change some of the default settings to
      * my preferred values can safe me some time
@@ -1158,6 +1163,7 @@ class VectorPreferences @Inject constructor(
                 .putBoolean(SETTINGS_ENABLE_SPACE_PAGER, true)
                 .putBoolean(SETTINGS_READ_RECEIPT_FOLLOWS_READ_MARKER, true)
                 .putBoolean(SETTINGS_SHOW_OPEN_ANONYMOUS, true)
+                .putBoolean(SETTINGS_FLOATING_DATE, true)
                 .apply()
     }
 

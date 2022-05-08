@@ -9,6 +9,7 @@ Here you can find some extra features and changes compared to Element Android (w
 - Possibility to select themes for both light and dark system mode individually
 - [UnifiedPush](https://unifiedpush.org/) support
 - "Easy mode" which disables public room functionality
+- Floating date
 - Setting for room previews: show all events, hide membership changes, hide membership changes and reactions (individual settings for direct chats and groups)
 - More prominent unread counter for chats in the room overview (bigger, different placement, more noticeable color in SchildiChat designs)
 - Mark chats as unread ([MSC2867](https://github.com/matrix-org/matrix-spec-proposals/pull/2867), only works with compatible clients (SchildiChat, FluffyChat))

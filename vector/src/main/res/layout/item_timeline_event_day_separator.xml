@@ -6,6 +6,10 @@
     android:padding="8dp"
     tools:viewBindingIgnore="true">
 
+    <FrameLayout
+        android:id="@+id/itemDayTextSeparatorView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -13,6 +17,20 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:background="?vctr_list_separator" />
+    <!-- Just to reserve some extra space while not floating. So use invisible text. -->
+    <TextView
+        android:id="@+id/itemDayTextCutoutView"
+        style="@style/Widget.Vector.TextView.Subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="?android:colorBackground"
+        android:textColor="@android:color/transparent"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:textSize="15sp"
+        tools:text="@tools:sample/date/day_of_week" />
+    </FrameLayout>
 
     <TextView
         android:id="@+id/itemDayTextView"
@@ -20,9 +38,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="?android:colorBackground"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
+        android:background="@drawable/date_background"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:textColor="?vctr_content_tertiary"
         android:textSize="15sp"
         tools:text="@tools:sample/date/day_of_week" />

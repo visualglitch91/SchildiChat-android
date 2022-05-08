@@ -62,6 +62,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import com.airbnb.epoxy.EpoxyModel
+import com.airbnb.epoxy.EpoxyViewHolder
 import com.airbnb.epoxy.OnModelBuildFinishedListener
 import com.airbnb.epoxy.addGlidePreloader
 import com.airbnb.epoxy.glidePreloader
@@ -72,10 +73,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.vanniktech.emoji.EmojiPopup
 import de.spiritcroc.matrixsdk.util.DbgUtil
 import de.spiritcroc.matrixsdk.util.Dimber
+import de.spiritcroc.recyclerview.StickyHeaderItemDecoration
 import de.spiritcroc.recyclerview.widget.BetterLinearLayoutManager
 import de.spiritcroc.recyclerview.widget.LinearLayoutManager
 import im.vector.app.R
 import im.vector.app.core.animations.play
+import im.vector.app.core.date.DateFormatKind
 import im.vector.app.core.dialogs.ConfirmationDialogBuilder
 import im.vector.app.core.dialogs.GalleryOrCameraDialogHelper
 import im.vector.app.core.epoxy.LayoutManagerStateRestorer
@@ -167,6 +170,7 @@ import im.vector.app.features.home.room.detail.timeline.helper.AudioMessagePlayb
 import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
 import im.vector.app.features.home.room.detail.timeline.image.buildImageContentRendererData
 import im.vector.app.features.home.room.detail.timeline.item.AbsMessageItem
+import im.vector.app.features.home.room.detail.timeline.item.DaySeparatorItem
 import im.vector.app.features.home.room.detail.timeline.item.ItemWithEvents
 import im.vector.app.features.home.room.detail.timeline.item.MessageAudioItem
 import im.vector.app.features.home.room.detail.timeline.item.MessageFileItem
@@ -220,6 +224,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.billcarsonfr.jsonviewer.JSonViewerDialog
 import org.commonmark.parser.Parser
+import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.content.ContentAttachmentData
 import org.matrix.android.sdk.api.session.events.model.EventType
@@ -1477,6 +1482,46 @@ class TimelineFragment @Inject constructor(
     private fun setupRecyclerView() {
         timelineEventController.callback = this
         timelineEventController.timeline = timelineViewModel.timeline
+
+        if (vectorPreferences.floatingDate()) {
+            views.timelineRecyclerView.addItemDecoration(
+                    object : StickyHeaderItemDecoration(timelineEventController, reverse = true) {
+                        override fun isHeader(itemPosition: Int): Boolean {
+                            if (itemPosition != RecyclerView.NO_POSITION) {
+                                val model = timelineEventController.adapter.getModelAtPosition(itemPosition)
+                                return model is DaySeparatorItem
+                            }
+                            return false
+                        }
+
+                        override fun getHeaderViewForItem(headerPosition: Int, parent: RecyclerView): View {
+                            // Same as super
+                            val viewHolder = timelineEventController.adapter.onCreateViewHolder(
+                                    parent,
+                                    timelineEventController.adapter.getItemViewType(headerPosition)
+                            )
+                            timelineEventController.adapter.onBindViewHolder(viewHolder, headerPosition)
+                            // Same as super -- end
+
+                            // We want to hide the separator line for floating dates
+                            (viewHolder.holder as? DaySeparatorItem.Holder)?.let { DaySeparatorItem.asFloatingDate(it) }
+
+                            return viewHolder.itemView
+                        }
+
+                        // While the header has a sticky overlay, only hide its text, not the separator lines
+                        override fun updateOverlaidHeader(parent: RecyclerView, position: Int, isCurrentlyOverlaid: Boolean): Boolean {
+                            val model = tryOrNull { timelineEventController.adapter.getModelAtPosition(position) as? DaySeparatorItem }
+                            if (model != null) {
+                                val viewHolder = ((parent.findViewHolderForAdapterPosition(position) as? EpoxyViewHolder)?.holder) as? DaySeparatorItem.Holder
+                                model.shouldBeVisible(!isCurrentlyOverlaid, viewHolder)
+                                return true
+                            }
+                            return false
+                        }
+                    }
+            )
+        }
 
         views.timelineRecyclerView.trackItemsVisibilityChange()
         layoutManager = object : BetterLinearLayoutManager(context, RecyclerView.VERTICAL, true) {

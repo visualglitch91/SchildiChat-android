@@ -191,4 +191,8 @@
     <string name="room_list_quick_actions_open_anonymous">Open without reading</string>
     <string name="settings_show_open_anonymous">Open without reading</string>
     <string name="settings_show_open_anonymous_summary">Show option to open a room without automatically marking it read</string>
+
+    <string name="settings_floating_date">Floating date</string>
+    <string name="settings_floating_date_summary">Show the date on top of messages while scrolling</string>
+
 </resources>
