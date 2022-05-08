@@ -634,7 +634,7 @@ class MessageItemFactory @Inject constructor(
         val linkifiedBody = renderedBody.linkify(callback)
 
         // Only for checking if it's a emoji-only message
-        val pseudoEmojiBody = emojiCheckCharSequence ?: linkifiedBody
+        val pseudoEmojiBody = (emojiCheckCharSequence ?: linkifiedBody).replace(Regex("""\s"""), "")
 
         return MessageTextItem_()
                 .message(
@@ -644,7 +644,7 @@ class MessageItemFactory @Inject constructor(
                         linkifiedBody
                     }.toMessageTextEpoxyCharSequence()
                 )
-                .useBigFont(pseudoEmojiBody.length <= MAX_NUMBER_OF_EMOJI_FOR_BIG_FONT * 2 && containsOnlyEmojis(pseudoEmojiBody.toString()))
+                .useBigFont(pseudoEmojiBody.length <= MAX_NUMBER_OF_EMOJI_FOR_BIG_FONT * 2 && containsOnlyEmojis(pseudoEmojiBody))
                 .bindingOptions(bindingOptions)
                 .markwonPlugins(htmlRenderer.get().plugins)
                 .searchForPills(isFormatted)
