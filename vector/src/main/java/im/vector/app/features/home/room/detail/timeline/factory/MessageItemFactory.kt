@@ -34,6 +34,7 @@ import im.vector.app.core.resources.StringProvider
 import im.vector.app.core.time.Clock
 import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.core.utils.containsOnlyEmojis
+import im.vector.app.core.utils.customToPseudoEmoji
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import im.vector.app.features.home.room.detail.timeline.helper.AudioMessagePlaybackTracker
 import im.vector.app.features.home.room.detail.timeline.helper.AvatarSizeProvider
@@ -615,7 +616,8 @@ class MessageItemFactory @Inject constructor(
     ): MessageTextItem? {
         val compressed = htmlCompressor.compress(matrixFormattedBody)
         val renderedFormattedBody = htmlRenderer.get().render(compressed, pillsPostProcessor) as Spanned
-        return buildMessageTextItem(renderedFormattedBody, true, informationData, highlight, callback, attributes)
+        val pseudoEmojiBody = htmlRenderer.get().render(customToPseudoEmoji(compressed), pillsPostProcessor) as Spanned
+        return buildMessageTextItem(renderedFormattedBody, true, informationData, highlight, callback, attributes, pseudoEmojiBody)
     }
 
     private fun buildMessageTextItem(
@@ -625,10 +627,14 @@ class MessageItemFactory @Inject constructor(
             highlight: Boolean,
             callback: TimelineEventController.Callback?,
             attributes: AbsMessageItem.Attributes,
+            emojiCheckCharSequence: CharSequence? = null
     ): MessageTextItem? {
         val renderedBody = textRenderer.render(body)
         val bindingOptions = spanUtils.getBindingOptions(renderedBody)
         val linkifiedBody = renderedBody.linkify(callback)
+
+        // Only for checking if it's a emoji-only message
+        val pseudoEmojiBody = emojiCheckCharSequence ?: linkifiedBody
 
         return MessageTextItem_()
                 .message(
@@ -638,7 +644,7 @@ class MessageItemFactory @Inject constructor(
                         linkifiedBody
                     }.toMessageTextEpoxyCharSequence()
                 )
-                .useBigFont(linkifiedBody.length <= MAX_NUMBER_OF_EMOJI_FOR_BIG_FONT * 2 && containsOnlyEmojis(linkifiedBody.toString()))
+                .useBigFont(pseudoEmojiBody.length <= MAX_NUMBER_OF_EMOJI_FOR_BIG_FONT * 2 && containsOnlyEmojis(pseudoEmojiBody.toString()))
                 .bindingOptions(bindingOptions)
                 .markwonPlugins(htmlRenderer.get().plugins)
                 .searchForPills(isFormatted)

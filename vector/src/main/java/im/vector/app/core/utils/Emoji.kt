@@ -19,6 +19,14 @@ package im.vector.app.core.utils
 import com.vanniktech.emoji.EmojiUtils
 
 /**
+ * Replace custom emojis with some other arbitrary emoji, so we can maintain our logic
+ * for when to display emoji-only messages larger than others.
+ */
+fun customToPseudoEmoji(str: String): String {
+    return str.replace(Regex("""<img\s+([^>]*)data-mx-emoticon([^>]*)>"""), "\uD83D\uDC40")
+}
+
+/**
  * Test if a string contains emojis.
  * It seems that the regex [emoji_regex]+ does not work.
  * Some characters like ?, # or digit are accepted.
