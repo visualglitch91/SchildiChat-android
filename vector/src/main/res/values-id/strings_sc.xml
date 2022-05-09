@@ -106,7 +106,7 @@
     <string name="settings_system_dark_theme_pre_ten_summary">Memberikan pengaturan tema terpisah untuk tema terang dan gelap. Versi Android Anda saat ini mungkin tidak mendukung peralihan tema terang dan gelap!</string>
     <string name="sc_colored_theme">SC Hitam, dengan gelembung berwarna</string>
     <string name="element_black_theme">Element Hitam</string>
-    <string name="send_bug_report_sc_extra">Untuk meningkatkan pengelihatan masalah Anda dan untuk memungkinkan kami untuk menghubungi, Anda mungkin ingin merujuk laporan ini (dengan memberikan ID Matrix Anda dan perkiraan waktu pengirimannya) dalam sebuah masalah di https://github.com/SchildiChat/SchildiChat-android/issues (periksa dulu apakah sudah ada masalah yang Anda mengalami, dan buat yang baru jika belum ada).</string>
+    <string name="send_bug_report_sc_extra">Untuk meningkatkan pengelihatan masalah Anda, Anda mungkin ingin merujuk laporan ini (dengan memberikan ID Matrix Anda dan perkiraan waktu pengirimannya) dalam sebuah masalah di https://github.com/SchildiChat/SchildiChat-android/issues (periksa dulu apakah sudah ada masalah yang Anda mengalami, dan buat yang baru jika belum ada).</string>
     <string name="bubble_style_both">Kedua sisi</string>
     <string name="settings_troubleshoot_test_endpoint_success">Titik akhir berhasil didapatkan:
 \n%1$s</string>
