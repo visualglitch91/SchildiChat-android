@@ -71,6 +71,7 @@ import im.vector.app.features.home.room.detail.timeline.item.RedactedMessageItem
 import im.vector.app.features.home.room.detail.timeline.item.VerificationRequestItem
 import im.vector.app.features.home.room.detail.timeline.item.VerificationRequestItem_
 import im.vector.app.features.home.room.detail.timeline.render.EventTextRenderer
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.home.room.detail.timeline.tools.createLinkMovementMethod
 import im.vector.app.features.home.room.detail.timeline.tools.linkify
 import im.vector.app.features.html.EventHtmlRenderer
@@ -100,6 +101,7 @@ import org.matrix.android.sdk.api.session.crypto.attachments.toElementToDecrypt
 import org.matrix.android.sdk.api.session.events.model.RelationType
 import org.matrix.android.sdk.api.session.events.model.content.EncryptedEventContent
 import org.matrix.android.sdk.api.session.events.model.isThread
+import org.matrix.android.sdk.api.session.events.model.toContent
 import org.matrix.android.sdk.api.session.events.model.toModel
 import org.matrix.android.sdk.api.session.room.model.message.MessageAudioContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageBeaconInfoContent
@@ -122,6 +124,7 @@ import org.matrix.android.sdk.api.session.room.model.message.getThumbnailUrl
 import org.matrix.android.sdk.api.session.room.timeline.getLastMessageContent
 import org.matrix.android.sdk.api.settings.LightweightSettingsStorage
 import org.matrix.android.sdk.api.util.MimeTypes
+import timber.log.Timber
 import javax.inject.Inject
 
 class MessageItemFactory @Inject constructor(
@@ -707,33 +710,36 @@ class MessageItemFactory @Inject constructor(
     ): VectorEpoxyModel<*>? {
         val attributes = attrs.copy(isNotice = true)
 
-        // We might want to use the normal text rendering in the future as following (but need to
-        // ensure that notices are easily told apart also from code, ... formatted messages).
-        // Maybe, instead of text coloring, we can come up with some other indicator that catches all cases automatically?
-        /*
-        val noticeAsTextContent = messageContent.toContent().toModel<MessageTextContent>()
-        if (noticeAsTextContent != null && false) {
-            return buildItemForTextContent(
-                    noticeAsTextContent,
-                    informationData,
-                    highlight,
-                    callback,
-                    attributes
-            )
-        }
-        Timber.w("Could not parse notice as text item, using legacy fallback")
-         */
-
+        val formattedBody: CharSequence
         val htmlBody = messageContent.getHtmlBody()
-        // SchildiChat likes to not overwrite message formatting for notices, compared to upstream
-        val formattedBody = htmlBody
-        /*
-        val formattedBody = span {
+
+        if (attributes.informationData.messageLayout is TimelineMessageLayout.ScBubble) {
+            // Just use normal text rendering for notices
+            val noticeAsTextContent = messageContent.toContent().toModel<MessageTextContent>()
+            if (noticeAsTextContent != null) {
+                return buildItemForTextContent(
+                        noticeAsTextContent,
+                        informationData,
+                        highlight,
+                        callback,
+                        attributes
+                )
+            }
+            Timber.w("Could not parse notice as text item, using legacy fallback")
+
+            // SchildiChat likes to not overwrite message formatting for notices, as opposed to upstream
+            formattedBody = htmlBody
+        } else {
+
+        // Upstream impl for non-SC-bubbles
+
+        formattedBody = span {
             text = htmlBody
             textColor = colorProvider.getColorFromAttribute(R.attr.vctr_content_secondary)
             textStyle = "italic"
         }
-         */
+
+        }
 
         val bindingOptions = spanUtils.getBindingOptions(htmlBody)
         val message = formattedBody.linkify(callback)
@@ -765,11 +771,11 @@ class MessageItemFactory @Inject constructor(
 
         return MessageTextItem_()
                 .message(
-                    if (informationData.hasBeenEdited) {
-                        annotateWithEdited(message, callback, informationData)
-                    } else {
-                        message
-                    }.toMessageTextEpoxyCharSequence()
+                        if (informationData.hasBeenEdited) {
+                            annotateWithEdited(message, callback, informationData)
+                        } else {
+                            message
+                        }.toMessageTextEpoxyCharSequence()
                 )
                 .bindingOptions(bindingOptions)
                 .leftGuideline(avatarSizeProvider.leftGuideline)
