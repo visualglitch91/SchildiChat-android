@@ -13,7 +13,7 @@ Here you can find some extra features and changes compared to Element Android (w
 - Setting for room previews: show all events, hide membership changes, hide membership changes and reactions (individual settings for direct chats and groups)
 - More prominent unread counter for chats in the room overview (bigger, different placement, more noticeable color in SchildiChat designs)
 - Mark chats as unread ([MSC2867](https://github.com/matrix-org/matrix-spec-proposals/pull/2867), only works with compatible clients (SchildiChat, FluffyChat))
-- Optionally count unread messages also for muted chats, displayed with a different color ([MSC2654](https://github.com/matrix-org/matrix-spec-proposals/pull/2654), only works with synapse right now)
+- Optionally count unread messages also for muted chats, displayed with a different color (requires server-side [MSC2654](https://github.com/matrix-org/matrix-spec-proposals/pull/2654) support)
 - Possibility to not show people in spaces based on their space membership, but only if the chat is actually part of the space
 - Setting to jump to bottom on send
 - Setting to also enable URL previews in encrypted chats (for users who trust their homeserver or who don't care about leaked message content in this case)
