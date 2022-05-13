@@ -73,7 +73,7 @@ internal class TokenChunkEventPersistor @Inject constructor(
         if (receivedChunk.events.isEmpty() && receivedChunk.start == receivedChunk.end) {
             Timber.w("Discard empty chunk with identical start/end token ${receivedChunk.start}")
 
-            if (receivedChunk.hasMore()) {
+            return if (receivedChunk.hasMore()) {
                 Result.SHOULD_FETCH_MORE
             } else {
                 Result.REACHED_END
