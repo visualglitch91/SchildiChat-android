@@ -70,6 +70,19 @@ internal class TokenChunkEventPersistor @Inject constructor(
     suspend fun insertInDb(receivedChunk: TokenChunkEvent,
                            roomId: String,
                            direction: PaginationDirection): Result {
+        if (receivedChunk.events.isEmpty() && receivedChunk.start == receivedChunk.end) {
+            Timber.w("Discard empty chunk with identical start/end token ${receivedChunk.start}")
+
+            if (receivedChunk.hasMore()) {
+                Result.SHOULD_FETCH_MORE
+            } else {
+                Result.REACHED_END
+            }
+        } else if (receivedChunk.start == receivedChunk.end) {
+            // I don't think we have seen this case so far, but let's log it just in case...
+            // -> if it happens, we need to address it somehow!
+            Timber.e("Non-empty chunk with identical start/end token ${receivedChunk.start}")
+        }
         monarchy
                 .awaitTransaction { realm ->
                     Timber.i("Start persisting ${receivedChunk.events.size} events in $roomId towards $direction | " +
