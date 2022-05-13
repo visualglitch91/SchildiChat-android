@@ -228,7 +228,7 @@ class AutoCompleter @AssistedInject constructor(
         }
 
         // Detect next word separator
-        var endIndex = editable.indexOf(" ", startIndex)
+        var endIndex = editable.indexOfAny(listOf(" ", "\n"), startIndex)
         if (endIndex == -1) {
             endIndex = editable.length
         }
