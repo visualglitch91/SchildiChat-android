@@ -65,6 +65,8 @@ const val ENABLE_TIMELINE_LOOP_SPLITTING = true
 // TODO: once we feel comfortable that this is no longer necessary,
 // we probably want to disable this again for improving performance.
 const val ENABLE_TIMELINE_EMPTY_CHUNK_CLEANUP = true
+// Performance consideration for huge timelines, when having ENABLE_TIMELINE_LOOP_SPLITTING or ENABLE_TIMELINE_EMPTY_CHUNK_CLEANUP set to true
+const val MAX_CHUNK_REPAIR_CHECK_COUNT = 100
 
 internal class LoadTimelineStrategy constructor(
         private val roomId: String,
@@ -431,6 +433,10 @@ internal class LoadTimelineStrategy constructor(
                 }
             }
             chunk = next
+            if (visited.size > MAX_CHUNK_REPAIR_CHECK_COUNT) {
+                Timber.i("Abort searching $directionName for empty chunks after ${visited.size} chunks")
+                return
+            }
         }
     }
 
@@ -449,6 +455,10 @@ internal class LoadTimelineStrategy constructor(
                 break
             }
             visited.add(chunk.identifier())
+            if (visited.size > MAX_CHUNK_REPAIR_CHECK_COUNT) {
+                Timber.i("Abort searching $directionName for chunk loops after ${visited.size} chunks")
+                return
+            }
             chunk = directionFun(chunk)
         }
 
