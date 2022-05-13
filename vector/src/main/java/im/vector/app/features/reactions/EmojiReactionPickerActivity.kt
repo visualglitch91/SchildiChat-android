@@ -168,7 +168,7 @@ class EmojiReactionPickerActivity : VectorBaseActivity<ActivityEmojiReactionPick
             }
 
             searchView.queryTextChanges()
-                    .throttleFirst(600)
+                    //.throttleFirst(600)
                     .onEach { query ->
                         onQueryText(query.toString())
                     }

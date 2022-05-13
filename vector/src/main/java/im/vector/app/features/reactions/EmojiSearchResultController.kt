@@ -59,7 +59,7 @@ class EmojiSearchResultController @Inject constructor(
                     keywords = listOf(stringProvider.getString(R.string.freeform_reaction_summary))
             )
             emojiSearchResultItem {
-                id("de.spiritcroc.riotx.freeform-reaction-is-somebody-really-caring-about-this-key-lol")
+                id("de.spiritcroc.riotx.freeform-reaction.${data.query}")
                 emojiItem(freeformReaction)
                 emojiTypeFace(host.emojiTypeface)
                 currentQuery(data.query)
