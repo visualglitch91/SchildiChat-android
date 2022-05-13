@@ -195,4 +195,7 @@
     <string name="settings_floating_date">Floating date</string>
     <string name="settings_floating_date_summary">Show the date on top of messages while scrolling</string>
 
+    <string name="freeform_react_with">React with \"%1$s\"</string>
+    <string name="freeform_reaction_summary">Free-form reaction</string>
+
 </resources>

@@ -19,6 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:textColor="?vctr_content_primary"
+        android:minWidth="32dp"
         tools:ignore="SpUsage"
         tools:text="@sample/reactions.json/data/reaction" />
 
