@@ -160,18 +160,26 @@ internal class RoomSummaryUpdater @Inject constructor(
             )
         }
 
-        roomSummaryEntity.hasUnreadMessages = roomSummaryEntity.notificationCount > 0 ||
-                (roomSummaryEntity.unreadCount?.let { it > 0 } ?: false) ||
-                // avoid this call if we are sure there are unread events
-                latestPreviewableEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
-        roomSummaryEntity.hasUnreadContentMessages = roomSummaryEntity.notificationCount > 0 ||
-                (roomSummaryEntity.unreadCount?.let { it > 0 } ?: false) ||
-                // avoid this call if we are sure there are unread events
-                latestPreviewableContentEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
-        roomSummaryEntity.hasUnreadOriginalContentMessages = roomSummaryEntity.notificationCount > 0 ||
-                (roomSummaryEntity.unreadCount?.let { it > 0 } ?: false) ||
-                // avoid this call if we are sure there are unread events
-                latestPreviewableOriginalContentEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
+        val roomSummaryUnreadCount = roomSummaryEntity.unreadCount
+        if (roomSummaryUnreadCount != null /* && preferences.prioritizeUnreadCountsOverRoomPreviewsForUnreadCalculation() */) {
+            val hasUnreadMessages = roomSummaryUnreadCount > 0
+            roomSummaryEntity.hasUnreadMessages = hasUnreadMessages
+            roomSummaryEntity.hasUnreadContentMessages = hasUnreadMessages
+            roomSummaryEntity.hasUnreadOriginalContentMessages = hasUnreadMessages
+        } else {
+            roomSummaryEntity.hasUnreadMessages = roomSummaryEntity.notificationCount > 0 ||
+                    //(roomSummaryEntity.unreadCount?.let { it > 0 } ?: false) ||
+                    // avoid this call if we are sure there are unread events
+                    latestPreviewableEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
+            roomSummaryEntity.hasUnreadContentMessages = roomSummaryEntity.notificationCount > 0 ||
+                    //(roomSummaryEntity.unreadCount?.let { it > 0 } ?: false) ||
+                    // avoid this call if we are sure there are unread events
+                    latestPreviewableContentEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
+            roomSummaryEntity.hasUnreadOriginalContentMessages = roomSummaryEntity.notificationCount > 0 ||
+                    //(roomSummaryEntity.unreadCount?.let { it > 0 } ?: false) ||
+                    // avoid this call if we are sure there are unread events
+                    latestPreviewableOriginalContentEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
+        }
 
         roomSummaryEntity.setDisplayName(roomDisplayNameResolver.resolve(realm, roomId))
         roomSummaryEntity.avatarUrl = roomAvatarResolver.resolve(realm, roomId)
