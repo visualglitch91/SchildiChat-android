@@ -61,6 +61,10 @@ import java.util.concurrent.atomic.AtomicReference
 // TODO: once we feel comfortable that this is no longer necessary,
 // we probably want to disable this again for improving performance.
 const val ENABLE_TIMELINE_LOOP_SPLITTING = true
+// Whether to search for stuck timelines due to empty self-linking chunks.
+// TODO: once we feel comfortable that this is no longer necessary,
+// we probably want to disable this again for improving performance.
+const val ENABLE_TIMELINE_EMPTY_CHUNK_CLEANUP = true
 
 internal class LoadTimelineStrategy constructor(
         private val roomId: String,
@@ -328,6 +332,10 @@ internal class LoadTimelineStrategy constructor(
 
     private fun RealmResults<ChunkEntity>.createTimelineChunk(): TimelineChunk? {
         return firstOrNull()?.let {
+            if (ENABLE_TIMELINE_EMPTY_CHUNK_CLEANUP) {
+                // Before creating timeline chunks, make sure there are no empty chunks linking themselves, causing a stuck timeline
+                it.cleanupSelfLinkingChunks()
+            }
             if (ENABLE_TIMELINE_LOOP_SPLITTING) {
                 // Before creating timeline chunks, make sure that the ChunkEntities do not form a loop
                 it.fixChunkLoops()
@@ -351,6 +359,29 @@ internal class LoadTimelineStrategy constructor(
                     onEventsDeleted = dependencies.onEventsDeleted,
             )
         }
+    }
+
+    private fun ChunkEntity.cleanupSelfLinkingChunks() {
+        cleanupSelfLinkingChunksInDirection(
+                "backward",
+                { it.prevChunk },
+                {
+                    if (it.prevChunk?.nextChunk == it) {
+                        it.prevChunk?.nextChunk = null
+                    }
+                    it.prevChunk = null
+                }
+        )
+        cleanupSelfLinkingChunksInDirection(
+                "forward",
+                { it.nextChunk },
+                {
+                    if (it.nextChunk?.prevChunk == it) {
+                        it.nextChunk?.prevChunk = null
+                    }
+                    it.nextChunk = null
+                }
+        )
     }
 
     private fun ChunkEntity.fixChunkLoops() {
@@ -381,6 +412,27 @@ internal class LoadTimelineStrategy constructor(
         )
     }
 
+
+    private fun ChunkEntity.cleanupSelfLinkingChunksInDirection(directionName: String,
+                                                                directionFun: (ChunkEntity) -> ChunkEntity?,
+                                                                unlinkFun: (ChunkEntity) -> Unit) {
+        val visited = hashSetOf<String>()
+        var chunk: ChunkEntity? = this
+        while (chunk != null) {
+            if (chunk.identifier() in visited) {
+                return
+            }
+            visited.add(chunk.identifier())
+            val next = directionFun(chunk)
+            if (next != null && next.timelineEvents.isEmpty() && next.nextToken == next.prevToken) {
+                Timber.i("Stuck self-loop cleanup $directionName: remove empty ${next.identifier()}")
+                realm.executeTransaction {
+                    unlinkFun(chunk!!)
+                }
+            }
+            chunk = next
+        }
+    }
 
     private fun ChunkEntity.fixChunkLoopsInDirection(directionName: String,
                                                      directionFun: (ChunkEntity) -> ChunkEntity?,
