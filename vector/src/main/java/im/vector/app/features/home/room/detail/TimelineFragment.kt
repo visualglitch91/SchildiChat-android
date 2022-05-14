@@ -179,6 +179,7 @@ import im.vector.app.features.home.room.detail.timeline.item.MessageInformationD
 import im.vector.app.features.home.room.detail.timeline.item.MessageTextItem
 import im.vector.app.features.home.room.detail.timeline.item.MessageVoiceItem
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptData
+import im.vector.app.features.home.room.detail.timeline.item.TimelineReadMarkerItem
 import im.vector.app.features.home.room.detail.timeline.reactions.ViewReactionsBottomSheet
 import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlRetriever
 import im.vector.app.features.home.room.detail.upgrade.MigrateRoomBottomSheet
@@ -1486,12 +1487,12 @@ class TimelineFragment @Inject constructor(
         if (vectorPreferences.floatingDate()) {
             views.timelineRecyclerView.addItemDecoration(
                     object : StickyHeaderItemDecoration(timelineEventController, reverse = true) {
-                        override fun isHeader(itemPosition: Int): Boolean {
-                            if (itemPosition != RecyclerView.NO_POSITION) {
-                                val model = timelineEventController.adapter.getModelAtPosition(itemPosition)
-                                return model is DaySeparatorItem
-                            }
-                            return false
+                        override fun isHeader(model: EpoxyModel<*>?): Boolean {
+                            return model is DaySeparatorItem
+                        }
+
+                        override fun preventOverlay(model: EpoxyModel<*>?): Boolean {
+                            return model is TimelineReadMarkerItem
                         }
 
                         override fun getHeaderViewForItem(headerPosition: Int, parent: RecyclerView): View {

@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.epoxy.EpoxyController
+import com.airbnb.epoxy.EpoxyModel
 import org.matrix.android.sdk.api.extensions.orFalse
 
 abstract class StickyHeaderItemDecoration(
@@ -47,20 +48,29 @@ abstract class StickyHeaderItemDecoration(
             val currentHeader = getHeaderViewForItem(headerPos, parent)
             fixLayoutSize(parent, currentHeader)
             val contactPoint = currentHeader.bottom
-            val childInContact = getChildInContact(parent, contactPoint, headerPos)
 
-            if (childInContact != null && isHeader(parent.getChildAdapterPosition(childInContact))) {
-                updateOverlaidHeaders(parent, headerPos)
-                moveHeader(c, currentHeader, childInContact)
-                return
+            val childInContact = getChildInContact(parent, contactPoint, headerPos)
+            val childBelow = getChildInContact(parent, currentHeader.top, headerPos)
+            val childInContactModel = childInContact?.let { epoxyController.adapter.getModelAtPosition(parent.getChildAdapterPosition(childInContact)) }
+            val childBelowModel = childBelow?.let { epoxyController.adapter.getModelAtPosition(parent.getChildAdapterPosition(childBelow)) }
+
+            if (childInContact != null) {
+                if (isHeader(childInContactModel)) {
+                    updateOverlaidHeaders(parent, headerPos)
+                    moveHeader(c, currentHeader, childInContact)
+                    return
+                }
+                if (preventOverlay(childInContactModel) || preventOverlay(childBelowModel)) {
+                    // Hide header temporarily
+                    return
+                }
             }
 
             // Un-hide views early, so we don't get flashing headers while scrolling
-            val childBellow = getChildInContact(parent, currentHeader.top, headerPos)
-            val overlaidHeaderPos: Int? = if (childBellow != childInContact &&
-                    childBellow != null &&
-                    isHeader(parent.getChildAdapterPosition(childBellow)) &&
-                    contactPoint - childBellow.bottom < (childBellow.bottom - childBellow.top)/8
+            val overlaidHeaderPos: Int? = if (childBelow != childInContact &&
+                    childBelow != null &&
+                    isHeader(childBelowModel) &&
+                    contactPoint - childBelow.bottom < (childBelow.bottom - childBelow.top)/8
             ) {
                 null
             } else {
@@ -126,7 +136,9 @@ abstract class StickyHeaderItemDecoration(
         c.restore()
     }
 
-    abstract fun isHeader(itemPosition: Int): Boolean
+    abstract fun isHeader(model: EpoxyModel<*>?): Boolean
+
+    open fun preventOverlay(model: EpoxyModel<*>?): Boolean = false
 
     private fun getChildInContact(parent: RecyclerView, contactPoint: Int, currentHeaderPos: Int): View? {
         var childInContact: View? = null
@@ -136,7 +148,7 @@ abstract class StickyHeaderItemDecoration(
 
             //measure height tolerance with child if child is another header
             if (currentHeaderPos != i) {
-                val isChildHeader = isHeader(parent.getChildAdapterPosition(child))
+                val isChildHeader = isHeader(epoxyController.adapter.getModelAtPosition(parent.getChildAdapterPosition(child)))
                 if (isChildHeader) {
                     heightTolerance = mStickyHeaderHeight - child.height
                 }
@@ -172,7 +184,7 @@ abstract class StickyHeaderItemDecoration(
         var headerPosition = RecyclerView.NO_POSITION
         val directionAdd = if (reverse) 1 else -1
         do {
-            if (isHeader(tempPosition)) {
+            if (isHeader(epoxyController.adapter.getModelAtPosition(tempPosition))) {
                 headerPosition = tempPosition
                 break
             }
