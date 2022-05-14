@@ -1507,7 +1507,7 @@ class TimelineFragment @Inject constructor(
                             return model is TimelineReadMarkerItem
                         }
 
-                        override fun getHeaderViewForItem(headerPosition: Int, parent: RecyclerView): View {
+                        override fun getHeaderViewHolderForItem(headerPosition: Int, parent: RecyclerView): EpoxyViewHolder {
                             // Same as super
                             val viewHolder = timelineEventController.adapter.onCreateViewHolder(
                                     parent,
@@ -1519,7 +1519,7 @@ class TimelineFragment @Inject constructor(
                             // We want to hide the separator line for floating dates
                             (viewHolder.holder as? DaySeparatorItem.Holder)?.let { DaySeparatorItem.asFloatingDate(it) }
 
-                            return viewHolder.itemView
+                            return viewHolder
                         }
 
                         // While the header has a sticky overlay, only hide its text, not the separator lines
@@ -1531,6 +1531,10 @@ class TimelineFragment @Inject constructor(
                                 return true
                             }
                             return false
+                        }
+
+                        override fun getViewForFadeAnimation(holder: EpoxyViewHolder): View {
+                            return (holder.holder as? DaySeparatorItem.Holder)?.dayTextView ?: super.getViewForFadeAnimation(holder)
                         }
                     }
             )

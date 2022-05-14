@@ -7,16 +7,23 @@ package de.spiritcroc.recyclerview
  * - not require EpoxyRecyclerView
  * - work with reverse layouts
  * - hide the currently overlaid header for a smoother animation without duplicate headers
+ * - ...
  */
 
 import android.graphics.Canvas
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewPropertyAnimator
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.epoxy.EpoxyController
 import com.airbnb.epoxy.EpoxyModel
+import com.airbnb.epoxy.EpoxyViewHolder
 import org.matrix.android.sdk.api.extensions.orFalse
+import org.matrix.android.sdk.api.extensions.orTrue
+import kotlin.math.abs
+
+const val FADE_DURATION = 200
 
 abstract class StickyHeaderItemDecoration(
     private val epoxyController: EpoxyController,
@@ -25,6 +32,17 @@ abstract class StickyHeaderItemDecoration(
     private var mStickyHeaderHeight: Int = 0
 
     private var lastHeaderPos: Int? = null
+    private var lastFadeState: FadeState? = null
+
+    data class FadeState(
+            val headerPos: Int,
+            val headerView: View,
+            val animatedView: View,
+            var shouldBeVisible: Boolean = true,
+            var animation: ViewPropertyAnimator? = null
+    )
+    // An extra header view we still draw while it's fading out
+    private var oldFadingView: View? = null
 
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         super.onDrawOver(c, parent, state)
@@ -45,7 +63,15 @@ abstract class StickyHeaderItemDecoration(
 
         val headerPos = getHeaderPositionForItem(topChildPosition)
         if (headerPos != RecyclerView.NO_POSITION) {
-            val currentHeader = getHeaderViewForItem(headerPos, parent)
+            val oldFadeState = lastFadeState
+            val newFadeState: FadeState = if (headerPos == oldFadeState?.headerPos) {
+                oldFadeState.copy()
+            } else {
+                val currentHeaderHolder = getHeaderViewHolderForItem(headerPos, parent)
+                oldFadeState?.let { onDeleteFadeState(it) }
+                FadeState(headerPos, currentHeaderHolder.itemView, getViewForFadeAnimation(currentHeaderHolder))
+            }
+            val currentHeader = newFadeState.headerView
             fixLayoutSize(parent, currentHeader)
             val contactPoint = currentHeader.bottom
 
@@ -54,23 +80,27 @@ abstract class StickyHeaderItemDecoration(
             val childInContactModel = childInContact?.let { epoxyController.adapter.getModelAtPosition(parent.getChildAdapterPosition(childInContact)) }
             val childBelowModel = childBelow?.let { epoxyController.adapter.getModelAtPosition(parent.getChildAdapterPosition(childBelow)) }
 
-            if (childInContact != null) {
+            val shouldBeVisible = if (childInContact != null) {
                 if (isHeader(childInContactModel)) {
                     updateOverlaidHeaders(parent, headerPos)
+                    updateFadeAnimation(newFadeState)
                     moveHeader(c, currentHeader, childInContact)
                     return
                 }
-                if (preventOverlay(childInContactModel) || preventOverlay(childBelowModel)) {
-                    // Hide header temporarily
-                    return
-                }
+                !(preventOverlay(childInContactModel) || preventOverlay(childBelowModel))
+            } else {
+                // Header unhide
+                true
             }
 
-            // Un-hide views early, so we don't get flashing headers while scrolling
-            val overlaidHeaderPos: Int? = if (childBelow != childInContact &&
+            newFadeState.shouldBeVisible = shouldBeVisible
+
+            val overlaidHeaderPos: Int? = if (!shouldBeVisible ||
+                    // Un-hide views early, so we don't get flashing headers while scrolling
+                    (childBelow != childInContact &&
                     childBelow != null &&
                     isHeader(childBelowModel) &&
-                    contactPoint - childBelow.bottom < (childBelow.bottom - childBelow.top)/8
+                    contactPoint - childBelow.bottom < (childBelow.bottom - childBelow.top)/8)
             ) {
                 null
             } else {
@@ -78,10 +108,74 @@ abstract class StickyHeaderItemDecoration(
             }
 
             updateOverlaidHeaders(parent, overlaidHeaderPos)
+            updateFadeAnimation(newFadeState)
             drawHeader(c, currentHeader)
         } else {
             // Show hidden header again
             updateOverlaidHeaders(parent, null)
+        }
+
+        // Fade out an old header view
+        oldFadingView?.let {
+            if (it.alpha == 0.0f) {
+                oldFadingView = null
+            } else {
+                drawHeader(c, it)
+            }
+        }
+
+        // Keep invalidating while we are animating, so we can draw animation updates
+        if (oldFadingView != null || !lastFadeState?.hasTargetAlpha().orTrue()) {
+            parent.invalidate()
+        }
+    }
+
+    private fun onDeleteFadeState(oldState: FadeState) {
+        oldState.animation?.cancel()
+        oldState.animatedView.alpha = 1.0f
+    }
+
+    private fun updateFadeAnimation(newState: FadeState) {
+        val oldState = lastFadeState
+        if (oldState == null) {
+            newState.applyAlphaImmediate()
+        } else if (oldState.headerPos == newState.headerPos) {
+            if (oldState.shouldBeVisible != newState.shouldBeVisible) {
+                newState.startAlphaAnimation()
+            }
+        } else {
+            if (!oldState.shouldBeVisible && oldState.animatedView.alpha != 1.0f) {
+                // Keep drawing for soft fade out
+                oldFadingView = oldState.animatedView
+            }
+            newState.applyAlphaImmediate()
+        }
+        lastFadeState = newState
+    }
+
+    private fun FadeState.targetAlpha(): Float {
+        return if (shouldBeVisible) 1.0f else 0.0f
+    }
+
+    private fun FadeState.hasTargetAlpha(): Boolean {
+        return animatedView.alpha == targetAlpha()
+    }
+
+    private fun FadeState.applyAlphaImmediate() {
+        animation?.cancel()
+        animation = null
+        animatedView.alpha = targetAlpha()
+    }
+
+    private fun FadeState.startAlphaAnimation() {
+        animation?.cancel()
+        val targetAlpha = targetAlpha()
+        val currentAlpha = animatedView.alpha
+        val remainingAlpha = abs(targetAlpha - currentAlpha)
+        // Shorter duration if we just aborted a different fade animation, thus leaving us with less necessary alpha changes
+        val duration = (remainingAlpha * FADE_DURATION).toLong()
+        animation = animatedView.animate().alpha(targetAlpha()).setDuration(duration).apply {
+            start()
         }
     }
 
@@ -113,13 +207,17 @@ abstract class StickyHeaderItemDecoration(
         return false
     }
 
-    open fun getHeaderViewForItem(headerPosition: Int, parent: RecyclerView): View {
+    open fun getHeaderViewHolderForItem(headerPosition: Int, parent: RecyclerView): EpoxyViewHolder {
         val viewHolder = epoxyController.adapter.onCreateViewHolder(
             parent,
             epoxyController.adapter.getItemViewType(headerPosition)
         )
         epoxyController.adapter.onBindViewHolder(viewHolder, headerPosition)
-        return viewHolder.itemView
+        return viewHolder
+    }
+
+    open fun getViewForFadeAnimation(holder: EpoxyViewHolder): View {
+        return holder.itemView
     }
 
     private fun drawHeader(c: Canvas, header: View) {
