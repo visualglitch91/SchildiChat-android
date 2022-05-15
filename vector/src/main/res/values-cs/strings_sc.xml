@@ -154,4 +154,6 @@
     <string name="settings_sc_dbg_view_pager">Ladění ViewPageru</string>
     <string name="settings_floating_date">Plovoucí datum</string>
     <string name="settings_floating_date_summary">Zobrazit datum v horní části zpráv při posunu</string>
+    <string name="freeform_react_with">Reagovat pomocí \"%1$s\"</string>
+    <string name="freeform_reaction_summary">Reakce ve volné podobě</string>
 </resources>
