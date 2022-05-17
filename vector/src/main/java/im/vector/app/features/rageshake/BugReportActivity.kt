@@ -26,6 +26,7 @@ import androidx.core.widget.doOnTextChanged
 import com.airbnb.mvrx.viewModel
 import com.airbnb.mvrx.withState
 import dagger.hilt.android.AndroidEntryPoint
+import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.platform.VectorBaseActivity
 import im.vector.app.databinding.ActivityBugReportBinding
@@ -131,10 +132,18 @@ class BugReportActivity : VectorBaseActivity<ActivityBugReportBinding>() {
         return super.onPrepareOptionsMenu(menu)
     }
 
+    private fun minBugReportLength(): Int {
+        return if (BuildConfig.DEBUG || BuildConfig.GIT_BRANCH_NAME == "sm_fdroid") {
+            2
+        } else {
+            10
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.ic_action_send_bug_report -> {
-                if (views.bugReportEditText.text.toString().trim().length >= 10) {
+                if (views.bugReportEditText.text.toString().trim().length >= minBugReportLength()) {
                     sendBugReport()
                 } else {
                     views.bugReportTextInputLayout.error = getString(R.string.bug_report_error_too_short)
