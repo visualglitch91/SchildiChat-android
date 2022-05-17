@@ -38,6 +38,6 @@ object FcmHelper {
     fun isPlayServicesAvailable(context: Context): Boolean {
         val apiAvailability = GoogleApiAvailability.getInstance()
         val resultCode = apiAvailability.isGooglePlayServicesAvailable(context)
-        return resultCode == ConnectionResult.SUCCESS
+        return resultCode in listOf(ConnectionResult.SUCCESS, ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED)
     }
 }
