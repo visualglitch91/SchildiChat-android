@@ -33,6 +33,7 @@ abstract class StickyHeaderItemDecoration(
 
     private var lastHeaderPos: Int? = null
     private var lastFadeState: FadeState? = null
+    private var floatingHeaderEnabled: Boolean = true
 
     data class FadeState(
             val headerPos: Int,
@@ -83,15 +84,17 @@ abstract class StickyHeaderItemDecoration(
             val shouldBeVisible = if (childInContact != null) {
                 if (isHeader(childInContactModel)) {
                     updateOverlaidHeaders(parent, headerPos)
+                    newFadeState.shouldBeVisible = floatingHeaderEnabled
                     updateFadeAnimation(newFadeState)
                     moveHeader(c, currentHeader, childInContact)
+                    maybeInvalidateDraw(parent)
                     return
                 }
                 !(preventOverlay(childInContactModel) || preventOverlay(childBelowModel))
             } else {
                 // Header unhide
                 true
-            }
+            } && floatingHeaderEnabled
 
             newFadeState.shouldBeVisible = shouldBeVisible
 
@@ -124,6 +127,10 @@ abstract class StickyHeaderItemDecoration(
             }
         }
 
+        maybeInvalidateDraw(parent)
+    }
+
+    private fun maybeInvalidateDraw(parent: RecyclerView) {
         // Keep invalidating while we are animating, so we can draw animation updates
         if (oldFadingView != null || !lastFadeState?.hasTargetAlpha().orTrue()) {
             parent.invalidate()
@@ -315,6 +322,13 @@ abstract class StickyHeaderItemDecoration(
         mStickyHeaderHeight = view.measuredHeight
 
         view.layout(0, 0, view.measuredWidth, view.measuredHeight)
+    }
+
+    fun setFloatingDateEnabled(recyclerView: RecyclerView, enabled: Boolean) {
+        if (floatingHeaderEnabled != enabled) {
+            floatingHeaderEnabled = enabled
+            recyclerView.invalidate()
+        }
     }
 
 }

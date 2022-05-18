@@ -218,6 +218,7 @@ import im.vector.app.features.widgets.WidgetArgs
 import im.vector.app.features.widgets.WidgetKind
 import im.vector.app.features.widgets.permissions.RoomWidgetPermissionBottomSheet
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -317,6 +318,7 @@ class TimelineFragment @Inject constructor(
         private const val ircPattern = " (IRC)"
 
         const val TARGET_SCROLL_OUT_FACTOR = 7f/8f
+        const val FLOATING_DATE_HIDE_DELAY = 1500L
     }
 
     private val galleryOrCameraDialogHelper = GalleryOrCameraDialogHelper(this, colorProvider, clock)
@@ -1490,6 +1492,53 @@ class TimelineFragment @Inject constructor(
         }
     }
 
+    private val stickyHeaderItemDecoration = object : StickyHeaderItemDecoration(timelineEventController, reverse = true) {
+        override fun isHeader(model: EpoxyModel<*>?): Boolean {
+            return model is DaySeparatorItem
+        }
+
+        override fun preventOverlay(model: EpoxyModel<*>?): Boolean {
+            return model is TimelineReadMarkerItem
+        }
+
+        override fun getHeaderViewHolderForItem(headerPosition: Int, parent: RecyclerView): EpoxyViewHolder {
+            // Same as super
+            val viewHolder = timelineEventController.adapter.onCreateViewHolder(
+                    parent,
+                    timelineEventController.adapter.getItemViewType(headerPosition)
+            )
+            timelineEventController.adapter.onBindViewHolder(viewHolder, headerPosition)
+            // Same as super -- end
+
+            // We want to hide the separator line for floating dates
+            (viewHolder.holder as? DaySeparatorItem.Holder)?.let { DaySeparatorItem.asFloatingDate(it) }
+
+            return viewHolder
+        }
+
+        // While the header has a sticky overlay, only hide its text, not the separator lines
+        override fun updateOverlaidHeader(parent: RecyclerView, position: Int, isCurrentlyOverlaid: Boolean): Boolean {
+            val model = tryOrNull { timelineEventController.adapter.getModelAtPosition(position) as? DaySeparatorItem }
+            if (model != null) {
+                val viewHolder = ((parent.findViewHolderForAdapterPosition(position) as? EpoxyViewHolder)?.holder) as? DaySeparatorItem.Holder
+                model.shouldBeVisible(!isCurrentlyOverlaid, viewHolder)
+                return true
+            }
+            return false
+        }
+
+        override fun getViewForFadeAnimation(holder: EpoxyViewHolder): View {
+            return (holder.holder as? DaySeparatorItem.Holder)?.dayTextView ?: super.getViewForFadeAnimation(holder)
+        }
+    }
+
+    private val hideFloatingHeaderRunnable = object : Runnable {
+        var recyclerView: RecyclerView? = null
+        override fun run() {
+            recyclerView?.let { stickyHeaderItemDecoration.setFloatingDateEnabled(it, false) }
+        }
+    }
+
 // PRIVATE METHODS *****************************************************************************
 
     private fun setupRecyclerView() {
@@ -1497,44 +1546,21 @@ class TimelineFragment @Inject constructor(
         timelineEventController.timeline = timelineViewModel.timeline
 
         if (vectorPreferences.floatingDate()) {
-            views.timelineRecyclerView.addItemDecoration(
-                    object : StickyHeaderItemDecoration(timelineEventController, reverse = true) {
-                        override fun isHeader(model: EpoxyModel<*>?): Boolean {
-                            return model is DaySeparatorItem
-                        }
+            // Add floating header decoration
+            views.timelineRecyclerView.addItemDecoration(stickyHeaderItemDecoration)
 
-                        override fun preventOverlay(model: EpoxyModel<*>?): Boolean {
-                            return model is TimelineReadMarkerItem
-                        }
-
-                        override fun getHeaderViewHolderForItem(headerPosition: Int, parent: RecyclerView): EpoxyViewHolder {
-                            // Same as super
-                            val viewHolder = timelineEventController.adapter.onCreateViewHolder(
-                                    parent,
-                                    timelineEventController.adapter.getItemViewType(headerPosition)
-                            )
-                            timelineEventController.adapter.onBindViewHolder(viewHolder, headerPosition)
-                            // Same as super -- end
-
-                            // We want to hide the separator line for floating dates
-                            (viewHolder.holder as? DaySeparatorItem.Holder)?.let { DaySeparatorItem.asFloatingDate(it) }
-
-                            return viewHolder
-                        }
-
-                        // While the header has a sticky overlay, only hide its text, not the separator lines
-                        override fun updateOverlaidHeader(parent: RecyclerView, position: Int, isCurrentlyOverlaid: Boolean): Boolean {
-                            val model = tryOrNull { timelineEventController.adapter.getModelAtPosition(position) as? DaySeparatorItem }
-                            if (model != null) {
-                                val viewHolder = ((parent.findViewHolderForAdapterPosition(position) as? EpoxyViewHolder)?.holder) as? DaySeparatorItem.Holder
-                                model.shouldBeVisible(!isCurrentlyOverlaid, viewHolder)
-                                return true
+            // Hide header on scroll inactivity
+            views.timelineRecyclerView.addOnScrollListener(
+                    object : RecyclerView.OnScrollListener() {
+                        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                            val shouldHideHeader = newState == RecyclerView.SCROLL_STATE_IDLE
+                            if (shouldHideHeader) {
+                                hideFloatingHeaderRunnable.recyclerView = recyclerView
+                                recyclerView.postDelayed(hideFloatingHeaderRunnable, FLOATING_DATE_HIDE_DELAY)
+                            } else {
+                                recyclerView.removeCallbacks(hideFloatingHeaderRunnable)
+                                stickyHeaderItemDecoration.setFloatingDateEnabled(recyclerView, true)
                             }
-                            return false
-                        }
-
-                        override fun getViewForFadeAnimation(holder: EpoxyViewHolder): View {
-                            return (holder.holder as? DaySeparatorItem.Holder)?.dayTextView ?: super.getViewForFadeAnimation(holder)
                         }
                     }
             )
