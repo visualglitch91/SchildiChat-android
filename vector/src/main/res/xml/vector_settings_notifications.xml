@@ -79,7 +79,7 @@
 
         <!-- SC addition -->
         <im.vector.app.core.preference.VectorSwitchPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:dependency="SETTINGS_ENABLE_ALL_NOTIF_PREFERENCE_KEY"
             android:key="SETTINGS_NOTIF_ONLY_ALERT_ONCE"
             android:title="@string/settings_notif_only_alert_once"

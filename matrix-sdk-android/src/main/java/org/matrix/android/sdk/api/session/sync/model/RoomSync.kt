@@ -53,7 +53,7 @@ data class RoomSync(
         @Json(name = "org.matrix.msc2654.unread_count") val unreadCount: Int? = null,
 
         /**
-         * The room summary
+         * The room summary.
          */
         @Json(name = "summary") val summary: RoomSyncSummary? = null
 

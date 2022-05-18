@@ -259,7 +259,8 @@ class RoomListSectionBuilderGroup(
             actualGroupId: String?
     ) {
         if (autoAcceptInvites.showInvites()) {
-            addSection(sections,
+            addSection(
+                    sections,
                     activeSpaceAwareQueries,
                     R.string.invitations_header,
                     true

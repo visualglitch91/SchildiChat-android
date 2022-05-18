@@ -23,7 +23,7 @@ import im.vector.app.features.settings.VectorPreferences
 import javax.inject.Inject
 
 /**
- * This class is used to persist UI state across application restart
+ * This class is used to persist UI state across application restart.
  */
 class SharedPreferencesUiStateRepository @Inject constructor(
         private val sharedPreferences: SharedPreferences,
@@ -61,13 +61,15 @@ class SharedPreferencesUiStateRepository @Inject constructor(
 
     override fun storeDisplayMode(displayMode: RoomListDisplayMode) {
         sharedPreferences.edit {
-            putInt(KEY_DISPLAY_MODE,
+            putInt(
+                    KEY_DISPLAY_MODE,
                     when (displayMode) {
                         RoomListDisplayMode.PEOPLE -> VALUE_DISPLAY_MODE_PEOPLE
                         RoomListDisplayMode.ROOMS  -> VALUE_DISPLAY_MODE_ROOMS
                         RoomListDisplayMode.ALL    -> VALUE_DISPLAY_MODE_ALL
                         else                       -> VALUE_DISPLAY_MODE_CATCHUP
-                    })
+                    }
+            )
         }
     }
 

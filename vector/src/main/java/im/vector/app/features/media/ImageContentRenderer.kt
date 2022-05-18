@@ -96,7 +96,7 @@ class ImageContentRenderer @Inject constructor(private val localFilesHelper: Loc
     }
 
     /**
-     * For url preview
+     * For url preview.
      */
     fun render(previewUrlData: PreviewUrlData, imageView: ImageView, hideOnFail: Boolean = false): Boolean {
         val contentUrlResolver = activeSessionHolder.getActiveSession().contentUrlResolver()
@@ -135,7 +135,7 @@ class ImageContentRenderer @Inject constructor(private val localFilesHelper: Loc
     }
 
     /**
-     * For gallery
+     * For gallery.
      */
     fun render(data: Data, imageView: ImageView, size: Int) {
         // a11y
@@ -198,7 +198,7 @@ class ImageContentRenderer @Inject constructor(private val localFilesHelper: Loc
     }
 
     /**
-     * Used by Attachment Viewer
+     * Used by Attachment Viewer.
      */
     fun render(data: Data, contextView: View, target: CustomViewTarget<*, Drawable>) {
         val req = if (data.elementToDecrypt != null) {

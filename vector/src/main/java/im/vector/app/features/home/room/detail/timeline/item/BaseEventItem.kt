@@ -32,7 +32,7 @@ import im.vector.app.core.ui.views.BubbleDependentView
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 
 /**
- * Children must override getViewType()
+ * Children must override getViewType().
  */
 abstract class BaseEventItem<H : BaseEventItem.BaseHolder> : VectorEpoxyModel<H>(), ItemWithEvents, BubbleDependentView<H> {
 

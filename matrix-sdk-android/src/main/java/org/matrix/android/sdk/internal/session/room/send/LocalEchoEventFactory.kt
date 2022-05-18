@@ -511,7 +511,7 @@ internal class LocalEchoEventFactory @Inject constructor(
     }
 
     /**
-     * Enhance sticker to support threads fallback if needed
+     * Enhance sticker to support threads fallback if needed.
      */
     private fun enhanceStickerIfNeeded(type: String, content: Content?): Content? {
         var newContent: Content? = null
@@ -531,7 +531,7 @@ internal class LocalEchoEventFactory @Inject constructor(
     }
 
     /**
-     * Creates a thread event related to the already existing root event
+     * Creates a thread event related to the already existing root event.
      */
     fun createThreadTextEvent(
             rootThreadEventId: String,
@@ -558,7 +558,7 @@ internal class LocalEchoEventFactory @Inject constructor(
     }
 
     /**
-     * Creates a reply to a regular timeline Event or a thread Event if needed
+     * Creates a reply to a regular timeline Event or a thread Event if needed.
      */
     fun createReplyTextEvent(roomId: String,
                              eventReplied: TimelineEvent,

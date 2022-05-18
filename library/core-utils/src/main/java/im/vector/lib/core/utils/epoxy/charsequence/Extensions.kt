@@ -19,7 +19,7 @@ package im.vector.lib.core.utils.epoxy.charsequence
 import android.text.TextUtils
 
 /**
- * Extensions to wrap CharSequence to EpoxyCharSequence
+ * Extensions to wrap CharSequence to EpoxyCharSequence.
  */
 fun CharSequence.toEpoxyCharSequence() = EpoxyCharSequence(this)
 

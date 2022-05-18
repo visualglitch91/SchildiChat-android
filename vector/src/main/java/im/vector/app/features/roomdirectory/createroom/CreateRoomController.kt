@@ -93,114 +93,120 @@ class CreateRoomController @Inject constructor(
         }
         // Following settings are for advanced users only
         if (enableNonSimplifiedMode) {
-            settingsSectionTitleItem {
-                id("settingsSection")
-                titleResId(R.string.create_room_settings_section)
-                id("visibility")
-                titleResId(R.string.room_settings_room_access_title)
-            }
-            when (viewState.roomJoinRules) {
-                RoomJoinRules.INVITE     -> {
-                    buildProfileAction(
-                            id = "joinRule",
-                            title = stringProvider.getString(R.string.room_settings_room_access_private_title),
-                            subtitle = stringProvider.getString(R.string.room_settings_room_access_private_description),
-                            divider = false,
-                            editable = true,
-                            action = { host.listener?.selectVisibility() }
-                    )
-                }
-                RoomJoinRules.PUBLIC     -> {
-                    buildProfileAction(
-                            id = "joinRule",
-                            title = stringProvider.getString(R.string.room_settings_room_access_public_title),
-                            subtitle = stringProvider.getString(R.string.room_settings_room_access_public_description),
-                            divider = false,
-                            editable = true,
-                            action = { host.listener?.selectVisibility() }
-                    )
-                }
-                RoomJoinRules.RESTRICTED -> {
-                    buildProfileAction(
-                            id = "joinRule",
-                            title = stringProvider.getString(R.string.room_settings_room_access_restricted_title),
-                            subtitle = stringProvider.getString(R.string.room_create_member_of_space_name_can_join, viewState.parentSpaceSummary?.displayName),
-                            divider = false,
-                            editable = true,
-                            action = { host.listener?.selectVisibility() }
-                    )
-                }
-                else                     -> {
-                    // not yet supported
-                }
-            }
+        // Wrong indention for upstream merge-ability
 
-            settingsSectionTitleItem {
-                id("settingsSection")
-                titleResId(R.string.create_room_settings_section)
+        settingsSectionTitleItem {
+            id("settingsSection")
+            titleResId(R.string.create_room_settings_section)
+            id("visibility")
+            titleResId(R.string.room_settings_room_access_title)
+        }
+        when (viewState.roomJoinRules) {
+            RoomJoinRules.INVITE     -> {
+                buildProfileAction(
+                        id = "joinRule",
+                        title = stringProvider.getString(R.string.room_settings_room_access_private_title),
+                        subtitle = stringProvider.getString(R.string.room_settings_room_access_private_description),
+                        divider = false,
+                        editable = true,
+                        action = { host.listener?.selectVisibility() }
+                )
             }
+            RoomJoinRules.PUBLIC     -> {
+                buildProfileAction(
+                        id = "joinRule",
+                        title = stringProvider.getString(R.string.room_settings_room_access_public_title),
+                        subtitle = stringProvider.getString(R.string.room_settings_room_access_public_description),
+                        divider = false,
+                        editable = true,
+                        action = { host.listener?.selectVisibility() }
+                )
+            }
+            RoomJoinRules.RESTRICTED -> {
+                buildProfileAction(
+                        id = "joinRule",
+                        title = stringProvider.getString(R.string.room_settings_room_access_restricted_title),
+                        subtitle = stringProvider.getString(R.string.room_create_member_of_space_name_can_join, viewState.parentSpaceSummary?.displayName),
+                        divider = false,
+                        editable = true,
+                        action = { host.listener?.selectVisibility() }
+                )
+            }
+            else                     -> {
+                // not yet supported
+            }
+        }
 
-            if (viewState.roomJoinRules == RoomJoinRules.PUBLIC) {
-                // Room alias for public room
-                formEditTextItem {
-                    id("alias")
-                    enabled(enableFormElement)
-                    value(viewState.aliasLocalPart)
-                    suffixText(":" + viewState.homeServerName)
-                    prefixText("#")
-                    maxLength(MatrixConstants.maxAliasLocalPartLength(viewState.homeServerName))
-                    hint(host.stringProvider.getString(R.string.room_alias_address_hint))
-                    errorMessage(
-                            host.roomAliasErrorFormatter.format(
-                                    (((viewState.asyncCreateRoomRequest as? Fail)?.error) as? CreateRoomFailure.AliasError)?.aliasError)
-                    )
-                    onTextChange { value ->
-                        host.listener?.setAliasLocalPart(value)
-                    }
-                }
-            } else {
-                dividerItem {
-                    id("divider0")
-                }
-                // Room encryption for private room
-                formSwitchItem {
-                    id("encryption")
-                    enabled(enableFormElement)
-                    title(host.stringProvider.getString(R.string.create_room_encryption_title))
-                    summary(
-                            if (viewState.hsAdminHasDisabledE2E) {
-                                host.stringProvider.getString(R.string.settings_hs_admin_e2e_disabled)
-                            } else {
-                                host.stringProvider.getString(R.string.create_room_encryption_description)
-                            }
-                    )
-                    switchChecked(viewState.isEncrypted ?: viewState.defaultEncrypted[viewState.roomJoinRules].orFalse())
+        settingsSectionTitleItem {
+            id("settingsSection")
+            titleResId(R.string.create_room_settings_section)
+        }
 
-                    listener { value ->
-                        host.listener?.setIsEncrypted(value)
-                    }
+        if (viewState.roomJoinRules == RoomJoinRules.PUBLIC) {
+            // Room alias for public room
+            formEditTextItem {
+                id("alias")
+                enabled(enableFormElement)
+                value(viewState.aliasLocalPart)
+                suffixText(":" + viewState.homeServerName)
+                prefixText("#")
+                maxLength(MatrixConstants.maxAliasLocalPartLength(viewState.homeServerName))
+                hint(host.stringProvider.getString(R.string.room_alias_address_hint))
+                errorMessage(
+                        host.roomAliasErrorFormatter.format(
+                                (((viewState.asyncCreateRoomRequest as? Fail)?.error) as? CreateRoomFailure.AliasError)?.aliasError
+                        )
+                )
+                onTextChange { value ->
+                    host.listener?.setAliasLocalPart(value)
                 }
             }
-//            dividerItem {
-//                id("divider1")
-//            }
-            formAdvancedToggleItem {
-                id("showAdvanced")
-                title(host.stringProvider.getString(if (viewState.showAdvanced) R.string.hide_advanced else R.string.show_advanced))
-                expanded(!viewState.showAdvanced)
-                listener { host.listener?.toggleShowAdvanced() }
+        } else {
+            dividerItem {
+                id("divider0")
             }
-            if (viewState.showAdvanced) {
-                formSwitchItem {
-                    id("federation")
-                    enabled(enableFormElement)
-                    title(host.stringProvider.getString(R.string.create_room_disable_federation_title, viewState.homeServerName))
-                    summary(host.stringProvider.getString(R.string.create_room_disable_federation_description))
-                    switchChecked(viewState.disableFederation)
-                    listener { value -> host.listener?.setDisableFederation(value) }
+            // Room encryption for private room
+            formSwitchItem {
+                id("encryption")
+                enabled(enableFormElement)
+                title(host.stringProvider.getString(R.string.create_room_encryption_title))
+                summary(
+                        if (viewState.hsAdminHasDisabledE2E) {
+                            host.stringProvider.getString(R.string.settings_hs_admin_e2e_disabled)
+                        } else {
+                            host.stringProvider.getString(R.string.create_room_encryption_description)
+                        }
+                )
+                switchChecked(viewState.isEncrypted ?: viewState.defaultEncrypted[viewState.roomJoinRules].orFalse())
+
+                listener { value ->
+                    host.listener?.setIsEncrypted(value)
                 }
             }
         }
+//        dividerItem {
+//            id("divider1")
+//        }
+        formAdvancedToggleItem {
+            id("showAdvanced")
+            title(host.stringProvider.getString(if (viewState.showAdvanced) R.string.hide_advanced else R.string.show_advanced))
+            expanded(!viewState.showAdvanced)
+            listener { host.listener?.toggleShowAdvanced() }
+        }
+        if (viewState.showAdvanced) {
+            formSwitchItem {
+                id("federation")
+                enabled(enableFormElement)
+                title(host.stringProvider.getString(R.string.create_room_disable_federation_title, viewState.homeServerName))
+                summary(host.stringProvider.getString(R.string.create_room_disable_federation_description))
+                switchChecked(viewState.disableFederation)
+                listener { value -> host.listener?.setDisableFederation(value) }
+            }
+        }
+
+        // end wrong indention for upstream merge-ability
+        }
+
         formSubmitButtonItem {
             id("submit")
             enabled(enableFormElement)

@@ -147,9 +147,11 @@ class HomeActivity :
             }
             // Here we want to change current space to the newly created one, and then immediately open the default room
             if (spaceId != null) {
-                navigator.switchToSpace(context = this,
+                navigator.switchToSpace(
+                        context = this,
                         spaceId = spaceId,
-                        postSwitchOption)
+                        postSwitchOption
+                )
             }
         }
     }
@@ -281,7 +283,7 @@ class HomeActivity :
 
     /**
      * Migrating from old threads io.element.thread to new m.thread needs an initial sync to
-     * sync and display existing messages appropriately
+     * sync and display existing messages appropriately.
      */
     private fun migrateThreadsIfNeeded(checkSession: Boolean) {
         if (checkSession) {
@@ -304,7 +306,7 @@ class HomeActivity :
     }
 
     /**
-     * Clear cache and restart to invoke an initial sync for threads migration
+     * Clear cache and restart to invoke an initial sync for threads migration.
      */
     private fun handleThreadsMigration() {
         Timber.i("----> Threads Migration detected, clearing cache and sync...")

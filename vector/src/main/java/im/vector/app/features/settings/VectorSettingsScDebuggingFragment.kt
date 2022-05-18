@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 class VectorSettingsScDebuggingFragment @Inject constructor(
         //private val vectorPreferences: VectorPreferences
-) : VectorSettingsBaseFragment(), Preference.OnPreferenceChangeListener {
+) : VectorSettingsBaseFragment() {
 
     override var titleRes = R.string.settings_sc_debugging
     override val preferenceXmlRes = R.xml.vector_settings_sc_debugging
@@ -33,14 +33,14 @@ class VectorSettingsScDebuggingFragment @Inject constructor(
                 preferenceScreen.addPreference(pref)
             }
             pref.isChecked = DbgUtil.isDbgEnabled(pref.key)
-            pref.onPreferenceChangeListener = this
+            pref.onPreferenceChangeListener = preferenceChangeListener
         }
     }
 
-    override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean {
-        if (newValue is Boolean && dbgPrefs.any { preference?.key == it.key }) {
-            DbgUtil.onPreferenceChanged(requireContext(), preference?.key as String, newValue)
+    private val preferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
+        if (newValue is Boolean && dbgPrefs.any { preference.key == it.key }) {
+            DbgUtil.onPreferenceChanged(requireContext(), preference.key as String, newValue)
         }
-        return true
+        true
     }
 }

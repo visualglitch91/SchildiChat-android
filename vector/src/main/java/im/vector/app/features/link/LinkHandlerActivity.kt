@@ -102,7 +102,7 @@ class LinkHandlerActivity : VectorBaseActivity<ActivityProgressBinding>() {
     }
 
     /**
-     * Start the login screen with identity server and homeserver pre-filled, if any
+     * Start the login screen with identity server and homeserver pre-filled, if any.
      */
     private fun startLoginActivity(uri: Uri? = null) {
         navigator.openLogin(
@@ -114,7 +114,7 @@ class LinkHandlerActivity : VectorBaseActivity<ActivityProgressBinding>() {
     }
 
     /**
-     * Propose to disconnect from a previous HS, when clicking on an auto config link
+     * Propose to disconnect from a previous HS, when clicking on an auto config link.
      */
     private fun displayAlreadyLoginPopup(uri: Uri) {
         MaterialAlertDialogBuilder(this)

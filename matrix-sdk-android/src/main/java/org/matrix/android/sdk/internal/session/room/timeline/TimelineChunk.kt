@@ -157,6 +157,7 @@ internal class TimelineChunk(
             val prevEvents = prevChunk?.builtItems(includesNext = false, includesPrev = true).orEmpty()
             deepBuiltItems.addAll(prevEvents)
         }
+
         return deepBuiltItems
     }
 
@@ -203,12 +204,14 @@ internal class TimelineChunk(
         val rootThreadEventId = timelineSettings.rootThreadEventId ?: return LoadMoreResult.FAILURE
         return if (direction == Timeline.Direction.BACKWARDS) {
             try {
-                fetchThreadTimelineTask.execute(FetchThreadTimelineTask.Params(
-                        roomId,
-                        rootThreadEventId,
-                        chunkEntity.prevToken,
-                        count
-                )).toLoadMoreResult()
+                fetchThreadTimelineTask.execute(
+                        FetchThreadTimelineTask.Params(
+                                roomId,
+                                rootThreadEventId,
+                                chunkEntity.prevToken,
+                                count
+                        )
+                ).toLoadMoreResult()
             } catch (failure: Throwable) {
                 Timber.e(failure, "Failed to fetch thread timeline events from the server")
                 LoadMoreResult.FAILURE
@@ -259,13 +262,15 @@ internal class TimelineChunk(
     }
 
     /**
-     * Simple log that displays the number and timeline of loaded events
+     * Simple log that displays the number and timeline of loaded events.
      */
     private fun logLoadedFromStorage(loadedFromStorage: LoadedFromStorage, direction: Timeline.Direction) {
-        Timber.v("[" +
-                "${if (timelineSettings.isThreadTimeline()) "ThreadTimeLine" else "Timeline"}] Has loaded " +
-                "${loadedFromStorage.numberOfEvents} items from storage in $direction " +
-                if (timelineSettings.isThreadTimeline() && loadedFromStorage.threadReachedEnd) "[Reached End]" else "")
+        Timber.v(
+                "[" +
+                        "${if (timelineSettings.isThreadTimeline()) "ThreadTimeLine" else "Timeline"}] Has loaded " +
+                        "${loadedFromStorage.numberOfEvents} items from storage in $direction " +
+                        if (timelineSettings.isThreadTimeline() && loadedFromStorage.threadReachedEnd) "[Reached End]" else ""
+        )
     }
 
     fun getBuiltEventIndex(eventId: String, searchInNext: Boolean, searchInPrev: Boolean): Int? {
@@ -398,7 +403,8 @@ internal class TimelineChunk(
         }
         return LoadedFromStorage(
                 threadReachedEnd = threadReachedEnd(timelineEvents),
-                numberOfEvents = timelineEvents.size)
+                numberOfEvents = timelineEvents.size
+        )
     }
 
     /**
@@ -412,7 +418,7 @@ internal class TimelineChunk(
 
     /**
      * This function is responsible to fetch and store the root event of a thread event
-     * in order to be able to display the event to the user appropriately
+     * in order to be able to display the event to the user appropriately.
      */
     private suspend fun fetchRootThreadEventsIfNeeded(offsetResults: List<TimelineEventEntity>) {
         val eventEntityList = offsetResults
