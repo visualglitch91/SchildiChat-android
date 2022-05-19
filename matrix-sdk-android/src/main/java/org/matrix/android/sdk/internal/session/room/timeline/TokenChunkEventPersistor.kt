@@ -213,6 +213,20 @@ internal class TokenChunkEventPersistor @Inject constructor(
                 // If it exists, we want to stop here, just link the prevChunk
                 val existingChunk = existingTimelineEvent?.chunk?.firstOrNull()
                 if (existingChunk != null) {
+                    if (existingChunk == currentChunk) {
+                        Timber.w("Avoid double insertion of event $eventId, shouldn't happen in an ideal world | " +
+                                "direction: $direction.value" +
+                                "room: $roomId" +
+                                "chunk: ${existingChunk.identifier()}" +
+                                "eventId: $eventId" +
+                                "caughtByOldCheck ${((if (direction == PaginationDirection.BACKWARDS) currentChunk.nextChunk else currentChunk.prevChunk) == existingChunk)}" +
+                                "caughtByOldBackwardCheck ${(currentChunk.nextChunk == existingChunk)}" +
+                                "caughtByOldForwardCheck ${(currentChunk.prevChunk == existingChunk)}"
+                        )
+                        // No idea why this happens, but if it does, we don't want to throw away all the other events
+                        // (or even link chunks to themselves)
+                        return@forEach
+                    }
                     val alreadyLinkedNext = currentChunk.doesNextChunksVerifyCondition { it == existingChunk }
                     val alreadyLinkedPrev = currentChunk.doesPrevChunksVerifyCondition { it == existingChunk }
                     if (alreadyLinkedNext || alreadyLinkedPrev) {
