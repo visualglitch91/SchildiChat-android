@@ -50,6 +50,8 @@ class BugReportActivity : VectorBaseActivity<ActivityBugReportBinding>() {
                 .allowBack()
         setupViews()
 
+        views.bugReportButtonContactMe.isVisible = !isInternalBuild()
+
         if (bugReporter.screenshot != null) {
             views.bugReportScreenshotPreview.setImageBitmap(bugReporter.screenshot)
         } else {
@@ -132,8 +134,10 @@ class BugReportActivity : VectorBaseActivity<ActivityBugReportBinding>() {
         return super.onPrepareOptionsMenu(menu)
     }
 
+    private fun isInternalBuild(): Boolean = BuildConfig.DEBUG || BuildConfig.GIT_BRANCH_NAME == "sm_fdroid"
+
     private fun minBugReportLength(): Int {
-        return if (BuildConfig.DEBUG || BuildConfig.GIT_BRANCH_NAME == "sm_fdroid") {
+        return if (isInternalBuild()) {
             2
         } else {
             10
@@ -177,7 +181,7 @@ class BugReportActivity : VectorBaseActivity<ActivityBugReportBinding>() {
                 views.bugReportButtonIncludeScreenshot.isChecked,
                 views.bugReportEditText.text.toString(),
                 state.serverVersion,
-                views.bugReportButtonContactMe.isChecked,
+                views.bugReportButtonContactMe.isChecked && views.bugReportButtonContactMe.isVisible,
                 null,
                 object : BugReporter.IMXBugReportListener {
                     override fun onUploadFailed(reason: String?) {
