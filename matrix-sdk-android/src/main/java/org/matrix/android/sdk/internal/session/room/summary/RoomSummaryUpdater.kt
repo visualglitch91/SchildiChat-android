@@ -18,6 +18,7 @@ package org.matrix.android.sdk.internal.session.room.summary
 
 import de.spiritcroc.matrixsdk.StaticScSdkHelper
 import io.realm.Realm
+import io.realm.Sort
 import io.realm.kotlin.createObject
 import kotlinx.coroutines.runBlocking
 import org.matrix.android.sdk.api.extensions.orFalse
@@ -52,11 +53,13 @@ import org.matrix.android.sdk.internal.database.model.RoomSummaryEntityFields
 import org.matrix.android.sdk.internal.database.model.SpaceChildSummaryEntity
 import org.matrix.android.sdk.internal.database.model.SpaceParentSummaryEntity
 import org.matrix.android.sdk.internal.database.model.TimelineEventEntity
+import org.matrix.android.sdk.internal.database.model.TimelineEventEntityFields
 import org.matrix.android.sdk.internal.database.query.findAllInRoomWithSendStates
 import org.matrix.android.sdk.internal.database.query.getOrCreate
 import org.matrix.android.sdk.internal.database.query.getOrNull
 import org.matrix.android.sdk.internal.database.query.isEventRead
 import org.matrix.android.sdk.internal.database.query.latestEvent
+import org.matrix.android.sdk.internal.database.query.previewable
 import org.matrix.android.sdk.internal.database.query.where
 import org.matrix.android.sdk.internal.di.UserId
 import org.matrix.android.sdk.internal.extensions.clearWith
@@ -80,13 +83,49 @@ internal class RoomSummaryUpdater @Inject constructor(
         private val roomAccountDataDataSource: RoomAccountDataDataSource
 ) {
 
-    fun refreshLatestPreviewContent(realm: Realm, roomId: String) {
+    fun refreshLatestPreviewContent(realm: Realm, roomId: String, attemptDecrypt: Boolean = true) {
         val roomSummaryEntity = RoomSummaryEntity.getOrNull(realm, roomId)
         if (roomSummaryEntity != null) {
-            val latestPreviewableEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScAll(realm, roomId)
-            val latestPreviewableContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId)
-            val latestPreviewableOriginalContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScOriginalContent(realm, roomId)
-            attemptToDecryptLatestPreviewables(latestPreviewableEvent, latestPreviewableContentEvent, latestPreviewableOriginalContentEvent)
+            //roomSummaryEntity.latestPreviewableEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScAll(realm, roomId)?.first
+            //roomSummaryEntity.latestPreviewableOriginalContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId)?.first
+            //val latestPreviewableOriginalContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScOriginalContent(realm, roomId)?.first
+            //attemptToDecryptLatestPreviewables(latestPreviewableEvent, latestPreviewableContentEvent, latestPreviewableOriginalContentEvent)
+            refreshLatestPreviewContent(roomSummaryEntity, realm, roomId, attemptDecrypt)
+        }
+    }
+
+    fun refreshLatestPreviewContentIfNull(realm: Realm, roomId: String) {
+        val roomSummaryEntity = RoomSummaryEntity.getOrNull(realm, roomId) ?: return
+        if (roomSummaryEntity.latestPreviewableOriginalContentEvent == null) {
+            refreshLatestPreviewContent(roomSummaryEntity, realm, roomId)
+        }
+    }
+
+    private fun refreshLatestPreviewContent(roomSummaryEntity: RoomSummaryEntity, realm: Realm, roomId: String, attemptDecrypt: Boolean = true) {
+        val latestPreviewableEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScAll(realm, roomId)
+        val latestPreviewableContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId)
+        val latestPreviewableOriginalContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScOriginalContent(realm, roomId)
+
+        roomSummaryEntity.latestPreviewableEvent = latestPreviewableEvent.previewable()
+        roomSummaryEntity.latestPreviewableContentEvent = latestPreviewableContentEvent.previewable()
+        roomSummaryEntity.latestPreviewableOriginalContentEvent = latestPreviewableOriginalContentEvent.previewable()
+        val scLatestPreviewableEvent = roomSummaryEntity.scLatestPreviewableEvent()
+
+        val lastActivityFromEvent = scLatestPreviewableEvent?.root?.originServerTs
+        if (lastActivityFromEvent != null) {
+            roomSummaryEntity.lastActivityTime = lastActivityFromEvent
+        }
+        // If we still did not find a timestamp for the last activity:
+        // Any (non-previewable) event is still better for sorting than just dropping the room to the bottom in the list
+        if (roomSummaryEntity.lastActivityTime == null) {
+            roomSummaryEntity.lastActivityTime = latestPreviewableOriginalContentEvent?.first?.root?.originServerTs
+        }
+        if (attemptDecrypt) {
+            attemptToDecryptLatestPreviewables(
+                    roomSummaryEntity.latestPreviewableEvent,
+                    roomSummaryEntity.latestPreviewableContentEvent,
+                    roomSummaryEntity.latestPreviewableOriginalContentEvent
+            )
         }
     }
 
@@ -142,36 +181,7 @@ internal class RoomSummaryUpdater @Inject constructor(
         val encryptionEvent = CurrentStateEventEntity.getOrNull(realm, roomId, type = EventType.STATE_ROOM_ENCRYPTION, stateKey = "")?.root
         Timber.d("## CRYPTO: currentEncryptionEvent is $encryptionEvent")
 
-        val latestPreviewableEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScAll(realm, roomId)
-        val latestPreviewableContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId)
-        val latestPreviewableOriginalContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScOriginalContent(realm, roomId)
-
-        roomSummaryEntity.latestPreviewableEvent = latestPreviewableEvent
-        roomSummaryEntity.latestPreviewableContentEvent = latestPreviewableContentEvent
-        roomSummaryEntity.latestPreviewableOriginalContentEvent = latestPreviewableOriginalContentEvent
-        val scLatestPreviewableEvent = roomSummaryEntity.scLatestPreviewableEvent()
-
-        val lastActivityFromEvent = scLatestPreviewableEvent?.root?.originServerTs
-        if (lastActivityFromEvent != null) {
-            roomSummaryEntity.lastActivityTime = lastActivityFromEvent
-        } else if (latestPreviewableEvent != scLatestPreviewableEvent) {
-            // Try using a less aggressive previewable filter for last activity, so we avoid null timestamps, which would just drop the room to the bottom
-            roomSummaryEntity.lastActivityTime = latestPreviewableEvent?.root?.originServerTs
-        }
-        // If we still did not find a timestamp for the last activity:
-        // Any (non-previewable) event is still better for sorting than just dropping the room to the bottom in the list
-        if (roomSummaryEntity.lastActivityTime == null) {
-            roomSummaryEntity.lastActivityTime = TimelineEventEntity.latestEvent(
-                    realm = realm,
-                    roomId = roomId,
-                    includesSending = true
-            )?.root?.originServerTs
-        }
-        attemptToDecryptLatestPreviewables(
-                roomSummaryEntity.latestPreviewableEvent,
-                roomSummaryEntity.latestPreviewableContentEvent,
-                roomSummaryEntity.latestPreviewableOriginalContentEvent
-        )
+        refreshLatestPreviewContent(roomSummaryEntity, realm, roomId)
 
         val roomSummaryUnreadCount = roomSummaryEntity.unreadCount
         if (roomSummaryUnreadCount != null /* && preferences.prioritizeUnreadCountsOverRoomPreviewsForUnreadCalculation() */) {
@@ -188,15 +198,15 @@ internal class RoomSummaryUpdater @Inject constructor(
             roomSummaryEntity.hasUnreadMessages = roomSummaryEntity.notificationCount > 0 ||
                     //(roomSummaryEntity.unreadCount?.let { it > 0 } ?: false) ||
                     // avoid this call if we are sure there are unread events
-                    latestPreviewableEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
+                    roomSummaryEntity.latestPreviewableEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
             roomSummaryEntity.hasUnreadContentMessages = roomSummaryEntity.notificationCount > 0 ||
                     //(roomSummaryEntity.unreadCount?.let { it > 0 } ?: false) ||
                     // avoid this call if we are sure there are unread events
-                    latestPreviewableContentEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
+                    roomSummaryEntity.latestPreviewableContentEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
             roomSummaryEntity.hasUnreadOriginalContentMessages = roomSummaryEntity.notificationCount > 0 ||
                     //(roomSummaryEntity.unreadCount?.let { it > 0 } ?: false) ||
                     // avoid this call if we are sure there are unread events
-                    latestPreviewableOriginalContentEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
+                    roomSummaryEntity.latestPreviewableOriginalContentEvent?.let { !isEventRead(realm.configuration, userId, roomId, it.eventId) } ?: false
         }
 
         roomSummaryEntity.setDisplayName(roomDisplayNameResolver.resolve(realm, roomId))
@@ -274,9 +284,10 @@ internal class RoomSummaryUpdater @Inject constructor(
     fun updateSendingInformation(realm: Realm, roomId: String) {
         val roomSummaryEntity = RoomSummaryEntity.getOrCreate(realm, roomId)
         roomSummaryEntity.updateHasFailedSending()
-        roomSummaryEntity.latestPreviewableEvent = RoomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId)
-        roomSummaryEntity.latestPreviewableContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId)
-        roomSummaryEntity.latestPreviewableOriginalContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScOriginalContent(realm, roomId)
+        refreshLatestPreviewContent(realm, roomId, attemptDecrypt = false)
+        //roomSummaryEntity.latestPreviewableEvent = RoomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId).previewable()
+        //roomSummaryEntity.latestPreviewableContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId).previewable()
+        //roomSummaryEntity.latestPreviewableOriginalContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScOriginalContent(realm, roomId).previewable()
     }
 
     /**

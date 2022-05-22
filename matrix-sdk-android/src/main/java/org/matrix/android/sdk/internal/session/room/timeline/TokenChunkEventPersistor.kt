@@ -45,6 +45,7 @@ import org.matrix.android.sdk.internal.database.query.where
 import org.matrix.android.sdk.internal.di.SessionDatabase
 import org.matrix.android.sdk.internal.di.UserId
 import org.matrix.android.sdk.internal.session.StreamEventsManager
+import org.matrix.android.sdk.internal.session.room.summary.RoomSummaryUpdater
 import org.matrix.android.sdk.internal.util.awaitTransaction
 import org.matrix.android.sdk.internal.util.time.Clock
 import timber.log.Timber
@@ -56,6 +57,7 @@ import javax.inject.Inject
 internal class TokenChunkEventPersistor @Inject constructor(
         @SessionDatabase private val monarchy: Monarchy,
         @UserId private val userId: String,
+        private val roomSummaryUpdater: RoomSummaryUpdater,
         private val lightweightSettingsStorage: LightweightSettingsStorage,
         private val liveEventManager: Lazy<StreamEventsManager>,
         private val clock: Clock,
@@ -318,6 +320,8 @@ internal class TokenChunkEventPersistor @Inject constructor(
         }
         if (currentChunk.isValid) {
             RoomEntity.where(realm, roomId).findFirst()?.addIfNecessary(currentChunk)
+            // After linking chunks, we may have a new room summary preview
+            roomSummaryUpdater.refreshLatestPreviewContentIfNull(realm, roomId)
         }
 
         if (lightweightSettingsStorage.areThreadMessagesEnabled()) {

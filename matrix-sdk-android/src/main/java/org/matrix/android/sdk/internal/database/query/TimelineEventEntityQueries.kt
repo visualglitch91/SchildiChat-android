@@ -80,6 +80,63 @@ internal fun TimelineEventEntity.Companion.latestEvent(realm: Realm,
             ?.findFirst()
 }
 
+/**
+ * Return <Event, Boolean>, with:
+ * - Event: best event we could find to generate room timestamps
+ * - Boolean: true if Event is previewable, else false
+ */
+internal fun TimelineEventEntity.Companion.bestTimestampPreviewEvent(realm: Realm,
+                                                                    roomId: String,
+                                                                    filters: TimelineEventFilters = TimelineEventFilters(),
+                                                                    chunk: ChunkEntity? = null,
+                                                                    maxChunksToVisit: Int = 10): Pair<TimelineEventEntity, Boolean>? {
+    val roomEntity = RoomEntity.where(realm, roomId).findFirst() ?: return null
+
+    // First try currently sending events, later recurse and try chunks
+    val query = if (chunk == null) {
+        roomEntity.sendingTimelineEvents.where().filterEvents(filters)
+    } else {
+        chunk.timelineEvents.where()?.filterEvents(filters)
+    }
+    val filteredResult = query
+            ?.sort(TimelineEventEntityFields.DISPLAY_INDEX, Sort.DESCENDING)
+            ?.findFirst()
+    if (filteredResult != null) {
+        return Pair(filteredResult, true)
+    }
+    var recursiveResult: Pair<TimelineEventEntity, Boolean>? = null
+    // One recursion step more than maxChunksToVisit, since in first step, we don't visit any chunk, but only sendingTimelineEvents
+    if (maxChunksToVisit > 0 || chunk == null) {
+        if (chunk == null) {
+            // Initial chunk recursion
+            val latestChunk = ChunkEntity.findLastForwardChunkOfRoom(realm, roomId)
+            if (latestChunk != null) {
+                recursiveResult = bestTimestampPreviewEvent(realm, roomId, filters, latestChunk, maxChunksToVisit - 1)
+            }
+        } else {
+            val prevChunk = chunk.prevChunk
+            if (prevChunk != null) {
+                recursiveResult = bestTimestampPreviewEvent(realm, roomId, filters, prevChunk, maxChunksToVisit - 1)
+            }
+        }
+    }
+    if (recursiveResult != null) {
+        return recursiveResult
+    }
+    // If we haven't found any previewable event by now, fall back to the oldest non-previewable event we found
+    return chunk?.timelineEvents?.where()?.sort(TimelineEventEntityFields.DISPLAY_INDEX, Sort.ASCENDING)?.findFirst()?.let {
+        Pair(it, false)
+    }
+}
+
+internal fun Pair<TimelineEventEntity, Boolean>?.previewable(): TimelineEventEntity? {
+    return if (this == null || !second) {
+        null
+    } else {
+        first
+    }
+}
+
 internal fun RealmQuery<TimelineEventEntity>.filterEvents(filters: TimelineEventFilters): RealmQuery<TimelineEventEntity> {
     if (filters.filterTypes && filters.allowedTypes.isNotEmpty()) {
         beginGroup()

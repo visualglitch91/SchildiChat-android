@@ -21,6 +21,7 @@ import org.matrix.android.sdk.api.session.room.summary.RoomSummaryConstants
 import org.matrix.android.sdk.api.session.room.timeline.EventTypeFilter
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEventFilters
 import org.matrix.android.sdk.internal.database.model.TimelineEventEntity
+import org.matrix.android.sdk.internal.database.query.bestTimestampPreviewEvent
 import org.matrix.android.sdk.internal.database.query.latestEvent
 
 internal object RoomSummaryEventsHelper {
@@ -51,31 +52,32 @@ internal object RoomSummaryEventsHelper {
             filterEdits = true
     )
 
-    fun getLatestPreviewableEvent(realm: Realm, roomId: String): TimelineEventEntity? {
-        return TimelineEventEntity.latestEvent(
+    // SC-modified
+    fun getLatestPreviewableEvent(realm: Realm, roomId: String): Pair<TimelineEventEntity, Boolean>? {
+        return TimelineEventEntity.bestTimestampPreviewEvent(
                 realm = realm,
                 roomId = roomId,
-                includesSending = true,
+                //includesSending = true,
                 filters = previewFilters
         )
     }
 
     // SC addition
-    fun getLatestPreviewableEventScAll(realm: Realm, roomId: String): TimelineEventEntity? {
-        return TimelineEventEntity.latestEvent(
+    fun getLatestPreviewableEventScAll(realm: Realm, roomId: String): Pair<TimelineEventEntity, Boolean>? {
+        return TimelineEventEntity.bestTimestampPreviewEvent(
                 realm = realm,
                 roomId = roomId,
-                includesSending = true,
+                //includesSending = true,
                 filters = previewFiltersScAll
         )
     }
 
     // SC addition
-    fun getLatestPreviewableEventScOriginalContent(realm: Realm, roomId: String): TimelineEventEntity? {
-        return TimelineEventEntity.latestEvent(
+    fun getLatestPreviewableEventScOriginalContent(realm: Realm, roomId: String): Pair<TimelineEventEntity, Boolean>? {
+        return TimelineEventEntity.bestTimestampPreviewEvent(
                 realm = realm,
                 roomId = roomId,
-                includesSending = true,
+                //includesSending = true,
                 filters = previewFiltersScOriginalContent
         )
     }
