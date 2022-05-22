@@ -175,7 +175,12 @@ internal class RoomSummaryUpdater @Inject constructor(
 
         val roomSummaryUnreadCount = roomSummaryEntity.unreadCount
         if (roomSummaryUnreadCount != null /* && preferences.prioritizeUnreadCountsOverRoomPreviewsForUnreadCalculation() */) {
-            val hasUnreadMessages = roomSummaryUnreadCount > 0
+            // MSC2654 says:
+            // In case of a mismatch between this count and the value of notification_count in the Unread Notification Counts section,
+            // clients should use the unread_count.
+            // However, we do not do this here: if the notificationCount > 0, this means we likely got a push notification. Accordingly, it would be confusing
+            // not to show such chat as unread. We can test this e.g. with edits: the unreadCount doesn't count edits, but the notification push rules do.
+            val hasUnreadMessages = roomSummaryUnreadCount > 0 || roomSummaryEntity.notificationCount > 0
             roomSummaryEntity.hasUnreadMessages = hasUnreadMessages
             roomSummaryEntity.hasUnreadContentMessages = hasUnreadMessages
             roomSummaryEntity.hasUnreadOriginalContentMessages = hasUnreadMessages
