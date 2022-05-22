@@ -117,6 +117,8 @@ class RoomSummaryItemFactory @Inject constructor(private val displayableEventFor
         if (latestEvent != null) {
             latestFormattedEvent = displayableEventFormatter.format(latestEvent, roomSummary.isDirect, roomSummary.isDirect.not())
             latestEventTime = dateFormatter.format(latestEvent.root.originServerTs, DateFormatKind.ROOM_LIST)
+        } else if (roomSummary.lastActivityTime != null) {
+            latestEventTime = dateFormatter.format(roomSummary.lastActivityTime, DateFormatKind.ROOM_LIST)
         }
         val typingMessage = typingHelper.getTypingMessage(roomSummary.typingUsers)
         return RoomSummaryItem_()
