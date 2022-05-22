@@ -155,7 +155,7 @@ class VectorSettingsNotificationPreferenceFragment @Inject constructor(
                         updateEnabledForDevice(false)
                         UPHelper.registerUnifiedPush(requireContext(), forceShowSelection = true) {
                             lifecycleScope.launch {
-                                updateEnabledForDevice(true)
+                                updateEnabledForDevice(true, reRegister = false)
                             }
                             Handler(Looper.getMainLooper()).postDelayed({ refreshBackgroundSyncPrefs() }, 500)
                         }
@@ -391,9 +391,12 @@ class VectorSettingsNotificationPreferenceFragment @Inject constructor(
         }
     }
 
-    private suspend fun updateEnabledForDevice(enabled: Boolean) {
+    private suspend fun updateEnabledForDevice(enabled: Boolean, reRegister: Boolean = true) {
         val pref = findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY)
         pref?.isChecked = enabled
+        if (!reRegister) {
+            return
+        }
         if (enabled) {
             UPHelper.registerUnifiedPush(requireContext())
         } else {
