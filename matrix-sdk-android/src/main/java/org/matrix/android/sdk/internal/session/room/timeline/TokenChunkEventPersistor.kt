@@ -217,12 +217,12 @@ internal class TokenChunkEventPersistor @Inject constructor(
                 if (existingChunk != null) {
                     if (existingChunk == currentChunk) {
                         Timber.w("Avoid double insertion of event $eventId, shouldn't happen in an ideal world | " +
-                                "direction: $direction.value" +
-                                "room: $roomId" +
-                                "chunk: ${existingChunk.identifier()}" +
-                                "eventId: $eventId" +
-                                "caughtByOldCheck ${((if (direction == PaginationDirection.BACKWARDS) currentChunk.nextChunk else currentChunk.prevChunk) == existingChunk)}" +
-                                "caughtByOldBackwardCheck ${(currentChunk.nextChunk == existingChunk)}" +
+                                "direction: $direction.value " +
+                                "room: $roomId " +
+                                "chunk: ${existingChunk.identifier()} " +
+                                "eventId: $eventId " +
+                                "caughtByOldCheck ${((if (direction == PaginationDirection.BACKWARDS) currentChunk.nextChunk else currentChunk.prevChunk) == existingChunk)} " +
+                                "caughtByOldBackwardCheck ${(currentChunk.nextChunk == existingChunk)} " +
                                 "caughtByOldForwardCheck ${(currentChunk.prevChunk == existingChunk)}"
                         )
                         // No idea why this happens, but if it does, we don't want to throw away all the other events
@@ -234,7 +234,7 @@ internal class TokenChunkEventPersistor @Inject constructor(
                     if (alreadyLinkedNext || alreadyLinkedPrev) {
                         Timber.w("Avoid double link, shouldn't happen in an ideal world | " +
                                 "direction: $direction " +
-                                "room: $roomId event: $eventId" +
+                                "room: $roomId event: $eventId " +
                                 "linkedPrev: $alreadyLinkedPrev linkedNext: $alreadyLinkedNext " +
                                 "oldChunk: ${existingChunk.identifier()} newChunk: ${existingChunk.identifier()} " +
                                 "oldBackwardCheck: ${currentChunk.nextChunk == existingChunk} " +
