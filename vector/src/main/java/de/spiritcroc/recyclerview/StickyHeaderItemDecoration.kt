@@ -52,6 +52,10 @@ abstract class StickyHeaderItemDecoration(
         if (parent.childCount == 0) {
             return
         }
+        if (!parent.canScrollVertically(1) && !parent.canScrollVertically(-1)) {
+            // No floating header needs if we cannot scroll, i.e. all headers are already visible
+            return
+        }
         val topChild = if (reverse) {
             parent.getChildAt(parent.childCount - 1) ?: return
         } else {
