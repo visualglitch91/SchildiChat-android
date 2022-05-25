@@ -21,6 +21,7 @@ import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.EpoxyViewHolder
 import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.extensions.orTrue
+import org.matrix.android.sdk.api.extensions.tryOrNull
 import kotlin.math.abs
 
 const val FADE_DURATION = 200
@@ -78,8 +79,8 @@ abstract class StickyHeaderItemDecoration(
 
             val childInContact = getChildInContact(parent, contactPoint, headerPos)
             val childBelow = getChildInContact(parent, currentHeader.top, headerPos)
-            val childInContactModel = childInContact?.let { epoxyController.adapter.getModelAtPosition(parent.getChildAdapterPosition(childInContact)) }
-            val childBelowModel = childBelow?.let { epoxyController.adapter.getModelAtPosition(parent.getChildAdapterPosition(childBelow)) }
+            val childInContactModel = childInContact?.let { tryOrNull { epoxyController.adapter.getModelAtPosition(parent.getChildAdapterPosition(childInContact)) } }
+            val childBelowModel = childBelow?.let { tryOrNull { epoxyController.adapter.getModelAtPosition(parent.getChildAdapterPosition(childBelow)) } }
 
             val shouldBeVisible = if (childInContact != null) {
                 if (isHeader(childInContactModel)) {
@@ -245,15 +246,18 @@ abstract class StickyHeaderItemDecoration(
 
     open fun preventOverlay(model: EpoxyModel<*>?): Boolean = false
 
+    @Suppress("UNUSED_PARAMETER")
     private fun getChildInContact(parent: RecyclerView, contactPoint: Int, currentHeaderPos: Int): View? {
         var childInContact: View? = null
         for (i in 0 until parent.childCount) {
-            var heightTolerance = 0
+            //var heightTolerance = 0
             val child = parent.getChildAt(i)
 
             //measure height tolerance with child if child is another header
+            // Note: seems to be always 0 for us
+            /*
             if (currentHeaderPos != i) {
-                val isChildHeader = isHeader(epoxyController.adapter.getModelAtPosition(parent.getChildAdapterPosition(child)))
+                val isChildHeader = isHeader(tryOrNull { epoxyController.adapter.getModelAtPosition(parent.getChildAdapterPosition(child)) } )
                 if (isChildHeader) {
                     heightTolerance = mStickyHeaderHeight - child.height
                 }
@@ -265,6 +269,8 @@ abstract class StickyHeaderItemDecoration(
             } else {
                 child.bottom
             }
+             */
+            val childBottomPosition = child.bottom
 
             if (childBottomPosition > contactPoint) {
                 if (child.top <= contactPoint) {
