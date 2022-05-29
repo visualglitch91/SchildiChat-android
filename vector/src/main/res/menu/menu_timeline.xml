@@ -111,6 +111,14 @@
     </item>
 
     <item
+        android:id="@+id/dev_hidden_events"
+        android:title="@string/dev_tools_menu_hidden_events"
+        android:visible="false"
+        app:showAsAction="never"
+        android:checkable="true"
+        android:checked="false" />
+
+    <item
         android:id="@+id/menu_thread_timeline_view_in_room"
         android:icon="@drawable/ic_thread_view_in_room_menu_item"
         android:title="@string/action_thread_view_in_room"

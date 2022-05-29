@@ -198,4 +198,6 @@
     <string name="freeform_react_with">React with \"%1$s\"</string>
     <string name="freeform_reaction_summary">Free-form reaction</string>
 
+    <string name="dev_tools_menu_hidden_events">Hidden events</string>
+
 </resources>

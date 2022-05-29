@@ -1028,6 +1028,15 @@ class TimelineFragment @Inject constructor(
         }
     }
 
+    private fun reloadTimeline(rebuildTimeline: Boolean = false, invalidateEpoxy: Boolean = true) {
+        if (rebuildTimeline) {
+            timelineViewModel.timeline.restartWithEventId(latestCurrentlyVisibleItem()?.eventId ?: timelineViewModel.timeline.getTargetEventId())
+        }
+        if (invalidateEpoxy) {
+            timelineEventController.invalidateFullTimeline()
+        }
+    }
+
     private fun setupJumpToReadMarkerView() {
         views.jumpToReadMarkerView.debouncedClicks {
             onJumpToReadMarkerClicked()
@@ -1165,6 +1174,9 @@ class TimelineFragment @Inject constructor(
             else                                  -> R.id.dev_bubble_style_both
         }
         menu.findItem(selectedBubbleStyle).isChecked = true
+
+        // Hidden events
+        menu.findItem(R.id.dev_hidden_events).isChecked = vectorPreferences.shouldShowHiddenEvents()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -1211,6 +1223,13 @@ class TimelineFragment @Inject constructor(
             }
             R.id.dev_bubble_style_element -> {
                 handleSetBubbleStyle(BubbleThemeUtils.BUBBLE_STYLE_ELEMENT)
+                true
+            }
+            R.id.dev_hidden_events -> {
+                val shouldShow = !item.isChecked
+                vectorPreferences.setShouldShowHiddenEvents(shouldShow)
+                item.isChecked = shouldShow
+                reloadTimeline()
                 true
             }
             R.id.menu_timeline_thread_list         -> {
@@ -2339,37 +2358,40 @@ class TimelineFragment @Inject constructor(
     }
 
     override fun onReadMarkerVisible() {
-        var mostRecentDisplayedEvent: TimelineEvent? = timelineViewModel.mostRecentDisplayedEvent()
-        val lm = views.timelineRecyclerView.layoutManager as? LinearLayoutManager
-        val room = session.roomService().getRoom(timelineArgs.roomId)
-        rmDimber.i { "Most recent check: ${mostRecentDisplayedEvent == null} ${lm?.findFirstVisibleItemPosition()}..${lm?.findLastVisibleItemPosition()}" }
-        if (mostRecentDisplayedEvent == null && lm != null && room != null) {
-            for (i in lm.findFirstVisibleItemPosition()..lm.findLastVisibleItemPosition()) {
-                val model = timelineEventController.adapter.getModelAtPosition(i)
-                rmDimber.i { "Most recent check: ${model.javaClass} / ${(model as? ItemWithEvents)?.isVisible()}" }
-                if (model is ItemWithEvents) {
-                    if (!model.isVisible()) {
-                        continue
-                    }
-                    rmDimber.i { "Most recent displayed model: ${model.getEventIds().firstOrNull()} - ${model.getEventIds().lastOrNull()}" }
-                    model.getEventIds().reversed().forEach { eventId ->
-                        if (mostRecentDisplayedEvent != null) {
-                            return@forEach
-                        }
-                        val event = room.getTimelineEvent(eventId)
-                        if (event != null) {
-                            rmDimber.i { "Most recent displayed event: $eventId" }
-                            mostRecentDisplayedEvent = event
-                            return@forEach
-                        }
-                    }
+        val mostRecentDisplayedEvent: TimelineEvent? = timelineViewModel.mostRecentDisplayedEvent() ?: latestCurrentlyVisibleItem(rmDimber)
+        timelineViewModel.handle(RoomDetailAction.EnterTrackingUnreadMessagesState(mostRecentDisplayedEvent))
+    }
+
+    private fun latestCurrentlyVisibleItem(dimber: Dimber? = null): TimelineEvent? {
+        var mostRecentDisplayedEvent: TimelineEvent? = null
+        val lm = views.timelineRecyclerView.layoutManager as? LinearLayoutManager ?: return null
+        val room = session.roomService().getRoom(timelineArgs.roomId) ?: return null
+        dimber?.i { "Most recent check: ${mostRecentDisplayedEvent == null} ${lm.findFirstVisibleItemPosition()}..${lm.findLastVisibleItemPosition()}" }
+        for (i in lm.findFirstVisibleItemPosition()..lm.findLastVisibleItemPosition()) {
+            val model = timelineEventController.adapter.getModelAtPosition(i)
+            dimber?.i { "Most recent check: ${model.javaClass} / ${(model as? ItemWithEvents)?.isVisible()}" }
+            if (model is ItemWithEvents) {
+                if (!model.isVisible()) {
+                    continue
                 }
-                if (mostRecentDisplayedEvent != null) {
-                    break
+                dimber?.i { "Most recent displayed model: ${model.getEventIds().firstOrNull()} - ${model.getEventIds().lastOrNull()}" }
+                model.getEventIds().reversed().forEach { eventId ->
+                    if (mostRecentDisplayedEvent != null) {
+                        return@forEach
+                    }
+                    val event = room.getTimelineEvent(eventId)
+                    if (event != null) {
+                        dimber?.i { "Most recent displayed event: $eventId" }
+                        mostRecentDisplayedEvent = event
+                        return@forEach
+                    }
                 }
             }
+            if (mostRecentDisplayedEvent != null) {
+                break
+            }
         }
-        timelineViewModel.handle(RoomDetailAction.EnterTrackingUnreadMessagesState(mostRecentDisplayedEvent))
+        return mostRecentDisplayedEvent
     }
 
     override fun onPreviewUrlClicked(url: String) {

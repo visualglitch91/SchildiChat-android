@@ -377,7 +377,7 @@ class TimelineEventController @Inject constructor(
         submitSnapshot(snapshot)
     }
 
-    private fun invalidateFullTimeline() {
+    fun invalidateFullTimeline() {
         backgroundHandler.post {
             inSubmitList = true
             // Invalidate all timeline events to rebuild the whole Room/DM layout

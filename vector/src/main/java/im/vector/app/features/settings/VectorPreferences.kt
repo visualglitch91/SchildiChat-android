@@ -15,6 +15,7 @@
  */
 package im.vector.app.features.settings
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.media.RingtoneManager
@@ -370,6 +371,12 @@ class VectorPreferences @Inject constructor(
 
     fun shouldShowHiddenEvents(): Boolean {
         return developerMode() && defaultPrefs.getBoolean(SETTINGS_LABS_SHOW_HIDDEN_EVENTS_PREFERENCE_KEY, false)
+    }
+
+    @SuppressLint("ApplySharedPref")
+    fun setShouldShowHiddenEvents(shouldShow: Boolean) {
+        // Commit, so we can be sure on timeline reload we will get the new value
+        defaultPrefs.edit().putBoolean(SETTINGS_LABS_SHOW_HIDDEN_EVENTS_PREFERENCE_KEY, shouldShow).commit()
     }
 
     fun swipeToReplyIsEnabled(): Boolean {
