@@ -90,22 +90,52 @@
         android:visible="false"
         app:showAsAction="never"
         tools:visible="true">
+        <!-- Programmatically inflated menu -->
         <menu>
             <group
-                android:checkableBehavior="single">
+                android:id="@+id/dev_bubble_style_group"
+                android:checkableBehavior="single" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/dev_theming"
+        android:title="@string/settings_theme"
+        android:visible="false"
+        tools:visible="true"
+        app:showAsAction="never">
+        <menu>
+            <group>
                 <item
-                    android:id="@+id/dev_bubble_style_both"
-                    android:title="@string/bubble_style_both"
-                    android:checked="true" />
+                    android:id="@+id/dev_base_theme"
+                    android:title="@string/settings_theme">
+                    <!-- Programmatically inflated menu -->
+                    <menu>
+                        <group
+                            android:id="@+id/dev_base_theme_group"
+                            android:checkableBehavior="single" />
+                    </menu>
+                </item>
                 <item
-                    android:id="@+id/dev_bubble_style_start"
-                    android:title="@string/bubble_style_start" />
+                    android:id="@+id/dev_theme_accent"
+                    android:title="@string/setting_sc_accent_color">
+                    <!-- Programmatically inflated menu -->
+                    <menu>
+                        <group
+                            android:id="@+id/dev_theme_accent_group"
+                            android:checkableBehavior="single" />
+                    </menu>
+                </item>
                 <item
-                    android:id="@+id/dev_bubble_style_element"
-                    android:title="@string/bubble_style_element" />
-                <item
-                    android:id="@+id/dev_bubble_style_none"
-                    android:title="@string/bubble_style_none" />
+                    android:id="@+id/dev_bubble_rounded_corners"
+                    android:title="@string/bubble_rounded_corners">
+                    <!-- Programmatically inflated menu -->
+                    <menu>
+                        <group
+                            android:id="@+id/dev_bubble_rounded_corners_group"
+                            android:checkableBehavior="single" />
+                    </menu>
+                </item>
             </group>
         </menu>
     </item>

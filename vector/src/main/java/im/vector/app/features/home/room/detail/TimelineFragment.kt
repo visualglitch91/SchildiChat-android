@@ -73,6 +73,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.vanniktech.emoji.EmojiPopup
 import de.spiritcroc.matrixsdk.util.DbgUtil
 import de.spiritcroc.matrixsdk.util.Dimber
+import de.spiritcroc.menu.ArrayOptionsMenuHelper
 import de.spiritcroc.recyclerview.StickyHeaderItemDecoration
 import de.spiritcroc.recyclerview.widget.BetterLinearLayoutManager
 import de.spiritcroc.recyclerview.widget.LinearLayoutManager
@@ -85,6 +86,7 @@ import im.vector.app.core.epoxy.LayoutManagerStateRestorer
 import im.vector.app.core.extensions.cleanup
 import im.vector.app.core.extensions.hideKeyboard
 import im.vector.app.core.extensions.registerStartForActivityResult
+import im.vector.app.core.extensions.restart
 import im.vector.app.core.extensions.setTextOrHide
 import im.vector.app.core.extensions.showKeyboard
 import im.vector.app.core.extensions.trackItemsVisibilityChange
@@ -1165,18 +1167,68 @@ class TimelineFragment @Inject constructor(
             updateMenuThreadNotificationBadge(menu, state)
         }
 
-        // Selected bubble style
-        val selectedBubbleStyle = when (bubbleThemeUtils.getBubbleStyle()) {
-            BubbleThemeUtils.BUBBLE_STYLE_NONE    -> R.id.dev_bubble_style_none
-            BubbleThemeUtils.BUBBLE_STYLE_START   -> R.id.dev_bubble_style_start
-            BubbleThemeUtils.BUBBLE_STYLE_BOTH    -> R.id.dev_bubble_style_both
-            BubbleThemeUtils.BUBBLE_STYLE_ELEMENT -> R.id.dev_bubble_style_element
-            else                                  -> R.id.dev_bubble_style_both
-        }
-        menu.findItem(selectedBubbleStyle).isChecked = true
-
         // Hidden events
         menu.findItem(R.id.dev_hidden_events).isChecked = vectorPreferences.shouldShowHiddenEvents()
+
+        // Bubble style
+        ArrayOptionsMenuHelper.createSubmenu(
+                resources,
+                menu.findItem(R.id.dev_bubble_style),
+                R.id.dev_bubble_style_group,
+                R.array.bubble_style_entries,
+                R.array.bubble_style_values,
+                bubbleThemeUtils.getBubbleStyle()
+        ) { value ->
+            if (value != bubbleThemeUtils.getBubbleStyle()) {
+                bubbleThemeUtils.setBubbleStyle(value)
+                requireActivity().restart()
+            }
+            true
+        }
+
+        // Base theme setting
+        ArrayOptionsMenuHelper.createSubmenu(
+                resources,
+                menu.findItem(R.id.dev_base_theme),
+                R.id.dev_base_theme_group,
+                R.array.theme_entries,
+                R.array.theme_values,
+                ThemeUtils.getCurrentActiveTheme(requireContext())
+        ) { value ->
+            ThemeUtils.setCurrentActiveTheme(requireContext(), value)
+            requireActivity().restart()
+            true
+        }
+
+        // Accent color theme setting
+        val isLightTheme = ThemeUtils.isLightTheme(requireContext())
+        ArrayOptionsMenuHelper.createSubmenu(
+                resources,
+                menu.findItem(R.id.dev_theme_accent),
+                R.id.dev_theme_accent_group,
+                if (isLightTheme) R.array.sc_accent_color_light_entries else R.array.sc_accent_color_dark_entries,
+                if (isLightTheme) R.array.sc_accent_color_light_values else R.array.sc_accent_color_dark_values,
+                ThemeUtils.getCurrentActiveThemeAccent(requireContext()),
+                sortFunction = { list -> list.sortedBy { it.first } }
+        ) { value ->
+            ThemeUtils.setCurrentActiveThemeAccent(requireContext(), value)
+            requireActivity().restart()
+            true
+        }
+
+        // Bubble corner radius
+        ArrayOptionsMenuHelper.createSubmenu(
+                resources,
+                menu.findItem(R.id.dev_bubble_rounded_corners),
+                R.id.dev_bubble_rounded_corners_group,
+                R.array.bubble_appearance_roundness_entries,
+                R.array.bubble_appearance_roundness_values,
+                bubbleThemeUtils.getBubbleRoundnessSetting()
+        ) { value ->
+            bubbleThemeUtils.setBubbleRoundnessSetting(value)
+            reloadTimeline()
+            true
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -1207,22 +1259,6 @@ class TimelineFragment @Inject constructor(
             }
             R.id.show_room_info -> {
                 navigator.openRoomProfile(requireActivity(), timelineArgs.roomId)
-                true
-            }
-            R.id.dev_bubble_style_none -> {
-                handleSetBubbleStyle(BubbleThemeUtils.BUBBLE_STYLE_NONE)
-                true
-            }
-            R.id.dev_bubble_style_start -> {
-                handleSetBubbleStyle(BubbleThemeUtils.BUBBLE_STYLE_START)
-                true
-            }
-            R.id.dev_bubble_style_both -> {
-                handleSetBubbleStyle(BubbleThemeUtils.BUBBLE_STYLE_BOTH)
-                true
-            }
-            R.id.dev_bubble_style_element -> {
-                handleSetBubbleStyle(BubbleThemeUtils.BUBBLE_STYLE_ELEMENT)
                 true
             }
             R.id.dev_hidden_events -> {
@@ -1263,7 +1299,12 @@ class TimelineFragment @Inject constructor(
                 }
                 true
             }
-            else                                   -> super.onOptionsItemSelected(item)
+            else -> ArrayOptionsMenuHelper.handleSubmenu(item,
+                    R.id.dev_base_theme,
+                    R.id.dev_bubble_style,
+                    R.id.dev_theme_accent,
+                    R.id.dev_bubble_rounded_corners
+            ) || super.onOptionsItemSelected(item)
         }
     }
 
@@ -2848,13 +2889,6 @@ class TimelineFragment @Inject constructor(
                                 locationOwnerId = session.myUserId
                         )
             }
-        }
-    }
-
-    private fun handleSetBubbleStyle(bubbleStyle: String) {
-        if (bubbleStyle != bubbleThemeUtils.getBubbleStyle()) {
-            bubbleThemeUtils.setBubbleStyle(bubbleStyle)
-            requireActivity().recreate()
         }
     }
 

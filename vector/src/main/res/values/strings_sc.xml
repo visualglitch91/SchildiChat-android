@@ -93,6 +93,7 @@
     <string name="settings_advanced_theme_settings">Advanced theme settings</string>
     <string name="settings_user_colors">User colors</string>
     <string name="settings_theme_colors">Theme colors</string>
+    <string name="setting_sc_accent_color">Accent color</string>
     <string name="setting_sc_accent_color_light">Accent color for light themes</string>
     <string name="setting_sc_accent_color_dark">Accent color for dark themes</string>
     <string name="settings_sc_accent_disclaimer">Note that these color settings only apply to SC themes, and not Element themes.</string>

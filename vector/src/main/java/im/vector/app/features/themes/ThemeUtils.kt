@@ -273,6 +273,52 @@ object ThemeUtils {
         mColorByAttr.clear()
     }
 
+    // For developer quick options
+    fun setCurrentActiveTheme(context: Context, theme: String) {
+        var darkTheme = getApplicationDarkTheme(context)
+        var lightTheme = getApplicationLightTheme(context)
+        val darkAccent = getApplicationDarkThemeAccent(context)
+        val lightAccent = getApplicationLightThemeAccent(context)
+        if (useDarkTheme(context)) {
+            darkTheme = theme
+        } else {
+            lightTheme = theme
+        }
+        setApplicationTheme(context, lightTheme, darkTheme, lightAccent, darkAccent)
+    }
+
+    // For developer quick options
+    fun getCurrentActiveTheme(context: Context): String {
+        return if (useDarkTheme(context)) {
+            getApplicationDarkTheme(context)
+        } else {
+            getApplicationLightTheme(context)
+        }
+    }
+
+    // For developer quick options
+    fun setCurrentActiveThemeAccent(context: Context, accent: String) {
+        val darkTheme = getApplicationDarkTheme(context)
+        val lightTheme = getApplicationLightTheme(context)
+        var darkAccent = getApplicationDarkThemeAccent(context)
+        var lightAccent = getApplicationLightThemeAccent(context)
+        if (useDarkTheme(context)) {
+            darkAccent = accent
+        } else {
+            lightAccent = accent
+        }
+        setApplicationTheme(context, lightTheme, darkTheme, lightAccent, darkAccent)
+    }
+
+    // For developer quick options
+    fun getCurrentActiveThemeAccent(context: Context): String {
+        return if (useDarkTheme(context)) {
+            getApplicationDarkThemeAccent(context)
+        } else {
+            getApplicationLightThemeAccent(context)
+        }
+    }
+
     fun setApplicationLightTheme(context: Context, theme: String) {
         setApplicationTheme(context, theme, getApplicationDarkTheme(context),
                 getApplicationLightThemeAccent(context), getApplicationDarkThemeAccent(context))

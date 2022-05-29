@@ -35,12 +35,14 @@ import com.airbnb.mvrx.Mavericks
 import com.airbnb.mvrx.viewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import de.spiritcroc.menu.ArrayOptionsMenuHelper
 import im.vector.app.AppStateHandler
 import im.vector.app.R
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.extensions.hideKeyboard
 import im.vector.app.core.extensions.registerStartForActivityResult
 import im.vector.app.core.extensions.replaceFragment
+import im.vector.app.core.extensions.restart
 import im.vector.app.core.extensions.validateBackPressed
 import im.vector.app.core.platform.VectorBaseActivity
 import im.vector.app.core.pushers.PushersManager
@@ -536,6 +538,38 @@ class HomeActivity :
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.findItem(R.id.menu_home_init_sync_legacy)?.isVisible = vectorPreferences.developerMode()
         menu.findItem(R.id.menu_home_init_sync_optimized)?.isVisible = vectorPreferences.developerMode()
+        menu.findItem(R.id.dev_theming)?.isVisible = vectorPreferences.developerMode()
+
+        // Base theme setting
+        ArrayOptionsMenuHelper.createSubmenu(
+                resources,
+                menu.findItem(R.id.dev_base_theme),
+                R.id.dev_base_theme_group,
+                R.array.theme_entries,
+                R.array.theme_values,
+                ThemeUtils.getCurrentActiveTheme(this)
+        ) { value ->
+            ThemeUtils.setCurrentActiveTheme(this, value)
+            restart()
+            true
+        }
+
+        // Accent color theme setting
+        val isLightTheme = ThemeUtils.isLightTheme(this)
+        ArrayOptionsMenuHelper.createSubmenu(
+                resources,
+                menu.findItem(R.id.dev_theme_accent),
+                R.id.dev_theme_accent_group,
+                if (isLightTheme) R.array.sc_accent_color_light_entries else R.array.sc_accent_color_dark_entries,
+                if (isLightTheme) R.array.sc_accent_color_light_values else R.array.sc_accent_color_dark_values,
+                ThemeUtils.getCurrentActiveThemeAccent(this),
+                sortFunction = { list -> list.sortedBy { it.first } }
+        ) { value ->
+            ThemeUtils.setCurrentActiveThemeAccent(this, value)
+            restart()
+            true
+        }
+
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -575,7 +609,10 @@ class HomeActivity :
             }
         }
 
-        return super.onOptionsItemSelected(item)
+        return ArrayOptionsMenuHelper.handleSubmenu(item,
+                R.id.dev_base_theme,
+                R.id.dev_theme_accent
+        ) || super.onOptionsItemSelected(item)
     }
 
     override fun onBackPressed() {

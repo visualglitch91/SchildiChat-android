@@ -72,9 +72,18 @@ class BubbleThemeUtils @Inject constructor(private val context: Context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit().putString(BUBBLE_STYLE_KEY, value).apply()
     }
 
+    fun getBubbleRoundnessSetting(): String {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+        return prefs.getString(BUBBLE_ROUNDNESS_KEY, BUBBLE_ROUNDNESS_DEFAULT) ?: BUBBLE_ROUNDNESS_DEFAULT
+    }
+
+    fun setBubbleRoundnessSetting(value: String) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putString(BUBBLE_ROUNDNESS_KEY, value).apply()
+    }
+
     fun getBubbleAppearance(): ScBubbleAppearance {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val baseAppearance = when (prefs.getString(BUBBLE_ROUNDNESS_KEY, BUBBLE_ROUNDNESS_DEFAULT)) {
+        val baseAppearance = when (getBubbleRoundnessSetting()) {
             BUBBLE_ROUNDNESS_R1 -> r1ScBubbleAppearance
             BUBBLE_ROUNDNESS_R2 -> r2ScBubbleAppearance
             else                -> defaultScBubbleAppearance
