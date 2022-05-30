@@ -17,6 +17,9 @@
 package org.matrix.android.sdk.internal.crypto.actions
 
 import androidx.annotation.WorkerThread
+import com.zhuinden.monarchy.Monarchy
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.api.listeners.ProgressListener
 import org.matrix.android.sdk.api.logger.LoggerTag
@@ -27,6 +30,11 @@ import org.matrix.android.sdk.internal.crypto.OutgoingKeyRequestManager
 import org.matrix.android.sdk.internal.crypto.RoomDecryptorProvider
 import org.matrix.android.sdk.internal.crypto.algorithms.megolm.MXMegolmDecryption
 import org.matrix.android.sdk.internal.crypto.store.IMXCryptoStore
+import org.matrix.android.sdk.internal.database.model.RoomSummaryEntity
+import org.matrix.android.sdk.internal.database.query.where
+import org.matrix.android.sdk.internal.di.SessionDatabase
+import org.matrix.android.sdk.internal.session.room.summary.RoomSummaryUpdater
+import org.matrix.android.sdk.internal.util.awaitTransaction
 import org.matrix.android.sdk.internal.util.time.Clock
 import timber.log.Timber
 import javax.inject.Inject
@@ -35,6 +43,9 @@ private val loggerTag = LoggerTag("MegolmSessionDataImporter", LoggerTag.CRYPTO)
 
 internal class MegolmSessionDataImporter @Inject constructor(private val olmDevice: MXOlmDevice,
                                                              private val roomDecryptorProvider: RoomDecryptorProvider,
+                                                             @SessionDatabase private val monarchy: Monarchy,
+                                                             private val roomSummaryUpdater: RoomSummaryUpdater,
+                                                             private val cryptoCoroutineScope: CoroutineScope,
                                                              private val outgoingKeyRequestManager: OutgoingKeyRequestManager,
                                                              private val cryptoStore: IMXCryptoStore,
                                                              private val clock: Clock,
@@ -116,6 +127,15 @@ internal class MegolmSessionDataImporter @Inject constructor(private val olmDevi
         val t1 = clock.epochMillis()
 
         Timber.tag(loggerTag.value).v("## importMegolmSessionsData : sessions import " + (t1 - t0) + " ms (" + megolmSessionsData.size + " sessions)")
+
+        // SC: Retry decrypting room previews for the room list
+        cryptoCoroutineScope.launch {
+            monarchy.awaitTransaction { realm ->
+                RoomSummaryEntity.where(realm).findAll().forEach { entity ->
+                    roomSummaryUpdater.refreshLatestPreviewContent(realm, entity.roomId)
+                }
+            }
+        }
 
         return ImportRoomKeysResult(totalNumbersOfKeys, totalNumbersOfImportedKeys)
     }
