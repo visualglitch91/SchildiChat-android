@@ -153,7 +153,7 @@ class MessageItemFactory @Inject constructor(
         private val locationPinProvider: LocationPinProvider,
         private val vectorPreferences: VectorPreferences,
         private val urlMapProvider: UrlMapProvider,
-        private val liveLocationMessageItemFactory: LiveLocationMessageItemFactory,
+        private val liveLocationShareMessageItemFactory: LiveLocationShareMessageItemFactory,
 ) {
 
     // TODO inject this properly?
@@ -221,7 +221,7 @@ class MessageItemFactory @Inject constructor(
                     buildMessageTextItem(messageContent.body, false, informationData, highlight, callback, attributes)
                 }
             }
-            is MessageBeaconInfoContent          -> liveLocationMessageItemFactory.create(messageContent, highlight, attributes)
+            is MessageBeaconInfoContent          -> liveLocationShareMessageItemFactory.create(params.event, highlight, attributes)
             else                                 -> buildNotHandledMessageItem(messageContent, informationData, highlight, callback, attributes)
         }
         return messageItem?.apply {
@@ -242,14 +242,14 @@ class MessageItemFactory @Inject constructor(
             urlMapProvider.buildStaticMapUrl(it, INITIAL_MAP_ZOOM_IN_TIMELINE, width, height)
         }
 
-        val userId = if (locationContent.isSelfLocation()) informationData.senderId else null
+        val locationUserId = if (locationContent.isSelfLocation()) informationData.senderId else null
 
         return MessageLocationItem_()
                 .attributes(attributes)
                 .locationUrl(locationUrl)
                 .mapWidth(width)
                 .mapHeight(height)
-                .userId(userId)
+                .locationUserId(locationUserId)
                 .locationPinProvider(locationPinProvider)
                 .highlighted(highlight)
                 .leftGuideline(avatarSizeProvider.leftGuideline)

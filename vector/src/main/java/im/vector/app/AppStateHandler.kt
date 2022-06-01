@@ -93,6 +93,8 @@ class AppStateHandler @Inject constructor(
     val selectedRoomGroupingFlowIgnoreSwipe = selectedSpaceDataSourceSc.stream()
             .filter { it.getOrElse{ null }?.second != SelectSpaceFrom.SWIPE }
 
+    private val spaceBackstack = ArrayDeque<String?>()
+
     fun getCurrentRoomGroupingMethod(): RoomGroupingMethod? {
         // XXX we should somehow make it live :/ just a work around
         // For example just after creating a space and switching to it the
@@ -108,16 +110,20 @@ class AppStateHandler @Inject constructor(
         }
     }
 
-    fun setCurrentSpace(spaceId: String?, session: Session? = null, persistNow: Boolean = false, from: SelectSpaceFrom = SelectSpaceFrom.SELECT) {
+    fun setCurrentSpace(spaceId: String?, session: Session? = null, persistNow: Boolean = false, isForwardNavigation: Boolean = true, from: SelectSpaceFrom = SelectSpaceFrom.SELECT) {
+        val currentSpace = (selectedSpaceDataSourceSc.currentValue?.orNull()?.first as? RoomGroupingMethod.BySpace)?.space()
+        val uSession = session ?: activeSessionHolder.getSafeActiveSession() ?: return
+        if (currentSpace != null && spaceId == currentSpace.roomId) return
+        val spaceSum = spaceId?.let { uSession.getRoomSummary(spaceId) }
+
         if (DbgUtil.isDbgEnabled(DbgUtil.DBG_VIEW_PAGER) && from == SelectSpaceFrom.SELECT) {
             // We want a stack trace
             Timber.w(Exception("Home pager: setCurrentSpace/SELECT"))
         }
 
-        val uSession = session ?: activeSessionHolder.getSafeActiveSession() ?: return
-        if (selectedSpaceDataSourceSc.currentValue?.orNull()?.first is RoomGroupingMethod.BySpace &&
-                spaceId == selectedSpaceDataSourceSc.currentValue?.orNull()?.first?.space()?.roomId) return
-        val spaceSum = spaceId?.let { uSession.getRoomSummary(spaceId) }
+        if (isForwardNavigation) {
+            spaceBackstack.addLast(currentSpace?.roomId)
+        }
 
         if (persistNow) {
             uiStateRepository.storeGroupingMethod(true, uSession.sessionId)
@@ -178,6 +184,8 @@ class AppStateHandler @Inject constructor(
                 }.launchIn(session.coroutineScope)
     }
     */
+
+    fun getSpaceBackstack() = spaceBackstack
 
     fun safeActiveSpaceId(): String? {
         return (selectedSpaceDataSourceSc.currentValue?.orNull()?.first as? RoomGroupingMethod.BySpace)?.spaceSummary?.roomId

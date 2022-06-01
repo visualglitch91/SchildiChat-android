@@ -36,7 +36,6 @@ import im.vector.app.BuildConfig
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.network.WifiDetector
 import im.vector.app.core.services.GuardServiceStarter
-import im.vector.app.features.badge.BadgeProxy
 import im.vector.app.features.notifications.NotifiableEventResolver
 import im.vector.app.features.notifications.NotificationDrawerManager
 import im.vector.app.features.notifications.NotificationUtils
@@ -184,7 +183,7 @@ val upHandler = object: VectorMessagingReceiverHandler {
                 // we are in foreground, let the sync do the things?
                 Timber.tag(loggerTag.value).d("PUSH received in a foreground state, ignore")
             } else {
-                onMessageReceivedInternal(context, notification)
+                onMessageReceivedInternal(notification)
             }
         }
     }
@@ -243,16 +242,13 @@ val upHandler = object: VectorMessagingReceiverHandler {
      *
      * @param notification Notification containing message data.
      */
-    private fun onMessageReceivedInternal(context: Context, notification: Notification) {
+    private fun onMessageReceivedInternal(notification: Notification) {
         try {
             if (BuildConfig.LOW_PRIVACY_LOG_ENABLE) {
                 Timber.tag(loggerTag.value).d("## onMessageReceivedInternal() : $notification")
             } else {
                 Timber.tag(loggerTag.value).d("## onMessageReceivedInternal()")
             }
-
-            // update the badge counter
-            BadgeProxy.updateBadgeCount(context, notification.unread)
 
             val session = activeSessionHolder.getSafeActiveSession()
 
