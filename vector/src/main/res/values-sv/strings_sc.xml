@@ -101,7 +101,7 @@
     <string name="all_list_rooms_empty_title">SchildiChat</string>
     <string name="login_server_other_text_sc">Ange serveradress för att logga in eller registrera dig</string>
     <string name="footer_read_receipt_content_description">Meddelandestatus</string>
-    <string name="send_bug_report_sc_extra">För att öka synligheten för ditt problem och för att vi ska kunna kontakta dig kan du referera till denna rapport (genom att ange ditt matrix-ID och ungefärlig tid då det skickades) i ett problem på https://github.com/SchildiChat /SchildiChat-android/issues (kontrollera först om det redan finns ett för ditt problem och skapa bara en ny om det inte finns).</string>
+    <string name="send_bug_report_sc_extra">För att öka synligheten för ditt problem kan du referera till denna rapport (genom att ange ditt matrix-ID och ungefärlig tid då det skickades) i ett problem på https://github.com/SchildiChat /SchildiChat-android/issues (kontrollera först om det redan finns ett för ditt problem och skapa bara en ny om det inte finns).</string>
     <string name="login_server_other_title_sc">Anpassad server</string>
     <string name="settings_user_colors_in_public_rooms">Användarfärger i offentliga rum</string>
     <string name="settings_force_allow_background_sync_summary">Bara meningsfullt när du felsöker din push-inställning!</string>
@@ -150,4 +150,10 @@
     <string name="bubble_appearance">Bubblans utseende</string>
     <string name="settings_notif_only_alert_once_summary">Uteslut varningsljud för nya meddelanden om det redan finns ett öppet meddelande för den chatten</string>
     <string name="settings_hide_call_buttons_summary">Visa aldrig knappar i rummets verktygsfält för att starta röst- eller videosamtal</string>
+    <string name="settings_floating_date_summary">Visa datumet ovanpå meddelanden medan du rullar</string>
+    <string name="settings_floating_date">Flytande datum</string>
+    <string name="freeform_reaction_summary">Fri form reaktion</string>
+    <string name="freeform_react_with">Reagerar med \"%1$s\"</string>
+    <string name="dev_tools_menu_hidden_events">Dolda händelser</string>
+    <string name="setting_sc_accent_color">Accentfärg</string>
 </resources>
