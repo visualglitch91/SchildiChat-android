@@ -70,7 +70,15 @@ internal class TextPillsUtils @Inject constructor(
                 // append text before pill
                 append(text, currIndex, start)
                 // append the pill
-                append(String.format(template, urlSpan.matrixItem.id, displayNameResolver.getBestName(urlSpan.matrixItem)))
+                // Different handling necessary for custom emotes
+                if (urlSpan.matrixItem is MatrixItem.EmoteItem) {
+                    // Note we use the same template for both HTML and MARKDOWN conversion. We do this since markdown inline images are not mighty enough
+                    // for custom emotes (i.e., that would drop the data-mx-emoticon tag, which we want to keep). But we can use inline html in markdown.
+                    val imgHtml = "<img data-mx-emoticon height=\"18\" src=\"${urlSpan.matrixItem.avatarUrl}\" title=\":${urlSpan.matrixItem.displayName}:\" alt=\":${urlSpan.matrixItem.displayName}:\">"
+                    append(imgHtml)
+                } else {
+                    append(String.format(template, urlSpan.matrixItem.id, displayNameResolver.getBestName(urlSpan.matrixItem)))
+                }
                 currIndex = end
             }
             // append text after the last pill
@@ -110,4 +118,15 @@ internal class TextPillsUtils @Inject constructor(
             i++
         }
     }
+}
+
+fun CharSequence.requiresFormattedMessage(): Boolean {
+    val spannableString = SpannableString.valueOf(this)
+    val pills = spannableString
+            ?.getSpans(0, length, MatrixItemSpan::class.java)
+            ?.map { MentionLinkSpec(it, spannableString.getSpanStart(it), spannableString.getSpanEnd(it)) }
+            // We cannot send emotes without markdown/formatted messages
+            ?.filter { it.span.matrixItem is MatrixItem.EmoteItem }
+            ?: return false
+    return pills.isNotEmpty()
 }

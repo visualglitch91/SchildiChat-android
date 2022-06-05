@@ -17,7 +17,9 @@
 package im.vector.app.features.autocomplete.emoji
 
 import android.graphics.Typeface
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
 import im.vector.app.R
@@ -26,13 +28,18 @@ import im.vector.app.core.epoxy.VectorEpoxyHolder
 import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.extensions.setTextOrHide
+import im.vector.app.core.glide.GlideApp
 import im.vector.app.features.reactions.data.EmojiItem
+import org.matrix.android.sdk.api.extensions.orFalse
 
 @EpoxyModelClass(layout = R.layout.item_autocomplete_emoji)
 abstract class AutocompleteEmojiItem : VectorEpoxyModel<AutocompleteEmojiItem.Holder>() {
 
     @EpoxyAttribute
     lateinit var emojiItem: EmojiItem
+
+    @EpoxyAttribute
+    var emoteUrl: String? = null
 
     @EpoxyAttribute
     var emojiTypeFace: Typeface? = null
@@ -42,7 +49,18 @@ abstract class AutocompleteEmojiItem : VectorEpoxyModel<AutocompleteEmojiItem.Ho
 
     override fun bind(holder: Holder) {
         super.bind(holder)
-        holder.emojiText.text = emojiItem.emoji
+        if (emoteUrl?.isNotEmpty().orFalse()) {
+            holder.emojiText.isVisible = false
+            holder.emoteImage.isVisible = true
+            GlideApp.with(holder.emoteImage)
+                    .load(emoteUrl)
+                    .centerCrop()
+                    .into(holder.emoteImage)
+        } else {
+            holder.emojiText.text = emojiItem.emoji
+            holder.emojiText.isVisible = true
+            holder.emoteImage.isVisible = false
+        }
         holder.emojiText.typeface = emojiTypeFace ?: Typeface.DEFAULT
         holder.emojiNameText.text = emojiItem.name
         holder.emojiKeywordText.setTextOrHide(emojiItem.keywords.joinToString())
@@ -51,6 +69,7 @@ abstract class AutocompleteEmojiItem : VectorEpoxyModel<AutocompleteEmojiItem.Ho
 
     class Holder : VectorEpoxyHolder() {
         val emojiText by bind<TextView>(R.id.itemAutocompleteEmoji)
+        val emoteImage by bind<ImageView>(R.id.itemAutocompleteEmote)
         val emojiNameText by bind<TextView>(R.id.itemAutocompleteEmojiName)
         val emojiKeywordText by bind<TextView>(R.id.itemAutocompleteEmojiSubname)
     }

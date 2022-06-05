@@ -21,11 +21,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.epoxy.TypedEpoxyController
 import im.vector.app.EmojiCompatFontProvider
 import im.vector.app.features.autocomplete.AutocompleteClickListener
+import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.reactions.data.EmojiItem
+import org.matrix.android.sdk.api.session.Session
+import org.matrix.android.sdk.api.session.content.ContentUrlResolver
 import javax.inject.Inject
 
 class AutocompleteEmojiController @Inject constructor(
-        private val fontProvider: EmojiCompatFontProvider
+        private val fontProvider: EmojiCompatFontProvider,
+        private val session: Session
 ) : TypedEpoxyController<List<EmojiItem>>() {
 
     var emojiTypeface: Typeface? = fontProvider.typeface
@@ -36,7 +40,7 @@ class AutocompleteEmojiController @Inject constructor(
         }
     }
 
-    var listener: AutocompleteClickListener<String>? = null
+    var listener: AutocompleteClickListener<EmojiItem>? = null
 
     override fun buildModels(data: List<EmojiItem>?) {
         if (data.isNullOrEmpty()) {
@@ -49,8 +53,11 @@ class AutocompleteEmojiController @Inject constructor(
                     autocompleteEmojiItem {
                         id(emojiItem.name)
                         emojiItem(emojiItem)
+                        // For caching reasons, we use the AvatarRenderer's thumbnail size here
+                        emoteUrl(host.session.contentUrlResolver().resolveThumbnail(emojiItem.mxcUrl,
+                                AvatarRenderer.THUMBNAIL_SIZE, AvatarRenderer.THUMBNAIL_SIZE, ContentUrlResolver.ThumbnailMethod.SCALE))
                         emojiTypeFace(host.emojiTypeface)
-                        onClickListener { host.listener?.onItemClick(emojiItem.emoji) }
+                        onClickListener { host.listener?.onItemClick(emojiItem) }
                     }
                 }
 

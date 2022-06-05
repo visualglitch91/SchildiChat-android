@@ -60,7 +60,7 @@ class AvatarRenderer @Inject constructor(private val activeSessionHolder: Active
                                          private val dimensionConverter: DimensionConverter) {
 
     companion object {
-        private const val THUMBNAIL_SIZE = 250
+        const val THUMBNAIL_SIZE = 250
     }
 
     @UiThread

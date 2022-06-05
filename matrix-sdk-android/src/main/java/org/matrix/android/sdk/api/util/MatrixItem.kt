@@ -112,6 +112,13 @@ sealed class MatrixItem(
         override fun updateAvatar(newAvatar: String?) = copy(avatarUrl = newAvatar)
     }
 
+    data class EmoteItem(override val id: String,
+                         override val displayName: String? = null,
+                         override val avatarUrl: String? = null) :
+            MatrixItem(id, displayName, avatarUrl) {
+        override fun updateAvatar(newAvatar: String?) = copy(avatarUrl = newAvatar)
+    }
+
     protected fun checkId() {
         if (!id.startsWith(getIdPrefix())) {
             error("Wrong usage of MatrixItem: check the id $id should start with ${getIdPrefix()}")
@@ -131,6 +138,7 @@ sealed class MatrixItem(
         is EveryoneInRoomItem -> '!'
         is RoomAliasItem      -> '#'
         is GroupItem          -> '+'
+        is EmoteItem          -> 'm'
     }
 
     fun firstLetterOfDisplayName(): String {

@@ -19,6 +19,15 @@
         tools:ignore="SpUsage"
         tools:text="@sample/reactions.json/data/reaction" />
 
+    <ImageView
+        android:id="@+id/itemAutocompleteEmote"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginHorizontal="4dp"
+        android:gravity="center"
+        android:layout_gravity="center"
+        tools:ignore="ContentDescription" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -80,7 +80,6 @@ import de.spiritcroc.recyclerview.widget.BetterLinearLayoutManager
 import de.spiritcroc.recyclerview.widget.LinearLayoutManager
 import im.vector.app.R
 import im.vector.app.core.animations.play
-import im.vector.app.core.date.DateFormatKind
 import im.vector.app.core.dialogs.ConfirmationDialogBuilder
 import im.vector.app.core.dialogs.GalleryOrCameraDialogHelper
 import im.vector.app.core.epoxy.LayoutManagerStateRestorer
@@ -264,6 +263,7 @@ import org.matrix.android.sdk.api.session.widgets.model.WidgetType
 import org.matrix.android.sdk.api.util.MatrixItem
 import org.matrix.android.sdk.api.util.MimeTypes
 import org.matrix.android.sdk.api.util.toMatrixItem
+import org.matrix.android.sdk.internal.session.room.send.pills.requiresFormattedMessage
 import reactivecircus.flowbinding.android.view.focusChanges
 import reactivecircus.flowbinding.android.widget.textChanges
 import timber.log.Timber
@@ -1852,7 +1852,8 @@ class TimelineFragment @Inject constructor(
             // We collapse ASAP, if not there will be a slight annoying delay
             views.composerLayout.collapse(true)
             lockSendButton = true
-            messageComposerViewModel.handle(MessageComposerAction.SendMessage(text, vectorPreferences.isMarkdownEnabled()))
+            val forceMarkdown = text.requiresFormattedMessage()
+            messageComposerViewModel.handle(MessageComposerAction.SendMessage(text, forceMarkdown || vectorPreferences.isMarkdownEnabled()))
             emojiPopup.dismiss()
 
             if (vectorPreferences.jumpToBottomOnSend()) {
