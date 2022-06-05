@@ -73,8 +73,8 @@
     <string name="sc_accent_cyan">Zyan</string>
     <string name="sc_accent_pink">Pink</string>
     <string name="settings_user_colors_in_public_rooms">Nutzerfarben in öffentlichen Räumen</string>
-    <string name="settings_open_chats_at_first_unread">Beim ersten Mal ungelesen öffnen</string>
-    <string name="settings_open_chats_at_first_unread_summary">Chats bei der ersten ungelesenen Nachricht öffnen, statt am unteren Ende.</string>
+    <string name="settings_open_chats_at_first_unread">Öffnen bei der ersten ungelesenen Nachricht</string>
+    <string name="settings_open_chats_at_first_unread_summary">Chats bei der ersten ungelesenen Nachricht öffnen, statt an der neuesten.</string>
     <string name="sc_accent_denim">Jeansblau</string>
     <string name="sc_accent_indigo">Indigoblau</string>
     <string name="sc_accent_lava">Lava</string>
