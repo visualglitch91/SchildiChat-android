@@ -139,7 +139,7 @@ class TimelineViewModel @AssistedInject constructor(
         Timeline.Listener, ChatEffectManager.Delegate, CallProtocolsChecker.Listener, LocationSharingServiceConnection.Callback {
 
     private val room = session.getRoom(initialState.roomId)!!
-    private val eventId = initialState.eventId ?: if (loadRoomAtFirstUnread()) room.roomSummary()?.readMarkerId else null
+    private val eventId = initialState.eventId ?: if (loadRoomAtFirstUnread() && initialState.rootThreadEventId == null) room.roomSummary()?.readMarkerId else null
     private val invisibleEventsSource = BehaviorDataSource<RoomDetailAction.TimelineEventTurnsInvisible>()
     private val visibleEventsSource = BehaviorDataSource<RoomDetailAction.TimelineEventTurnsVisible>()
     private var timelineEvents = MutableSharedFlow<List<TimelineEvent>>(0)
