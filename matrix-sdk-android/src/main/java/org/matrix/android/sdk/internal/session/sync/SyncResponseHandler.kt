@@ -81,7 +81,7 @@ internal class SyncResponseHandler @Inject constructor(
             }
             cryptoService.onSyncWillProcess(isInitialSync)
         }.also {
-            Timber.v("Finish handling start cryptoService in $it ms")
+            Timber.i("Finish handling start cryptoService in $it ms")
         }
 
         // Handle the to device events before the room ones
@@ -94,7 +94,7 @@ internal class SyncResponseHandler @Inject constructor(
                 }
             }
         }.also {
-            Timber.v("Finish handling toDevice in $it ms")
+            Timber.i("Finish handling toDevice in $it ms")
         }
         val aggregator = SyncResponsePostTreatmentAggregator()
 
@@ -115,7 +115,7 @@ internal class SyncResponseHandler @Inject constructor(
                     }
                 }
             }.also {
-                Timber.v("Finish handling rooms in $it ms")
+                Timber.i("Finish handling rooms in $it ms")
             }
 
             measureTimeMillis {
@@ -126,7 +126,7 @@ internal class SyncResponseHandler @Inject constructor(
                     }
                 }
             }.also {
-                Timber.v("Finish handling groups in $it ms")
+                Timber.i("Finish handling groups in $it ms")
             }
 
             measureTimeMillis {
@@ -135,14 +135,14 @@ internal class SyncResponseHandler @Inject constructor(
                     userAccountDataSyncHandler.handle(realm, syncResponse.accountData)
                 }
             }.also {
-                Timber.v("Finish handling accountData in $it ms")
+                Timber.i("Finish handling accountData in $it ms")
             }
 
             measureTimeMillis {
                 Timber.v("Handle Presence")
                 presenceSyncHandler.handle(realm, syncResponse.presence)
             }.also {
-                Timber.v("Finish handling Presence in $it ms")
+                Timber.i("Finish handling Presence in $it ms")
             }
             tokenStore.saveToken(realm, syncResponse.nextBatch)
         }
