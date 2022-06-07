@@ -157,6 +157,8 @@
         <item name="room_color_hash_02">@color/element_room_02</item>
         <item name="room_color_hash_03">@color/element_room_03</item>
         <item name="unread_line_unimportant">?vctr_content_secondary</item>
+        <item name="color_warning">#FF4B55</item>
+        <item name="shield_color_warning">@color/shield_color_warning</item>
 
         <!-- Use dark color, to have enough contrast with icons color. windowLightStatusBar is only available in API 23+ -->
         <item name="android:statusBarColor">@color/android_status_bar_background_dark</item>

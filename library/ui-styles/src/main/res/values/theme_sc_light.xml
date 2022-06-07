@@ -56,7 +56,7 @@
         <item name="colorSecondary">?colorAccent</item>
         <item name="colorSecondaryVariant">?colorAccent</item>
         <item name="colorOnSecondary">?colorOnPrimary</item><!-- primary = accent -> better to use a light text color -->
-        <item name="colorError">@color/element_alert_light</item>
+        <item name="colorError">@color/sc_alert_light</item>
         <item name="colorOnError">@color/text_color_primary_sc</item> <!-- needs light text, e.g. used for unread counter badges -->
         <item name="colorSurface">@color/background_sc_light</item> <!-- same as android:colorBackground, but using attr crashes actionMode (but for dark themes only?)? -->
         <item name="colorOnSurface">?vctr_content_primary</item>
@@ -111,6 +111,8 @@
         <item name="user_color_hash_06">@color/user_color_sc_mxid_6</item>
         <item name="user_color_hash_07">@color/user_color_sc_mxid_7</item>
         <item name="user_color_hash_08">@color/user_color_sc_mxid_8</item>
+        <item name="color_warning">@color/color_warning_sc</item>
+        <item name="shield_color_warning">@color/shield_color_warning_sc</item>
 
         <item name="android:statusBarColor">@color/background_black_sc</item>
         <item name="android:navigationBarColor">@color/background_black_sc</item>
