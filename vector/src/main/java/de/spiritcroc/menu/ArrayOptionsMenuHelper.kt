@@ -60,3 +60,10 @@ object ArrayOptionsMenuHelper {
         return false
     }
 }
+
+fun MenuItem.toggleExec(withNewVal: (Boolean) -> Boolean) {
+    val shouldCheck = !isChecked
+    if (withNewVal(shouldCheck)) {
+        isChecked = shouldCheck
+    }
+}

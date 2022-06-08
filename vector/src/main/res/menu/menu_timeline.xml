@@ -145,8 +145,28 @@
         android:title="@string/dev_tools_menu_hidden_events"
         android:visible="false"
         app:showAsAction="never"
-        android:checkable="true"
-        android:checked="false" />
+        android:checkable="true" />
+
+    <item
+        android:id="@+id/dev_event_visibilities"
+        android:title="@string/dev_tools_menu_event_visibilities"
+        android:visible="false"
+        tools:visible="true"
+        app:showAsAction="never">
+        <menu>
+            <group android:checkableBehavior="all">
+                <item
+                    android:id="@+id/dev_membership_changes"
+                    android:title="@string/dev_tools_menu_membership_changes" />
+                <item
+                    android:id="@+id/dev_display_name_changes"
+                    android:title="@string/dev_tools_menu_display_name_changes" />
+                <item
+                    android:id="@+id/dev_redacted"
+                    android:title="@string/dev_tools_menu_redacted" />
+            </group>
+        </menu>
+    </item>
 
     <item
         android:id="@+id/menu_thread_timeline_view_in_room"

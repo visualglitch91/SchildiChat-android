@@ -784,9 +784,12 @@ class TimelineViewModel @AssistedInject constructor(
                 R.id.menu_timeline_thread_list -> vectorPreferences.areThreadMessagesEnabled()
                 R.id.show_room_info            -> true // SC
                 R.id.show_participants         -> true // SC
-                R.id.dev_bubble_style, // SC
-                R.id.dev_hidden_events, // SC
-                R.id.dev_theming, // SC
+                // SC dev start
+                R.id.dev_bubble_style,
+                R.id.dev_hidden_events,
+                R.id.dev_event_visibilities,
+                R.id.dev_theming,
+                // SC dev end
                 R.id.dev_tools                 -> vectorPreferences.developerMode()
                 else                           -> false
             }

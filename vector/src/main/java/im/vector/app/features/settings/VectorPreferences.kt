@@ -375,10 +375,8 @@ class VectorPreferences @Inject constructor(
         return developerMode() && defaultPrefs.getBoolean(SETTINGS_LABS_SHOW_HIDDEN_EVENTS_PREFERENCE_KEY, false)
     }
 
-    @SuppressLint("ApplySharedPref")
     fun setShouldShowHiddenEvents(shouldShow: Boolean) {
-        // Commit, so we can be sure on timeline reload we will get the new value
-        defaultPrefs.edit().putBoolean(SETTINGS_LABS_SHOW_HIDDEN_EVENTS_PREFERENCE_KEY, shouldShow).commit()
+        defaultPrefs.edit(commit = true) { putBoolean(SETTINGS_LABS_SHOW_HIDDEN_EVENTS_PREFERENCE_KEY, shouldShow) }
     }
 
     fun swipeToReplyIsEnabled(): Boolean {
@@ -461,6 +459,10 @@ class VectorPreferences @Inject constructor(
         return defaultPrefs.getBoolean(SETTINGS_SHOW_JOIN_LEAVE_MESSAGES_KEY, true)
     }
 
+    fun setShowJoinLeaveMessages(shouldShow: Boolean) {
+        defaultPrefs.edit(commit = true) { putBoolean(SETTINGS_SHOW_JOIN_LEAVE_MESSAGES_KEY, shouldShow) }
+    }
+
     /**
      * Tells if the avatar and display name events should be shown in the messages list.
      *
@@ -468,6 +470,10 @@ class VectorPreferences @Inject constructor(
      */
     fun showAvatarDisplayNameChangeMessages(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_SHOW_AVATAR_DISPLAY_NAME_CHANGES_MESSAGES_KEY, true)
+    }
+
+    fun setShowAvatarDisplayNameChangeMessages(shouldShow: Boolean) {
+        defaultPrefs.edit(commit = true) { putBoolean(SETTINGS_SHOW_AVATAR_DISPLAY_NAME_CHANGES_MESSAGES_KEY, shouldShow) }
     }
 
     /**
@@ -788,6 +794,10 @@ class VectorPreferences @Inject constructor(
      */
     fun showRedactedMessages(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_SHOW_REDACTED_KEY, false)
+    }
+
+    fun setShowRedactedMessages(shouldShow: Boolean) {
+        return defaultPrefs.edit(commit = true) { putBoolean(SETTINGS_SHOW_REDACTED_KEY, shouldShow) }
     }
 
     /**

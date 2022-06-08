@@ -200,5 +200,9 @@
     <string name="freeform_reaction_summary">Free-form reaction</string>
 
     <string name="dev_tools_menu_hidden_events">Hidden events</string>
+    <string name="dev_tools_menu_event_visibilities">Event visibilities</string>
+    <string name="dev_tools_menu_membership_changes">Membership changes</string>
+    <string name="dev_tools_menu_display_name_changes">Account events</string>
+    <string name="dev_tools_menu_redacted">Deleted messages</string>
 
 </resources>

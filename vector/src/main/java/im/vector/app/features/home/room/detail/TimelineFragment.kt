@@ -74,6 +74,7 @@ import com.vanniktech.emoji.EmojiPopup
 import de.spiritcroc.matrixsdk.util.DbgUtil
 import de.spiritcroc.matrixsdk.util.Dimber
 import de.spiritcroc.menu.ArrayOptionsMenuHelper
+import de.spiritcroc.menu.toggleExec
 import de.spiritcroc.recyclerview.StickyHeaderItemDecoration
 import de.spiritcroc.recyclerview.widget.BetterLinearLayoutManager
 import de.spiritcroc.recyclerview.widget.LinearLayoutManager
@@ -1180,6 +1181,9 @@ class TimelineFragment @Inject constructor(
 
         // Hidden events
         menu.findItem(R.id.dev_hidden_events).isChecked = vectorPreferences.shouldShowHiddenEvents()
+        menu.findItem(R.id.dev_membership_changes).isChecked = vectorPreferences.showJoinLeaveMessages()
+        menu.findItem(R.id.dev_display_name_changes).isChecked = vectorPreferences.showAvatarDisplayNameChangeMessages()
+        menu.findItem(R.id.dev_redacted).isChecked = vectorPreferences.showRedactedMessages()
 
         // Bubble style
         ArrayOptionsMenuHelper.createSubmenu(
@@ -1273,10 +1277,35 @@ class TimelineFragment @Inject constructor(
                 true
             }
             R.id.dev_hidden_events -> {
-                val shouldShow = !item.isChecked
-                vectorPreferences.setShouldShowHiddenEvents(shouldShow)
-                item.isChecked = shouldShow
-                reloadTimeline()
+                item.toggleExec { shouldShow ->
+                    vectorPreferences.setShouldShowHiddenEvents(shouldShow)
+                    reloadTimeline()
+                    true
+                }
+                true
+            }
+            R.id.dev_membership_changes -> {
+                item.toggleExec { shouldShow ->
+                    vectorPreferences.setShowJoinLeaveMessages(shouldShow)
+                    reloadTimeline()
+                    true
+                }
+                true
+            }
+            R.id.dev_display_name_changes -> {
+                item.toggleExec { shouldShow ->
+                    vectorPreferences.setShowAvatarDisplayNameChangeMessages(shouldShow)
+                    reloadTimeline()
+                    true
+                }
+                true
+            }
+            R.id.dev_redacted -> {
+                item.toggleExec { shouldShow ->
+                    vectorPreferences.setShowRedactedMessages(shouldShow)
+                    reloadTimeline()
+                    true
+                }
                 true
             }
             R.id.menu_timeline_thread_list         -> {
