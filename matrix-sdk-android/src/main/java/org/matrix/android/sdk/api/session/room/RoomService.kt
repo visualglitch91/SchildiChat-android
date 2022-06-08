@@ -98,6 +98,12 @@ interface RoomService {
     fun getRoomSummary(roomIdOrAlias: String): RoomSummary?
 
     /**
+     * A live [RoomSummary] associated with the room with id [roomId].
+     * You can observe this summary to get dynamic data from this room, even if the room is not joined yet
+     */
+    fun getRoomSummaryLive(roomId: String): LiveData<Optional<RoomSummary>>
+
+    /**
      * Get a snapshot list of room summaries.
      * @return the immutable list of [RoomSummary]
      */
@@ -210,11 +216,20 @@ interface RoomService {
                                   sortOrder: RoomSortOrder = RoomSortOrder.ACTIVITY): LiveData<PagedList<RoomSummary>>
 
     /**
-     * TODO Doc.
+     * Get's a live paged list from a filter that can be dynamically updated.
+     *
+     * @param queryParams The filter to use
+     * @param pagedListConfig The paged list configuration (page size, initial load, prefetch distance...)
+     * @param sortOrder defines how to sort the results
+     * @param getFlattenParents When true, the list of known parents and grand parents summaries will be resolved.
+     * This can have significant impact on performance, better be used only on manageable list (filtered by displayName, ..).
      */
-    fun getFilteredPagedRoomSummariesLive(queryParams: RoomSummaryQueryParams,
-                                          pagedListConfig: PagedList.Config = defaultPagedListConfig,
-                                          sortOrder: RoomSortOrder = RoomSortOrder.ACTIVITY): UpdatableLivePageResult
+    fun getFilteredPagedRoomSummariesLive(
+            queryParams: RoomSummaryQueryParams,
+            pagedListConfig: PagedList.Config = defaultPagedListConfig,
+            sortOrder: RoomSortOrder = RoomSortOrder.ACTIVITY,
+            getFlattenParents: Boolean = false,
+    ): UpdatableLivePageResult
 
     /**
      * Return a LiveData on the number of rooms.

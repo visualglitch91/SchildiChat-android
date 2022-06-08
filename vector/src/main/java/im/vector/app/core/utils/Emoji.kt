@@ -16,7 +16,7 @@
 
 package im.vector.app.core.utils
 
-import com.vanniktech.emoji.EmojiUtils
+import com.vanniktech.emoji.isOnlyEmojis
 
 /**
  * Replace custom emojis with some other arbitrary emoji, so we can maintain our logic
@@ -38,7 +38,7 @@ fun containsOnlyEmojis(str: String?): Boolean {
     // Now rely on vanniktech library
     // Emojis sent from desktop such as thumbs-up or down are sent with a variant selection symbol "\ufe0f",
     // that the library identifies as non-emoji character, so remove that manually before.
-    return EmojiUtils.isOnlyEmojis(str?.replace("\ufe0f", ""))
+    return str?.replace("\ufe0f", "").isOnlyEmojis()
 }
 
 /**

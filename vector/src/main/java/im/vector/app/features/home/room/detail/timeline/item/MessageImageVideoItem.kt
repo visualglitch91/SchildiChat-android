@@ -40,8 +40,9 @@ import im.vector.app.features.home.room.detail.timeline.style.granularRoundedCor
 import im.vector.app.features.home.room.detail.timeline.view.ScMessageBubbleWrapView
 import im.vector.app.features.media.ImageContentRenderer
 import im.vector.app.features.themes.defaultScBubbleAppearance
-import org.matrix.android.sdk.api.util.MimeTypes
 import kotlin.math.round
+import org.matrix.android.sdk.api.session.room.model.message.MessageType
+import org.matrix.android.sdk.api.util.MimeTypes
 
 @EpoxyModelClass(layout = R.layout.item_timeline_event_base)
 abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Holder>() {
@@ -73,6 +74,9 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
         forceAllowFooterOverlay = null
         super.bind(holder)
 
+        val isImageMessage = attributes.informationData.messageType == MessageType.MSGTYPE_IMAGE
+        val autoplayAnimatedImages = attributes.autoplayAnimatedImages
+
         val bubbleWrapView = (holder.view as? ScMessageBubbleWrapView)
         val host = this
         val onImageSizeListener = object: ImageContentRenderer.OnImageSizeListener {
@@ -88,7 +92,7 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
                 }
             }
         }
-        val animate = mediaData.mimeType == MimeTypes.Gif
+        val animate = playable && isImageMessage && autoplayAnimatedImages
         // Do not use thumbnails for animated GIFs - sometimes thumbnails do not animate while the original GIF does
         val effectiveMode = if (animate && mode == ImageContentRenderer.Mode.THUMBNAIL) ImageContentRenderer.Mode.ANIMATED_THUMBNAIL else mode
 
@@ -125,7 +129,14 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
         ViewCompat.setTransitionName(holder.imageView, "imagePreview_${id()}")
         holder.mediaContentView.onClick(attributes.itemClickListener)
         holder.mediaContentView.setOnLongClickListener(attributes.itemLongClickListener)
-        holder.playContentView.visibility = if (playable && !animate) View.VISIBLE else View.GONE
+
+        holder.playContentView.visibility = if (animate) {
+            View.GONE
+        } else if (playable) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
     }
 
     override fun unbind(holder: Holder) {

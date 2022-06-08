@@ -31,7 +31,7 @@ ext.versionMinor = 4
 // Note: even values are reserved for regular release, odd values for hotfix release.
 // When creating a hotfix, you should decrease the value, since the current value
 // is the value for the next regular release.
-ext.versionPatch = 16
+ext.versionPatch = 19
 
 ext.scVersion = 54
 
@@ -383,7 +383,6 @@ dependencies {
     implementation libs.androidx.lifecycleProcess
     implementation libs.androidx.lifecycleRuntimeKtx
 
-    implementation libs.androidx.datastore
     implementation libs.androidx.datastorepreferences
 
 
@@ -394,12 +393,11 @@ dependencies {
     implementation 'com.facebook.stetho:stetho:1.6.0'
 
     // Phone number https://github.com/google/libphonenumber
-    implementation 'com.googlecode.libphonenumber:libphonenumber:8.12.48'
+    implementation 'com.googlecode.libphonenumber:libphonenumber:8.12.49'
 
     // FlowBinding
     implementation libs.github.flowBinding
     implementation libs.github.flowBindingAppcompat
-    implementation libs.github.flowBindingMaterial
 
     implementation libs.airbnb.epoxy
     implementation libs.airbnb.epoxyGlide
@@ -465,9 +463,6 @@ dependencies {
     implementation libs.github.glide
     kapt libs.github.glideCompiler
     implementation 'com.github.yalantis:ucrop:2.2.8'
-
-    // Badge for compatibility
-    implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
 
     // Chat effects
     implementation 'nl.dionsegijn:konfetti-xml:2.0.2'

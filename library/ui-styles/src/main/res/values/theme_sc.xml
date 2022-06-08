@@ -56,7 +56,7 @@
         <item name="colorSecondary">?colorAccent</item>
         <item name="colorSecondaryVariant">?colorAccent</item>
         <item name="colorOnSecondary">?vctr_content_primary</item>
-        <item name="colorError">@color/element_alert_dark</item>
+        <item name="colorError">@color/sc_alert_dark</item>
         <item name="colorOnError">?vctr_content_primary</item>
         <item name="colorSurface">@color/background_black_sc</item> <!-- same as android:colorBackground, but using attr crashes actionMode? -->
         <item name="colorOnSurface">?vctr_content_primary</item>
@@ -112,6 +112,8 @@
         <item name="user_color_hash_06">@color/user_color_sc_mxid_6</item>
         <item name="user_color_hash_07">@color/user_color_sc_mxid_7</item>
         <item name="user_color_hash_08">@color/user_color_sc_mxid_8</item>
+        <item name="color_warning">@color/color_warning_sc</item>
+        <item name="shield_color_warning">@color/shield_color_warning_sc</item>
 
         <item name="android:statusBarColor">@color/background_black_sc</item>
         <item name="android:navigationBarColor">@color/background_black_sc</item>

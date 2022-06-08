@@ -101,4 +101,10 @@
     <color name="user_color_element_pl_1">@color/palette_kiwi</color>
     <color name="user_color_element_pl_0">@color/palette_element_green</color>
 
+    <color name="sc_alert">#E53935</color>
+    <color name="sc_alert_light">@color/sc_alert</color>
+    <color name="sc_alert_dark">@color/sc_alert</color>
+    <color name="color_warning_sc">@color/sc_alert</color>
+    <color name="shield_color_warning_sc">@color/color_warning_sc</color>
+
 </resources>

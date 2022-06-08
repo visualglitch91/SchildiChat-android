@@ -59,7 +59,7 @@ internal object EventAnnotationsSummaryMapper {
                     PollResponseAggregatedSummaryEntityMapper.map(it)
                 },
                 liveLocationShareAggregatedSummary = annotationsSummary.liveLocationShareAggregatedSummary?.let {
-                    LiveLocationShareAggregatedSummaryMapper.map(it)
+                    LiveLocationShareAggregatedSummaryMapper().map(it)
                 }
         )
     }

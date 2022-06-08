@@ -246,6 +246,7 @@ object ThemeUtils {
     /**
      * Update the application theme.
      *
+     * @param context the Android context
      * @param aTheme the new theme
      */
     fun setApplicationTheme(context: Context, aLightTheme: String, aDarkTheme: String, aLightAccent: String, aDarkAccent: String) {
@@ -340,9 +341,11 @@ object ThemeUtils {
     }
 
     /**
-     * Set the activity theme according to the selected one.
+     * Set the activity theme according to the selected one. Default is Light, so if this is the current
+     * theme, the theme is not changed.
      *
      * @param activity the activity
+     * @param otherThemes themes to apply for dark and black theme
      */
     fun setActivityTheme(activity: Activity, otherThemes: ActivityOtherThemes) {
         when (getApplicationTheme(activity)) {
@@ -363,7 +366,7 @@ object ThemeUtils {
     /**
      * Translates color attributes to colors.
      *
-     * @param c              Context
+     * @param c Context
      * @param colorAttribute Color Attribute
      * @return Requested Color
      */
@@ -401,8 +404,8 @@ object ThemeUtils {
     /**
      * Tint the drawable with a theme attribute.
      *
-     * @param context   the context
-     * @param drawable  the drawable to tint
+     * @param context the context
+     * @param drawable the drawable to tint
      * @param attribute the theme color
      * @return the tinted drawable
      */
@@ -414,7 +417,7 @@ object ThemeUtils {
      * Tint the drawable with a color integer.
      *
      * @param drawable the drawable to tint
-     * @param color    the color
+     * @param color the color
      * @return the tinted drawable
      */
     fun tintDrawableWithColor(drawable: Drawable, @ColorInt color: Int): Drawable {

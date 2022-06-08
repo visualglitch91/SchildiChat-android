@@ -48,6 +48,9 @@
 
         <attr name="unread_line_unimportant" format="color" />
 
+        <attr name="color_warning" format="color" />
+        <attr name="shield_color_warning" format="color" />
+
     </declare-styleable>
 
 </resources>
