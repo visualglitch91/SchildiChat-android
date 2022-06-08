@@ -73,8 +73,8 @@
     <string name="sc_accent_cyan">Zyan</string>
     <string name="sc_accent_pink">Pink</string>
     <string name="settings_user_colors_in_public_rooms">Nutzerfarben in öffentlichen Räumen</string>
-    <string name="settings_open_chats_at_first_unread">Beim ersten Mal ungelesen öffnen</string>
-    <string name="settings_open_chats_at_first_unread_summary">Chats bei der ersten ungelesenen Nachricht öffnen, statt am unteren Ende.</string>
+    <string name="settings_open_chats_at_first_unread">Öffnen bei der ersten ungelesenen Nachricht</string>
+    <string name="settings_open_chats_at_first_unread_summary">Chats bei der ersten ungelesenen Nachricht öffnen, statt an der neuesten.</string>
     <string name="sc_accent_denim">Jeansblau</string>
     <string name="sc_accent_indigo">Indigoblau</string>
     <string name="sc_accent_lava">Lava</string>
@@ -94,7 +94,7 @@
     <string name="settings_aggregate_unread_counts_summary">Zähle die ungelesenen Chats statt einzelner Nachrichten in Spaces und Raumkategorien</string>
     <string name="user_colors_uniform">Einheitlich</string>
     <string name="room_list_quick_actions_open_at_bottom">Bei neuesten Nachrichten öffnen</string>
-    <string name="send_bug_report_sc_extra">Um die Sichtbarkeit Ihres Issues zu erhöhen und uns die Möglichkeit zu geben, mit Ihnen in Kontakt zu treten, können Sie auf diesen Bericht (unter Angabe Ihrer Matrix-ID und des ungefähren Zeitpunkts, zu dem er gesendet wurde) in einem Issue unter https://github.com/SchildiChat/SchildiChat-android/issues verweisen (prüfen Sie zunächst, ob für Ihr Problem bereits ein Issue existiert, und erstellen Sie nur dann ein neues, wenn dies nicht der Fall ist).</string>
+    <string name="send_bug_report_sc_extra">Um die Sichtbarkeit Ihres Issues zu erhöhen, können Sie auf diesen Bericht (unter Angabe Ihrer Matrix-ID und des ungefähren Zeitpunkts, zu dem er gesendet wurde) in einem Issue unter https://github.com/SchildiChat/SchildiChat-android/issues verweisen (prüfen Sie zunächst, ob für Ihr Problem bereits ein Issue existiert, und erstellen Sie nur dann ein neues, wenn dies nicht der Fall ist).</string>
     <string name="settings_troubleshoot_test_fcm_failed_sc">FCM-Token konnte nicht abgerufen werden</string>
     <string name="settings_unifiedpush">UnifiedPush</string>
     <string name="settings_jump_to_bottom_on_send_summary">Beim Senden einer Nachricht automatisch nach unten scrollen</string>
@@ -116,7 +116,7 @@
 \n%1$s</string>
     <string name="settings_troubleshoot_test_endpoint_failed">Der Abruf des Endpoints ist fehlgeschlagen.</string>
     <string name="unifiedpush_getdistributors_dialog_title">Wähle einen Verteiler</string>
-    <string name="unifiedpush_getdistributors_dialog_fcm_fallback">FCM Fallback</string>
+    <string name="unifiedpush_getdistributors_dialog_fcm_fallback">FCM-Fallback</string>
     <string name="settings_troubleshoot_test_pusher_registration_title">Pusher Registrierung</string>
     <string name="settings_troubleshoot_test_pusher_registration_success">Pusher erfolgreich am Heimserver registriert.</string>
     <string name="settings_troubleshoot_test_pusher_registration_failed">Registrieren des Pushers beim Heimserver fehlgeschlagen:
@@ -131,4 +131,23 @@
     <string name="bubble_rounded_corners_r1">Rund</string>
     <string name="bubble_rounded_corners_r2">Extra rund</string>
     <string name="bubble_tail">Blasenschweif</string>
+    <string name="settings_upstream_labs">Element-Funktionen</string>
+    <string name="settings_labs_timeline">Zeitleiste</string>
+    <string name="settings_labs_room_list">Raumliste</string>
+    <string name="settings_show_open_anonymous_summary">Zeige Option, eine Raum zu öffnen, ohne ihn automatisch als gelesen zu markieren</string>
+    <string name="settings_floating_date_summary">Zeige das Datum über Nachrichten beim Scrollen</string>
+    <string name="freeform_react_with">Reagiere mit \"%1$s\"</string>
+    <string name="freeform_reaction_summary">Freiform-Reaktion</string>
+    <string name="bubble_tail_summary">Blasenschweif für die erste Nachricht eines Absenders beinhalten</string>
+    <string name="settings_sc_dbg_timeline_chunks">Zeitleisten-Konsistenz-Debugging</string>
+    <string name="settings_sc_dbg_view_pager">ViewPager-Debugging</string>
+    <string name="settings_read_receipt_follows_read_marker">Chats nur als gelesen markieren, wenn vollständig gelesen</string>
+    <string name="room_list_quick_actions_open_anonymous">Öffnen ohne zu lesen</string>
+    <string name="settings_show_open_anonymous">Öffnen ohne zu lesen</string>
+    <string name="settings_notif_only_alert_once">Nur einmal benachrichtigen</string>
+    <string name="settings_notif_only_alert_once_summary">Benachrichtigungstöne für neue Nachrichten auslassen, wenn es für den jeweiligen Chat bereits eine offene Benachrichtigung gibt</string>
+    <string name="settings_hide_call_buttons">Anrufbuttons verstecken</string>
+    <string name="settings_hide_call_buttons_summary">Buttons zum Starten von Sprach- oder Videoanrufen in Raum-Werkzeugleiste niemals anzeigen</string>
+    <string name="settings_sc_dbg_show_display_index">Zeige displayIndex in Zeitleiste</string>
+    <string name="settings_sc_debugging_summary">Zusätzliche Logs für Debugging-Funktionen aktivieren</string>
 </resources>

@@ -154,4 +154,6 @@
     <string name="settings_floating_date">Tanggal mengapung</string>
     <string name="freeform_reaction_summary">Reaksi bebas</string>
     <string name="freeform_react_with">Bereaksi dengan \"%1$s\"</string>
+    <string name="setting_sc_accent_color">Warna aksen</string>
+    <string name="dev_tools_menu_hidden_events">Peristiwa tersembunyi</string>
 </resources>

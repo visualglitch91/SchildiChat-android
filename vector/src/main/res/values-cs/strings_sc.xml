@@ -156,4 +156,6 @@
     <string name="settings_floating_date_summary">Zobrazit datum v horní části zpráv při posunu</string>
     <string name="freeform_react_with">Reagovat pomocí \"%1$s\"</string>
     <string name="freeform_reaction_summary">Reakce ve volné podobě</string>
+    <string name="dev_tools_menu_hidden_events">Skryté události</string>
+    <string name="setting_sc_accent_color">Barva akcentu</string>
 </resources>
