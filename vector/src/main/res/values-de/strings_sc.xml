@@ -150,4 +150,5 @@
     <string name="settings_hide_call_buttons_summary">Buttons zum Starten von Sprach- oder Videoanrufen in Raum-Werkzeugleiste niemals anzeigen</string>
     <string name="settings_sc_dbg_show_display_index">Zeige displayIndex in Zeitleiste</string>
     <string name="settings_sc_debugging_summary">Zusätzliche Logs für Debugging-Funktionen aktivieren</string>
+    <string name="setting_sc_accent_color">Akzentfarbe</string>
 </resources>
