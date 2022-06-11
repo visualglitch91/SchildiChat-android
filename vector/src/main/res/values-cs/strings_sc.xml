@@ -158,4 +158,10 @@
     <string name="freeform_reaction_summary">Reakce ve volné podobě</string>
     <string name="dev_tools_menu_hidden_events">Skryté události</string>
     <string name="setting_sc_accent_color">Barva akcentu</string>
+    <string name="dev_tools_menu_membership_changes">Změny členství</string>
+    <string name="dev_tools_menu_display_name_changes">Události účtu</string>
+    <string name="dev_tools_menu_redacted">Smazané zprávy</string>
+    <string name="settings_space_back_navigation">Změny prostorů</string>
+    <string name="settings_space_back_navigation_summary">Stisknutím tlačítka zpět zobrazíte předchozí vybraný prostor</string>
+    <string name="dev_tools_menu_event_visibilities">Viditelnost událostí</string>
 </resources>
