@@ -23,7 +23,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -828,7 +827,7 @@ class HomeDetailFragment @Inject constructor(
         return this
     }
 
-    override fun onBackPressed(toolbarButton: Boolean) = if (!pagerPagingEnabled && getCurrentSpace() != null) {
+    override fun onBackPressed(toolbarButton: Boolean) = if (vectorPreferences.spaceBackNavigation() && getCurrentSpace() != null) {
         navigateBack()
         true
     } else {

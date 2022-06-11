@@ -225,6 +225,7 @@ class VectorPreferences @Inject constructor(
         private const val SETTINGS_READ_RECEIPT_FOLLOWS_READ_MARKER = "SETTINGS_READ_RECEIPT_FOLLOWS_READ_MARKER"
         private const val SETTINGS_SHOW_OPEN_ANONYMOUS = "SETTINGS_SHOW_OPEN_ANONYMOUS"
         private const val SETTINGS_FLOATING_DATE = "SETTINGS_FLOATING_DATE"
+        private const val SETTINGS_SPACE_BACK_NAVIGATION = "SETTINGS_SPACE_BACK_NAVIGATION"
 
         private const val DID_ASK_TO_ENABLE_SESSION_PUSH = "DID_ASK_TO_ENABLE_SESSION_PUSH"
 
@@ -1166,6 +1167,10 @@ class VectorPreferences @Inject constructor(
 
     fun floatingDate(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_FLOATING_DATE, true)
+    }
+
+    fun spaceBackNavigation(): Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_SPACE_BACK_NAVIGATION, false)
     }
 
     /**
