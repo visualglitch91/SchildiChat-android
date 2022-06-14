@@ -342,7 +342,7 @@ class HomeDetailViewModel @AssistedInject constructor(
         return session.roomService().getRoom(roomId)
     }
 
-    private fun RoomGroupingMethod.BySpace.toActiveSpaceOrOrphanRooms(): SpaceFilter? {
-        return spaceSummary?.roomId?.toActiveSpaceOrOrphanRooms()
+    private fun RoomGroupingMethod.BySpace.toActiveSpaceOrOrphanRooms(): SpaceFilter {
+        return spaceSummary?.roomId.toActiveSpaceOrOrphanRooms()
     }
 }
