@@ -112,6 +112,7 @@ class HomeDetailFragment @Inject constructor(
     private var pagerSpaces: List<String?>? = null
     private var pagerTab: HomeTab? = null
     private var pagerPagingEnabled: Boolean = false
+    private var previousRoomGroupingMethodPair: Pair<RoomGroupingMethod, SelectSpaceFrom>? = null
 
     override fun getMenuRes() = R.menu.room_list
 
@@ -238,6 +239,7 @@ class HomeDetailFragment @Inject constructor(
                 return@onEach
             }
             setupViewPager(roomGroupingMethod, rootSpacesOrdered, currentTab)
+            previousRoomGroupingMethodPair = roomGroupingMethod
         }
 
         sharedCallActionViewModel
@@ -578,7 +580,12 @@ class HomeDetailFragment @Inject constructor(
         viewPagerDimber.i{"Home pager: setup, old adapter: $oldAdapter"}
         val unsafeSpaces = spaces?.map { it.roomId } ?: listOf()
         val selectedSpaceId = (roomGroupingMethod as? RoomGroupingMethod.BySpace)?.spaceSummary?.roomId
-        val selectedIndex = getPageIndexForSpaceId(selectedSpaceId, unsafeSpaces)
+        val selectedIndex = if (previousRoomGroupingMethodPair == roomGroupingMethodPair && tab != pagerTab) {
+            // Stick with previously selected space for tab changes
+            views.roomListContainerPager.currentItem
+        } else {
+            getPageIndexForSpaceId(selectedSpaceId, unsafeSpaces)
+        }
         val pagingEnabled = pagingAllowed && roomGroupingMethod is RoomGroupingMethod.BySpace && unsafeSpaces.isNotEmpty() && selectedIndex != null
         val safeSpaces = if (pagingEnabled) unsafeSpaces else listOf()
         // Check if we need to recreate the adapter for a new tab
@@ -599,7 +606,8 @@ class HomeDetailFragment @Inject constructor(
                         return
                     }
                     if (selectedIndex != null) {
-                        if (selectedIndex != views.roomListContainerPager.currentItem) {
+                        // Somehow, currentItem sometimes claims to be 0 after tab changes even if it is not right after that, so enforce setting that either way
+                        if (selectedIndex != views.roomListContainerPager.currentItem || selectedIndex == 0) {
                             // post() mitigates a case where we could end up in an endless loop circling around the same few spaces
                             views.roomListContainerPager.post {
                                 // Do not smooth scroll large distances to avoid loading unnecessary many room lists
