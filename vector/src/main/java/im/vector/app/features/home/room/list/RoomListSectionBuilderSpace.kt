@@ -372,7 +372,11 @@ class RoomListSectionBuilderSpace(
                     nameRes = R.string.invitations_header,
                     notifyOfLocalEcho = true,
                     explicitSpaceId = explicitSpaceId,
-                    spaceFilterStrategy = RoomListViewModel.SpaceFilterStrategy.ALL_IF_SPACE_NULL,
+                    spaceFilterStrategy = if (onlyOrphansInHome) {
+                        RoomListViewModel.SpaceFilterStrategy.ORPHANS_IF_SPACE_NULL
+                    } else {
+                        RoomListViewModel.SpaceFilterStrategy.ALL_IF_SPACE_NULL
+                    },
                     countRoomAsNotif = true
             ) {
                 it.memberships = listOf(Membership.INVITE)
@@ -402,7 +406,11 @@ class RoomListSectionBuilderSpace(
                 activeSpaceAwareQueries,
                 R.string.bottom_action_people_x,
                 false,
-                RoomListViewModel.SpaceFilterStrategy.ALL_IF_SPACE_NULL,
+                spaceFilterStrategy = if (onlyOrphansInHome) {
+                    RoomListViewModel.SpaceFilterStrategy.ORPHANS_IF_SPACE_NULL
+                } else {
+                    RoomListViewModel.SpaceFilterStrategy.ALL_IF_SPACE_NULL
+                },
                 explicitSpaceId = explicitSpaceId
         ) {
             it.memberships = listOf(Membership.JOIN)
@@ -415,7 +423,11 @@ class RoomListSectionBuilderSpace(
                 activeSpaceAwareQueries,
                 R.string.low_priority_header,
                 false,
-                RoomListViewModel.SpaceFilterStrategy.ALL_IF_SPACE_NULL,
+                spaceFilterStrategy = if (onlyOrphansInHome) {
+                    RoomListViewModel.SpaceFilterStrategy.ORPHANS_IF_SPACE_NULL
+                } else {
+                    RoomListViewModel.SpaceFilterStrategy.ALL_IF_SPACE_NULL
+                },
                 explicitSpaceId = explicitSpaceId
         ) {
             it.memberships = listOf(Membership.JOIN)
