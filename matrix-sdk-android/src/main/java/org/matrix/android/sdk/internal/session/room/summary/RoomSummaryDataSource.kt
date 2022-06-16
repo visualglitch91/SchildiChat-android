@@ -333,7 +333,7 @@ internal class RoomSummaryDataSource @Inject constructor(
         when (queryParams.spaceFilter) {
             SpaceFilter.OrphanRooms     -> {
                 // orphan rooms
-                query.isNull(RoomSummaryEntityFields.FLATTEN_PARENT_IDS)
+                query.beginGroup().isNull(RoomSummaryEntityFields.FLATTEN_PARENT_IDS).or().equalTo(RoomSummaryEntityFields.IS_ORPHAN_DM, true).endGroup()
             }
             is SpaceFilter.ActiveSpace  -> {
                 // It's annoying but for now realm java does not support querying in primitive list :/

@@ -311,6 +311,11 @@ internal open class RoomSummaryEntity(
             if (value != field) field = value
         }
 
+    /**
+     * Whether the flattenParentIds thing is only non-empty because of DMs auto-added to spaces
+     */
+    var isOrphanDm: Boolean = false
+
     var groupIds: String? = null
         set(value) {
             if (value != field) field = value

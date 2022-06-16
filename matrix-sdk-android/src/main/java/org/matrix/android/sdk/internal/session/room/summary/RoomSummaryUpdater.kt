@@ -489,6 +489,7 @@ internal class RoomSummaryUpdater @Inject constructor(
                             }
                         }.distinct()
                         if (flattenRelated.isNotEmpty()) {
+                            dmRoom.isOrphanDm = dmRoom.flattenParentIds.isNullOrEmpty()
                             // we keep real m.child/m.parent relations and add the one for common memberships
                             dmRoom.flattenParentIds += "|${flattenRelated.joinToString("|")}|"
                         }
