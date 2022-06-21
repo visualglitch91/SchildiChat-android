@@ -198,6 +198,9 @@
 
     <string name="freeform_react_with">React with \"%1$s\"</string>
     <string name="freeform_reaction_summary">Free-form reaction</string>
+    <string name="custom_emotes_this_room">Room emojis</string>
+    <string name="custom_emotes_other_room">Emojis from %1$s</string>
+    <string name="standard_emojis">Standard emojis</string>
 
     <string name="dev_tools_menu_hidden_events">Hidden events</string>
     <string name="dev_tools_menu_event_visibilities">Event visibilities</string>

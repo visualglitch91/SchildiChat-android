@@ -21,6 +21,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.epoxy.TypedEpoxyController
 import im.vector.app.EmojiCompatFontProvider
 import im.vector.app.features.autocomplete.AutocompleteClickListener
+import im.vector.app.features.autocomplete.autocompleteHeaderItem
+import im.vector.app.features.autocomplete.member.AutocompleteEmojiDataItem
+import im.vector.app.features.autocomplete.member.AutocompleteMemberItem
 import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.reactions.data.EmojiItem
 import org.matrix.android.sdk.api.session.Session
@@ -30,7 +33,7 @@ import javax.inject.Inject
 class AutocompleteEmojiController @Inject constructor(
         private val fontProvider: EmojiCompatFontProvider,
         private val session: Session
-) : TypedEpoxyController<List<EmojiItem>>() {
+) : TypedEpoxyController<List<AutocompleteEmojiDataItem>>() {
 
     var emojiTypeface: Typeface? = fontProvider.typeface
 
@@ -42,22 +45,16 @@ class AutocompleteEmojiController @Inject constructor(
 
     var listener: AutocompleteClickListener<EmojiItem>? = null
 
-    override fun buildModels(data: List<EmojiItem>?) {
+    override fun buildModels(data: List<AutocompleteEmojiDataItem>?) {
         if (data.isNullOrEmpty()) {
             return
         }
-        val host = this
         data
                 .take(MAX)
-                .forEach { emojiItem ->
-                    autocompleteEmojiItem {
-                        id(emojiItem.name)
-                        emojiItem(emojiItem)
-                        // For caching reasons, we use the AvatarRenderer's thumbnail size here
-                        emoteUrl(host.session.contentUrlResolver().resolveThumbnail(emojiItem.mxcUrl,
-                                AvatarRenderer.THUMBNAIL_SIZE, AvatarRenderer.THUMBNAIL_SIZE, ContentUrlResolver.ThumbnailMethod.SCALE))
-                        emojiTypeFace(host.emojiTypeface)
-                        onClickListener { host.listener?.onItemClick(emojiItem) }
+                .forEach { item ->
+                    when (item) {
+                        is AutocompleteEmojiDataItem.Header -> buildHeaderItem(item)
+                        is AutocompleteEmojiDataItem.Emoji  -> buildEmojiItem(item.emojiItem)
                     }
                 }
 
@@ -67,6 +64,31 @@ class AutocompleteEmojiController @Inject constructor(
             }
         }
     }
+
+    private fun buildHeaderItem(header: AutocompleteEmojiDataItem.Header) {
+        autocompleteHeaderItem {
+            id(header.id)
+            title(header.title)
+        }
+    }
+
+    private fun buildEmojiItem(emojiItem: EmojiItem) {
+        val host = this
+        autocompleteEmojiItem {
+            id(emojiItem.name)
+            emojiItem(emojiItem)
+            // For caching reasons, we use the AvatarRenderer's thumbnail size here
+            emoteUrl(
+                    host.session.contentUrlResolver().resolveThumbnail(
+                            emojiItem.mxcUrl,
+                            AvatarRenderer.THUMBNAIL_SIZE, AvatarRenderer.THUMBNAIL_SIZE, ContentUrlResolver.ThumbnailMethod.SCALE
+                    )
+            )
+            emojiTypeFace(host.emojiTypeface)
+            onClickListener { host.listener?.onItemClick(emojiItem) }
+        }
+    }
+
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         fontProvider.addListener(fontProviderListener)
@@ -78,6 +100,13 @@ class AutocompleteEmojiController @Inject constructor(
     }
 
     companion object {
+        // Count of emojis for the current room's image pack
+        const val CUSTOM_THIS_ROOM_MAX = 10
+        // Count of emojis per other image pack
+        const val CUSTOM_OTHER_ROOM_MAX = 3
+        // Count of other image packs
+        const val MAX_CUSTOM_OTHER_ROOMS = 3
+        // Total max
         const val MAX = 50
     }
 }

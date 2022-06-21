@@ -21,8 +21,10 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import im.vector.app.R
 import im.vector.app.features.autocomplete.AutocompleteClickListener
 import im.vector.app.features.autocomplete.RecyclerViewPresenter
+import im.vector.app.features.autocomplete.member.AutocompleteEmojiDataItem
 import im.vector.app.features.reactions.data.EmojiDataSource
 import im.vector.app.features.reactions.data.EmojiItem
 import im.vector.app.features.settings.VectorPreferences
@@ -32,11 +34,14 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import org.matrix.android.sdk.api.session.Session
+import org.matrix.android.sdk.api.session.accountdata.UserAccountDataTypes
 import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.events.model.toModel
 import org.matrix.android.sdk.api.session.getRoom
+import org.matrix.android.sdk.api.session.room.Room
 import org.matrix.android.sdk.api.session.room.getStateEvent
 import org.matrix.android.sdk.api.session.room.model.RoomEmoteContent
+import kotlin.math.min
 
 class AutocompleteEmojiPresenter @AssistedInject constructor(context: Context,
                                                              @Assisted val roomId: String,
@@ -80,24 +85,75 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(context: Context,
                 emojiDataSource.getQuickReactions()
             } else {
                 emojiDataSource.filterWith(query.toString())
+            }.toAutocompleteItems()
+
+            // Custom emotes: This room's emotes
+            val currentRoomEmotes = room.getEmojiItems(query)
+            val emoteData = currentRoomEmotes.toAutocompleteItems().let {
+                if (it.isNotEmpty()) {
+                    listOf(AutocompleteEmojiDataItem.Header(roomId, context.getString(R.string.custom_emotes_this_room))) + it
+                } else {
+                    emptyList()
+                }
+            }.limit(AutocompleteEmojiController.CUSTOM_THIS_ROOM_MAX).toMutableList()
+            val emoteUrls = HashSet<String>()
+            emoteUrls.addAll(currentRoomEmotes.map { it.mxcUrl })
+            // Global emotes (only while searching)
+            if (!query.isNullOrBlank()) {
+                val globalPacks = session.accountDataService().getUserAccountDataEvent(UserAccountDataTypes.TYPE_EMOTE_ROOMS)
+                var packsAdded = 0
+                (globalPacks?.content?.get("rooms") as? Map<*, *>)?.forEach { pack ->
+                    if (packsAdded >= AutocompleteEmojiController.MAX_CUSTOM_OTHER_ROOMS) {
+                        return@forEach
+                    }
+                    val packRoomId = pack.key
+                    if (packRoomId is String && packRoomId != roomId) {
+                        val packRoom = session.getRoom(packRoomId) ?: return@forEach
+                        // Filter out duplicate emotes with the exact same mxc url
+                        val packImages = packRoom.getEmojiItems(query).filter {
+                            it.mxcUrl !in emoteUrls
+                        }.limit(AutocompleteEmojiController.CUSTOM_OTHER_ROOM_MAX)
+                        // Add header + emotes
+                        if (packImages.isNotEmpty()) {
+                            packsAdded++
+                            emoteUrls.addAll(packImages.map { it.mxcUrl })
+                            emoteData += listOf(AutocompleteEmojiDataItem.Header(
+                                    packRoomId,
+                                    context.getString(R.string.custom_emotes_other_room,
+                                            packRoom.roomSummary()?.displayName ?: packRoomId)
+                            ))
+                            emoteData += packImages.toAutocompleteItems()
+                        }
+                    }
+                }
             }
 
-            // Custom emotes
-            // TODO may want to add headers (compare @room vs @person completion) for
-            // - Standard emojis
-            // - Room-specific emotes
-            // - Global emotes (exported from other rooms)
-            val images = room.getStateEvent(EventType.ROOM_EMOTES)?.content?.toModel<RoomEmoteContent>()?.images.orEmpty()
-            val emoteData = images.filter {
-                val usages = it.value.usage
-                usages.isNullOrEmpty() || RoomEmoteContent.USAGE_EMOTICON in usages
-            }.filter {
-                query == null || it.key.contains(query, true)
-            }.map {
-                EmojiItem(it.key, "", mxcUrl = it.value.url)
-            }.sortedBy { it.name }.distinct()
-
-            controller.setData(emoteData + data)
+            val dataHeader = if (data.isNotEmpty() && emoteData.isNotEmpty()) {
+                listOf(AutocompleteEmojiDataItem.Header("de.spiritcroc.riotx.STANDARD_EMOJI_HEADER", context.getString(R.string.standard_emojis)))
+            } else {
+                emptyList()
+            }
+            controller.setData(emoteData + dataHeader + data)
         }
+    }
+
+    private fun List<EmojiItem>.toAutocompleteItems(): List<AutocompleteEmojiDataItem> {
+        return map { AutocompleteEmojiDataItem.Emoji(it) }
+    }
+
+    private fun Room.getEmojiItems(query: CharSequence?): List<EmojiItem> {
+        return getStateEvent(EventType.ROOM_EMOTES)?.content?.toModel<RoomEmoteContent>()?.images.orEmpty()
+                .filter {
+                    val usages = it.value.usage
+                    usages.isNullOrEmpty() || RoomEmoteContent.USAGE_EMOTICON in usages
+                }.filter {
+                    query == null || it.key.contains(query, true)
+                }.map {
+                    EmojiItem(it.key, "", mxcUrl = it.value.url)
+                }.sortedBy { it.name }.distinctBy { it.mxcUrl }
+    }
+
+    private fun <T>List<T>.limit(count: Int): List<T> {
+        return subList(0, min(count, size))
     }
 }
