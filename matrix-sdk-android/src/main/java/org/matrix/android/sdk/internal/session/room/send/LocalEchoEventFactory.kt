@@ -574,8 +574,10 @@ internal class LocalEchoEventFactory @Inject constructor(
 
         val body = bodyForReply(eventReplied.getLastMessageContent(), eventReplied.isReply())
 
+        // For inline images and user pills
+        val replyTextProcessed = textPillsUtils.processSpecialSpansToHtml(replyText) ?: replyText
         // As we always supply formatted body for replies we should force the MarkdownParser to produce html.
-        val replyTextFormatted = markdownParser.parse(replyText, force = true, advanced = autoMarkdown).takeFormatted()
+        val replyTextFormatted = markdownParser.parse(replyTextProcessed, force = true, advanced = autoMarkdown).takeFormatted()
         // Body of the original message may not have formatted version, so may also have to convert to html.
         val bodyFormatted = body.formattedText ?: markdownParser.parse(body.text, force = true, advanced = autoMarkdown).takeFormatted()
         val replyFormatted = buildFormattedReply(
