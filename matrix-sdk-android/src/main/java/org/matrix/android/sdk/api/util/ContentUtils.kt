@@ -15,6 +15,7 @@
  */
 package org.matrix.android.sdk.api.util
 
+import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.internal.util.unescapeHtml
 
 object ContentUtils {
@@ -53,6 +54,13 @@ object ContentUtils {
         // can capture the spoiler reason for better formatting? ex. { reason = it.value;  ">"}
         return formattedBody.replace("(?<=<span data-mx-spoiler)=\\\".+?\\\">".toRegex(), ">")
                 .replace("(?<=<span data-mx-spoiler>).+?(?=</span>)".toRegex()) { SPOILER_CHAR.repeat(it.value.length) }
+                // Replace inline images with alt text
+                .replace(Regex("""<img(\s+[^>]*)>""")) { matchResult ->
+                    tryOrNull {
+                        val alt = Regex("""\s+alt="([^"]*)"""").find(matchResult.groupValues[1])
+                        alt?.groupValues?.get(1)
+                    } ?: "￼"
+                }
                 .unescapeHtml()
     }
 
