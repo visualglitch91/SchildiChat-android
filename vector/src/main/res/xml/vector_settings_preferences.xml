@@ -11,7 +11,15 @@
             android:key="SETTINGS_INTERFACE_LANGUAGE_PREFERENCE_KEY"
             android:persistent="false"
             android:title="@string/settings_interface_language"
+            android:dependency="SETTINGS_FOLLOW_SYSTEM_LOCALE"
             app:fragment="im.vector.app.features.settings.locale.LocalePickerFragment" />
+
+        <im.vector.app.core.preference.VectorSwitchPreference
+            android:key="SETTINGS_FOLLOW_SYSTEM_LOCALE"
+            android:defaultValue="false"
+            android:title="@string/settings_follow_system_locale"
+            android:summary="@string/settings_follow_system_locale_summary"
+            android:disableDependentsState="true" />
 
         <im.vector.app.core.preference.VectorSwitchPreference
             android:defaultValue="false"

@@ -18,6 +18,8 @@ package im.vector.app.features.settings
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import android.widget.CheckedTextView
 import androidx.core.view.children
@@ -40,6 +42,7 @@ import im.vector.app.features.themes.BubbleThemeUtils
 import im.vector.app.features.themes.ThemeUtils
 import kotlinx.coroutines.launch
 import org.matrix.android.sdk.api.session.presence.model.PresenceEnum
+import java.util.Locale
 import javax.inject.Inject
 
 class VectorSettingsPreferencesFragment @Inject constructor(
@@ -77,6 +80,21 @@ class VectorSettingsPreferencesFragment @Inject constructor(
     override fun bindPref() {
         // user interface preferences
         setUserInterfacePreferences()
+
+        // Language: follow system
+        findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_FOLLOW_SYSTEM_LOCALE)?.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { _, newValue ->
+                    if (newValue is Boolean) {
+                        VectorLocale.followSystemLocale = newValue
+                        VectorLocale.reloadLocale()
+                        vectorConfiguration.applyToApplicationContext()
+                        // Restart the Activity
+                        activity?.restart()
+                        true
+                    } else {
+                        false
+                    }
+                }
 
         // Themes
         val lightThemePref = findPreference<VectorListPreference>(ThemeUtils.APPLICATION_THEME_KEY)!!

@@ -18,6 +18,8 @@ package im.vector.app.features.settings
 
 import android.content.Context
 import android.content.res.Configuration
+import android.content.res.Resources
+import android.os.Build
 import androidx.core.content.edit
 import im.vector.app.BuildConfig
 import im.vector.app.R
@@ -51,6 +53,18 @@ object VectorLocale {
      */
     var applicationLocale = defaultLocale
         private set
+        get() {
+            return if (followSystemLocale) {
+                Locale.getDefault()
+            } else {
+                field
+            }
+        }
+
+    /**
+     * Whether to always follow the system locale
+     */
+    var followSystemLocale: Boolean = false
 
     private lateinit var context: Context
 
@@ -60,6 +74,27 @@ object VectorLocale {
     fun init(context: Context) {
         this.context = context
         val preferences = DefaultSharedPreferences.getInstance(context)
+
+        followSystemLocale = preferences.getBoolean(VectorPreferences.SETTINGS_FOLLOW_SYSTEM_LOCALE, false)
+        reloadLocale()
+    }
+
+    fun reloadLocale() {
+        val preferences = DefaultSharedPreferences.getInstance(context)
+
+        if (followSystemLocale) {
+            // Locale.getDefault() may have been changed by us, so we need to restore it from the system configuration explicitly
+            val systemLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Resources.getSystem().configuration.locales[0]
+            } else {
+                @Suppress("DEPRECATION") // Deprecated in API level 24, for which we use above ^
+                Resources.getSystem().configuration.locale
+            }
+            if (systemLocale != Locale.getDefault()) {
+                Locale.setDefault(systemLocale)
+            }
+            return
+        }
 
         if (preferences.contains(APPLICATION_LOCALE_LANGUAGE_KEY)) {
             applicationLocale = Locale(
@@ -85,6 +120,7 @@ object VectorLocale {
      */
     fun saveApplicationLocale(locale: Locale) {
         applicationLocale = locale
+        followSystemLocale = false
 
         DefaultSharedPreferences.getInstance(context).edit {
             val language = locale.language
