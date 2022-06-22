@@ -100,8 +100,7 @@ class HomeDetailViewModel @AssistedInject constructor(
 
     private val refreshRoomSummariesOnCryptoSessionChange = object : NewSessionListener {
         override fun onNewSession(roomId: String?, senderKey: String, sessionId: String) {
-            // SC: we're doing this directly in MegolmSessionDataImporter
-            //session.roomService().refreshJoinedRoomSummaryPreviews(roomId)
+            session.roomService().refreshJoinedRoomSummaryPreviews(roomId)
         }
     }
 
