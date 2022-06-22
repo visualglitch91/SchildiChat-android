@@ -35,7 +35,9 @@ class OutdatedEventDetector @Inject constructor(
             val eventID = notifiableEvent.eventId
             val roomID = notifiableEvent.roomId
             val room = session.getRoom(roomID) ?: return false
-            return room.readService().isEventRead(eventID)
+            // Also pass the notification timestamp, so we can use some heuristics in case of
+            // fastlane notifications while the read marker is in the latest chunk
+            return room.readService().isEventRead(eventID, notifiableEvent.timestamp.takeIf { it > 0 })
         }
         return false
     }

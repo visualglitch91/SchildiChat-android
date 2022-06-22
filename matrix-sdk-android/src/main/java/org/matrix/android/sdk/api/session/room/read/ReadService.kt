@@ -59,7 +59,7 @@ interface ReadService {
     /**
      * Check if an event is already read, ie. your read receipt is set on a more recent event.
      */
-    fun isEventRead(eventId: String): Boolean
+    fun isEventRead(eventId: String, eventTs: Long? = null): Boolean
 
     /**
      * Returns a live read marker id for the room.

@@ -85,8 +85,8 @@ internal class DefaultReadService @AssistedInject constructor(
         setMarkedUnreadTask.execute(params)
     }
 
-    override fun isEventRead(eventId: String): Boolean {
-        return isEventRead(monarchy.realmConfiguration, userId, roomId, eventId)
+    override fun isEventRead(eventId: String, eventTs: Long?): Boolean {
+        return isEventRead(monarchy.realmConfiguration, userId, roomId, eventId, eventTs)
     }
 
     override fun getReadMarkerLive(): LiveData<Optional<String>> {

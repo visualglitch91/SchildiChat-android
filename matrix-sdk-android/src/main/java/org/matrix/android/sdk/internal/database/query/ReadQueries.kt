@@ -18,6 +18,7 @@ package org.matrix.android.sdk.internal.database.query
 import de.spiritcroc.matrixsdk.util.Dimber
 import io.realm.Realm
 import io.realm.RealmConfiguration
+import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.session.events.model.LocalEcho
 import org.matrix.android.sdk.internal.database.helper.isMoreRecentThan
 import org.matrix.android.sdk.internal.database.model.ChunkEntity
@@ -30,6 +31,7 @@ internal fun isEventRead(realmConfiguration: RealmConfiguration,
                          userId: String?,
                          roomId: String?,
                          eventId: String?,
+                         eventTs: Long? = null,
                          ignoreSenderId: Boolean = false): Boolean {
     if (userId.isNullOrBlank() || roomId.isNullOrBlank() || eventId.isNullOrBlank()) {
         return false
@@ -41,8 +43,11 @@ internal fun isEventRead(realmConfiguration: RealmConfiguration,
     return Realm.getInstance(realmConfiguration).use { realm ->
         val eventToCheck = TimelineEventEntity.where(realm, roomId, eventId).findFirst()
         when {
-            // The event doesn't exist locally, let's assume it hasn't been read
-            eventToCheck == null                                          -> false
+            // The event doesn't exist locally, let's assume it hasn't been read unless we know all unread events
+            eventToCheck == null                                          -> isReadMarkerMoreRecentThanMissingEvent(realm, roomId, userId, eventTs)
+                    //.also {
+                        //Timber.i("isEventRead: eventToCheck ($eventId) == null -> assume read: $it")
+                    //}
             !ignoreSenderId && eventToCheck.root?.sender == userId        -> true
             // If new event exists and the latest event is from ourselves we can infer the event is read
             !ignoreSenderId && latestEventIsFromSelf(realm, roomId, userId) -> true
@@ -50,6 +55,26 @@ internal fun isEventRead(realmConfiguration: RealmConfiguration,
             else                                                          -> false
         }
     }
+}
+
+private fun isReadMarkerMoreRecentThanMissingEvent(realm: Realm, roomId: String, userId: String, eventTs: Long?): Boolean {
+    if (eventTs == null) {
+        // We don't have enough information to do an educated guess without timestamp:
+        // Case 1: a fastlane event came through for which we didn't sync yet
+        // -> the read marker may be very well in the latest chunk, but the missing event is still unread
+        // Case 2: We synced all recent events, but have some gap where the missing event would be
+        // -> if the read marker is at the bottom, the missing event should be marked as read in this case
+        // => fallback to showing the notification either way
+        return false
+    }
+    // Assume a missing event is read if:
+    // - The read receipt is in the last forward chunk and
+    // - The timestamp of the notification is smaller than the read receipt's one
+    return ReadReceiptEntity.where(realm, roomId, userId).findFirst()?.let { readReceipt ->
+        val readReceiptEvent = TimelineEventEntity.where(realm, roomId, readReceipt.eventId).findFirst()
+        //Timber.i("isReadMarkerMoreRecentThanMissing? ${readReceiptEvent?.chunk?.firstOrNull()?.isLastForward} && ${(readReceiptEvent?.root?.originServerTs ?: 0) > eventTs} <- ${(readReceiptEvent?.root?.originServerTs ?: 0)} > $eventTs")
+        readReceiptEvent?.chunk?.firstOrNull()?.isLastForward.orFalse() && (readReceiptEvent?.root?.originServerTs ?: 0) > eventTs
+    } ?: false
 }
 
 private fun latestEventIsFromSelf(realm: Realm, roomId: String, userId: String) = TimelineEventEntity.latestEvent(realm, roomId, true)
