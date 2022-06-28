@@ -151,4 +151,9 @@
     <string name="settings_sc_dbg_show_display_index">Zeige displayIndex in Zeitleiste</string>
     <string name="settings_sc_debugging_summary">Zusätzliche Logs für Debugging-Funktionen aktivieren</string>
     <string name="setting_sc_accent_color">Akzentfarbe</string>
+    <string name="settings_read_receipt_follows_read_marker_summary">Markiere den Chat nicht beim Öffnen als gelesen, sondern nur Stück für Stück beim Lesen.</string>
+    <string name="dev_tools_menu_event_visibilities">Eventsichtbarkeit</string>
+    <string name="dev_tools_menu_membership_changes">Mitgliedschaftsänderungen</string>
+    <string name="dev_tools_menu_display_name_changes">Konto-Events</string>
+    <string name="dev_tools_menu_redacted">Gelöschte Nachrichten</string>
 </resources>
