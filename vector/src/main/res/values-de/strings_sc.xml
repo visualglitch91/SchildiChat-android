@@ -130,7 +130,7 @@
     <string name="bubble_rounded_corners_default">Standard</string>
     <string name="bubble_rounded_corners_r1">Rund</string>
     <string name="bubble_rounded_corners_r2">Extra rund</string>
-    <string name="bubble_tail">Blasenschweif</string>
+    <string name="bubble_tail">Sprechblasenschweif</string>
     <string name="settings_upstream_labs">Element-Funktionen</string>
     <string name="settings_labs_timeline">Zeitleiste</string>
     <string name="settings_labs_room_list">Raumliste</string>
@@ -156,4 +156,6 @@
     <string name="dev_tools_menu_membership_changes">Mitgliedschaftsänderungen</string>
     <string name="dev_tools_menu_display_name_changes">Konto-Events</string>
     <string name="dev_tools_menu_redacted">Gelöschte Nachrichten</string>
+    <string name="settings_floating_date">Schwebendes Datum</string>
+    <string name="dev_tools_menu_hidden_events">Versteckte Events</string>
 </resources>
