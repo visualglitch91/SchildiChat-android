@@ -40,6 +40,7 @@ import io.noties.markwon.ext.latex.JLatexMathTheme
 import io.noties.markwon.html.HtmlPlugin
 import io.noties.markwon.image.AsyncDrawable
 import io.noties.markwon.image.glide.GlideImagesPlugin
+import io.noties.markwon.inlineparser.EntityInlineProcessor
 import io.noties.markwon.inlineparser.HtmlInlineProcessor
 import io.noties.markwon.inlineparser.MarkwonInlineParser
 import io.noties.markwon.inlineparser.MarkwonInlineParserPlugin
@@ -134,7 +135,13 @@ class EventHtmlRenderer @Inject constructor(
             }
             .usePlugin(
                 MarkwonInlineParserPlugin.create(
-                    MarkwonInlineParser.factoryBuilderNoDefaults().addInlineProcessor(HtmlInlineProcessor())
+                    /* Configuring the Markwon inline formatting processor.
+                     * Default settings are all Markdown features. Turn those off, only using the
+                     * inline HTML processor and HTML entities processor.
+                     */
+                    MarkwonInlineParser.factoryBuilderNoDefaults()
+                        .addInlineProcessor(HtmlInlineProcessor()) // use inline HTML processor
+                        .addInlineProcessor(EntityInlineProcessor()) // use HTML entities processor
                 )
             )
             .usePlugin(object : AbstractMarkwonPlugin() {
