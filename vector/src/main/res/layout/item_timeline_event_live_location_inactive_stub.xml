@@ -12,6 +12,7 @@
         android:layout_height="200dp"
         android:contentDescription="@string/a11y_static_map_image"
         android:src="@drawable/bg_no_location_map"
+        android:scaleType="fitXY"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
