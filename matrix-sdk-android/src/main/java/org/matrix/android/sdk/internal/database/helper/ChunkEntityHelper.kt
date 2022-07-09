@@ -37,24 +37,6 @@ import org.matrix.android.sdk.internal.database.query.where
 import org.matrix.android.sdk.internal.session.room.timeline.PaginationDirection
 import timber.log.Timber
 
-// SC-TODO: old timeline fix, can probably remove now?
-/*
-internal fun ChunkEntity.moveEventsFrom(chunkToMerge: ChunkEntity, direction: PaginationDirection) {
-    assertIsManaged()
-    val localRealm = this.realm
-    val eventsToMerge = if (direction == PaginationDirection.FORWARDS) {
-        chunkToMerge.timelineEvents.sort(TimelineEventEntityFields.DISPLAY_INDEX, Sort.ASCENDING)
-    } else {
-        chunkToMerge.timelineEvents.sort(TimelineEventEntityFields.DISPLAY_INDEX, Sort.DESCENDING)
-    }
-    eventsToMerge.forEach {
-        if (addTimelineEventFromMove(localRealm, it, direction)) {
-            chunkToMerge.timelineEvents.remove(it)
-        }
-    }
-}
-*/
-
 internal fun ChunkEntity.addStateEvent(roomId: String, stateEvent: EventEntity, direction: PaginationDirection) {
     if (direction == PaginationDirection.BACKWARDS) {
         Timber.v("We don't keep chunk state events when paginating backward")
@@ -138,20 +120,6 @@ internal fun computeIsUnique(
         isHistoricalUnique
     }
 }
-
-// SC-TODO: old timeline fix, probably can remove now
-/*
-private fun ChunkEntity.addTimelineEventFromMove(realm: Realm, event: TimelineEventEntity, direction: PaginationDirection): Boolean {
-    val eventId = event.eventId
-    if (timelineEvents.find(eventId) != null) {
-        return false
-    }
-    event.displayIndex = nextDisplayIndex(direction)
-    handleThreadSummary(realm, eventId, event)
-    timelineEvents.add(event)
-    return true
-}
-*/
 
 private fun handleReadReceipts(realm: Realm, roomId: String, eventEntity: EventEntity, senderId: String): ReadReceiptsSummaryEntity {
     val readReceiptsSummaryEntity = ReadReceiptsSummaryEntity.where(realm, eventEntity.eventId).findFirst()

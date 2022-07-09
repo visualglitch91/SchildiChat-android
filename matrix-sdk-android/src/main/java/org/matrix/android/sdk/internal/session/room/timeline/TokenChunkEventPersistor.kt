@@ -72,21 +72,6 @@ internal class TokenChunkEventPersistor @Inject constructor(
             roomId: String,
             direction: PaginationDirection
     ): Result {
-        /* SC-TODO: old timeline fixes, can probably delete
-        if (receivedChunk.events.isEmpty() && receivedChunk.start == receivedChunk.end) {
-            Timber.w("Discard empty chunk with identical start/end token ${receivedChunk.start}")
-
-            return if (receivedChunk.hasMore()) {
-                Result.SHOULD_FETCH_MORE
-            } else {
-                Result.REACHED_END
-            }
-        } else if (receivedChunk.start == receivedChunk.end) {
-            // I don't think we have seen this case so far, but let's log it just in case...
-            // -> if it happens, we need to address it somehow!
-            Timber.e("Non-empty chunk with identical start/end token ${receivedChunk.start}")
-        }
-        */
         monarchy
                 .awaitTransaction { realm ->
                     Timber.i("Start persisting ${receivedChunk.events.size} events in $roomId towards $direction | " +
@@ -178,81 +163,6 @@ internal class TokenChunkEventPersistor @Inject constructor(
                 if (event.eventId == null || event.senderId == null) {
                     return@forEach
                 }
-                /* SC-TODO: old timeline fix, can probably delete
-                // We check for the timeline event with this id, but not in the thread chunk
-                val eventId = event.eventId
-                val existingTimelineEvent = TimelineEventEntity
-                        .where(realm, roomId, eventId)
-                        .equalTo(TimelineEventEntityFields.OWNED_BY_THREAD_CHUNK, false)
-                        .findFirst()
-                // If it exists, we want to stop here, just link the prevChunk
-                val existingChunk = existingTimelineEvent?.chunk?.firstOrNull()
-                if (existingChunk != null) {
-                    if (existingChunk == currentChunk) {
-                        Timber.w("Avoid double insertion of event $eventId, shouldn't happen in an ideal world | " +
-                                "direction: $direction.value " +
-                                "room: $roomId " +
-                                "chunk: ${existingChunk.identifier()} " +
-                                "eventId: $eventId " +
-                                "caughtByOldCheck ${((if (direction == PaginationDirection.BACKWARDS) currentChunk.nextChunk else currentChunk.prevChunk) == existingChunk)} " +
-                                "caughtByOldBackwardCheck ${(currentChunk.nextChunk == existingChunk)} " +
-                                "caughtByOldForwardCheck ${(currentChunk.prevChunk == existingChunk)}"
-                        )
-                        // No idea why this happens, but if it does, we don't want to throw away all the other events
-                        // (or even link chunks to themselves)
-                        return@forEach
-                    }
-                    val alreadyLinkedNext = currentChunk.doesNextChunksVerifyCondition { it == existingChunk }
-                    val alreadyLinkedPrev = currentChunk.doesPrevChunksVerifyCondition { it == existingChunk }
-                    if (alreadyLinkedNext || alreadyLinkedPrev) {
-                        Timber.i("Avoid double link | " +
-                                "direction: $direction " +
-                                "room: $roomId event: $eventId " +
-                                "linkedPrev: $alreadyLinkedPrev linkedNext: $alreadyLinkedNext " +
-                                "oldChunk: ${existingChunk.identifier()} newChunk: ${existingChunk.identifier()} " +
-                                "oldBackwardCheck: ${currentChunk.nextChunk == existingChunk} " +
-                                "oldForwardCheck: ${currentChunk.prevChunk == existingChunk}"
-                        )
-                        if ((direction == PaginationDirection.FORWARDS && !alreadyLinkedNext /* && alreadyLinkedPrev */) ||
-                                (direction == PaginationDirection.BACKWARDS && !alreadyLinkedPrev /* && alreadyLinkedNext */)) {
-                            // Do not stop processing here: even though this event already exists in an already linked chunk,
-                            // we still may have new events to add
-                            return@forEach
-                        }
-                        // Stop processing here
-                        return@processTimelineEvents
-                    }
-                    // If we haven't found a single new event yet, we don't want to link in the pagination direction, as that might cause a
-                    // timeline loop if the other chunk is in the other direction.
-                    if (!hasNewEvents) {
-                        Timber.i("Skip adding event $eventId, already exists")
-                        // Only skip this event, but still process other events.
-                        // Remember this chunk, since in case we don't find any new events, we still want to link this in pagination direction
-                        // in order to link a chunk to the /sync chunk
-                        if (existingChunkToLink == null) {
-                            existingChunkToLink = existingChunk
-                        }
-                        return@forEach
-                    }
-                    when (direction) {
-                        PaginationDirection.BACKWARDS -> {
-                            Timber.i("Backwards insert chunk: ${existingChunk.identifier()} -> ${currentChunk.identifier()}")
-                            currentChunk.prevChunk = existingChunk
-                            existingChunk.nextChunk = currentChunk
-                        }
-                        PaginationDirection.FORWARDS  -> {
-                            Timber.i("Forward insert chunk: ${currentChunk.identifier()} -> ${existingChunk.identifier()}")
-                            currentChunk.nextChunk = existingChunk
-                            existingChunk.prevChunk = currentChunk
-                        }
-                    }
-                    // Stop processing here
-                    return@processTimelineEvents
-                }
-
-                // existingChunk == null => this is a new event we haven't seen before
-                hasNewEvents = true
-                */
 
                 val ageLocalTs = now - (event.unsignedData?.age ?: 0)
                 val eventEntity = event.toEntity(roomId, SendState.SYNCED, ageLocalTs).copyToRealmOrIgnore(realm, EventInsertType.PAGINATION)

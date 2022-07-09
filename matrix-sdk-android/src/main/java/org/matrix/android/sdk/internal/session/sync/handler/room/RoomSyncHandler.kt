@@ -383,20 +383,6 @@ internal class RoomSyncHandler @Inject constructor(
             aggregator: SyncResponsePostTreatmentAggregator
     ): ChunkEntity {
         val lastChunk = ChunkEntity.findLastForwardChunkOfRoom(realm, roomEntity.roomId)
-        /* SC-TODO: old timeline fixes, can probably delete
-        if (isLimited && lastChunk != null) {
-            Timber.i("Deleting last forward chunk (${lastChunk.identifier()})")
-            // Add events that oldPrev may have dropped since they were already in lastChunk
-            val oldPrev = lastChunk.prevChunk
-            if (oldPrev != null && oldPrev.nextToken != lastChunk.prevToken) {
-                // If the tokens mismatch, this means we have chained them due to duplicated events.
-                // In this case, we need to make sure to re-add possibly dropped events (which would have
-                // been duplicates otherwise)
-                oldPrev.moveEventsFrom(lastChunk, PaginationDirection.FORWARDS)
-            }
-            lastChunk.deleteOnCascade(deleteStateEvents = false, canDeleteRoot = true)
-        }
-        */
         val chunkEntity = if (!isLimited && lastChunk != null) {
             lastChunk
         } else {
