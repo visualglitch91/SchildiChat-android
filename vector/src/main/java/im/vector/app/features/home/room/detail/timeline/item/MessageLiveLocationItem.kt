@@ -78,6 +78,23 @@ abstract class MessageLiveLocationItem : AbsMessageLocationItem<MessageLiveLocat
                         bottomEndCornerRadiusInDp = messageLayout.cornersRadius.bottomEndRadius,
                         formattedLocalTimeOfEndOfLive = getFormattedLocalTimeEndOfLive(),
                 )
+            messageLayout is TimelineMessageLayout.ScBubble && isEmitter -> {
+                val radius = messageLayout.bubbleAppearance.getBubbleRadiusDp(holder.view.context)
+                LocationLiveMessageBannerViewState.Emitter(
+                        remainingTimeInMillis = getRemainingTimeOfLiveInMillis(),
+                        bottomStartCornerRadiusInDp = radius,
+                        bottomEndCornerRadiusInDp = radius,
+                        isStopButtonCenteredVertically = false
+                )
+            }
+            messageLayout is TimelineMessageLayout.ScBubble -> {
+                val radius = messageLayout.bubbleAppearance.getBubbleRadiusDp(holder.view.context)
+                LocationLiveMessageBannerViewState.Watcher(
+                        bottomStartCornerRadiusInDp = radius,
+                        bottomEndCornerRadiusInDp = radius,
+                        formattedLocalTimeOfEndOfLive = getFormattedLocalTimeEndOfLive(),
+                )
+            }
             isEmitter -> {
                 val cornerRadius = getBannerCornerRadiusForDefaultLayout(holder)
                 LocationLiveMessageBannerViewState.Emitter(

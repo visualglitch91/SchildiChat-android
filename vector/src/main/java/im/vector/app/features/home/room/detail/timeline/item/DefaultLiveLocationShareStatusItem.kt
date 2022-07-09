@@ -18,6 +18,7 @@ package im.vector.app.features.home.room.detail.timeline.item
 
 import android.content.res.Resources
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.widget.ImageView
 import androidx.core.view.updateLayoutParams
 import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners
@@ -42,6 +43,8 @@ class DefaultLiveLocationShareStatusItem : LiveLocationShareStatusItem {
     ) {
         val mapCornerTransformation = if (messageLayout is TimelineMessageLayout.Bubble) {
             messageLayout.cornersRadius.granularRoundedCorners()
+        } else if (messageLayout is TimelineMessageLayout.ScBubble) {
+            RoundedCorners(messageLayout.bubbleAppearance.getBubbleRadiusDp(mapImageView.context).toInt())
         } else {
             RoundedCorners(getDefaultLayoutCornerRadiusInDp(mapImageView.resources))
         }
@@ -49,8 +52,10 @@ class DefaultLiveLocationShareStatusItem : LiveLocationShareStatusItem {
             width = mapWidth
             height = mapHeight
         }
+        // Yes, usually one would do this using drawable-v24... which glide seems to ignore?
+        val resource = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) R.drawable.bg_no_location_map_themed else R.drawable.bg_no_location_map
         GlideApp.with(mapImageView)
-                .load(R.drawable.bg_no_location_map)
+                .load(resource)
                 .transform(mapCornerTransformation)
                 .into(mapImageView)
     }
@@ -63,6 +68,9 @@ class DefaultLiveLocationShareStatusItem : LiveLocationShareStatusItem {
                     messageLayout.cornersRadius.bottomEndRadius,
                     messageLayout.cornersRadius.bottomStartRadius
             )
+        } else if (messageLayout is TimelineMessageLayout.ScBubble) {
+            val radius = messageLayout.bubbleAppearance.getBubbleRadiusDp(bannerImageView.context)
+            GranularRoundedCorners(0f, 0f, radius, radius)
         } else {
             val bottomCornerRadius = getDefaultLayoutCornerRadiusInDp(bannerImageView.resources).toFloat()
             GranularRoundedCorners(0f, 0f, bottomCornerRadius, bottomCornerRadius)

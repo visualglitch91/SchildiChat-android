@@ -121,6 +121,9 @@
 
         <!-- Voice Message -->
         <item name="vctr_toast_background">@color/background_floating_sc</item> <!-- needs dark background -->
+
+        <!-- Location sharing -->
+        <item name="vctr_live_location">?colorAccent</item>
     </style>
 
     <!-- Default AppTheme for usage where settings don't apply -->
