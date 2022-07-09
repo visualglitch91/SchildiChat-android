@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.api.session.content.ContentAttachmentData
 import org.matrix.android.sdk.api.util.md5
+import timber.log.Timber
 import java.io.File
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
@@ -58,13 +59,17 @@ class VoiceRecorderL(
     private var audioRecorder: AudioRecord? = null
     private var noiseSuppressor: NoiseSuppressor? = null
     private var automaticGainControl: AutomaticGainControl? = null
-    private val codec = OggOpusEncoder()
+    private val codec = try { OggOpusEncoder() } catch (t: Throwable) {
+        Timber.e(t)
+        null
+    }
 
     // Size of the audio buffer for Short values
     private var bufferSizeInShorts = 0
     private var maxAmplitude = 0
 
     private fun initializeCodec(filePath: String) {
+        codec ?: return
         codec.init(filePath, SAMPLE_RATE)
         codec.setBitrate(BITRATE)
 
@@ -90,6 +95,7 @@ class VoiceRecorderL(
     }
 
     override fun startRecord(roomId: String) {
+        codec ?: return
         val fileName = "${UUID.randomUUID()}.ogg"
         val outputDirectoryForRoom = File(outputDirectory, roomId.md5()).apply {
             mkdirs()
@@ -113,6 +119,7 @@ class VoiceRecorderL(
     }
 
     override fun stopRecord() {
+        codec ?: return
         val recorder = this.audioRecorder ?: return
         recordingJob?.cancel()
 
