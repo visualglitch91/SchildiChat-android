@@ -17,6 +17,7 @@
 package im.vector.app.flipper
 
 import android.content.Context
+import android.os.Build
 import com.facebook.flipper.android.AndroidFlipperClient
 import com.facebook.flipper.android.utils.FlipperUtils
 import com.facebook.flipper.plugins.crashreporter.CrashReporterPlugin
@@ -42,6 +43,8 @@ class FlipperProxy @Inject constructor(
     private val networkFlipperPlugin = NetworkFlipperPlugin()
 
     fun init(matrix: Matrix) {
+        // https://github.com/facebook/flipper/issues/3572
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) return
         SoLoader.init(context, false)
 
         if (FlipperUtils.shouldEnableFlipper(context)) {
