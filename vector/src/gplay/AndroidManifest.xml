@@ -3,12 +3,24 @@
     package="im.vector.app">
 
     <application>
-        <receiver android:enabled="true"  android:name=".push.fcm.EmbeddedDistrib" android:exported="false">
+
+        <!-- Firebase components -->
+        <meta-data
+            android:name="firebase_analytics_collection_deactivated"
+            android:value="true" />
+
+        <receiver
+            android:enabled="true"
+            android:name=".push.fcm.EmbeddedFCMDistributor"
+            android:exported="false">
+
             <intent-filter>
-                <action android:name="org.unifiedpush.android.distributor.REGISTER"/>
-                <action android:name="org.unifiedpush.android.distributor.UNREGISTER"/>
+                <action android:name="org.unifiedpush.android.distributor.REGISTER" />
+                <action android:name="org.unifiedpush.android.distributor.UNREGISTER" />
             </intent-filter>
+
         </receiver>
+
     </application>
 
 </manifest>

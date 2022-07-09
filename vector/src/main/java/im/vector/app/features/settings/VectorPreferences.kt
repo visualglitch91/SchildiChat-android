@@ -151,6 +151,9 @@ class VectorPreferences @Inject constructor(
         const val SETTINGS_SET_SYNC_TIMEOUT_PREFERENCE_KEY = "SETTINGS_SET_SYNC_TIMEOUT_PREFERENCE_KEY"
         const val SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY = "SETTINGS_SET_SYNC_DELAY_PREFERENCE_KEY"
 
+        // notification method
+        const val SETTINGS_NOTIFICATION_METHOD_KEY = "SETTINGS_NOTIFICATION_METHOD_KEY"
+
         // Calls
         const val SETTINGS_CALL_PREVENT_ACCIDENTAL_CALL_KEY = "SETTINGS_CALL_PREVENT_ACCIDENTAL_CALL_KEY"
         const val SETTINGS_CALL_RINGTONE_USE_RIOT_PREFERENCE_KEY = "SETTINGS_CALL_RINGTONE_USE_RIOT_PREFERENCE_KEY"
@@ -187,7 +190,7 @@ class VectorPreferences @Inject constructor(
         const val SETTINGS_SECURITY_USE_FLAG_SECURE = "SETTINGS_SECURITY_USE_FLAG_SECURE"
         const val SETTINGS_SECURITY_USE_PIN_CODE_FLAG = "SETTINGS_SECURITY_USE_PIN_CODE_FLAG"
         const val SETTINGS_SECURITY_CHANGE_PIN_CODE_FLAG = "SETTINGS_SECURITY_CHANGE_PIN_CODE_FLAG"
-        private const val SETTINGS_SECURITY_USE_BIOMETRICS_FLAG = "SETTINGS_SECURITY_USE_BIOMETRICS_FLAG"
+        const val SETTINGS_SECURITY_USE_BIOMETRICS_FLAG = "SETTINGS_SECURITY_USE_BIOMETRICS_FLAG"
         private const val SETTINGS_SECURITY_USE_GRACE_PERIOD_FLAG = "SETTINGS_SECURITY_USE_GRACE_PERIOD_FLAG"
         const val SETTINGS_SECURITY_USE_COMPLETE_NOTIFICATIONS_FLAG = "SETTINGS_SECURITY_USE_COMPLETE_NOTIFICATIONS_FLAG"
 
@@ -215,8 +218,6 @@ class VectorPreferences @Inject constructor(
         private const val SETTINGS_USER_COLOR_MODE_PUBLIC_ROOM = "SETTINGS_USER_COLOR_MODE_PUBLIC_ROOM"
         private const val SETTINGS_OPEN_CHATS_AT_FIRST_UNREAD = "SETTINGS_OPEN_CHATS_AT_FIRST_UNREAD"
         const val SETTINGS_VOICE_MESSAGE = "SETTINGS_VOICE_MESSAGE"
-        const val SETTINGS_UNIFIED_PUSH_FORCE_CUSTOM_GATEWAY = "SETTINGS_UNIFIED_PUSH_FORCE_CUSTOM_GATEWAY"
-        const val SETTINGS_FORCE_ALLOW_BACKGROUND_SYNC = "SETTINGS_FORCE_ALLOW_BACKGROUND_SYNC"
         private const val SETTINGS_JUMP_TO_BOTTOM_ON_SEND = "SETTINGS_JUMP_TO_BOTTOM_ON_SEND"
         private const val SETTINGS_SPACE_MEMBERS_IN_SPACE_ROOMS = "SETTINGS_SPACE_MEMBERS_IN_SPACE_ROOMS"
         private const val SETTINGS_ENABLE_SPACE_PAGER = "SETTINGS_ENABLE_SPACE_PAGER"
@@ -230,9 +231,6 @@ class VectorPreferences @Inject constructor(
 
         private const val DID_ASK_TO_ENABLE_SESSION_PUSH = "DID_ASK_TO_ENABLE_SESSION_PUSH"
 
-        // Location Sharing
-        const val SETTINGS_PREF_ENABLE_LOCATION_SHARING = "SETTINGS_PREF_ENABLE_LOCATION_SHARING"
-
         private const val MEDIA_SAVING_3_DAYS = 0
         private const val MEDIA_SAVING_1_WEEK = 1
         private const val MEDIA_SAVING_1_MONTH = 2
@@ -242,7 +240,6 @@ class VectorPreferences @Inject constructor(
 
         private const val TAKE_PHOTO_VIDEO_MODE = "TAKE_PHOTO_VIDEO_MODE"
 
-        private const val SETTINGS_LABS_RENDER_LOCATIONS_IN_TIMELINE = "SETTINGS_LABS_RENDER_LOCATIONS_IN_TIMELINE"
         private const val SETTINGS_LABS_ENABLE_LIVE_LOCATION = "SETTINGS_LABS_ENABLE_LIVE_LOCATION"
 
         // This key will be used to identify clients with the old thread support enabled io.element.thread
@@ -723,11 +720,11 @@ class VectorPreferences @Inject constructor(
      */
     fun getMinMediasLastAccessTime(): Long {
         return when (getSelectedMediasSavingPeriod()) {
-            MEDIA_SAVING_3_DAYS  -> clock.epochMillis() / 1000 - 3 * 24 * 60 * 60
-            MEDIA_SAVING_1_WEEK  -> clock.epochMillis() / 1000 - 7 * 24 * 60 * 60
+            MEDIA_SAVING_3_DAYS -> clock.epochMillis() / 1000 - 3 * 24 * 60 * 60
+            MEDIA_SAVING_1_WEEK -> clock.epochMillis() / 1000 - 7 * 24 * 60 * 60
             MEDIA_SAVING_1_MONTH -> clock.epochMillis() / 1000 - 30 * 24 * 60 * 60
             MEDIA_SAVING_FOREVER -> 0
-            else                 -> 0
+            else -> 0
         }
     }
 
@@ -738,11 +735,11 @@ class VectorPreferences @Inject constructor(
      */
     fun getSelectedMediasSavingPeriodString(): String {
         return when (getSelectedMediasSavingPeriod()) {
-            MEDIA_SAVING_3_DAYS  -> context.getString(R.string.media_saving_period_3_days)
-            MEDIA_SAVING_1_WEEK  -> context.getString(R.string.media_saving_period_1_week)
+            MEDIA_SAVING_3_DAYS -> context.getString(R.string.media_saving_period_3_days)
+            MEDIA_SAVING_1_WEEK -> context.getString(R.string.media_saving_period_1_week)
             MEDIA_SAVING_1_MONTH -> context.getString(R.string.media_saving_period_1_month)
             MEDIA_SAVING_FOREVER -> context.getString(R.string.media_saving_period_forever)
-            else                 -> "?"
+            else -> "?"
         }
     }
 
@@ -1132,16 +1129,6 @@ class VectorPreferences @Inject constructor(
     }
 
     // SC addition
-    fun forceUseCustomUpGateway(): Boolean {
-        return defaultPrefs.getBoolean(SETTINGS_UNIFIED_PUSH_FORCE_CUSTOM_GATEWAY, false)
-    }
-
-    // SC addition
-    fun forceAllowBackgroundSync(): Boolean {
-        return defaultPrefs.getBoolean(SETTINGS_FORCE_ALLOW_BACKGROUND_SYNC, false)
-    }
-
-    // SC addition
     fun enableSpacePager(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_ENABLE_SPACE_PAGER, false)
     }
@@ -1194,7 +1181,6 @@ class VectorPreferences @Inject constructor(
                 .putBoolean(SETTINGS_LABS_ENABLE_SWIPE_TO_REPLY, false)
                 .putBoolean(SETTINGS_VOICE_MESSAGE, false)
                 .putBoolean(SETTINGS_USE_RAGE_SHAKE_KEY, true)
-                .putBoolean(SETTINGS_UNIFIED_PUSH_FORCE_CUSTOM_GATEWAY, true)
                 .putBoolean(SETTINGS_AGGREGATE_UNREAD_COUNTS, false)
                 .putBoolean(SETTINGS_ENABLE_SPACE_PAGER, true)
                 .putBoolean(SETTINGS_READ_RECEIPT_FOLLOWS_READ_MARKER, true)
@@ -1210,6 +1196,10 @@ class VectorPreferences @Inject constructor(
      */
     fun useFlagPinCode(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_SECURITY_USE_PIN_CODE_FLAG, false)
+    }
+
+    fun setUseBiometricToUnlock(value: Boolean) {
+        defaultPrefs.edit { putBoolean(SETTINGS_SECURITY_USE_BIOMETRICS_FLAG, value) }
     }
 
     fun useBiometricsToUnlock(): Boolean {
@@ -1312,16 +1302,14 @@ class VectorPreferences @Inject constructor(
         }
     }
 
-    fun isLocationSharingEnabled(): Boolean {
-        return defaultPrefs.getBoolean(SETTINGS_PREF_ENABLE_LOCATION_SHARING, false) && BuildConfig.enableLocationSharing
-    }
-
-    fun labsRenderLocationsInTimeline(): Boolean {
-        return defaultPrefs.getBoolean(SETTINGS_LABS_RENDER_LOCATIONS_IN_TIMELINE, true)
-    }
-
     fun labsEnableLiveLocation(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_LABS_ENABLE_LIVE_LOCATION, false)
+    }
+
+    fun setLiveLocationLabsEnabled(isEnabled: Boolean) {
+        defaultPrefs.edit {
+            putBoolean(SETTINGS_LABS_ENABLE_LIVE_LOCATION, isEnabled)
+        }
     }
 
     /**

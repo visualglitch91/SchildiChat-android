@@ -55,11 +55,11 @@ class RoomListSectionBuilderGroup(
         val actualGroupId = appStateHandler.safeActiveGroupId()
 
         when (mode) {
-            RoomListDisplayMode.PEOPLE        -> {
+            RoomListDisplayMode.PEOPLE -> {
                 // 4 sections Invites / Fav / Dms / Low Priority
                 buildPeopleSections(sections, activeGroupAwareQueries, actualGroupId)
             }
-            RoomListDisplayMode.ROOMS         -> {
+            RoomListDisplayMode.ROOMS -> {
                 // 5 sections invites / Fav / Rooms / Low Priority / Server notice
                 buildRoomsSections(sections, activeGroupAwareQueries, actualGroupId)
             }
@@ -67,7 +67,7 @@ class RoomListSectionBuilderGroup(
                 // 5 sections invites / Fav / Normal Priority / Low Priority / Server notice
                 buildUnifiedSections(sections, activeGroupAwareQueries, actualGroupId)
             }
-            RoomListDisplayMode.FILTERED      -> {
+            RoomListDisplayMode.FILTERED -> {
                 // Used when searching for rooms
                 withQueryParams(
                         {
@@ -188,9 +188,11 @@ class RoomListSectionBuilderGroup(
         }
     }
 
-    private fun buildRoomsSections(sections: MutableList<RoomsSection>,
-                                   activeSpaceAwareQueries: MutableList<UpdatableLivePageResult>,
-                                   actualGroupId: String?) {
+    private fun buildRoomsSections(
+            sections: MutableList<RoomsSection>,
+            activeSpaceAwareQueries: MutableList<UpdatableLivePageResult>,
+            actualGroupId: String?
+    ) {
         if (autoAcceptInvites.showInvites()) {
             addSection(
                     sections,
@@ -308,11 +310,13 @@ class RoomListSectionBuilderGroup(
         }
     }
 
-    private fun addSection(sections: MutableList<RoomsSection>,
-                           activeSpaceUpdaters: MutableList<UpdatableLivePageResult>,
-                           @StringRes nameRes: Int,
-                           notifyOfLocalEcho: Boolean = false,
-                           query: (RoomSummaryQueryParams.Builder) -> Unit) {
+    private fun addSection(
+            sections: MutableList<RoomsSection>,
+            activeSpaceUpdaters: MutableList<UpdatableLivePageResult>,
+            @StringRes nameRes: Int,
+            notifyOfLocalEcho: Boolean = false,
+            query: (RoomSummaryQueryParams.Builder) -> Unit
+    ) {
         withQueryParams(query) { roomQueryParams ->
             val name = stringProvider.getString(nameRes)
             session.roomService().getFilteredPagedRoomSummariesLive(roomQueryParams)

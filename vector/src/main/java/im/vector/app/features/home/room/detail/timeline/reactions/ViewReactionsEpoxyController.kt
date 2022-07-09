@@ -38,7 +38,8 @@ class ViewReactionsEpoxyController @Inject constructor(
         private val stringProvider: StringProvider,
         private val dimensionConverter: DimensionConverter,
         private val activeSessionHolder: ActiveSessionHolder,
-        private val emojiSpanify: EmojiSpanify) :
+        private val emojiSpanify: EmojiSpanify
+) :
         TypedEpoxyController<DisplayReactionsViewState>() {
 
     var listener: Listener? = null
@@ -52,7 +53,7 @@ class ViewReactionsEpoxyController @Inject constructor(
                     id("Spinner")
                 }
             }
-            is Fail    -> {
+            is Fail -> {
                 genericFooterItem {
                     id("failure")
                     text(host.stringProvider.getString(R.string.unknown_error).toEpoxyCharSequence())

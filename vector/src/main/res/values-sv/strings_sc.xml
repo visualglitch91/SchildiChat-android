@@ -67,23 +67,11 @@
     <string name="sc_accent_indigo">Indigo</string>
     <string name="sc_accent_lava">Lava</string>
     <string name="sc_accent_blue">Blå</string>
-    <string name="settings_troubleshoot_test_endpoint_success">Slutpunkten lyckades hämtas:
-\n%1$s</string>
-    <string name="unifiedpush_getdistributors_dialog_title">Välj en distributör</string>
-    <string name="unifiedpush_getdistributors_dialog_fcm_fallback">FCM Fallback</string>
-    <string name="settings_troubleshoot_test_pusher_registration_title">Pusher Registration</string>
-    <string name="settings_troubleshoot_test_pusher_registration_success">Pusher har registrerats på HomeServer.</string>
-    <string name="settings_troubleshoot_test_pusher_registration_failed">Det gick inte att registrera pusher till HomeServer:
-\n%1$s</string>
-    <string name="settings_troubleshoot_test_fcm_failed_sc">Det gick inte att hämta FCM-token</string>
     <string name="settings_apply_sc_default_settings">Klicka inte på den här inställningen</string>
     <string name="settings_apply_sc_default_settings_dialog_title">Förvirra inställningar</string>
     <string name="settings_apply_sc_default_settings_dialog_summary">Om du fortsätter kommer det att röra med dina appinställningar!</string>
-    <string name="settings_unifiedpush">UnifiedPush</string>
     <string name="settings_unifiedpush_force_custom_gateway">Tvinga anpassad push-gateway</string>
     <string name="settings_unifiedpush_force_custom_gateway_summary">Aktivera detta endast om din push -slutpunkt inte kräver en extern gateway.</string>
-    <string name="settings_troubleshoot_test_endpoint_title">Endpoint/FCM</string>
-    <string name="settings_troubleshoot_test_endpoint_failed">Det gick inte att hämta endpoint:en.</string>
     <string name="normal_priority_header">Normal prioritet</string>
     <string name="settings_user_colors_in_dm">Användarfärger i direktchatt</string>
     <string name="settings_single_overview_summary">Visa både direktmeddelanden och rum på en sida</string>
@@ -105,10 +93,7 @@
     <string name="login_server_other_title_sc">Anpassad server</string>
     <string name="settings_user_colors_in_public_rooms">Användarfärger i offentliga rum</string>
     <string name="settings_force_allow_background_sync_summary">Bara meningsfullt när du felsöker din push-inställning!</string>
-    <string name="toast_unifiedpush_one_push_distributor">Registrerad push-distributör %1$s</string>
-    <string name="settings_unifiedpush_reregister">Registrera om push-distributören</string>
     <string name="settings_force_allow_background_sync">Tillåt bakgrundssynkronisering utöver push</string>
-    <string name="toast_unifiedpush_no_push_distributor">Ingen push-distributör hittades!</string>
     <string name="room_list_quick_actions_open_at_bottom">Öppna vid senaste meddelanden</string>
     <string name="settings_unread_counter">Oläst räknare</string>
     <string name="settings_unimportant_counter_badge_v2">Räkna tysta meddelanden</string>

@@ -39,9 +39,9 @@ class SharedPreferencesUiStateRepository @Inject constructor(
     override fun getDisplayMode(): RoomListDisplayMode {
         val result = when (sharedPreferences.getInt(KEY_DISPLAY_MODE, VALUE_DISPLAY_MODE_CATCHUP)) {
             VALUE_DISPLAY_MODE_PEOPLE -> RoomListDisplayMode.PEOPLE
-            VALUE_DISPLAY_MODE_ROOMS  -> RoomListDisplayMode.ROOMS
-            VALUE_DISPLAY_MODE_ALL    -> RoomListDisplayMode.ALL
-            else                      -> if (vectorPreferences.labAddNotificationTab()) {
+            VALUE_DISPLAY_MODE_ROOMS -> RoomListDisplayMode.ROOMS
+            VALUE_DISPLAY_MODE_ALL -> RoomListDisplayMode.ALL
+            else -> if (vectorPreferences.labAddNotificationTab()) {
                 RoomListDisplayMode.NOTIFICATIONS
             } else {
                 RoomListDisplayMode.PEOPLE
@@ -65,9 +65,9 @@ class SharedPreferencesUiStateRepository @Inject constructor(
                     KEY_DISPLAY_MODE,
                     when (displayMode) {
                         RoomListDisplayMode.PEOPLE -> VALUE_DISPLAY_MODE_PEOPLE
-                        RoomListDisplayMode.ROOMS  -> VALUE_DISPLAY_MODE_ROOMS
-                        RoomListDisplayMode.ALL    -> VALUE_DISPLAY_MODE_ALL
-                        else                       -> VALUE_DISPLAY_MODE_CATCHUP
+                        RoomListDisplayMode.ROOMS -> VALUE_DISPLAY_MODE_ROOMS
+                        RoomListDisplayMode.ALL -> VALUE_DISPLAY_MODE_ALL
+                        else -> VALUE_DISPLAY_MODE_CATCHUP
                     }
             )
         }

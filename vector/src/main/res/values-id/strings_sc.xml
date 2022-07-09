@@ -65,28 +65,15 @@
     <string name="sc_accent_denim">Denim</string>
     <string name="sc_accent_indigo">Indigo</string>
     <string name="sc_accent_blue">Biru</string>
-    <string name="settings_troubleshoot_test_endpoint_title">Titik akhir/FCM</string>
     <string name="sc_accent_lava">Lahar</string>
     <string name="sc_accent_carnation">Anyelir</string>
-    <string name="settings_troubleshoot_test_endpoint_failed">Gagal untuk mendapatkan Titik akhir.</string>
-    <string name="unifiedpush_getdistributors_dialog_title">Pilih sebuah distributor</string>
-    <string name="unifiedpush_getdistributors_dialog_fcm_fallback">Cadangan FCM</string>
-    <string name="settings_troubleshoot_test_pusher_registration_title">Pendaftaran Pusher</string>
-    <string name="settings_troubleshoot_test_pusher_registration_success">Pusher berhasil didaftarkan ke HomeServer.</string>
-    <string name="settings_troubleshoot_test_pusher_registration_failed">Gagal untuk mendaftarkan pusher ke HomeServer:
-\n%1$s</string>
-    <string name="settings_troubleshoot_test_fcm_failed_sc">Gagal untuk mendapatkan token FCM</string>
     <string name="settings_apply_sc_default_settings_dialog_title">Mengacaukan pengaturan</string>
     <string name="settings_apply_sc_default_settings">Jangan menekan pengaturan ini</string>
     <string name="settings_apply_sc_default_settings_dialog_summary">Jika Anda melanjutkan, ini akan mengacaukan dengan pengaturan aplikasi Anda!</string>
-    <string name="settings_unifiedpush">UnifiedPush</string>
     <string name="settings_unifiedpush_force_custom_gateway">Paksa gateway push kustom</string>
     <string name="settings_unifiedpush_force_custom_gateway_summary">Hanya aktifkan ini jika titik akhir push Anda tidak memerlukan sebuah gateway eksternal.</string>
-    <string name="settings_unifiedpush_reregister">Daftar ulang distributor push</string>
     <string name="settings_force_allow_background_sync">Izinkan sinkronasi di latar belakang selain push</string>
     <string name="settings_force_allow_background_sync_summary">Hanya berguna saat mendebugging pengaturan push Anda!</string>
-    <string name="toast_unifiedpush_one_push_distributor">Distributor push yang telah didaftarkan %1$s</string>
-    <string name="toast_unifiedpush_no_push_distributor">Tidak ada distributor push yang ditemukan!</string>
     <string name="normal_priority_header">Prioritas normal</string>
     <string name="settings_single_overview_summary">Lihat pesan langsung dan ruang di satu halaman</string>
     <string name="settings_room_unread_kind_default">Tampilkan semua peristiwa</string>
@@ -108,8 +95,6 @@
     <string name="element_black_theme">Element Hitam</string>
     <string name="send_bug_report_sc_extra">Untuk meningkatkan pengelihatan masalah Anda, Anda mungkin ingin merujuk laporan ini (dengan memberikan ID Matrix Anda dan perkiraan waktu pengirimannya) dalam sebuah masalah di https://github.com/SchildiChat/SchildiChat-android/issues (periksa dulu apakah sudah ada masalah yang Anda mengalami, dan buat yang baru jika belum ada).</string>
     <string name="bubble_style_both">Kedua sisi</string>
-    <string name="settings_troubleshoot_test_endpoint_success">Titik akhir berhasil didapatkan:
-\n%1$s</string>
     <string name="settings_unimportant_counter_badge_v2">Hitung pesan yang dibisukan</string>
     <string name="settings_unimportant_counter_badge_summary_v2">Tampilkan hitungan untuk pesan yang dibisukan di ikhtisar chat</string>
     <string name="settings_aggregate_unread_counts_summary">Akan menghitung obrolan yang belum dibaca daripada pesan individual dalam ruang dan kategori ruang</string>

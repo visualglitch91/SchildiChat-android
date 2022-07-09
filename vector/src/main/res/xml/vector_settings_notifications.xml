@@ -51,6 +51,12 @@
         android:persistent="false"
         android:title="@string/settings_notification_configuration">
 
+        <im.vector.app.core.preference.VectorPreference
+            android:dependency="SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY"
+            android:key="SETTINGS_NOTIFICATION_METHOD_KEY"
+            android:persistent="false"
+            android:title="@string/settings_notification_method" />
+
         <!-- For API < 26 -->
         <im.vector.app.core.preference.VectorPreference
             android:dialogTitle="@string/settings_notification_ringtone"
@@ -123,37 +129,15 @@
             android:title="@string/settings_notification_troubleshoot"
             app:fragment="im.vector.app.features.settings.notifications.VectorSettingsNotificationsTroubleshootFragment" />
 
-    </im.vector.app.core.preference.VectorPreferenceCategory>
-
-    <!--im.vector.app.core.preference.VectorPreferenceCategory
-        android:key="SETTINGS_NOTIFICATIONS_TARGETS_PREFERENCE_KEY"
-        android:title="@string/settings_notifications_targets" /-->
-
-    <im.vector.app.core.preference.VectorPreferenceCategory
-        android:title="@string/settings_unifiedpush">
-
-        <im.vector.app.core.preference.VectorPreference
-            android:persistent="false"
-            android:key="SETTINGS_UNIFIED_PUSH_RE_REGISTER"
-            android:title="@string/settings_unifiedpush_reregister" />
-
         <im.vector.app.core.preference.VectorPreference
             android:persistent="false"
             android:title="@string/settings_notifications_targets"
             app:fragment="im.vector.app.features.settings.push.PushGatewaysFragment" />
 
-        <im.vector.app.core.preference.VectorSwitchPreference
-            android:key="SETTINGS_UNIFIED_PUSH_FORCE_CUSTOM_GATEWAY"
-            android:title="@string/settings_unifiedpush_force_custom_gateway"
-            android:summary="@string/settings_unifiedpush_force_custom_gateway_summary"
-            android:defaultValue="false" />
-
-        <im.vector.app.core.preference.VectorSwitchPreference
-            android:key="SETTINGS_FORCE_ALLOW_BACKGROUND_SYNC"
-            android:title="@string/settings_force_allow_background_sync"
-            android:summary="@string/settings_force_allow_background_sync_summary"
-            android:defaultValue="false" />
-
     </im.vector.app.core.preference.VectorPreferenceCategory>
+
+    <!--im.vector.app.core.preference.VectorPreferenceCategory
+        android:key="SETTINGS_NOTIFICATIONS_TARGETS_PREFERENCE_KEY"
+        android:title="@string/settings_notifications_targets" /-->
 
 </androidx.preference.PreferenceScreen>

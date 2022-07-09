@@ -30,6 +30,7 @@ import im.vector.app.core.extensions.editText
 import im.vector.app.core.extensions.hideKeyboard
 import im.vector.app.core.extensions.hidePassword
 import im.vector.app.core.extensions.realignPercentagesToParent
+import im.vector.app.core.extensions.setOnFocusLostListener
 import im.vector.app.core.extensions.setOnImeDoneListener
 import im.vector.app.core.extensions.toReducedUrl
 import im.vector.app.databinding.FragmentFtueCombinedLoginBinding
@@ -59,6 +60,7 @@ class FtueAuthCombinedLoginFragment @Inject constructor(
         views.loginRoot.realignPercentagesToParent()
         views.editServerButton.debouncedClicks { viewModel.handle(OnboardingAction.PostViewEvent(OnboardingViewEvents.EditServerSelection)) }
         views.loginPasswordInput.setOnImeDoneListener { submit() }
+        views.loginInput.setOnFocusLostListener { viewModel.handle(OnboardingAction.MaybeUpdateHomeserverFromMatrixId(views.loginInput.content())) }
     }
 
     private fun setupSubmitButton() {
@@ -116,11 +118,11 @@ class FtueAuthCombinedLoginFragment @Inject constructor(
                 showUsernamePassword()
                 renderSsoProviders(state.deviceId, state.selectedHomeserver.preferredLoginMode.ssoIdentityProviders)
             }
-            is LoginMode.Sso            -> {
+            is LoginMode.Sso -> {
                 hideUsernamePassword()
                 renderSsoProviders(state.deviceId, state.selectedHomeserver.preferredLoginMode.ssoIdentityProviders)
             }
-            else                        -> {
+            else -> {
                 showUsernamePassword()
                 hideSsoProviders()
             }
@@ -131,10 +133,10 @@ class FtueAuthCombinedLoginFragment @Inject constructor(
         views.ssoGroup.isVisible = ssoProviders?.isNotEmpty() == true
         views.ssoButtonsHeader.isVisible = views.ssoGroup.isVisible && views.loginEntryGroup.isVisible
         views.ssoButtons.render(ssoProviders, SocialLoginButtonsView.Mode.MODE_CONTINUE) { id ->
-            viewModel.getSsoUrl(
+            viewModel.fetchSsoUrl(
                     redirectUrl = SSORedirectRouterActivity.VECTOR_REDIRECT_URL,
                     deviceId = deviceId,
-                    providerId = id
+                    provider = id
             )?.let { openInCustomTab(it) }
         }
     }

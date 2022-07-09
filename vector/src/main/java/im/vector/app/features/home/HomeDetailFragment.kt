@@ -180,7 +180,7 @@ class HomeDetailFragment @Inject constructor(
             }
             when (roomGroupingMethod) {
                 is RoomGroupingMethod.ByLegacyGroup -> onGroupChange(roomGroupingMethod.groupSummary)
-                is RoomGroupingMethod.BySpace       -> onSpaceChange(roomGroupingMethod.spaceSummary)
+                is RoomGroupingMethod.BySpace -> onSpaceChange(roomGroupingMethod.spaceSummary)
             }
         }
 
@@ -195,9 +195,9 @@ class HomeDetailFragment @Inject constructor(
 
         viewModel.observeViewEvents { viewEvent ->
             when (viewEvent) {
-                HomeDetailViewEvents.CallStarted   -> handleCallStarted()
+                HomeDetailViewEvents.CallStarted -> handleCallStarted()
                 is HomeDetailViewEvents.FailToCall -> showFailure(viewEvent.failure)
-                HomeDetailViewEvents.Loading       -> showLoadingDialog()
+                HomeDetailViewEvents.Loading -> showLoadingDialog()
             }
         }
 
@@ -311,8 +311,8 @@ class HomeDetailFragment @Inject constructor(
         /* Upstream impl without care for viewPager
         when (val roomGroupingMethod = appStateHandler.getCurrentRoomGroupingMethod()) {
             is RoomGroupingMethod.ByLegacyGroup -> onGroupChange(roomGroupingMethod.groupSummary)
-            is RoomGroupingMethod.BySpace       -> onSpaceChange(roomGroupingMethod.spaceSummary)
-            else                                -> Unit
+            is RoomGroupingMethod.BySpace -> onSpaceChange(roomGroupingMethod.spaceSummary)
+            else -> Unit
         }
         */
 
@@ -471,10 +471,10 @@ class HomeDetailFragment @Inject constructor(
         serverBackupStatusViewModel
                 .onEach {
                     when (val banState = it.bannerState.invoke()) {
-                        is BannerState.Setup  -> views.homeKeysBackupBanner.render(KeysBackupBanner.State.Setup(banState.numberOfKeys), false)
+                        is BannerState.Setup -> views.homeKeysBackupBanner.render(KeysBackupBanner.State.Setup(banState.numberOfKeys), false)
                         BannerState.BackingUp -> views.homeKeysBackupBanner.render(KeysBackupBanner.State.BackingUp, false)
                         null,
-                        BannerState.Hidden    -> views.homeKeysBackupBanner.render(KeysBackupBanner.State.Hidden, false)
+                        BannerState.Hidden -> views.homeKeysBackupBanner.render(KeysBackupBanner.State.Hidden, false)
                     }
                 }
         views.homeKeysBackupBanner.delegate = this
@@ -498,7 +498,7 @@ class HomeDetailFragment @Inject constructor(
                     is RoomGroupingMethod.ByLegacyGroup -> {
                         // do nothing
                     }
-                    is RoomGroupingMethod.BySpace       -> {
+                    is RoomGroupingMethod.BySpace -> {
                         it.roomGroupingMethod.spaceSummary?.let { spaceSummary ->
                             sharedActionViewModel.post(HomeActivitySharedAction.ShowSpaceSettings(spaceSummary.roomId))
                         }
@@ -516,11 +516,11 @@ class HomeDetailFragment @Inject constructor(
         views.bottomNavigationView.menu.findItem(R.id.bottom_action_all).isVisible = combinedOverview
         views.bottomNavigationView.setOnItemSelectedListener {
             val tab = when (it.itemId) {
-                R.id.bottom_action_people       -> HomeTab.RoomList(RoomListDisplayMode.PEOPLE)
-                R.id.bottom_action_rooms        -> HomeTab.RoomList(RoomListDisplayMode.ROOMS)
+                R.id.bottom_action_people -> HomeTab.RoomList(RoomListDisplayMode.PEOPLE)
+                R.id.bottom_action_rooms -> HomeTab.RoomList(RoomListDisplayMode.ROOMS)
                 R.id.bottom_action_notification -> HomeTab.RoomList(RoomListDisplayMode.NOTIFICATIONS)
-                R.id.bottom_action_all          -> HomeTab.RoomList(RoomListDisplayMode.ALL)
-                else                            -> HomeTab.DialPad
+                R.id.bottom_action_all -> HomeTab.RoomList(RoomListDisplayMode.ALL)
+                else -> HomeTab.DialPad
             }
             viewModel.handle(HomeDetailAction.SwitchTab(tab))
             true
@@ -552,7 +552,7 @@ class HomeDetailFragment @Inject constructor(
                         val params = RoomListParams(tab.displayMode)
                         add(R.id.roomListContainer, RoomListFragment::class.java, params.toMvRxBundle(), fragmentTag)
                     }
-                    is HomeTab.DialPad  -> {
+                    is HomeTab.DialPad -> {
                         add(R.id.roomListContainer, createDialPadFragment(), fragmentTag)
                     }
                 }
@@ -779,7 +779,7 @@ class HomeDetailFragment @Inject constructor(
         views.bottomNavigationView.getOrCreateBadge(R.id.bottom_action_all).render(it.notificationCountCatchup, it.notificationHighlightCatchup)
         views.syncStateView.render(
                 it.syncState,
-                it.incrementalSyncStatus,
+                it.incrementalSyncRequestState,
                 it.pushCounter,
                 vectorPreferences.developerShowDebugInfo()
         )
@@ -800,12 +800,12 @@ class HomeDetailFragment @Inject constructor(
     }
 
     private fun HomeTab.toMenuId() = when (this) {
-        is HomeTab.DialPad  -> R.id.bottom_action_dial_pad
+        is HomeTab.DialPad -> R.id.bottom_action_dial_pad
         is HomeTab.RoomList -> when (displayMode) {
             RoomListDisplayMode.PEOPLE -> R.id.bottom_action_people
-            RoomListDisplayMode.ROOMS  -> R.id.bottom_action_rooms
-            RoomListDisplayMode.ALL    -> R.id.bottom_action_all
-            else                       -> R.id.bottom_action_notification
+            RoomListDisplayMode.ROOMS -> R.id.bottom_action_rooms
+            RoomListDisplayMode.ALL -> R.id.bottom_action_all
+            else -> R.id.bottom_action_notification
         }
     }
 

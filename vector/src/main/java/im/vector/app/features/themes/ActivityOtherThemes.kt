@@ -23,14 +23,16 @@ import im.vector.app.R
  * Class to manage Activity other possible themes.
  * Note that style for light theme is no more default and is no more declared in the Android Manifest
  */
-sealed class ActivityOtherThemes(@StyleRes val light: Int,
-                                 @StyleRes val dark: Int,
-                                 @StyleRes val black: Int,
-                                 @StyleRes val sc_light: Int,
-                                 @StyleRes val sc: Int,
-                                 @StyleRes val sc_dark: Int,
-                                 @StyleRes val sc_colored: Int,
-                                 @StyleRes val sc_dark_colored: Int) {
+sealed class ActivityOtherThemes(
+        @StyleRes val light: Int,
+        @StyleRes val dark: Int,
+        @StyleRes val black: Int,
+        @StyleRes val sc_light: Int,
+        @StyleRes val sc: Int,
+        @StyleRes val sc_dark: Int,
+        @StyleRes val sc_colored: Int,
+        @StyleRes val sc_dark_colored: Int
+) {
 
     object Default : ActivityOtherThemes(
             R.style.Theme_Vector_Light,

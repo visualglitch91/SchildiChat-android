@@ -53,7 +53,6 @@ import org.matrix.android.sdk.api.query.toActiveSpaceOrOrphanRooms
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.crypto.NewSessionListener
 import org.matrix.android.sdk.api.session.events.model.toModel
-import org.matrix.android.sdk.api.session.initsync.SyncStatusService
 import org.matrix.android.sdk.api.session.room.Room
 import org.matrix.android.sdk.api.session.room.RoomSortOrder
 import org.matrix.android.sdk.api.session.room.accountdata.RoomAccountDataTypes
@@ -62,6 +61,7 @@ import org.matrix.android.sdk.api.session.room.roomSummaryQueryParams
 import org.matrix.android.sdk.api.session.room.spaceSummaryQueryParams
 import org.matrix.android.sdk.api.session.space.model.SpaceOrderContent
 import org.matrix.android.sdk.api.session.space.model.TopLevelSpaceComparator
+import org.matrix.android.sdk.api.session.sync.SyncRequestState
 import org.matrix.android.sdk.api.util.toMatrixItem
 import org.matrix.android.sdk.flow.flow
 import timber.log.Timber
@@ -135,8 +135,8 @@ class HomeDetailViewModel @AssistedInject constructor(
 
     override fun handle(action: HomeDetailAction) {
         when (action) {
-            is HomeDetailAction.SwitchTab                -> handleSwitchTab(action)
-            HomeDetailAction.MarkAllRoomsRead            -> handleMarkAllRoomsRead()
+            is HomeDetailAction.SwitchTab -> handleSwitchTab(action)
+            HomeDetailAction.MarkAllRoomsRead -> handleMarkAllRoomsRead()
             is HomeDetailAction.StartCallWithPhoneNumber -> handleStartCallWithPhoneNumber(action)
         }
     }
@@ -208,11 +208,11 @@ class HomeDetailViewModel @AssistedInject constructor(
                     copy(syncState = syncState)
                 }
 
-        session.syncStatusService().getSyncStatusLive()
+        session.syncService().getSyncRequestStateLive()
                 .asFlow()
-                .filterIsInstance<SyncStatusService.Status.IncrementalSyncStatus>()
+                .filterIsInstance<SyncRequestState.IncrementalSyncRequestState>()
                 .setOnEach {
-                    copy(incrementalSyncStatus = it)
+                    copy(incrementalSyncRequestState = it)
                 }
     }
 
@@ -248,7 +248,7 @@ class HomeDetailViewModel @AssistedInject constructor(
                         is RoomGroupingMethod.ByLegacyGroup -> {
                             // TODO!!
                         }
-                        is RoomGroupingMethod.BySpace       -> {
+                        is RoomGroupingMethod.BySpace -> {
                             val activeSpaceRoomId = groupingMethod.spaceSummary?.roomId
                             var dmInvites = 0
                             var roomsInvite = 0
@@ -298,7 +298,7 @@ class HomeDetailViewModel @AssistedInject constructor(
                                 )
                             }
                         }
-                        null                                -> Unit
+                        null -> Unit
                     }
                 }
                 .launchIn(viewModelScope)

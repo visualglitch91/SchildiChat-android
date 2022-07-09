@@ -258,15 +258,15 @@ object ThemeUtils {
         context.setTheme(
                 when (aTheme) {
                     //SYSTEM_THEME_VALUE -> if (isSystemDarkTheme(context.resources)) R.style.Theme_Vector_Dark else R.style.Theme_Vector_Light
-                    THEME_LIGHT_VALUE  -> R.style.Theme_Vector_Light
-                    THEME_DARK_VALUE   -> R.style.Theme_Vector_Dark
-                    THEME_BLACK_VALUE  -> R.style.Theme_Vector_Black
+                    THEME_LIGHT_VALUE -> R.style.Theme_Vector_Light
+                    THEME_DARK_VALUE -> R.style.Theme_Vector_Dark
+                    THEME_BLACK_VALUE -> R.style.Theme_Vector_Black
                     THEME_SC_LIGHT_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC_Light, aLightAccent)
-                    THEME_SC_VALUE     -> getAccentedThemeRes(R.style.AppTheme_SC, aDarkAccent)
+                    THEME_SC_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC, aDarkAccent)
                     THEME_SC_DARK_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC_Dark, aDarkAccent)
                     THEME_SC_COLORED_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC_Colored, aDarkAccent)
                     THEME_SC_DARK_COLORED_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC_Dark_Colored, aDarkAccent)
-                    else               -> getAccentedThemeRes(R.style.AppTheme_SC_Light, aLightAccent)
+                    else -> getAccentedThemeRes(R.style.AppTheme_SC_Light, aLightAccent)
                 }
         )
 
@@ -350,14 +350,14 @@ object ThemeUtils {
     fun setActivityTheme(activity: Activity, otherThemes: ActivityOtherThemes) {
         when (getApplicationTheme(activity)) {
             //SYSTEM_THEME_VALUE -> if (isSystemDarkTheme(activity.resources)) activity.setTheme(otherThemes.dark)
-            THEME_LIGHT_VALUE  -> activity.setTheme(otherThemes.light)
-            THEME_DARK_VALUE   -> activity.setTheme(otherThemes.dark)
-            THEME_BLACK_VALUE  -> activity.setTheme(otherThemes.black)
-            THEME_SC_LIGHT_VALUE     -> activity.setTheme(getAccentedThemeRes(otherThemes.sc_light, getApplicationLightThemeAccent(activity)))
-            THEME_SC_VALUE     -> activity.setTheme(getAccentedThemeRes(otherThemes.sc, getApplicationDarkThemeAccent(activity)))
-            THEME_SC_DARK_VALUE     -> activity.setTheme(getAccentedThemeRes(otherThemes.sc_dark, getApplicationDarkThemeAccent(activity)))
-            THEME_SC_COLORED_VALUE     -> activity.setTheme(getAccentedThemeRes(otherThemes.sc_colored, getApplicationDarkThemeAccent(activity)))
-            THEME_SC_DARK_COLORED_VALUE     -> activity.setTheme(getAccentedThemeRes(otherThemes.sc_dark_colored, getApplicationDarkThemeAccent(activity)))
+            THEME_LIGHT_VALUE -> activity.setTheme(otherThemes.light)
+            THEME_DARK_VALUE -> activity.setTheme(otherThemes.dark)
+            THEME_BLACK_VALUE -> activity.setTheme(otherThemes.black)
+            THEME_SC_LIGHT_VALUE -> activity.setTheme(getAccentedThemeRes(otherThemes.sc_light, getApplicationLightThemeAccent(activity)))
+            THEME_SC_VALUE -> activity.setTheme(getAccentedThemeRes(otherThemes.sc, getApplicationDarkThemeAccent(activity)))
+            THEME_SC_DARK_VALUE -> activity.setTheme(getAccentedThemeRes(otherThemes.sc_dark, getApplicationDarkThemeAccent(activity)))
+            THEME_SC_COLORED_VALUE -> activity.setTheme(getAccentedThemeRes(otherThemes.sc_colored, getApplicationDarkThemeAccent(activity)))
+            THEME_SC_DARK_COLORED_VALUE -> activity.setTheme(getAccentedThemeRes(otherThemes.sc_dark_colored, getApplicationDarkThemeAccent(activity)))
         }
 
         mColorByAttr.clear()

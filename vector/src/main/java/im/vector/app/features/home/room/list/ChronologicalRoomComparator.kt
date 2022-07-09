@@ -24,8 +24,8 @@ class ChronologicalRoomComparator @Inject constructor() : Comparator<RoomSummary
     override fun compare(leftRoomSummary: RoomSummary?, rightRoomSummary: RoomSummary?): Int {
         return when {
             rightRoomSummary?.scLatestPreviewableEvent()?.root == null -> -1
-            leftRoomSummary?.scLatestPreviewableEvent()?.root == null  -> 1
-            else                                                   -> {
+            leftRoomSummary?.scLatestPreviewableEvent()?.root == null -> 1
+            else -> {
                 val rightTimestamp = rightRoomSummary.scLatestPreviewableEvent()?.root?.originServerTs ?: 0
                 val leftTimestamp = leftRoomSummary.scLatestPreviewableEvent()?.root?.originServerTs ?: 0
 
@@ -34,7 +34,7 @@ class ChronologicalRoomComparator @Inject constructor() : Comparator<RoomSummary
                 when {
                     deltaTimestamp > 0 -> 1
                     deltaTimestamp < 0 -> -1
-                    else               -> 0
+                    else -> 0
                 }
             }
         }

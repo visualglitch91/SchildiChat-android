@@ -81,21 +81,11 @@
     <string name="sc_accent_denim">牛仔布蓝</string>
     <string name="sc_accent_lava">熔岩红</string>
     <string name="sc_accent_blue">蓝色</string>
-    <string name="settings_troubleshoot_test_endpoint_failed">检索端点失败。</string>
-    <string name="unifiedpush_getdistributors_dialog_title">选择分发服务器</string>
-    <string name="unifiedpush_getdistributors_dialog_fcm_fallback">FCM 回落</string>
-    <string name="settings_troubleshoot_test_pusher_registration_title">推送程序注册</string>
-    <string name="settings_troubleshoot_test_pusher_registration_failed">无法将推送程序注册到主服务器：
-\n%1$s</string>
-    <string name="settings_troubleshoot_test_fcm_failed_sc">检索 FCM 令牌失败</string>
     <string name="settings_apply_sc_default_settings">不要点这个设置</string>
-    <string name="settings_unifiedpush">UnifiedPush</string>
     <string name="settings_apply_sc_default_settings_dialog_title">乱七八糟的设置</string>
     <string name="settings_unifiedpush_force_custom_gateway">强制自定义推送网关</string>
     <string name="settings_unifiedpush_force_custom_gateway_summary">仅当推送端点不需要外部网关时才启用此选项。</string>
     <string name="settings_force_allow_background_sync">允许后台同步以外的推送</string>
-    <string name="settings_unifiedpush_reregister">重新注册推送分发服务器</string>
-    <string name="toast_unifiedpush_no_push_distributor">未找到推送分发服务器！</string>
     <string name="settings_jump_to_bottom_on_send">发送时跳到底部</string>
     <string name="settings_jump_to_bottom_on_send_summary">发送消息时自动向下滚动</string>
     <string name="settings_include_space_members_as_rooms">显示空间中的人</string>
@@ -111,13 +101,8 @@
     <string name="sc_accent_greendark">深绿色</string>
     <string name="sc_accent_bluelight">浅蓝色</string>
     <string name="sc_accent_pink">粉色</string>
-    <string name="settings_troubleshoot_test_endpoint_success">成功获取端点:
-\n%1$s</string>
-    <string name="settings_troubleshoot_test_endpoint_title">Unifiedpush 端点/FCM</string>
     <string name="settings_force_allow_background_sync_summary">只有在调试推送设置时才有意义！</string>
     <string name="settings_apply_sc_default_settings_dialog_summary">如果你继续，这将扰乱你的应用程序设置！</string>
-    <string name="settings_troubleshoot_test_pusher_registration_success">推送程序已成功注册到主服务器。</string>
-    <string name="toast_unifiedpush_one_push_distributor">已注册推送分发服务器 %1$s</string>
     <string name="send_bug_report_sc_extra">为了增加您的问题的可见性并允许我们与您联系，您最好在以下地址提出问题并引用此错误报告（同时提供您的Matrix ID和发送错误报告的大致时间）：https://github.com/SchildiChat/SchildiChat-android/issues （首先检查您的问题是否已经存在，如果没有，则创建一个新问题）。</string>
     <string name="settings_include_space_members_as_rooms_summary">如果禁用，你仍可以将私聊添加至个人空间。若启用，你将自动看见空间中的每位成员。</string>
     <string name="room_settings_default">默认</string>

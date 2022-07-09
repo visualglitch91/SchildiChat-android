@@ -133,8 +133,8 @@ class RoomListFragment @Inject constructor(
         viewPagerDimber.i { "onCreate rlf -> ${roomListParams.explicitSpaceId}" }
         analyticsScreenName = when (roomListParams.displayMode) {
             RoomListDisplayMode.PEOPLE -> MobileScreen.ScreenName.People
-            RoomListDisplayMode.ROOMS  -> MobileScreen.ScreenName.Rooms
-            else                       -> null
+            RoomListDisplayMode.ROOMS -> MobileScreen.ScreenName.Rooms
+            else -> null
         }
     }
 
@@ -154,10 +154,10 @@ class RoomListFragment @Inject constructor(
         sharedActionViewModel = activityViewModelProvider.get(RoomListQuickActionsSharedActionViewModel::class.java)
         roomListViewModel.observeViewEvents {
             when (it) {
-                is RoomListViewEvents.Loading                   -> showLoading(it.message)
-                is RoomListViewEvents.Failure                   -> showFailure(it.throwable)
-                is RoomListViewEvents.SelectRoom                -> handleSelectRoom(it, it.isInviteAlreadyAccepted)
-                is RoomListViewEvents.Done                      -> Unit
+                is RoomListViewEvents.Loading -> showLoading(it.message)
+                is RoomListViewEvents.Failure -> showFailure(it.throwable)
+                is RoomListViewEvents.SelectRoom -> handleSelectRoom(it, it.isInviteAlreadyAccepted)
+                is RoomListViewEvents.Done -> Unit
                 is RoomListViewEvents.NavigateToMxToBottomSheet -> handleShowMxToLink(it.link)
             }
         }
@@ -292,9 +292,9 @@ class RoomListFragment @Inject constructor(
         when (roomListParams.displayMode) {
             RoomListDisplayMode.ALL,
             RoomListDisplayMode.NOTIFICATIONS -> views.createChatFabMenu.isVisible = true
-            RoomListDisplayMode.PEOPLE        -> views.createChatRoomButton.isVisible = true
-            RoomListDisplayMode.ROOMS         -> views.createGroupRoomButton.isVisible = true
-            RoomListDisplayMode.FILTERED      -> Unit // No button in this mode
+            RoomListDisplayMode.PEOPLE -> views.createChatRoomButton.isVisible = true
+            RoomListDisplayMode.ROOMS -> views.createGroupRoomButton.isVisible = true
+            RoomListDisplayMode.FILTERED -> Unit // No button in this mode
         }
 
         views.createChatRoomButton.debouncedClicks {
@@ -311,7 +311,7 @@ class RoomListFragment @Inject constructor(
                         views.createChatFabMenu.removeCallbacks(showFabRunnable)
 
                         when (newState) {
-                            RecyclerView.SCROLL_STATE_IDLE     -> {
+                            RecyclerView.SCROLL_STATE_IDLE -> {
                                 views.createChatFabMenu.postDelayed(showFabRunnable, 250)
                             }
                             RecyclerView.SCROLL_STATE_DRAGGING,
@@ -319,9 +319,9 @@ class RoomListFragment @Inject constructor(
                                 when (roomListParams.displayMode) {
                                     RoomListDisplayMode.ALL,
                                     RoomListDisplayMode.NOTIFICATIONS -> views.createChatFabMenu.hide()
-                                    RoomListDisplayMode.PEOPLE        -> views.createChatRoomButton.hide()
-                                    RoomListDisplayMode.ROOMS         -> views.createGroupRoomButton.hide()
-                                    RoomListDisplayMode.FILTERED      -> Unit
+                                    RoomListDisplayMode.PEOPLE -> views.createChatRoomButton.hide()
+                                    RoomListDisplayMode.ROOMS -> views.createGroupRoomButton.hide()
+                                    RoomListDisplayMode.FILTERED -> Unit
                                 }
                             }
                         }
@@ -387,7 +387,7 @@ class RoomListFragment @Inject constructor(
             }
             val contentAdapter =
                     when {
-                        section.livePages != null     -> {
+                        section.livePages != null -> {
                             pagedControllerFactory.createRoomSummaryPagedController(roomListParams.displayMode)
                                     .also { controller ->
                                         section.livePages.observe(viewLifecycleOwner) { pl ->
@@ -439,7 +439,7 @@ class RoomListFragment @Inject constructor(
                                         controller.listener = this
                                     }
                         }
-                        else                          -> {
+                        else -> {
                             pagedControllerFactory.createRoomSummaryListController(roomListParams.displayMode)
                                     .also { controller ->
                                         section.liveList?.observe(viewLifecycleOwner) { list ->
@@ -504,9 +504,9 @@ class RoomListFragment @Inject constructor(
             when (roomListParams.displayMode) {
                 RoomListDisplayMode.ALL,
                 RoomListDisplayMode.NOTIFICATIONS -> views.createChatFabMenu.show()
-                RoomListDisplayMode.PEOPLE        -> views.createChatRoomButton.show()
-                RoomListDisplayMode.ROOMS         -> views.createGroupRoomButton.show()
-                RoomListDisplayMode.FILTERED      -> Unit
+                RoomListDisplayMode.PEOPLE -> views.createChatRoomButton.show()
+                RoomListDisplayMode.ROOMS -> views.createGroupRoomButton.show()
+                RoomListDisplayMode.FILTERED -> Unit
             }
         }
     }
@@ -526,40 +526,40 @@ class RoomListFragment @Inject constructor(
 
     private fun handleQuickActions(quickAction: RoomListQuickActionsSharedAction) {
         when (quickAction) {
-            is RoomListQuickActionsSharedAction.NotificationsAllNoisy     -> {
+            is RoomListQuickActionsSharedAction.NotificationsAllNoisy -> {
                 roomListViewModel.handle(RoomListAction.ChangeRoomNotificationState(quickAction.roomId, RoomNotificationState.ALL_MESSAGES_NOISY))
             }
-            is RoomListQuickActionsSharedAction.NotificationsAll          -> {
+            is RoomListQuickActionsSharedAction.NotificationsAll -> {
                 roomListViewModel.handle(RoomListAction.ChangeRoomNotificationState(quickAction.roomId, RoomNotificationState.ALL_MESSAGES))
             }
             is RoomListQuickActionsSharedAction.NotificationsMentionsOnly -> {
                 roomListViewModel.handle(RoomListAction.ChangeRoomNotificationState(quickAction.roomId, RoomNotificationState.MENTIONS_ONLY))
             }
-            is RoomListQuickActionsSharedAction.NotificationsMute         -> {
+            is RoomListQuickActionsSharedAction.NotificationsMute -> {
                 roomListViewModel.handle(RoomListAction.ChangeRoomNotificationState(quickAction.roomId, RoomNotificationState.MUTE))
             }
-            is RoomListQuickActionsSharedAction.Settings                  -> {
+            is RoomListQuickActionsSharedAction.Settings -> {
                 navigator.openRoomProfile(requireActivity(), quickAction.roomId)
             }
-            is RoomListQuickActionsSharedAction.Favorite                  -> {
+            is RoomListQuickActionsSharedAction.Favorite -> {
                 roomListViewModel.handle(RoomListAction.ToggleTag(quickAction.roomId, RoomTag.ROOM_TAG_FAVOURITE))
             }
-            is RoomListQuickActionsSharedAction.LowPriority               -> {
+            is RoomListQuickActionsSharedAction.LowPriority -> {
                 roomListViewModel.handle(RoomListAction.ToggleTag(quickAction.roomId, RoomTag.ROOM_TAG_LOW_PRIORITY))
             }
-            is RoomListQuickActionsSharedAction.MarkUnread                -> {
+            is RoomListQuickActionsSharedAction.MarkUnread -> {
                 roomListViewModel.handle(RoomListAction.SetMarkedUnread(quickAction.roomId, true))
             }
-            is RoomListQuickActionsSharedAction.MarkRead                  -> {
+            is RoomListQuickActionsSharedAction.MarkRead -> {
                 roomListViewModel.handle(RoomListAction.SetMarkedUnread(quickAction.roomId, false))
             }
-            is RoomListQuickActionsSharedAction.OpenAtBottom              -> {
+            is RoomListQuickActionsSharedAction.OpenAtBottom -> {
                 navigator.openRoom(requireActivity(), quickAction.roomId, openAtFirstUnread = false)
             }
-            is RoomListQuickActionsSharedAction.OpenAnonymous             -> {
+            is RoomListQuickActionsSharedAction.OpenAnonymous -> {
                 navigator.openRoom(requireActivity(), quickAction.roomId, openAnonymously = true)
             }
-            is RoomListQuickActionsSharedAction.Leave                     -> {
+            is RoomListQuickActionsSharedAction.Leave -> {
                 promptLeaveRoom(quickAction.roomId)
             }
         }
@@ -606,21 +606,21 @@ class RoomListFragment @Inject constructor(
                             message = getString(R.string.room_list_catchup_empty_body)
                     )
                 }
-                RoomListDisplayMode.PEOPLE        ->
+                RoomListDisplayMode.PEOPLE ->
                     StateView.State.Empty(
                             title = getString(R.string.room_list_people_empty_title),
                             image = ContextCompat.getDrawable(requireContext(), R.drawable.empty_state_dm),
                             isBigImage = true,
                             message = getString(R.string.room_list_people_empty_body)
                     )
-                RoomListDisplayMode.ROOMS         ->
+                RoomListDisplayMode.ROOMS ->
                     StateView.State.Empty(
                             title = getString(R.string.room_list_rooms_empty_title),
                             image = ContextCompat.getDrawable(requireContext(), R.drawable.empty_state_room),
                             isBigImage = true,
                             message = getString(R.string.room_list_rooms_empty_body)
                     )
-                RoomListDisplayMode.FILTERED      ->
+                RoomListDisplayMode.FILTERED ->
                     // Always display the content in this mode, because if the footer
                     StateView.State.Content
             }

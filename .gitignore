@@ -17,7 +17,7 @@
 /fastlane/report.xml
 /fastlane/README.md
 
-/library/build
+/**/build
 
 .tmp_unpatched_strings
 .tmp_new_patched_strings

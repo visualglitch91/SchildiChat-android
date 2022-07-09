@@ -317,7 +317,8 @@
             android:supportsPictureInPicture="true" />
 
         <activity android:name=".features.terms.ReviewTermsActivity" />
-        <activity android:name=".features.widgets.WidgetActivity"
+        <activity
+            android:name=".features.widgets.WidgetActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation" />
 
         <activity android:name=".features.pin.PinActivity" />
@@ -371,7 +372,7 @@
 
         <!-- Add tools:ignore="Instantiatable" for the error reported only by Buildkite and for lintGplayRelease check :/ -->
         <service
-            android:name=".core.services.VectorSyncService"
+            android:name=".core.services.VectorSyncAndroidService"
             android:exported="false"
             tools:ignore="Instantiatable" />
 
@@ -425,6 +426,20 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
+        <!-- UnifiedPush -->
+        <receiver
+            android:exported="true"
+            android:enabled="true"
+            android:name=".core.pushers.VectorMessagingReceiver">
+            <intent-filter>
+                <action android:name="org.unifiedpush.android.connector.MESSAGE" />
+                <action android:name="org.unifiedpush.android.connector.UNREGISTERED" />
+                <action android:name="org.unifiedpush.android.connector.NEW_ENDPOINT" />
+                <action android:name="org.unifiedpush.android.connector.REGISTRATION_FAILED" />
+                <action android:name="org.unifiedpush.android.connector.REGISTRATION_REFUSED" />
             </intent-filter>
         </receiver>
 

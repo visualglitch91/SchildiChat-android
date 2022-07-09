@@ -63,7 +63,7 @@ class MatrixItemColorProvider @Inject constructor(
                         attrCache.getOrPut(matrixItem.id) {
                             when (matrixItem) {
                                 is MatrixItem.UserItem -> getColorAttrFromUserId(matrixItem.id)
-                                else                   -> getColorAttrFromRoomId(matrixItem.id)
+                                else -> getColorAttrFromRoomId(matrixItem.id)
                             }
                         }
                 )
@@ -152,13 +152,13 @@ class MatrixItemColorProvider @Inject constructor(
         @ColorRes
         private fun getUserColorByIndex(index: Int): Int {
             return when (index % 8) {
-                1    -> R.color.element_name_02
-                2    -> R.color.element_name_03
-                3    -> R.color.element_name_04
-                4    -> R.color.element_name_05
-                5    -> R.color.element_name_06
-                6    -> R.color.element_name_07
-                7    -> R.color.element_name_08
+                1 -> R.color.element_name_02
+                2 -> R.color.element_name_03
+                3 -> R.color.element_name_04
+                4 -> R.color.element_name_05
+                5 -> R.color.element_name_06
+                6 -> R.color.element_name_07
+                7 -> R.color.element_name_08
                 else -> R.color.element_name_01
             }
         }
@@ -167,8 +167,8 @@ class MatrixItemColorProvider @Inject constructor(
         @Deprecated("Use getColorAttrFromRoomId")
         private fun getColorFromRoomId(roomId: String?): Int {
             return when ((roomId?.toList()?.sumOf { it.code } ?: 0) % 3) {
-                1    -> R.color.element_room_02
-                2    -> R.color.element_room_03
+                1 -> R.color.element_room_02
+                2 -> R.color.element_room_03
                 else -> R.color.element_room_01
             }
         }

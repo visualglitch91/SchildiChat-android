@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 New Vector Ltd
+ * Copyright 2020 New Vector Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,12 @@ package im.vector.app.features.settings.troubleshoot
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
-import androidx.fragment.app.FragmentActivity
 import im.vector.app.R
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.error.ErrorFormatter
 import im.vector.app.core.pushers.PushersManager
 import im.vector.app.core.resources.StringProvider
 import im.vector.app.features.session.coroutineScope
-import im.vector.app.core.pushers.UPHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -33,26 +31,22 @@ import org.matrix.android.sdk.api.session.pushers.PushGatewayFailure
 import javax.inject.Inject
 
 /**
- * Test Push by asking the Push Gateway to send a Push back
+ * Test Push by asking the Push Gateway to send a Push back.
  */
-class TestPushFromPushGateway @Inject constructor(private val context: FragmentActivity,
-                                                  private val stringProvider: StringProvider,
-                                                  private val errorFormatter: ErrorFormatter,
-                                                  private val pushersManager: PushersManager,
-                                                  private val activeSessionHolder: ActiveSessionHolder) :
-        TroubleshootTest(R.string.settings_troubleshoot_test_push_loop_title) {
+class TestPushFromPushGateway @Inject constructor(
+        private val stringProvider: StringProvider,
+        private val errorFormatter: ErrorFormatter,
+        private val pushersManager: PushersManager,
+        private val activeSessionHolder: ActiveSessionHolder,
+) : TroubleshootTest(R.string.settings_troubleshoot_test_push_loop_title) {
 
     private var action: Job? = null
     private var pushReceived: Boolean = false
 
     override fun perform(activityResultLauncher: ActivityResultLauncher<Intent>) {
         pushReceived = false
-        UPHelper.getUpEndpoint(context) ?: run {
-            status = TestStatus.FAILED
-            return
-        }
         action = activeSessionHolder.getActiveSession().coroutineScope.launch {
-            val result = runCatching { pushersManager.testPush(context) }
+            val result = runCatching { pushersManager.testPush() }
 
             withContext(Dispatchers.Main) {
                 status = result

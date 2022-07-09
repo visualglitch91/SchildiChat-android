@@ -33,8 +33,10 @@ internal fun LiveLocationShareAggregatedSummaryEntity.Companion.where(
             .equalTo(LiveLocationShareAggregatedSummaryEntityFields.EVENT_ID, eventId)
 }
 
-internal fun LiveLocationShareAggregatedSummaryEntity.Companion.whereRoomId(realm: Realm,
-                                                                            roomId: String): RealmQuery<LiveLocationShareAggregatedSummaryEntity> {
+internal fun LiveLocationShareAggregatedSummaryEntity.Companion.whereRoomId(
+        realm: Realm,
+        roomId: String
+): RealmQuery<LiveLocationShareAggregatedSummaryEntity> {
     return realm.where<LiveLocationShareAggregatedSummaryEntity>()
             .equalTo(LiveLocationShareAggregatedSummaryEntityFields.ROOM_ID, roomId)
 }
@@ -74,7 +76,7 @@ internal fun LiveLocationShareAggregatedSummaryEntity.Companion.findActiveLiveIn
         realm: Realm,
         roomId: String,
         userId: String,
-        ignoredEventId: String
+        ignoredEventId: String,
 ): List<LiveLocationShareAggregatedSummaryEntity> {
     return LiveLocationShareAggregatedSummaryEntity
             .whereRoomId(realm, roomId = roomId)
@@ -82,6 +84,7 @@ internal fun LiveLocationShareAggregatedSummaryEntity.Companion.findActiveLiveIn
             .equalTo(LiveLocationShareAggregatedSummaryEntityFields.IS_ACTIVE, true)
             .notEqualTo(LiveLocationShareAggregatedSummaryEntityFields.EVENT_ID, ignoredEventId)
             .findAll()
+            .toList()
 }
 
 /**

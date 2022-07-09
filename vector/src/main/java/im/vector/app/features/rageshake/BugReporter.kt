@@ -31,7 +31,7 @@ import im.vector.app.R
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.extensions.getAllChildFragments
 import im.vector.app.core.extensions.toOnOff
-import im.vector.app.core.pushers.UPHelper
+import im.vector.app.core.pushers.UnifiedPushHelper
 import im.vector.app.features.settings.VectorLocale
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.settings.devtools.GossipingEventsSerializer
@@ -76,6 +76,7 @@ class BugReporter @Inject constructor(
         private val activeSessionHolder: ActiveSessionHolder,
         private val versionProvider: VersionProvider,
         private val vectorPreferences: VectorPreferences,
+        private val unifiedPushHelper: UnifiedPushHelper,
         private val vectorFileLogger: VectorFileLogger,
         private val systemLocaleProvider: SystemLocaleProvider,
         private val matrix: Matrix
@@ -172,16 +173,18 @@ class BugReporter @Inject constructor(
      * @param listener the listener
      */
     @SuppressLint("StaticFieldLeak")
-    fun sendBugReport(reportType: ReportType,
-                      withDevicesLogs: Boolean,
-                      withCrashLogs: Boolean,
-                      withKeyRequestHistory: Boolean,
-                      withScreenshot: Boolean,
-                      theBugDescription: String,
-                      serverVersion: String,
-                      canContact: Boolean = false,
-                      customFields: Map<String, String>? = null,
-                      listener: IMXBugReportListener?) {
+    fun sendBugReport(
+            reportType: ReportType,
+            withDevicesLogs: Boolean,
+            withCrashLogs: Boolean,
+            withKeyRequestHistory: Boolean,
+            withScreenshot: Boolean,
+            theBugDescription: String,
+            serverVersion: String,
+            canContact: Boolean = false,
+            customFields: Map<String, String>? = null,
+            listener: IMXBugReportListener?
+    ) {
         // enumerate files to delete
         val mBugReportFiles: MutableList<File> = ArrayList()
 
@@ -263,12 +266,12 @@ class BugReporter @Inject constructor(
 
                 if (!mIsCancelled) {
                     val text = when (reportType) {
-                        ReportType.BUG_REPORT            -> "$bugDescription"
-                        ReportType.SUGGESTION            -> "[Suggestion] $bugDescription"
-                        ReportType.SPACE_BETA_FEEDBACK   -> "[spaces-feedback] $bugDescription"
+                        ReportType.BUG_REPORT -> "$bugDescription"
+                        ReportType.SUGGESTION -> "[Suggestion] $bugDescription"
+                        ReportType.SPACE_BETA_FEEDBACK -> "[spaces-feedback] $bugDescription"
                         ReportType.THREADS_BETA_FEEDBACK -> "[threads-feedback] $bugDescription"
                         ReportType.AUTO_UISI_SENDER,
-                        ReportType.AUTO_UISI             -> bugDescription
+                        ReportType.AUTO_UISI -> bugDescription
                     }
 
                     // build the multi part request
@@ -305,10 +308,9 @@ class BugReporter @Inject constructor(
                     // UnifiedPush
                     // Only include the UP endpoint base url to exclude private user tokens in the path or parameters
                     val reportTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss ZZZ", Locale.US).format(Date())
-                    builder.addFormDataPart("unifiedpush_endpoint", UPHelper.getPrivacyFriendlyUpEndpoint(context).toString())
-                            .addFormDataPart("unifiedpush_gateway", UPHelper.getPushGateway(context).toString())
-                            .addFormDataPart("unifiedpush_distributor_exists", UPHelper.distributorExists(context).toString())
-                            .addFormDataPart("unifiedpush_is_embedded_distributor", UPHelper.isEmbeddedDistributor(context).toString())
+                    builder.addFormDataPart("unifiedpush_endpoint", unifiedPushHelper.getPrivacyFriendlyUpEndpoint().toString())
+                            .addFormDataPart("unifiedpush_distributor_name", unifiedPushHelper.getCurrentDistributorName())
+                            .addFormDataPart("unifiedpush_is_embedded_distributor", unifiedPushHelper.isEmbeddedDistributor().toString())
 
                     // More Schildi-specific fields
                     val enabledDebugSettings = DbgUtil.ALL_PREFS.filter { DbgUtil.isDbgEnabled(it) }
@@ -366,9 +368,9 @@ class BugReporter @Inject constructor(
                     if (canContact) {
                         builder.addFormDataPart("label", "can contact")
                     }
-                    if (UPHelper.isEmbeddedDistributor(context)) {
+                    if (unifiedPushHelper.isEmbeddedDistributor()) {
                         builder.addFormDataPart("label", "unifiedpush:fcm")
-                    } else if (UPHelper.hasEndpoint(context)) {
+                    } else if (!unifiedPushHelper.isBackgroundSync()) {
                         builder.addFormDataPart("label", "unifiedpush:custom")
                     } else {
                         builder.addFormDataPart("label", "unifiedpush:none")
@@ -379,18 +381,18 @@ class BugReporter @Inject constructor(
                     //builder.addFormDataPart("label", "[SchildiChat]")
 
                     when (reportType) {
-                        ReportType.BUG_REPORT            -> {
+                        ReportType.BUG_REPORT -> {
                             /* nop */
                         }
-                        ReportType.SUGGESTION            -> builder.addFormDataPart("label", "[Suggestion]")
-                        ReportType.SPACE_BETA_FEEDBACK   -> builder.addFormDataPart("label", "spaces-feedback")
+                        ReportType.SUGGESTION -> builder.addFormDataPart("label", "[Suggestion]")
+                        ReportType.SPACE_BETA_FEEDBACK -> builder.addFormDataPart("label", "spaces-feedback")
                         ReportType.THREADS_BETA_FEEDBACK -> builder.addFormDataPart("label", "threads-feedback")
-                        ReportType.AUTO_UISI             -> {
+                        ReportType.AUTO_UISI -> {
                             builder.addFormDataPart("label", "Z-UISI")
                             builder.addFormDataPart("label", "android")
                             builder.addFormDataPart("label", "uisi-recipient")
                         }
-                        ReportType.AUTO_UISI_SENDER      -> {
+                        ReportType.AUTO_UISI_SENDER -> {
                             builder.addFormDataPart("label", "Z-UISI")
                             builder.addFormDataPart("label", "android")
                             builder.addFormDataPart("label", "uisi-sender")
@@ -524,11 +526,7 @@ class BugReporter @Inject constructor(
      */
     fun openBugReportScreen(activity: FragmentActivity, reportType: ReportType = ReportType.BUG_REPORT) {
         screenshot = takeScreenshot(activity)
-        activeSessionHolder.getSafeActiveSession()?.let {
-            it.logDbUsageInfo()
-            it.cryptoService().logDbUsageInfo()
-        }
-
+        matrix.debugService().logDbUsageInfo()
         activity.startActivity(BugReportActivity.intent(activity, reportType))
     }
 
@@ -541,7 +539,7 @@ class BugReporter @Inject constructor(
                 when (reportType) {
                     ReportType.AUTO_UISI_SENDER,
                     ReportType.AUTO_UISI -> R.string.bug_report_auto_uisi_app_name
-                    else                 -> R.string.bug_report_app_name
+                    else -> R.string.bug_report_app_name
                 }
         )
     }

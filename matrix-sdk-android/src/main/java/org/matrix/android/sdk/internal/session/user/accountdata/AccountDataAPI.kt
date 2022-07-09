@@ -31,9 +31,11 @@ internal interface AccountDataAPI {
      * @param params the put params
      */
     @PUT(NetworkConstants.URI_API_PREFIX_PATH_R0 + "user/{userId}/account_data/{type}")
-    suspend fun setAccountData(@Path("userId") userId: String,
-                               @Path("type") type: String,
-                               @Body params: Any)
+    suspend fun setAccountData(
+            @Path("userId") userId: String,
+            @Path("type") type: String,
+            @Body params: Any
+    )
 
     /**
      * Set some room account_data for the client.
@@ -44,8 +46,10 @@ internal interface AccountDataAPI {
      * @param params the put params
      */
     @PUT(NetworkConstants.URI_API_PREFIX_PATH_R0 + "user/{userId}/rooms/{roomId}/account_data/{type}")
-    suspend fun setRoomAccountData(@Path("userId") userId: String,
-                                   @Path("roomId") roomId: String,
-                                   @Path("type") type: String,
-                                   @Body params: Any)
+    suspend fun setRoomAccountData(
+            @Path("userId") userId: String,
+            @Path("roomId") roomId: String,
+            @Path("type") type: String,
+            @Body params: Any
+    )
 }

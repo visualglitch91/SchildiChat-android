@@ -36,16 +36,22 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-// TODO add unit tests
+/**
+ * Aggregates all live location sharing related events in local database.
+ */
 internal class LiveLocationAggregationProcessor @Inject constructor(
         @SessionId private val sessionId: String,
         private val workManagerProvider: WorkManagerProvider,
         private val clock: Clock,
 ) {
 
-    fun handleBeaconInfo(realm: Realm, event: Event, content: MessageBeaconInfoContent, roomId: String, isLocalEcho: Boolean) {
+    /**
+     * Handle the content of a beacon info.
+     * @return true if it has been processed, false if ignored.
+     */
+    fun handleBeaconInfo(realm: Realm, event: Event, content: MessageBeaconInfoContent, roomId: String, isLocalEcho: Boolean): Boolean {
         if (event.senderId.isNullOrEmpty() || isLocalEcho) {
-            return
+            return false
         }
 
         val isLive = content.isLive.orTrue()
@@ -58,7 +64,7 @@ internal class LiveLocationAggregationProcessor @Inject constructor(
 
         if (targetEventId.isNullOrEmpty()) {
             Timber.w("no target event id found for the beacon content")
-            return
+            return false
         }
 
         val aggregatedSummary = LiveLocationShareAggregatedSummaryEntity.getOrCreate(
@@ -67,20 +73,24 @@ internal class LiveLocationAggregationProcessor @Inject constructor(
                 eventId = targetEventId
         )
 
-        Timber.d("updating summary of id=$targetEventId with isLive=${content.isLive}")
-
+        // remote event can stay with isLive == true while the local summary is no more active
+        val isActive = aggregatedSummary.isActive.orTrue() && isLive
         val endOfLiveTimestampMillis = content.getBestTimestampMillis()?.let { it + (content.timeout ?: 0) }
+        Timber.d("updating summary of id=$targetEventId with isActive=$isActive and endTimestamp=$endOfLiveTimestampMillis")
+
         aggregatedSummary.endOfLiveTimestampMillis = endOfLiveTimestampMillis
-        aggregatedSummary.isActive = isLive
+        aggregatedSummary.isActive = isActive
         aggregatedSummary.userId = event.senderId
 
         deactivateAllPreviousBeacons(realm, roomId, event.senderId, targetEventId)
 
-        if (isLive) {
+        if (isActive) {
             scheduleDeactivationAfterTimeout(targetEventId, roomId, endOfLiveTimestampMillis)
         } else {
             cancelDeactivationAfterTimeout(targetEventId, roomId)
         }
+
+        return true
     }
 
     private fun scheduleDeactivationAfterTimeout(eventId: String, roomId: String, endOfLiveTimestampMillis: Long?) {
@@ -90,6 +100,7 @@ internal class LiveLocationAggregationProcessor @Inject constructor(
         val workData = WorkerParamsFactory.toData(workParams)
         val workName = DeactivateLiveLocationShareWorker.getWorkName(eventId = eventId, roomId = roomId)
         val workDelayMillis = (endOfLiveTimestampMillis - clock.epochMillis()).coerceAtLeast(0)
+        Timber.d("scheduling deactivation of $eventId after $workDelayMillis millis")
         val workRequest = workManagerProvider.matrixOneTimeWorkRequestBuilder<DeactivateLiveLocationShareWorker>()
                 .setInitialDelay(workDelayMillis, TimeUnit.MILLISECONDS)
                 .setInputData(workData)
@@ -107,6 +118,10 @@ internal class LiveLocationAggregationProcessor @Inject constructor(
         workManagerProvider.workManager.cancelUniqueWork(workName)
     }
 
+    /**
+     * Handle the content of a beacon location data.
+     * @return true if it has been processed, false if ignored.
+     */
     fun handleBeaconLocationData(
             realm: Realm,
             event: Event,
@@ -114,14 +129,14 @@ internal class LiveLocationAggregationProcessor @Inject constructor(
             roomId: String,
             relatedEventId: String?,
             isLocalEcho: Boolean
-    ) {
+    ): Boolean {
         if (event.senderId.isNullOrEmpty() || isLocalEcho) {
-            return
+            return false
         }
 
         if (relatedEventId.isNullOrEmpty()) {
             Timber.w("no related event id found for the live location content")
-            return
+            return false
         }
 
         val aggregatedSummary = LiveLocationShareAggregatedSummaryEntity.getOrCreate(
@@ -136,9 +151,12 @@ internal class LiveLocationAggregationProcessor @Inject constructor(
                 ?.getBestTimestampMillis()
                 ?: 0
 
-        if (updatedLocationTimestamp.isMoreRecentThan(currentLocationTimestamp)) {
+        return if (updatedLocationTimestamp.isMoreRecentThan(currentLocationTimestamp)) {
             Timber.d("updating last location of the summary of id=$relatedEventId")
             aggregatedSummary.lastLocationContent = ContentMapper.map(content.toContent())
+            true
+        } else {
+            false
         }
     }
 

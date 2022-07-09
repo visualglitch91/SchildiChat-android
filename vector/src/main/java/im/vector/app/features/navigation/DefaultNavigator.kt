@@ -130,7 +130,7 @@ class DefaultNavigator @Inject constructor(
 
     override fun openLogin(context: Context, loginConfig: LoginConfig?, flags: Int) {
         val intent = when (features.onboardingVariant()) {
-            OnboardingVariant.LEGACY    -> LoginActivity.newIntent(context, loginConfig)
+            OnboardingVariant.LEGACY -> LoginActivity.newIntent(context, loginConfig)
             OnboardingVariant.LOGIN_2,
             OnboardingVariant.FTUE_AUTH -> OnboardingActivity.newIntent(context, loginConfig)
         }
@@ -140,7 +140,7 @@ class DefaultNavigator @Inject constructor(
 
     override fun loginSSORedirect(context: Context, data: Uri?) {
         val intent = when (features.onboardingVariant()) {
-            OnboardingVariant.LEGACY    -> LoginActivity.redirectIntent(context, data)
+            OnboardingVariant.LEGACY -> LoginActivity.redirectIntent(context, data)
             OnboardingVariant.LOGIN_2,
             OnboardingVariant.FTUE_AUTH -> OnboardingActivity.redirectIntent(context, data)
         }
@@ -188,7 +188,7 @@ class DefaultNavigator @Inject constructor(
         }
         appStateHandler.setCurrentSpace(spaceId)
         when (postSwitchSpaceAction) {
-            Navigator.PostSwitchSpaceAction.None                 -> {
+            Navigator.PostSwitchSpaceAction.None -> {
                 // go back to home if we are showing room details?
                 // This is a bit ugly, but the navigator is supposed to know about the activity stack
                 if (context is RoomDetailActivity) {
@@ -198,10 +198,10 @@ class DefaultNavigator @Inject constructor(
             Navigator.PostSwitchSpaceAction.OpenAddExistingRooms -> {
                 startActivity(context, SpaceManageActivity.newIntent(context, spaceId, ManageType.AddRooms), false)
             }
-            Navigator.PostSwitchSpaceAction.OpenRoomList         -> {
+            Navigator.PostSwitchSpaceAction.OpenRoomList -> {
                 startActivity(context, SpaceExploreActivity.newIntent(context, spaceId), buildTask = false)
             }
-            is Navigator.PostSwitchSpaceAction.OpenDefaultRoom   -> {
+            is Navigator.PostSwitchSpaceAction.OpenDefaultRoom -> {
                 val args = TimelineArgs(
                         postSwitchSpaceAction.roomId,
                         eventId = null,
@@ -336,7 +336,7 @@ class DefaultNavigator @Inject constructor(
                 val intent = RoomDirectoryActivity.getIntent(context, initialFilter)
                 context.startActivity(intent)
             }
-            is RoomGroupingMethod.BySpace       -> {
+            is RoomGroupingMethod.BySpace -> {
                 val selectedSpace = groupingMethod.space()
                 if (selectedSpace == null) {
                     val intent = RoomDirectoryActivity.getIntent(context, initialFilter)
@@ -347,7 +347,7 @@ class DefaultNavigator @Inject constructor(
                     }
                 }
             }
-            null                                -> Unit
+            null -> Unit
         }
     }
 
@@ -361,14 +361,14 @@ class DefaultNavigator @Inject constructor(
             is RoomGroupingMethod.ByLegacyGroup -> {
                 CreateDirectRoomActivity.getIntent(context)
             }
-            is RoomGroupingMethod.BySpace       -> {
+            is RoomGroupingMethod.BySpace -> {
                 if (currentGroupingMethod.spaceSummary != null) {
                     SpacePeopleActivity.newIntent(context, currentGroupingMethod.spaceSummary.roomId)
                 } else {
                     CreateDirectRoomActivity.getIntent(context)
                 }
             }
-            else                                -> null
+            else -> null
         } ?: return
         context.startActivity(intent)
     }
@@ -379,7 +379,7 @@ class DefaultNavigator @Inject constructor(
                 val intent = InviteUsersToRoomActivity.getIntent(context, roomId)
                 context.startActivity(intent)
             }
-            is RoomGroupingMethod.BySpace       -> {
+            is RoomGroupingMethod.BySpace -> {
                 if (currentGroupingMethod.spaceSummary != null) {
                     // let user decides if he does it from space or room
                     (context as? AppCompatActivity)?.supportFragmentManager?.let { fm ->
@@ -404,7 +404,7 @@ class DefaultNavigator @Inject constructor(
                     context.startActivity(intent)
                 }
             }
-            null                                -> Unit
+            null -> Unit
         }
     }
 
@@ -471,29 +471,35 @@ class DefaultNavigator @Inject constructor(
         context.startActivity(Intent(context, AnalyticsOptInActivity::class.java))
     }
 
-    override fun openTerms(context: Context,
-                           activityResultLauncher: ActivityResultLauncher<Intent>,
-                           serviceType: TermsService.ServiceType,
-                           baseUrl: String,
-                           token: String?) {
+    override fun openTerms(
+            context: Context,
+            activityResultLauncher: ActivityResultLauncher<Intent>,
+            serviceType: TermsService.ServiceType,
+            baseUrl: String,
+            token: String?
+    ) {
         val intent = ReviewTermsActivity.intent(context, serviceType, baseUrl, token)
         activityResultLauncher.launch(intent)
     }
 
-    override fun openStickerPicker(context: Context,
-                                   activityResultLauncher: ActivityResultLauncher<Intent>,
-                                   roomId: String,
-                                   widget: Widget) {
+    override fun openStickerPicker(
+            context: Context,
+            activityResultLauncher: ActivityResultLauncher<Intent>,
+            roomId: String,
+            widget: Widget
+    ) {
         val widgetArgs = widgetArgsBuilder.buildStickerPickerArgs(roomId, widget)
         val intent = WidgetActivity.newIntent(context, widgetArgs)
         activityResultLauncher.launch(intent)
     }
 
-    override fun openIntegrationManager(context: Context,
-                                        activityResultLauncher: ActivityResultLauncher<Intent>,
-                                        roomId: String,
-                                        integId: String?,
-                                        screen: String?) {
+    override fun openIntegrationManager(
+            context: Context,
+            activityResultLauncher: ActivityResultLauncher<Intent>,
+            roomId: String,
+            integId: String?,
+            screen: String?
+    ) {
         val widgetArgs = widgetArgsBuilder.buildIntegrationManagerArgs(roomId, integId, screen)
         val intent = WidgetActivity.newIntent(context, widgetArgs)
         activityResultLauncher.launch(intent)
@@ -518,19 +524,23 @@ class DefaultNavigator @Inject constructor(
         }
     }
 
-    override fun openPinCode(context: Context,
-                             activityResultLauncher: ActivityResultLauncher<Intent>,
-                             pinMode: PinMode) {
+    override fun openPinCode(
+            context: Context,
+            activityResultLauncher: ActivityResultLauncher<Intent>,
+            pinMode: PinMode
+    ) {
         val intent = PinActivity.newIntent(context, PinArgs(pinMode))
         activityResultLauncher.launch(intent)
     }
 
-    override fun openMediaViewer(activity: Activity,
-                                 roomId: String,
-                                 mediaData: AttachmentData,
-                                 view: View,
-                                 inMemory: List<AttachmentData>,
-                                 options: ((MutableList<Pair<View, String>>) -> Unit)?) {
+    override fun openMediaViewer(
+            activity: Activity,
+            roomId: String,
+            mediaData: AttachmentData,
+            view: View,
+            inMemory: List<AttachmentData>,
+            options: ((MutableList<Pair<View, String>>) -> Unit)?
+    ) {
         VectorAttachmentViewerActivity.newIntent(
                 activity,
                 mediaData,
@@ -555,10 +565,12 @@ class DefaultNavigator @Inject constructor(
         }
     }
 
-    override fun openSearch(context: Context,
-                            roomId: String,
-                            roomDisplayName: String?,
-                            roomAvatarUrl: String?) {
+    override fun openSearch(
+            context: Context,
+            roomId: String,
+            roomDisplayName: String?,
+            roomAvatarUrl: String?
+    ) {
         val intent = SearchActivity.newIntent(context, SearchArgs(roomId, roomDisplayName, roomAvatarUrl))
         context.startActivity(intent)
     }
@@ -584,11 +596,13 @@ class DefaultNavigator @Inject constructor(
         context.startActivity(intent)
     }
 
-    override fun openLocationSharing(context: Context,
-                                     roomId: String,
-                                     mode: LocationSharingMode,
-                                     initialLocationData: LocationData?,
-                                     locationOwnerId: String?) {
+    override fun openLocationSharing(
+            context: Context,
+            roomId: String,
+            mode: LocationSharingMode,
+            initialLocationData: LocationData?,
+            locationOwnerId: String?
+    ) {
         val intent = LocationSharingActivity.getIntent(
                 context,
                 LocationSharingArgs(roomId = roomId, mode = mode, initialLocationData = initialLocationData, locationOwnerId = locationOwnerId)
@@ -640,8 +654,10 @@ class DefaultNavigator @Inject constructor(
         )
     }
 
-    override fun openScreenSharingPermissionDialog(screenCaptureIntent: Intent,
-                                                   activityResultLauncher: ActivityResultLauncher<Intent>) {
+    override fun openScreenSharingPermissionDialog(
+            screenCaptureIntent: Intent,
+            activityResultLauncher: ActivityResultLauncher<Intent>
+    ) {
         activityResultLauncher.launch(screenCaptureIntent)
     }
 }

@@ -33,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
+import org.matrix.android.sdk.api.query.QueryStringValue
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.accountdata.UserAccountDataTypes
 import org.matrix.android.sdk.api.session.events.model.EventType
@@ -43,12 +44,14 @@ import org.matrix.android.sdk.api.session.room.getStateEvent
 import org.matrix.android.sdk.api.session.room.model.RoomEmoteContent
 import kotlin.math.min
 
-class AutocompleteEmojiPresenter @AssistedInject constructor(context: Context,
-                                                             @Assisted val roomId: String,
-                                                             private val session: Session,
-                                                             private val vectorPreferences: VectorPreferences,
-                                                             private val emojiDataSource: EmojiDataSource,
-                                                             private val controller: AutocompleteEmojiController) :
+class AutocompleteEmojiPresenter @AssistedInject constructor(
+        context: Context,
+        @Assisted val roomId: String,
+        private val session: Session,
+        private val vectorPreferences: VectorPreferences,
+        private val emojiDataSource: EmojiDataSource,
+        private val controller: AutocompleteEmojiController
+) :
         RecyclerViewPresenter<EmojiItem>(context), AutocompleteClickListener<EmojiItem> {
 
     private val room by lazy { session.getRoom(roomId)!! }
@@ -142,7 +145,7 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(context: Context,
     }
 
     private fun Room.getEmojiItems(query: CharSequence?): List<EmojiItem> {
-        return getStateEvent(EventType.ROOM_EMOTES)?.content?.toModel<RoomEmoteContent>()?.images.orEmpty()
+        return getStateEvent(EventType.ROOM_EMOTES, QueryStringValue.IsEmpty)?.content?.toModel<RoomEmoteContent>()?.images.orEmpty()
                 .filter {
                     val usages = it.value.usage
                     usages.isNullOrEmpty() || RoomEmoteContent.USAGE_EMOTICON in usages

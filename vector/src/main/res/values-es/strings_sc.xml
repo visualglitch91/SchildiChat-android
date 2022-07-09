@@ -96,7 +96,6 @@
     <string name="sc_accent_carnation">Clavel</string>
     <string name="sc_accent_indigo">Añil</string>
     <string name="send_bug_report_sc_extra">Para aumentar la visibilidad de tu problema y permitir que nos pongamos en contracto contigo, es posible que quieras hacer referencia a este reporte (añadiendo tu ID de Matrix y la hora aproximada de cuando se envio) en una issue en https://github.com/SchildiChat/SchildiChat-android/issues (comprueba primero si ya existe una para tu problema y crea una solo si no existe).</string>
-    <string name="settings_troubleshoot_test_endpoint_title"></string>
     <string name="settings_theme_colors">Colores de tema</string>
     <string name="settings_enable_space_pager">Desliza la lista de conversaciones para cambiar de espacio</string>
     <string name="settings_enable_space_pager_summary">Permitir cambiar entre espacios raíz deslizando horizontalmente en la lista de conversaciones</string>

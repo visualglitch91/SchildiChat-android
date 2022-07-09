@@ -87,7 +87,7 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder> : BaseEventItem
         renderReactions(holder, baseAttributes.informationData.reactionsSummary)
         if (baseAttributes.informationData.messageLayout.showE2eDecoration) {
         when (baseAttributes.informationData.e2eDecoration) {
-            E2EDecoration.NONE                 -> {
+            E2EDecoration.NONE -> {
                 holder.e2EDecorationView.render(null)
             }
             E2EDecoration.WARN_IN_CLEAR,

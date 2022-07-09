@@ -387,9 +387,10 @@ class SpaceHierarchyTest : InstrumentedTest {
             val roomIds: List<String>
     )
 
-    private fun createPublicSpace(session: Session,
-                                  spaceName: String,
-                                  childInfo: List<Triple<String, Boolean, Boolean?>>
+    private fun createPublicSpace(
+            session: Session,
+            spaceName: String,
+            childInfo: List<Triple<String, Boolean, Boolean?>>
             /** Name, auto-join, canonical*/
     ): TestSpaceCreationResult {
         var spaceId = ""
@@ -416,9 +417,10 @@ class SpaceHierarchyTest : InstrumentedTest {
         return TestSpaceCreationResult(spaceId, roomIds)
     }
 
-    private fun createPrivateSpace(session: Session,
-                                   spaceName: String,
-                                   childInfo: List<Triple<String, Boolean, Boolean?>>
+    private fun createPrivateSpace(
+            session: Session,
+            spaceName: String,
+            childInfo: List<Triple<String, Boolean, Boolean?>>
             /** Name, auto-join, canonical*/
     ): TestSpaceCreationResult {
         var spaceId = ""
@@ -567,8 +569,9 @@ class SpaceHierarchyTest : InstrumentedTest {
         commonTestHelper.waitWithLatch {
             val room = bobSession.getRoom(bobRoomId)!!
             val currentPLContent = room
-                    .getStateEvent(EventType.STATE_ROOM_POWER_LEVELS)
-                    ?.let { it.content.toModel<PowerLevelsContent>() }
+                    .getStateEvent(EventType.STATE_ROOM_POWER_LEVELS, QueryStringValue.IsEmpty)
+                    ?.content
+                    .toModel<PowerLevelsContent>()
 
             val newPowerLevelsContent = currentPLContent
                     ?.setUserPowerLevel(aliceSession.myUserId, Role.Admin.value)
@@ -581,7 +584,7 @@ class SpaceHierarchyTest : InstrumentedTest {
         commonTestHelper.waitWithLatch { latch ->
             commonTestHelper.retryPeriodicallyWithLatch(latch) {
                 val powerLevelsHelper = aliceSession.getRoom(bobRoomId)!!
-                        .getStateEvent(EventType.STATE_ROOM_POWER_LEVELS)
+                        .getStateEvent(EventType.STATE_ROOM_POWER_LEVELS, QueryStringValue.IsEmpty)
                         ?.content
                         ?.toModel<PowerLevelsContent>()
                         ?.let { PowerLevelsHelper(it) }

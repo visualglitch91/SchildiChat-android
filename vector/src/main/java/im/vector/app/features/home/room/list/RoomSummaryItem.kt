@@ -144,7 +144,7 @@ abstract class RoomSummaryItem : VectorEpoxyModel<RoomSummaryItem.Holder>() {
         RoomListDisplayMode.ROOMS,
         RoomListDisplayMode.PEOPLE,
         RoomListDisplayMode.NOTIFICATIONS -> renderForDefaultDisplayMode(holder)
-        RoomListDisplayMode.FILTERED      -> renderForFilteredDisplayMode(holder)
+        RoomListDisplayMode.FILTERED -> renderForFilteredDisplayMode(holder)
     }
 
     private fun renderForDefaultDisplayMode(holder: Holder) {

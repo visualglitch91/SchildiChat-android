@@ -46,6 +46,7 @@ import im.vector.app.core.extensions.restart
 import im.vector.app.core.extensions.validateBackPressed
 import im.vector.app.core.platform.VectorBaseActivity
 import im.vector.app.core.pushers.PushersManager
+import im.vector.app.core.pushers.UnifiedPushHelper
 import im.vector.app.core.resources.ColorProvider
 import im.vector.app.core.utils.toast
 import im.vector.app.databinding.ActivityHomeBinding
@@ -60,6 +61,7 @@ import im.vector.app.features.matrixto.MatrixToBottomSheet
 import im.vector.app.features.matrixto.OriginOfMatrixTo
 import im.vector.app.features.navigation.Navigator
 import im.vector.app.features.notifications.NotificationDrawerManager
+import im.vector.app.features.onboarding.AuthenticationDescription
 import im.vector.app.features.permalink.NavigationInterceptor
 import im.vector.app.features.permalink.PermalinkHandler
 import im.vector.app.features.permalink.PermalinkHandler.Companion.MATRIX_TO_CUSTOM_SCHEME_URL_BASE
@@ -79,17 +81,17 @@ import im.vector.app.features.spaces.invite.SpaceInviteBottomSheet
 import im.vector.app.features.spaces.share.ShareSpaceBottomSheet
 import im.vector.app.features.themes.ThemeUtils
 import im.vector.app.features.workers.signout.ServerBackupStatusViewModel
-import im.vector.app.core.pushers.UPHelper
 import im.vector.app.features.permalink.PermalinkHandler.Companion.SC_MATRIX_TO_CUSTOM_SCHEME_URL_BASE
 import im.vector.app.features.permalink.PermalinkHandler.Companion.SC_ROOM_LINK_PREFIX
 import im.vector.app.features.permalink.PermalinkHandler.Companion.SC_USER_LINK_PREFIX
+import im.vector.app.push.fcm.FcmHelper
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
-import org.matrix.android.sdk.api.session.initsync.SyncStatusService
 import org.matrix.android.sdk.api.session.permalinks.PermalinkService
 import org.matrix.android.sdk.api.session.sync.InitialSyncStrategy
+import org.matrix.android.sdk.api.session.sync.SyncRequestState
 import org.matrix.android.sdk.api.session.sync.initialSyncStrategy
 import org.matrix.android.sdk.api.util.MatrixItem
 import timber.log.Timber
@@ -98,7 +100,7 @@ import javax.inject.Inject
 @Parcelize
 data class HomeActivityArgs(
         val clearNotification: Boolean,
-        val accountCreation: Boolean,
+        val authenticationDescription: AuthenticationDescription? = null,
         val hasExistingSession: Boolean = false,
         val inviteNotificationRoomId: String? = null
 ) : Parcelable
@@ -133,6 +135,8 @@ class HomeActivity :
     @Inject lateinit var avatarRenderer: AvatarRenderer
     @Inject lateinit var initSyncStepFormatter: InitSyncStepFormatter
     @Inject lateinit var appStateHandler: AppStateHandler
+    @Inject lateinit var unifiedPushHelper: UnifiedPushHelper
+    @Inject lateinit var fcmHelper: FcmHelper
 
     private val createSpaceResultLauncher = registerStartForActivityResult { activityResult ->
         if (activityResult.resultCode == Activity.RESULT_OK) {
@@ -193,7 +197,15 @@ class HomeActivity :
         super.onCreate(savedInstanceState)
         analyticsScreenName = MobileScreen.ScreenName.Home
         supportFragmentManager.registerFragmentLifecycleCallbacks(fragmentLifecycleCallbacks, false)
-        UPHelper.registerUnifiedPush(this)
+        unifiedPushHelper.register(this) {
+            if (unifiedPushHelper.isEmbeddedDistributor()) {
+                fcmHelper.ensureFcmTokenIsRetrieved(
+                        this,
+                        pushManager,
+                        vectorPreferences.areNotificationEnabledForDevice()
+                )
+            }
+        }
         sharedActionViewModel = viewModelProvider.get(HomeSharedActionViewModel::class.java)
         views.drawerLayout.addDrawerListener(drawerListener)
         if (isFirstCreation()) {
@@ -205,15 +217,15 @@ class HomeActivity :
                 .stream()
                 .onEach { sharedAction ->
                     when (sharedAction) {
-                        is HomeActivitySharedAction.OpenDrawer        -> views.drawerLayout.openDrawer(GravityCompat.START)
-                        is HomeActivitySharedAction.CloseDrawer       -> views.drawerLayout.closeDrawer(GravityCompat.START)
-                        is HomeActivitySharedAction.OpenGroup         -> openGroup(sharedAction.shouldClearFragment)
-                        is HomeActivitySharedAction.OpenSpacePreview  -> startActivity(SpacePreviewActivity.newIntent(this, sharedAction.spaceId))
-                        is HomeActivitySharedAction.AddSpace          -> createSpaceResultLauncher.launch(SpaceCreationActivity.newIntent(this))
+                        is HomeActivitySharedAction.OpenDrawer -> views.drawerLayout.openDrawer(GravityCompat.START)
+                        is HomeActivitySharedAction.CloseDrawer -> views.drawerLayout.closeDrawer(GravityCompat.START)
+                        is HomeActivitySharedAction.OpenGroup -> openGroup(sharedAction.shouldClearFragment)
+                        is HomeActivitySharedAction.OpenSpacePreview -> startActivity(SpacePreviewActivity.newIntent(this, sharedAction.spaceId))
+                        is HomeActivitySharedAction.AddSpace -> createSpaceResultLauncher.launch(SpaceCreationActivity.newIntent(this))
                         is HomeActivitySharedAction.ShowSpaceSettings -> showSpaceSettings(sharedAction.spaceId)
-                        is HomeActivitySharedAction.OpenSpaceInvite   -> openSpaceInvite(sharedAction.spaceId)
-                        HomeActivitySharedAction.SendSpaceFeedBack    -> bugReporter.openBugReportScreen(this, ReportType.SPACE_BETA_FEEDBACK)
-                        HomeActivitySharedAction.CloseGroup           -> closeGroup()
+                        is HomeActivitySharedAction.OpenSpaceInvite -> openSpaceInvite(sharedAction.spaceId)
+                        HomeActivitySharedAction.SendSpaceFeedBack -> bugReporter.openBugReportScreen(this, ReportType.SPACE_BETA_FEEDBACK)
+                        HomeActivitySharedAction.CloseGroup -> closeGroup()
                     }
                 }
                 .launchIn(lifecycleScope)
@@ -232,20 +244,20 @@ class HomeActivity :
         homeActivityViewModel.observeViewEvents {
             when (it) {
                 is HomeActivityViewEvents.AskPasswordToInitCrossSigning -> handleAskPasswordToInitCrossSigning(it)
-                is HomeActivityViewEvents.OnNewSession                  -> handleOnNewSession(it)
-                HomeActivityViewEvents.PromptToEnableSessionPush        -> handlePromptToEnablePush()
-                HomeActivityViewEvents.StartRecoverySetupFlow           -> handleStartRecoverySetup()
-                is HomeActivityViewEvents.ForceVerification             ->  {
+                is HomeActivityViewEvents.OnNewSession -> handleOnNewSession(it)
+                HomeActivityViewEvents.PromptToEnableSessionPush -> handlePromptToEnablePush()
+                HomeActivityViewEvents.StartRecoverySetupFlow -> handleStartRecoverySetup()
+                is HomeActivityViewEvents.ForceVerification -> {
                     if (it.sendRequest) {
                         navigator.requestSelfSessionVerification(this)
                     } else {
                         navigator.waitSessionVerification(this)
                     }
                 }
-                is HomeActivityViewEvents.OnCrossSignedInvalidated      -> handleCrossSigningInvalidated(it)
-                HomeActivityViewEvents.ShowAnalyticsOptIn               -> handleShowAnalyticsOptIn()
-                HomeActivityViewEvents.NotifyUserForThreadsMigration    -> handleNotifyUserForThreadsMigration()
-                is HomeActivityViewEvents.MigrateThreads                -> migrateThreadsIfNeeded(it.checkSession)
+                is HomeActivityViewEvents.OnCrossSignedInvalidated -> handleCrossSigningInvalidated(it)
+                HomeActivityViewEvents.ShowAnalyticsOptIn -> handleShowAnalyticsOptIn()
+                HomeActivityViewEvents.NotifyUserForThreadsMigration -> handleNotifyUserForThreadsMigration()
+                is HomeActivityViewEvents.MigrateThreads -> migrateThreadsIfNeeded(it.checkSession)
             }
         }
         homeActivityViewModel.onEach { renderState(it) }
@@ -343,7 +355,7 @@ class HomeActivity :
                     when {
                         deepLink.startsWith(USER_LINK_PREFIX) -> deepLink.substring(USER_LINK_PREFIX.length)
                         deepLink.startsWith(ROOM_LINK_PREFIX) -> deepLink.substring(ROOM_LINK_PREFIX.length)
-                        else                                  -> null
+                        else -> null
                     }?.let { permalinkId ->
                         activeSessionHolder.getSafeActiveSession()?.permalinkService()?.createPermalink(permalinkId)
                     }
@@ -352,12 +364,11 @@ class HomeActivity :
                     when {
                         deepLink.startsWith(SC_USER_LINK_PREFIX) -> deepLink.substring(SC_USER_LINK_PREFIX.length)
                         deepLink.startsWith(SC_ROOM_LINK_PREFIX) -> deepLink.substring(SC_ROOM_LINK_PREFIX.length)
-                        else                                     -> null
-                    }?.let { permalinkId ->
-                        activeSessionHolder.getSafeActiveSession()?.permalinkService()?.createPermalink(permalinkId)
+                        else -> null
+                    }?.let { permalinkId -> activeSessionHolder.getSafeActiveSession()?.permalinkService()?.createPermalink(permalinkId)
                     }
                 }
-                else                                                  -> deepLink
+                else -> deepLink
             }
 
             lifecycleScope.launch {
@@ -389,9 +400,9 @@ class HomeActivity :
     }
 
     private fun renderState(state: HomeActivityViewState) {
-        when (val status = state.syncStatusServiceStatus) {
-            is SyncStatusService.Status.InitialSyncProgressing -> {
-                val initSyncStepStr = initSyncStepFormatter.format(status.initSyncStep)
+        when (val status = state.syncRequestState) {
+            is SyncRequestState.InitialSyncProgressing -> {
+                val initSyncStepStr = initSyncStepFormatter.format(status.initialSyncStep)
                 Timber.v("$initSyncStepStr ${status.percentProgress}")
                 views.waitingView.root.setOnClickListener {
                     // block interactions
@@ -408,7 +419,7 @@ class HomeActivity :
                 }
                 views.waitingView.root.isVisible = true
             }
-            else                                               -> {
+            else -> {
                 // Idle or Incremental sync status
                 views.waitingView.root.isVisible = false
             }
@@ -593,16 +604,16 @@ class HomeActivity :
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             /*
-            R.id.menu_home_suggestion          -> {
+            R.id.menu_home_suggestion -> {
                 bugReporter.openBugReportScreen(this, ReportType.SUGGESTION)
                 return true
             }
              */
-            R.id.menu_home_report_bug          -> {
+            R.id.menu_home_report_bug -> {
                 bugReporter.openBugReportScreen(this, ReportType.BUG_REPORT)
                 return true
             }
-            R.id.menu_home_init_sync_legacy    -> {
+            R.id.menu_home_init_sync_legacy -> {
                 // Configure the SDK
                 initialSyncStrategy = InitialSyncStrategy.Legacy
                 // And clear cache
@@ -616,11 +627,11 @@ class HomeActivity :
                 MainActivity.restartApp(this, MainActivityArgs(clearCache = true))
                 return true
             }
-            R.id.menu_home_filter              -> {
+            R.id.menu_home_filter -> {
                 navigator.openRoomsFiltering(this)
                 return true
             }
-            R.id.menu_home_setting             -> {
+            R.id.menu_home_setting -> {
                 navigator.openSettings(this)
                 return true
             }
@@ -663,15 +674,16 @@ class HomeActivity :
     }
 
     companion object {
-        fun newIntent(context: Context,
-                      clearNotification: Boolean = false,
-                      accountCreation: Boolean = false,
-                      existingSession: Boolean = false,
-                      inviteNotificationRoomId: String? = null
+        fun newIntent(
+                context: Context,
+                clearNotification: Boolean = false,
+                authenticationDescription: AuthenticationDescription? = null,
+                existingSession: Boolean = false,
+                inviteNotificationRoomId: String? = null
         ): Intent {
             val args = HomeActivityArgs(
                     clearNotification = clearNotification,
-                    accountCreation = accountCreation,
+                    authenticationDescription = authenticationDescription,
                     hasExistingSession = existingSession,
                     inviteNotificationRoomId = inviteNotificationRoomId
             )

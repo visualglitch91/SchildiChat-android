@@ -51,14 +51,10 @@
     <string name="bubble_time_location">Localização do carimbo de data e hora</string>
     <string name="settings_open_chats_at_first_unread_summary">Abrir as conversas focando na primeira mensagem não lida em vez de na parte inferior.</string>
     <string name="settings_open_chats_at_first_unread">Abrir focando no não lido</string>
-    <string name="settings_troubleshoot_test_fcm_failed_sc">Falha ao recuperar o token do FCM</string>
-    <string name="settings_unifiedpush">UnifiedPush</string>
     <string name="settings_unifiedpush_force_custom_gateway_summary">Ative isto somente se seu push endpoint não exigir um gateway externo.</string>
     <string name="settings_unifiedpush_force_custom_gateway">Forçar push gateway personalizado</string>
-    <string name="settings_unifiedpush_reregister">Registrar novamente o distribuidor push</string>
     <string name="settings_force_allow_background_sync">Permitir a sincronização em segundo plano além do push</string>
     <string name="settings_force_allow_background_sync_summary">Apenas significativo enquanto depura sua configuração push!</string>
-    <string name="toast_unifiedpush_no_push_distributor">Nenhum distribuidor push encontrado!</string>
     <string name="settings_show_voice_message_recorder_ui">Mensagens de voz</string>
     <string name="settings_show_voice_message_recorder_ui_summary">Mostrar um botão para gravar mensagens de voz</string>
     <string name="sc_accent_greenlight">Verde claro</string>
@@ -72,7 +68,6 @@
     <string name="sc_accent_red">Vermelho</string>
     <string name="sc_accent_teal">Azul-petróleo</string>
     <string name="sc_accent_turquoise">Turquesa</string>
-    <string name="toast_unifiedpush_one_push_distributor">Distribuidor de push registrado %1$s</string>
     <string name="settings_theme_colors">Cores do tema</string>
     <string name="setting_sc_accent_color_light">Destacar cores para temas leves</string>
     <string name="setting_sc_accent_color_dark">Destacar cores para temas escuros</string>
@@ -106,16 +101,6 @@
     <string name="settings_jump_to_bottom_on_send">Pular para a parte inferior ao enviar</string>
     <string name="settings_include_space_members_as_rooms_summary">Se estiver desativado, você ainda pode adicionar Mensagens Diretas aos Espaços Pessoais. Se ativado, você verá automaticamente todos os que são membros do Espaço.</string>
     <string name="settings_unread_counter">Contador de não lidos</string>
-    <string name="settings_troubleshoot_test_endpoint_success">Endpoint recuperado com sucesso:
-\n%1$s</string>
-    <string name="settings_troubleshoot_test_endpoint_failed">Falha ao recuperar o Endpoint.</string>
-    <string name="unifiedpush_getdistributors_dialog_title">Escolha um distribuidor</string>
-    <string name="unifiedpush_getdistributors_dialog_fcm_fallback">FCM Fallback</string>
-    <string name="settings_troubleshoot_test_pusher_registration_title">Registro do Pusher</string>
-    <string name="settings_troubleshoot_test_pusher_registration_success">Pusher registrado com sucesso no servidor local.</string>
-    <string name="settings_troubleshoot_test_pusher_registration_failed">Falha ao registrar o Pusher no servidor local:
-\n%1$s</string>
-    <string name="settings_troubleshoot_test_endpoint_title">Endpoint/FCM</string>
     <string name="settings_apply_sc_default_settings">Não clique nesta configuração</string>
     <string name="settings_apply_sc_default_settings_dialog_title">Estragar as configurações</string>
     <string name="settings_apply_sc_default_settings_dialog_summary">Se você continuar, isso vai bagunçar as configurações do seu app!</string>

@@ -34,9 +34,11 @@ import org.matrix.android.sdk.internal.session.sync.handler.room.RoomMarkedUnrea
 import org.matrix.android.sdk.internal.session.sync.handler.room.RoomTagHandler
 import javax.inject.Inject
 
-internal class RoomSyncAccountDataHandler @Inject constructor(private val roomTagHandler: RoomTagHandler,
-                                                              private val roomFullyReadHandler: RoomFullyReadHandler,
-                                                              private val roomMarkedUnreadHandler: RoomMarkedUnreadHandler) {
+internal class RoomSyncAccountDataHandler @Inject constructor(
+        private val roomTagHandler: RoomTagHandler,
+        private val roomFullyReadHandler: RoomFullyReadHandler,
+        private val roomMarkedUnreadHandler: RoomMarkedUnreadHandler
+) {
 
     fun handle(realm: Realm, roomId: String, accountData: RoomSyncAccountData) {
         if (accountData.events.isNullOrEmpty()) {

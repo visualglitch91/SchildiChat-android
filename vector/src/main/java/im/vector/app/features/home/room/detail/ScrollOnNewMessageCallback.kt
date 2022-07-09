@@ -25,9 +25,11 @@ import org.matrix.android.sdk.api.extensions.tryOrNull
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.max
 
-class ScrollOnNewMessageCallback(private val layoutManager: BetterLinearLayoutManager,
-                                 private val timelineEventController: TimelineEventController,
-                                 private val parentView: View) : DefaultListUpdateCallback {
+class ScrollOnNewMessageCallback(
+        private val layoutManager: BetterLinearLayoutManager,
+        private val timelineEventController: TimelineEventController,
+        private val parentView: View
+) : DefaultListUpdateCallback {
 
     private val newTimelineEventIds = CopyOnWriteArrayList<String>()
     private var forceScroll = false

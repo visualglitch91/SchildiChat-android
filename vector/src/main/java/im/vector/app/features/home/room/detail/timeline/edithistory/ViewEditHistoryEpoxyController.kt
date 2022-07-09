@@ -63,7 +63,7 @@ class ViewEditHistoryEpoxyController @Inject constructor(
                     id("Spinner")
                 }
             }
-            is Fail    -> {
+            is Fail -> {
                 genericFooterItem {
                     id("failure")
                     text(host.stringProvider.getString(R.string.unknown_error).toEpoxyCharSequence())
@@ -127,7 +127,7 @@ class ViewEditHistoryEpoxyController @Inject constructor(
                                         textColor = colorProvider.getColorFromAttribute(R.attr.vctr_encrypting_message_text_color)
                                     }
                                 }
-                                else                              -> {
+                                else -> {
                                     span {
                                         text = it.text
                                     }

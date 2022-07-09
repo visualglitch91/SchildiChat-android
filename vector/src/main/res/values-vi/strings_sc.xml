@@ -89,7 +89,6 @@
     <string name="sc_accent_indigo">Chàm</string>
     <string name="sc_accent_lava">Dung nham</string>
     <string name="sc_accent_blue">Xanh dương</string>
-    <string name="unifiedpush_getdistributors_dialog_title">Chọn nhà phân phối</string>
     <string name="settings_apply_sc_default_settings">Đừng ấn vào cài đặt này</string>
     <string name="settings_apply_sc_default_settings_dialog_title">Xáo trộn cài đặt</string>
 </resources>

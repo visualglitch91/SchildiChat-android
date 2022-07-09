@@ -44,11 +44,12 @@ import java.lang.ref.WeakReference
  * It's needed to call [bind] method to start requesting avatar, otherwise only the placeholder icon will be displayed if not already cached.
  * Implements MatrixItemSpan so that it could be automatically transformed in matrix links and displayed as pills.
  */
-class PillImageSpan(private val glideRequests: GlideRequests,
-                    private val avatarRenderer: AvatarRenderer,
-                    private val context: Context,
-                    override val matrixItem: MatrixItem,
-                    val userInRoomInformation: MatrixItemColorProvider.UserInRoomInformation? = null
+class PillImageSpan(
+        private val glideRequests: GlideRequests,
+        private val avatarRenderer: AvatarRenderer,
+        private val context: Context,
+        override val matrixItem: MatrixItem,
+        val userInRoomInformation: MatrixItemColorProvider.UserInRoomInformation? = null
 ) : ReplacementSpan(), MatrixItemSpan {
 
     private val pillDrawable = createChipDrawable()
@@ -63,10 +64,12 @@ class PillImageSpan(private val glideRequests: GlideRequests,
 
     // ReplacementSpan *****************************************************************************
 
-    override fun getSize(paint: Paint, text: CharSequence,
-                         start: Int,
-                         end: Int,
-                         fm: Paint.FontMetricsInt?): Int {
+    override fun getSize(
+            paint: Paint, text: CharSequence,
+            start: Int,
+            end: Int,
+            fm: Paint.FontMetricsInt?
+    ): Int {
         val rect = pillDrawable.bounds
         if (fm != null) {
             val fmPaint = paint.fontMetricsInt
@@ -82,14 +85,16 @@ class PillImageSpan(private val glideRequests: GlideRequests,
         return rect.right
     }
 
-    override fun draw(canvas: Canvas, text: CharSequence,
-                      start: Int,
-                      end: Int,
-                      x: Float,
-                      top: Int,
-                      y: Int,
-                      bottom: Int,
-                      paint: Paint) {
+    override fun draw(
+            canvas: Canvas, text: CharSequence,
+            start: Int,
+            end: Int,
+            x: Float,
+            top: Int,
+            y: Int,
+            bottom: Int,
+            paint: Paint
+    ) {
         canvas.save()
         val fm = paint.fontMetricsInt
         val transY: Int = y + (fm.descent + fm.ascent - pillDrawable.bounds.bottom) / 2

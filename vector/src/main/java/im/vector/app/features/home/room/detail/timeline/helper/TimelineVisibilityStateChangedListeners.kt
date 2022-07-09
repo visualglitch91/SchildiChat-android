@@ -39,8 +39,10 @@ class ReadMarkerVisibilityStateChangedListener(private val callback: TimelineEve
     }
 }
 
-class TimelineEventVisibilityStateChangedListener(private val callback: TimelineEventController.Callback?,
-                                                  private val event: TimelineEvent) :
+class TimelineEventVisibilityStateChangedListener(
+        private val callback: TimelineEventController.Callback?,
+        private val event: TimelineEvent
+) :
         VectorEpoxyModel.OnVisibilityStateChangedListener {
 
     override fun onVisibilityStateChanged(visibilityState: Int) {
@@ -52,8 +54,10 @@ class TimelineEventVisibilityStateChangedListener(private val callback: Timeline
     }
 }
 
-class MergedTimelineEventVisibilityStateChangedListener(private val callback: TimelineEventController.Callback?,
-                                                        private val events: List<TimelineEvent>) :
+class MergedTimelineEventVisibilityStateChangedListener(
+        private val callback: TimelineEventController.Callback?,
+        private val events: List<TimelineEvent>
+) :
         VectorEpoxyModel.OnVisibilityStateChangedListener {
 
     override fun onVisibilityStateChanged(visibilityState: Int) {
