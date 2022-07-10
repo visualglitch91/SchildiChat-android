@@ -262,15 +262,15 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
 
         if (messageLayout.isRealBubble || messageLayout.isPseudoBubble) {
             // Padding for bubble content: long for side with tail, short for other sides
-            val longPaddingDp: Int
-            val shortPaddingDp: Int
+            val longPadding: Int
+            val shortPadding: Int
             bubbleView.setBackgroundResource(messageLayout.bubbleDrawable)
             if (!messageLayout.isPseudoBubble) {
-                longPaddingDp = bubbleView.resources.getDimensionPixelSize(R.dimen.sc_bubble_inner_padding_long_side)
-                shortPaddingDp = bubbleView.resources.getDimensionPixelSize(R.dimen.sc_bubble_inner_padding_short_side)
+                longPadding = bubbleView.resources.getDimensionPixelSize(R.dimen.sc_bubble_inner_padding_long_side)
+                shortPadding = bubbleView.resources.getDimensionPixelSize(R.dimen.sc_bubble_inner_padding_short_side)
             } else {
-                longPaddingDp = bubbleView.resources.getDimensionPixelSize(R.dimen.sc_bubble_tail_size)
-                shortPaddingDp = 0//if (attributes.informationData.showInformation && !hideSenderInformation()) { 8 } else { 0 }
+                longPadding = bubbleView.resources.getDimensionPixelSize(R.dimen.sc_bubble_tail_size)
+                shortPadding = 0//if (attributes.informationData.showInformation && !hideSenderInformation()) { 8 } else { 0 }
             }
             if (messageLayout.reverseBubble != defaultRtl) {
                 // Use left/right instead of start/end: bubbleView is always LTR
@@ -283,17 +283,17 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
             if (messageLayout.reverseBubble != defaultRtl) {
                 // Use left/right instead of start/end: bubbleView is always LTR
                 bubbleView.setPadding(
-                        shortPaddingDp,
-                        shortPaddingDp,
-                        longPaddingDp,
-                        shortPaddingDp
+                        shortPadding,
+                        shortPadding,
+                        longPadding,
+                        shortPadding
                 )
             } else {
                 bubbleView.setPadding(
-                        longPaddingDp,
-                        shortPaddingDp,
-                        shortPaddingDp,
-                        shortPaddingDp
+                        longPadding,
+                        shortPadding,
+                        shortPadding,
+                        shortPadding
                 )
             }
 
@@ -390,16 +390,16 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
                 // We need to align the non-bubble member name view to pseudo bubbles
                 if (messageLayout.reverseBubble) {
                     views.messageMemberNameView.setPaddingRelative(
-                            shortPaddingDp,
+                            shortPadding,
                             0,
-                            longPaddingDp,
+                            longPadding,
                             0
                     )
                 } else {
                     views.messageMemberNameView.setPaddingRelative(
-                            longPaddingDp,
+                            longPadding,
                             0,
-                            shortPaddingDp,
+                            shortPadding,
                             0
                     )
                 }
@@ -475,9 +475,7 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
         if (informationData?.messageLayout is TimelineMessageLayout.ScBubble &&
                 getBubbleTimeLocation(informationData.messageLayout as TimelineMessageLayout.ScBubble) == BubbleThemeUtils.BUBBLE_TIME_BOTTOM) {
             // Guess text width for name and time
-            timeWidth = ceil(guessTextWidth(views.bubbleFooterMessageTimeView, informationData.time.toString())).toInt() +
-                    views.bubbleFooterMessageTimeView.paddingLeft +
-                    views.bubbleFooterMessageTimeView.paddingRight
+            timeWidth = ceil(guessTextWidth(views.bubbleFooterMessageTimeView, informationData.time.toString())).toInt()
             timeHeight = ceil(views.bubbleFooterMessageTimeView.textSize).toInt() +
                     views.bubbleFooterMessageTimeView.paddingTop +
                     views.bubbleFooterMessageTimeView.paddingBottom
@@ -522,9 +520,9 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
         val result = if (contentInBubble) {
             if (getBubbleTimeLocation(messageLayout) == BUBBLE_TIME_BOTTOM) {
                 if (attributes.informationData.messageLayout.showDisplayName && !canHideSender) {
-                    // Since timeView automatically gets enough space, either within or outside the viewStub, we just need to ensure the member name view has enough space
-                    // Somehow not enough without extra space...
-                    ceil(guessTextWidth(views.bubbleMessageMemberNameView, "$memberName ")).toInt()
+                    // Since timeView automatically gets enough space, either within or outside the viewStub,
+                    // we just need to ensure the member name view has enough space
+                    ceil(guessTextWidth(views.bubbleMessageMemberNameView, memberName)).toInt()
                 } else {
                     // wrap_content works!
                     0

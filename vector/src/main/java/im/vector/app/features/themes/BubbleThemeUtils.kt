@@ -2,6 +2,7 @@ package im.vector.app.features.themes
 
 import android.content.Context
 import android.graphics.Paint
+import android.graphics.Typeface
 import android.os.Parcelable
 import android.widget.TextView
 import androidx.annotation.DimenRes
@@ -104,13 +105,14 @@ fun guessTextWidth(view: TextView): Float {
 }
 
 fun guessTextWidth(view: TextView, text: CharSequence): Float {
-    return guessTextWidth(view.textSize, text);
+    return guessTextWidth(view.textSize, text, view.typeface) + view.paddingLeft + view.paddingRight
 }
 
-fun guessTextWidth(textSize: Float, text: CharSequence): Float {
+fun guessTextWidth(textSize: Float, text: CharSequence, typeface: Typeface? = null): Float {
     val paint = Paint()
     paint.textSize = textSize
-    return paint.measureText(text.toString())
+    typeface?.let { paint.typeface = it }
+    return paint.measureText(text, 0, text.length)
 }
 
 @Parcelize
