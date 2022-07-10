@@ -28,10 +28,34 @@
     <!-- Wrong indention for upstream merges -->
 
     <ImageView
-        android:id="@+id/receiptAvatar3"
+        android:id="@+id/receiptAvatar5"
         android:layout_width="@dimen/item_event_message_state_size"
         android:layout_height="@dimen/item_event_message_state_size"
         android:layout_marginStart="2dp"
+        android:layout_marginEnd="-6dp"
+        android:adjustViewBounds="true"
+        android:importantForAccessibility="no"
+        android:padding="1dp"
+        android:scaleType="centerCrop"
+        tools:ignore="NegativeMargin"
+        tools:src="@sample/user_round_avatars" />
+
+    <ImageView
+        android:id="@+id/receiptAvatar4"
+        android:layout_width="@dimen/item_event_message_state_size"
+        android:layout_height="@dimen/item_event_message_state_size"
+        android:layout_marginEnd="-6dp"
+        android:adjustViewBounds="true"
+        android:importantForAccessibility="no"
+        android:padding="1dp"
+        android:scaleType="centerCrop"
+        tools:ignore="NegativeMargin"
+        tools:src="@sample/user_round_avatars" />
+
+    <ImageView
+        android:id="@+id/receiptAvatar3"
+        android:layout_width="@dimen/item_event_message_state_size"
+        android:layout_height="@dimen/item_event_message_state_size"
         android:layout_marginEnd="-6dp"
         android:adjustViewBounds="true"
         android:importantForAccessibility="no"

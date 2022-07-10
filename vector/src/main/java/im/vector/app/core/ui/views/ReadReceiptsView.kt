@@ -28,7 +28,7 @@ import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptData
 import im.vector.app.features.home.room.detail.timeline.item.toMatrixItem
 
-private const val MAX_RECEIPT_DISPLAYED = 3
+private const val MAX_RECEIPT_DISPLAYED = 5
 
 class ReadReceiptsView @JvmOverloads constructor(
         context: Context,
@@ -44,7 +44,13 @@ class ReadReceiptsView @JvmOverloads constructor(
     }
 
     private val receiptAvatars: List<ImageView> by lazy {
-        listOf(views.receiptAvatar1, views.receiptAvatar2, views.receiptAvatar3)
+        listOf(
+                views.receiptAvatar1,
+                views.receiptAvatar2,
+                views.receiptAvatar3,
+                views.receiptAvatar4,
+                views.receiptAvatar5
+        )
     }
 
     private fun setupView() {
