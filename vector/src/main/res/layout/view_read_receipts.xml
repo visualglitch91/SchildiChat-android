@@ -20,6 +20,13 @@
         android:layout_marginHorizontal="4dp"
         tools:text="999+" />
 
+    <!-- Extra layout so we can do our RTL tricks for dual-side bubbles and having the receiptsMore on the other side -->
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:orientation="horizontal">
+    <!-- Wrong indention for upstream merges -->
+
     <ImageView
         android:id="@+id/receiptAvatar3"
         android:layout_width="@dimen/item_event_message_state_size"
@@ -56,5 +63,7 @@
         android:padding="1dp"
         android:scaleType="centerCrop"
         tools:src="@sample/user_round_avatars" />
+
+    </LinearLayout>
 
 </merge>
