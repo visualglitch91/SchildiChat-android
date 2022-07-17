@@ -16,11 +16,14 @@
 package im.vector.app.features.attachments
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import im.vector.app.R
 import im.vector.app.core.dialogs.PhotoOrVideoDialog
 import im.vector.app.core.platform.Restorable
 import im.vector.app.features.settings.VectorPreferences
@@ -103,11 +106,19 @@ class AttachmentsHelper(val context: Context, val callback: Callback) : Restorab
     ) {
         PhotoOrVideoDialog(activity, vectorPreferences).show(object : PhotoOrVideoDialog.PhotoOrVideoDialogListener {
             override fun takePhoto() {
-                captureUri = MultiPicker.get(MultiPicker.CAMERA).startWithExpectingFile(context, cameraActivityResultLauncher)
+                try {
+                    captureUri = MultiPicker.get(MultiPicker.CAMERA).startWithExpectingFile(context, cameraActivityResultLauncher)
+                } catch (e: ActivityNotFoundException) {
+                    Toast.makeText(activity, R.string.error_no_external_application_found, Toast.LENGTH_LONG).show()
+                }
             }
 
             override fun takeVideo() {
-                captureUri = MultiPicker.get(MultiPicker.CAMERA_VIDEO).startWithExpectingFile(context, cameraVideoActivityResultLauncher)
+                try {
+                    captureUri = MultiPicker.get(MultiPicker.CAMERA_VIDEO).startWithExpectingFile(context, cameraVideoActivityResultLauncher)
+                } catch (e: ActivityNotFoundException) {
+                    Toast.makeText(activity, R.string.error_no_external_application_found, Toast.LENGTH_LONG).show()
+                }
             }
         })
     }
