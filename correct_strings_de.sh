@@ -93,3 +93,4 @@ sed -i 's|Dein:e Serveradministratorschlumpfwesen hat|Dein Serveradministrator h
 sed -i 's|%1$s, %2$s, %3$s und %4$d andererschlumpfwesen|%1$s, %2$s, %3$s und %4$d anderer|g' "$strings_de"
 sed -i 's|Jederschlumpfwesen|Jeder|g' "$strings_de"
 sed -i 's|jederschlumpfwesen|jeder|g' "$strings_de"
+sed -i 's|Ignorieren einiger Benutzerwolpertinger|Ignorieren einiger Benutzer|g' "$strings_de"
