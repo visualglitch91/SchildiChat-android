@@ -28,8 +28,8 @@ import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.time.DefaultClock
 import im.vector.app.features.settings.VectorPreferences
 
-@EpoxyModelClass(layout = R.layout.item_room_filter_footer)
-abstract class FilteredRoomFooterItem : VectorEpoxyModel<FilteredRoomFooterItem.Holder>() {
+@EpoxyModelClass
+abstract class FilteredRoomFooterItem : VectorEpoxyModel<FilteredRoomFooterItem.Holder>(R.layout.item_room_filter_footer) {
 
     @EpoxyAttribute
     var listener: Listener? = null

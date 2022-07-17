@@ -119,6 +119,7 @@ class MergedHeaderItemFactory @Inject constructor(
                     highlighted = true
                 }
                 val data = BasedMergedItem.Data(
+                        roomId = mergedEvent.root.roomId,
                         userId = mergedEvent.root.senderId ?: "",
                         avatarUrl = mergedEvent.senderInfo.avatarUrl,
                         memberName = mergedEvent.senderInfo.disambiguatedDisplayName,
@@ -202,6 +203,7 @@ class MergedHeaderItemFactory @Inject constructor(
                             highlighted = true
                         }
                         val data = BasedMergedItem.Data(
+                                roomId = mergedEvent.root.roomId,
                                 userId = mergedEvent.root.senderId ?: "",
                                 avatarUrl = mergedEvent.senderInfo.avatarUrl,
                                 memberName = mergedEvent.senderInfo.disambiguatedDisplayName,

@@ -778,34 +778,39 @@ class TimelineViewModel @AssistedInject constructor(
             return@withState false
         }
 
-        if (initialState.isThreadTimeline()) {
-            when (itemId) {
-                R.id.menu_thread_timeline_view_in_room,
-                R.id.menu_thread_timeline_copy_link,
-                R.id.menu_thread_timeline_share -> true
-                else -> false
+        when {
+            initialState.isLocalRoom() -> false
+            initialState.isThreadTimeline() -> {
+                when (itemId) {
+                    R.id.menu_thread_timeline_view_in_room,
+                    R.id.menu_thread_timeline_copy_link,
+                    R.id.menu_thread_timeline_share -> true
+                    else -> false
+                }
             }
-        } else {
-            when (itemId) {
-                R.id.timeline_setting -> false // replaced by show_room_info (downstream)
-                R.id.invite -> false // state.canInvite // SC: disabled, we can do that over show_participants as well
-                R.id.open_matrix_apps -> session.integrationManagerService().isIntegrationEnabled()
-                R.id.voice_call -> !vectorPreferences.hideCallButtons() && state.isCallOptionAvailable()
-                R.id.video_call -> !vectorPreferences.hideCallButtons() && (state.isCallOptionAvailable() || state.jitsiState.confId == null || state.jitsiState.hasJoined)
-                // Show Join conference button only if there is an active conf id not joined. Otherwise fallback to default video disabled. ^
-                R.id.join_conference -> !state.isCallOptionAvailable() && state.jitsiState.confId != null && !state.jitsiState.hasJoined
-                R.id.search -> state.isSearchAvailable()
-                R.id.menu_timeline_thread_list -> vectorPreferences.areThreadMessagesEnabled()
-                R.id.show_room_info            -> true // SC
-                R.id.show_participants         -> true // SC
-                // SC dev start
-                R.id.dev_bubble_style,
-                R.id.dev_hidden_events,
-                R.id.dev_event_visibilities,
-                R.id.dev_theming,
-                // SC dev end
-                R.id.dev_tools -> vectorPreferences.developerMode()
-                else -> false
+            else -> {
+                when (itemId) {
+                    R.id.timeline_setting -> false // replaced by show_room_info (downstream)
+                    R.id.invite -> false // state.canInvite // SC: disabled, we can do that over show_participants as well
+                    R.id.open_matrix_apps -> session.integrationManagerService().isIntegrationEnabled()
+                    R.id.voice_call -> !vectorPreferences.hideCallButtons() && state.isCallOptionAvailable()
+                    R.id.video_call -> !vectorPreferences.hideCallButtons() && (state.isCallOptionAvailable() || state.jitsiState.confId == null || state.jitsiState.hasJoined)
+                    // Show Join conference button only if there is an active conf id not joined. Otherwise fallback to default video disabled. ^
+                    R.id.join_conference -> !state.isCallOptionAvailable() && state.jitsiState.confId != null && !state.jitsiState.hasJoined
+                    R.id.search -> state.isSearchAvailable()
+                    R.id.menu_timeline_thread_list -> vectorPreferences.areThreadMessagesEnabled()
+                    // SC extras start
+                    R.id.show_room_info -> true // SC
+                    R.id.show_participants -> true // SC
+                    // SC dev start
+                    R.id.dev_bubble_style,
+                    R.id.dev_hidden_events,
+                    R.id.dev_event_visibilities,
+                    R.id.dev_theming,
+                    // SC dev end
+                    R.id.dev_tools -> vectorPreferences.developerMode()
+                    else -> false
+                }
             }
         }
     }

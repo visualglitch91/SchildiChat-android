@@ -32,8 +32,8 @@ import im.vector.app.core.glide.GlideApp
 import im.vector.app.features.reactions.data.EmojiItem
 import org.matrix.android.sdk.api.extensions.orFalse
 
-@EpoxyModelClass(layout = R.layout.item_autocomplete_emoji)
-abstract class AutocompleteEmojiItem : VectorEpoxyModel<AutocompleteEmojiItem.Holder>() {
+@EpoxyModelClass
+abstract class AutocompleteEmojiItem : VectorEpoxyModel<AutocompleteEmojiItem.Holder>(R.layout.item_autocomplete_emoji) {
 
     @EpoxyAttribute
     lateinit var emojiItem: EmojiItem

@@ -49,7 +49,7 @@ import im.vector.app.R
 import im.vector.app.core.extensions.createIgnoredUri
 import im.vector.app.core.platform.PendingIntentCompat
 import im.vector.app.core.resources.StringProvider
-import im.vector.app.core.services.CallService
+import im.vector.app.core.services.CallAndroidService
 import im.vector.app.core.time.Clock
 import im.vector.app.core.utils.startNotificationChannelSettingsIntent
 import im.vector.app.features.call.VectorCallActivity
@@ -511,7 +511,7 @@ class NotificationUtils @Inject constructor(
     /**
      * Build notification for the CallService, when a call is missed.
      */
-    fun buildCallMissedNotification(callInformation: CallService.CallInformation): Notification {
+    fun buildCallMissedNotification(callInformation: CallAndroidService.CallInformation): Notification {
         val builder = NotificationCompat.Builder(context, SILENT_NOTIFICATION_CHANNEL_ID)
                 .setContentTitle(callInformation.opponentMatrixItem?.getBestName() ?: callInformation.opponentUserId)
                 .apply {

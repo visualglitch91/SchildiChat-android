@@ -34,8 +34,8 @@ import im.vector.app.features.themes.ThemeUtils
 /**
  * SC: copy of RadioButtonItem, but with extra icon + different layout
  */
-@EpoxyModelClass(layout = R.layout.bottom_sheet_item_radio)
-abstract class BottomSheetRadioButtonItem : VectorEpoxyModel<BottomSheetRadioButtonItem.Holder>() {
+@EpoxyModelClass
+abstract class BottomSheetRadioButtonItem : VectorEpoxyModel<BottomSheetRadioButtonItem.Holder>(R.layout.bottom_sheet_item_radio) {
 
     @EpoxyAttribute
     var title: CharSequence? = null

@@ -26,8 +26,8 @@ import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.timeline.view.TimelineMessageLayoutRenderer
 import im.vector.app.features.home.room.detail.timeline.view.scOnlyRenderMessageLayout
 
-@EpoxyModelClass(layout = R.layout.item_timeline_event_base_noinfo)
-abstract class DefaultItem : BaseEventItem<DefaultItem.Holder>() {
+@EpoxyModelClass
+abstract class DefaultItem : BaseEventItem<DefaultItem.Holder>(R.layout.item_timeline_event_base_noinfo) {
 
     @EpoxyAttribute
     lateinit var attributes: Attributes

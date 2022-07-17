@@ -187,6 +187,11 @@ class RoomListFragment @Inject constructor(
         }
 
         updateDebugView()
+
+        roomListViewModel.onEach(RoomListViewState::localRoomIds) {
+            // Local rooms should not exist anymore when the room list is shown
+            roomListViewModel.deleteLocalRooms(it)
+        }
     }
 
     override fun onPause() {

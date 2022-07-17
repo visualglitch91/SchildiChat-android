@@ -37,7 +37,7 @@ import im.vector.app.features.themes.guessTextWidth
 import kotlin.math.ceil
 import kotlin.math.max
 
-@EpoxyModelClass(layout = R.layout.item_timeline_event_base)
+@EpoxyModelClass
 abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
 
     @EpoxyAttribute

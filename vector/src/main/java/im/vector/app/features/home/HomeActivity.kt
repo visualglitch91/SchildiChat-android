@@ -45,6 +45,7 @@ import im.vector.app.core.extensions.replaceFragment
 import im.vector.app.core.extensions.restart
 import im.vector.app.core.extensions.validateBackPressed
 import im.vector.app.core.platform.VectorBaseActivity
+import im.vector.app.core.platform.VectorMenuProvider
 import im.vector.app.core.pushers.PushersManager
 import im.vector.app.core.pushers.UnifiedPushHelper
 import im.vector.app.core.resources.ColorProvider
@@ -110,7 +111,8 @@ class HomeActivity :
         VectorBaseActivity<ActivityHomeBinding>(),
         NavigationInterceptor,
         SpaceInviteBottomSheet.InteractionListener,
-        MatrixToBottomSheet.InteractionListener {
+        MatrixToBottomSheet.InteractionListener,
+        VectorMenuProvider {
 
     private lateinit var sharedActionViewModel: HomeSharedActionViewModel
 
@@ -563,7 +565,7 @@ class HomeActivity :
 
     override fun getMenuRes() = R.menu.home
 
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+    override fun handlePrepareMenu(menu: Menu) {
         menu.findItem(R.id.menu_home_init_sync_legacy)?.isVisible = vectorPreferences.developerMode()
         menu.findItem(R.id.menu_home_init_sync_optimized)?.isVisible = vectorPreferences.developerMode()
         menu.findItem(R.id.dev_theming)?.isVisible = vectorPreferences.developerMode()
@@ -597,50 +599,49 @@ class HomeActivity :
             restart()
             true
         }
-
-        return super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+    override fun handleMenuItemSelected(item: MenuItem): Boolean {
+        val handled = when (item.itemId) {
             /*
             R.id.menu_home_suggestion -> {
                 bugReporter.openBugReportScreen(this, ReportType.SUGGESTION)
-                return true
+                true
             }
              */
             R.id.menu_home_report_bug -> {
                 bugReporter.openBugReportScreen(this, ReportType.BUG_REPORT)
-                return true
+                true
             }
             R.id.menu_home_init_sync_legacy -> {
                 // Configure the SDK
                 initialSyncStrategy = InitialSyncStrategy.Legacy
                 // And clear cache
                 MainActivity.restartApp(this, MainActivityArgs(clearCache = true))
-                return true
+                true
             }
             R.id.menu_home_init_sync_optimized -> {
                 // Configure the SDK
                 initialSyncStrategy = InitialSyncStrategy.Optimized()
                 // And clear cache
                 MainActivity.restartApp(this, MainActivityArgs(clearCache = true))
-                return true
+                true
             }
             R.id.menu_home_filter -> {
                 navigator.openRoomsFiltering(this)
-                return true
+                true
             }
             R.id.menu_home_setting -> {
                 navigator.openSettings(this)
-                return true
+                true
             }
+            else -> false
         }
 
-        return ArrayOptionsMenuHelper.handleSubmenu(item,
+        return handled || ArrayOptionsMenuHelper.handleSubmenu(item,
                 R.id.dev_base_theme,
                 R.id.dev_theme_accent
-        ) || super.onOptionsItemSelected(item)
+        )
     }
 
     override fun onBackPressed() {

@@ -22,10 +22,10 @@ import android.widget.FrameLayout
 import androidx.core.view.isVisible
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
-import com.airbnb.epoxy.EpoxyModelWithHolder
 import im.vector.app.R
 import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.VectorEpoxyHolder
+import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.resources.LocaleProvider
 import im.vector.app.core.resources.getLayoutDirectionFromCurrentLocale
@@ -36,8 +36,8 @@ import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLay
 import im.vector.app.features.home.room.detail.timeline.view.ScMessageBubbleWrapView
 import im.vector.app.features.home.room.detail.timeline.view.setFlatRtl
 
-@EpoxyModelClass(layout = R.layout.item_timeline_event_read_receipts)
-abstract class ReadReceiptsItem : EpoxyModelWithHolder<ReadReceiptsItem.Holder>(), ItemWithEvents, BubbleDependentView<ReadReceiptsItem.Holder> {
+@EpoxyModelClass
+abstract class ReadReceiptsItem : VectorEpoxyModel<ReadReceiptsItem.Holder>(R.layout.item_timeline_event_read_receipts), ItemWithEvents, BubbleDependentView<ReadReceiptsItem.Holder> {
 
     @EpoxyAttribute lateinit var eventId: String
     @EpoxyAttribute lateinit var readReceipts: List<ReadReceiptData>

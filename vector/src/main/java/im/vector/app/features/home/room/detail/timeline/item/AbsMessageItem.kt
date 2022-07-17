@@ -24,6 +24,7 @@ import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.annotation.IdRes
+import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
@@ -50,7 +51,9 @@ import kotlin.math.ceil
  * Base timeline item that adds an optional information bar with the sender avatar, name, time, send state.
  * Adds associated click listeners (on avatar, displayname).
  */
-abstract class AbsMessageItem<H : AbsMessageItem.Holder> : AbsBaseMessageItem<H>() {
+abstract class AbsMessageItem<H : AbsMessageItem.Holder>(
+        @LayoutRes layoutId: Int = R.layout.item_timeline_event_base
+) : AbsBaseMessageItem<H>(layoutId) {
 
     override val baseAttributes: AbsBaseMessageItem.Attributes
         get() = attributes

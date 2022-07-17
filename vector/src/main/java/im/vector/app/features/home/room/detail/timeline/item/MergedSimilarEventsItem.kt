@@ -28,8 +28,8 @@ import im.vector.app.R
 import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 
-@EpoxyModelClass(layout = R.layout.item_timeline_event_base_noinfo)
-abstract class MergedSimilarEventsItem : BasedMergedItem<MergedSimilarEventsItem.Holder>() {
+@EpoxyModelClass
+abstract class MergedSimilarEventsItem : BasedMergedItem<MergedSimilarEventsItem.Holder>(R.layout.item_timeline_event_base_noinfo) {
 
     override fun getViewStubId() = STUB_ID
 
