@@ -149,4 +149,9 @@
     <string name="settings_space_back_navigation">Změny prostorů</string>
     <string name="settings_space_back_navigation_summary">Stisknutím tlačítka zpět zobrazíte předchozí vybraný prostor</string>
     <string name="dev_tools_menu_event_visibilities">Viditelnost událostí</string>
+    <string name="custom_emotes_other_room">Emoji z %1$s</string>
+    <string name="standard_emojis">Standardní emoji</string>
+    <string name="custom_emotes_this_room">Emoji z místnosti</string>
+    <string name="settings_follow_system_locale">Použít systémový jazyk</string>
+    <string name="settings_follow_system_locale_summary">Při změně jazyka systému změnit také jazyk aplikace</string>
 </resources>

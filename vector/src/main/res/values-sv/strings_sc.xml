@@ -141,4 +141,10 @@
     <string name="freeform_react_with">Reagerar med \"%1$s\"</string>
     <string name="dev_tools_menu_hidden_events">Dolda händelser</string>
     <string name="setting_sc_accent_color">Accentfärg</string>
+    <string name="dev_tools_menu_event_visibilities">Event synligheter</string>
+    <string name="dev_tools_menu_membership_changes">Medlemsförändringar</string>
+    <string name="dev_tools_menu_display_name_changes">Kontohändelser</string>
+    <string name="dev_tools_menu_redacted">Borttagna meddelanden</string>
+    <string name="settings_space_back_navigation">Mellanslag tillbaka stack</string>
+    <string name="settings_space_back_navigation_summary">Tryck tillbaka för att visa det tidigare valda utrymmet</string>
 </resources>
