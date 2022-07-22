@@ -91,25 +91,12 @@
     <string name="sc_accent_lava">Lav</string>
     <string name="sc_accent_blue">Mavi</string>
     <string name="send_bug_report_sc_extra">Sorununuzun görünürlüğünü artırmak için, https://github.com/SchildiChat/SchildiChat-android/issues adresindeki bir konuda bu rapora (matriks kimliğinizi ve gönderildiği yaklaşık zamanı belirterek) atıf yapmak isteyebilirsiniz (önce sorununuz için zaten bir tane olup olmadığını kontrol edin ve yoksa yalnızca yeni bir tane oluşturun).</string>
-    <string name="settings_troubleshoot_test_endpoint_title">Bitiş Noktası/FCM</string>
-    <string name="settings_troubleshoot_test_endpoint_success">Bitiş noktası başarıyla alındı:
-\n%1$s</string>
-    <string name="settings_troubleshoot_test_endpoint_failed">Bitiş noktası alınamadı.</string>
     <string name="unifiedpush_getdistributors_dialog_title">Bir dağıtıcı seç</string>
-    <string name="unifiedpush_getdistributors_dialog_fcm_fallback">FCM Geri Dönüşü</string>
-    <string name="settings_troubleshoot_test_pusher_registration_failed">Gönderici ana sunucuya kaydedilemedi:
-\n%1$s</string>
-    <string name="settings_troubleshoot_test_pusher_registration_success">Gönderici ana sunucuya başarıyla kaydedildi.</string>
-    <string name="settings_troubleshoot_test_pusher_registration_title">Gönderici Kaydı</string>
     <string name="settings_apply_sc_default_settings">Bu ayara dokunmayın</string>
     <string name="settings_apply_sc_default_settings_dialog_title">Ayarları karıştır</string>
     <string name="settings_apply_sc_default_settings_dialog_summary">Devam ederseniz, bu uygulama ayarlarınızı bozacaktır!</string>
-    <string name="settings_unifiedpush">UnifiedPush</string>
     <string name="settings_unifiedpush_force_custom_gateway">Özel gönderim ağ geçidini zorla</string>
-    <string name="settings_unifiedpush_reregister">Gönderim dağıtıcısını yeniden kaydetme</string>
     <string name="settings_force_allow_background_sync">Gönderime ek olarak arka planda eşitlemeye izin ver</string>
-    <string name="toast_unifiedpush_no_push_distributor">Gönderim dağıtıcısı bulunamadı!</string>
-    <string name="toast_unifiedpush_one_push_distributor">Kayıtlı gönderim dağıtıcısı %1$s</string>
     <string name="settings_jump_to_bottom_on_send_summary">Mesaj gönderirken otomatik olarak aşağı kaydırır</string>
     <string name="settings_include_space_members_as_rooms">İnsanları alanlarda göster</string>
     <string name="settings_enable_space_pager">Alan değiştirmek için sohbet listesini kaydır</string>
@@ -154,7 +141,6 @@
     <string name="settings_user_colors_in_default">Grup sohbetlerinde kullanıcı renkleri</string>
     <string name="setting_sc_accent_color_light">Açık temalar için vurgu rengi</string>
     <string name="settings_sc_accent_disclaimer">Bu renk ayarlarının yalnızca SC temaları için geçerli olduğunu ve Element temaları için geçerli olmadığını unutmayın.</string>
-    <string name="settings_troubleshoot_test_fcm_failed_sc">FCM jetonu alınamadı</string>
     <string name="settings_unifiedpush_force_custom_gateway_summary">Bunu yalnızca gönderim bitiş noktanız harici bir ağ geçidi gerektirmiyorsa etkinleştirin.</string>
     <string name="settings_force_allow_background_sync_summary">Yalnızca gönderme kurulumunuzda hata ayıklarken yararlıdır!</string>
     <string name="settings_notif_only_alert_once_summary">Bu sohbet için zaten açık bir bildirim varsa, yeni mesajlar için bildirim seslerini atlar</string>
