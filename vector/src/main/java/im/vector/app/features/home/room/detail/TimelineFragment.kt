@@ -3014,7 +3014,11 @@ class TimelineFragment @Inject constructor(
     }
 
     private fun setInitialForceScrollEnabled(enabled: Boolean, stickToBottom: Boolean = false) {
-        val shouldStickToBottom = stickToBottom || (!enabled && !views.timelineRecyclerView.canScrollVertically(1))
+        val shouldStickToBottom = stickToBottom ||
+                (!enabled &&
+                        !views.timelineRecyclerView.canScrollVertically(1) &&
+                        !timelineViewModel.timeline.hasMoreToLoad(Timeline.Direction.FORWARDS)
+                )
         scrollOnNewMessageCallback.initialForceScroll = enabled
         if (shouldStickToBottom) {
             layoutManager.disablePreferredAnchorPlacement()
