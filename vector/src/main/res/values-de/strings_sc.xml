@@ -144,4 +144,10 @@
     <string name="settings_floating_date">Schwebendes Datum</string>
     <string name="dev_tools_menu_hidden_events">Versteckte Events</string>
     <string name="settings_sc_debugging">Schildi-debugging</string>
+    <string name="settings_space_back_navigation_summary">Zurück-Button drücken, um den zuvor ausgewählten Space anzuzeigen</string>
+    <string name="standard_emojis">Standard-Emojis</string>
+    <string name="custom_emotes_this_room">Raum-Emojis</string>
+    <string name="custom_emotes_other_room">Emojis von %1$s</string>
+    <string name="settings_follow_system_locale">Systemsprache verwenden</string>
+    <string name="settings_follow_system_locale_summary">Beim Ändern der Systemsprache auch die Appsprache ändern</string>
 </resources>
