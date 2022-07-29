@@ -43,8 +43,6 @@ import dagger.hilt.android.HiltAndroidApp
 import de.spiritcroc.matrixsdk.StaticScSdkHelper
 import de.spiritcroc.matrixsdk.util.DbgUtil
 import im.vector.app.core.di.ActiveSessionHolder
-import im.vector.app.core.extensions.configureAndStart
-import im.vector.app.core.extensions.startSyncing
 import im.vector.app.features.analytics.VectorAnalytics
 import im.vector.app.features.call.webrtc.WebRtcCallManager
 import im.vector.app.features.configuration.VectorConfiguration
@@ -171,14 +169,6 @@ class VectorApplication :
             doNotShowDisclaimerDialog(this)
         }
 
-        if (authenticationService.hasAuthenticatedSessions() && !activeSessionHolder.hasActiveSession()) {
-            val lastAuthenticatedSession = authenticationService.getLastAuthenticatedSession()!!
-            activeSessionHolder.setActiveSession(lastAuthenticatedSession)
-            lastAuthenticatedSession.configureAndStart(applicationContext, startSyncing = false)
-        }
-
-        ProcessLifecycleOwner.get().lifecycle.addObserver(startSyncOnFirstStart)
-
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 Timber.i("App entered foreground")
@@ -209,14 +199,6 @@ class VectorApplication :
 
         // Initialize Mapbox before inflating mapViews
         Mapbox.getInstance(this)
-    }
-
-    private val startSyncOnFirstStart = object : DefaultLifecycleObserver {
-        override fun onStart(owner: LifecycleOwner) {
-            Timber.i("App process started")
-            authenticationService.getLastAuthenticatedSession()?.startSyncing(appContext)
-            ProcessLifecycleOwner.get().lifecycle.removeObserver(this)
-        }
     }
 
     private fun enableStrictModeIfNeeded() {

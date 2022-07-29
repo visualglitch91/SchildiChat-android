@@ -88,5 +88,5 @@ sealed class RoomDetailViewEvents : VectorViewEvents {
 
     data class ScDbgReadTracking(val event: TimelineEvent?, val unreadState: UnreadState, val trackUnreadMessages: Boolean) : RoomDetailViewEvents()
 
-    data class ChangeLocationIndicator(val isVisible: Boolean) : RoomDetailViewEvents()
+    object OpenElementCallWidget : RoomDetailViewEvents()
 }

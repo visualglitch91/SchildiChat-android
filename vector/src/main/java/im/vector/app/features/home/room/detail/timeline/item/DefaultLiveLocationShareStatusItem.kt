@@ -20,7 +20,10 @@ import android.content.res.Resources
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import im.vector.app.R
@@ -52,11 +55,9 @@ class DefaultLiveLocationShareStatusItem : LiveLocationShareStatusItem {
             width = mapWidth
             height = mapHeight
         }
-        // Yes, usually one would do this using drawable-v24... which glide seems to ignore?
-        val resource = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) R.drawable.bg_no_location_map_themed else R.drawable.bg_no_location_map
         GlideApp.with(mapImageView)
-                .load(resource)
-                .transform(mapCornerTransformation)
+                .load(ContextCompat.getDrawable(mapImageView.context, R.drawable.bg_no_location_map_themed))
+                .transform(MultiTransformation(CenterCrop(), mapCornerTransformation))
                 .into(mapImageView)
     }
 

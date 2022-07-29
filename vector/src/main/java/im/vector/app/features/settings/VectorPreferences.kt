@@ -33,6 +33,7 @@ import im.vector.app.core.di.DefaultSharedPreferences
 import im.vector.app.core.time.Clock
 import im.vector.app.features.disclaimer.SHARED_PREF_KEY
 import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
+import im.vector.app.features.home.ShortcutsHandler
 import im.vector.app.features.homeserver.ServerUrlsRepository
 import im.vector.app.features.themes.BubbleThemeUtils
 import im.vector.app.features.themes.ThemeUtils
@@ -243,6 +244,8 @@ class VectorPreferences @Inject constructor(
 
         private const val SETTINGS_LABS_ENABLE_LIVE_LOCATION = "SETTINGS_LABS_ENABLE_LIVE_LOCATION"
 
+        private const val SETTINGS_LABS_ENABLE_ELEMENT_CALL_PERMISSION_SHORTCUTS = "SETTINGS_LABS_ENABLE_ELEMENT_CALL_PERMISSION_SHORTCUTS"
+
         // This key will be used to identify clients with the old thread support enabled io.element.thread
         const val SETTINGS_LABS_ENABLE_THREAD_MESSAGES_OLD_CLIENTS = "SETTINGS_LABS_ENABLE_THREAD_MESSAGES"
 
@@ -303,7 +306,9 @@ class VectorPreferences @Inject constructor(
                 SETTINGS_DEVELOPER_MODE_FAIL_FAST_PREFERENCE_KEY,
 
                 SETTINGS_USE_RAGE_SHAKE_KEY,
-                SETTINGS_SECURITY_USE_FLAG_SECURE
+                SETTINGS_SECURITY_USE_FLAG_SECURE,
+
+                ShortcutsHandler.SHARED_PREF_KEY,
         )
     }
 
@@ -1301,6 +1306,10 @@ class VectorPreferences @Inject constructor(
         defaultPrefs.edit {
             putBoolean(SETTINGS_LABS_ENABLE_LIVE_LOCATION, isEnabled)
         }
+    }
+
+    fun labsEnableElementCallPermissionShortcuts(): Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_LABS_ENABLE_ELEMENT_CALL_PERMISSION_SHORTCUTS, false)
     }
 
     /**

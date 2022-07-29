@@ -528,7 +528,7 @@ class TimelineFragment @Inject constructor(
                 is RoomDetailViewEvents.DisplayAndAcceptCall -> acceptIncomingCall(it)
                 RoomDetailViewEvents.RoomReplacementStarted -> handleRoomReplacement()
                 is RoomDetailViewEvents.ScDbgReadTracking -> handleScDbgReadTracking(it)
-                is RoomDetailViewEvents.ChangeLocationIndicator -> handleChangeLocationIndicator(it)
+                RoomDetailViewEvents.OpenElementCallWidget -> handleOpenElementCallWidget()
             }
         }
 
@@ -702,10 +702,6 @@ class TimelineFragment @Inject constructor(
                 context = requireContext(),
                 roomId = timelineArgs.roomId
         )
-    }
-
-    private fun handleChangeLocationIndicator(event: RoomDetailViewEvents.ChangeLocationIndicator) {
-        views.locationLiveStatusIndicator.isVisible = event.isVisible
     }
 
     private fun displayErrorMessage(error: RoomDetailViewEvents.Failure) {
@@ -904,6 +900,9 @@ class TimelineFragment @Inject constructor(
     private fun setupLiveLocationIndicator() {
         views.locationLiveStatusIndicator.stopButton.debouncedClicks {
             timelineViewModel.handle(RoomDetailAction.StopLiveLocationSharing)
+        }
+        views.locationLiveStatusIndicator.debouncedClicks {
+            navigateToLocationLiveMap()
         }
     }
 
@@ -1155,9 +1154,8 @@ class TimelineFragment @Inject constructor(
                 2 -> state.isAllowedToStartWebRTCCall
                 else -> state.isAllowedToManageWidgets
             }
-            setOf(R.id.voice_call, R.id.video_call).forEach {
-                menu.findItem(it).icon?.alpha = if (callButtonsEnabled) 0xFF else 0x40
-            }
+            menu.findItem(R.id.video_call).icon?.alpha = if (callButtonsEnabled) 0xFF else 0x40
+            menu.findItem(R.id.voice_call).icon?.alpha = if (callButtonsEnabled  || state.hasActiveElementCallWidget()) 0xFF else 0x40
 
             val matrixAppsMenuItem = menu.findItem(R.id.open_matrix_apps)
             val widgetsCount = state.activeRoomWidgets.invoke()?.size ?: 0
@@ -1382,9 +1380,9 @@ class TimelineFragment @Inject constructor(
         getRootThreadEventId()?.let {
             val newRoom = timelineArgs.copy(threadTimelineArgs = null, eventId = it)
             context?.let { con ->
-                val int = RoomDetailActivity.newIntent(con, newRoom)
-                int.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                con.startActivity(int)
+                val intent = RoomDetailActivity.newIntent(con, newRoom, false)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                con.startActivity(intent)
             }
         }
     }
@@ -1444,7 +1442,7 @@ class TimelineFragment @Inject constructor(
         val nonFormattedBody = when (messageContent) {
             is MessageAudioContent -> getAudioContentBodyText(messageContent)
             is MessagePollContent -> messageContent.getBestPollCreationInfo()?.question?.getBestQuestion()
-            is MessageBeaconInfoContent -> getString(R.string.sent_live_location)
+            is MessageBeaconInfoContent -> getString(R.string.live_location_description)
             else -> messageContent?.body.orEmpty()
         }
         var formattedBody: CharSequence? = null
@@ -1505,6 +1503,7 @@ class TimelineFragment @Inject constructor(
 
     private fun handlePendingAction(roomDetailPendingAction: RoomDetailPendingAction) {
         when (roomDetailPendingAction) {
+            RoomDetailPendingAction.DoNothing -> Unit
             is RoomDetailPendingAction.JumpToReadReceipt ->
                 timelineViewModel.handle(RoomDetailAction.JumpToReadReceipt(roomDetailPendingAction.userId))
             is RoomDetailPendingAction.MentionUser ->
@@ -1960,6 +1959,11 @@ class TimelineFragment @Inject constructor(
         } else if (mainState.asyncInviter.complete) {
             vectorBaseActivity.finish()
         }
+        updateLiveLocationIndicator(mainState.isSharingLiveLocation)
+    }
+
+    private fun updateLiveLocationIndicator(isSharingLiveLocation: Boolean) {
+        views.locationLiveStatusIndicator.isVisible = isSharingLiveLocation
     }
 
     private fun FragmentTimelineBinding.hideComposerViews() {
@@ -1999,7 +2003,7 @@ class TimelineFragment @Inject constructor(
 
     private fun renderToolbar(roomSummary: RoomSummary?) {
         when {
-            isLocalRoom()      -> {
+            isLocalRoom() -> {
                 views.includeRoomToolbar.roomToolbarContentView.isVisible = false
                 views.includeThreadToolbar.roomToolbarThreadConstraintLayout.isVisible = false
                 setupToolbar(views.roomToolbar)
@@ -2017,7 +2021,7 @@ class TimelineFragment @Inject constructor(
                 }
                 views.includeThreadToolbar.roomToolbarThreadTitleTextView.text = resources.getText(R.string.thread_timeline_title)
             }
-            else               -> {
+            else -> {
                 views.includeRoomToolbar.roomToolbarContentView.isVisible = true
                 views.includeThreadToolbar.roomToolbarThreadConstraintLayout.isVisible = false
                 if (roomSummary == null) {
@@ -2995,6 +2999,15 @@ class TimelineFragment @Inject constructor(
     private fun onViewWidgetsClicked() {
         RoomWidgetsBottomSheet.newInstance()
                 .show(childFragmentManager, "ROOM_WIDGETS_BOTTOM_SHEET")
+    }
+
+    private fun handleOpenElementCallWidget() = withState(timelineViewModel) { state ->
+        state
+                .activeRoomWidgets()
+                ?.find { it.type == WidgetType.ElementCall }
+                ?.also { widget ->
+                    navigator.openRoomWidget(requireContext(), state.roomId, widget)
+                }
     }
 
     override fun onTapToReturnToCall() {

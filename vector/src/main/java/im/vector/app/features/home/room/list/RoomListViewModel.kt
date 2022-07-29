@@ -28,7 +28,6 @@ import dagger.assisted.AssistedInject
 import de.spiritcroc.matrixsdk.util.DbgUtil
 import de.spiritcroc.matrixsdk.util.Dimber
 import im.vector.app.AppStateHandler
-import im.vector.app.RoomGroupingMethod
 import im.vector.app.core.di.MavericksAssistedViewModelFactory
 import im.vector.app.core.di.hiltMavericksViewModelFactory
 import im.vector.app.core.platform.VectorViewModel
@@ -37,7 +36,6 @@ import im.vector.app.features.analytics.AnalyticsTracker
 import im.vector.app.features.analytics.extensions.toAnalyticsJoinedRoom
 import im.vector.app.features.analytics.plan.JoinedRoom
 import im.vector.app.features.displayname.getBestName
-import im.vector.app.features.home.room.list.RoomListSectionBuilderSpace.Companion.SPACE_ID_FOLLOW_APP
 import im.vector.app.features.invite.AutoAcceptInvites
 import im.vector.app.features.settings.VectorPreferences
 import kotlinx.coroutines.Dispatchers
@@ -114,11 +112,11 @@ class RoomListViewModel @AssistedInject constructor(
         observeMembershipChanges()
         observeLocalRooms()
 
-        appStateHandler.selectedRoomGroupingFlow
+        appStateHandler.selectedSpaceFlow
                 .distinctUntilChanged()
                 .execute {
                     copy(
-                            currentRoomGrouping = it.invoke()?.orNull()?.let { Success(it) } ?: Loading()
+                            asyncSelectedSpace = it.invoke()?.orNull()?.let { Success(it) } ?: Loading()
                     )
                 }
 
@@ -159,31 +157,18 @@ class RoomListViewModel @AssistedInject constructor(
 
     companion object : MavericksViewModelFactory<RoomListViewModel, RoomListViewState> by hiltMavericksViewModelFactory()
 
-    private val roomListSectionBuilder = if (initialState.explicitSpaceId != SPACE_ID_FOLLOW_APP ||
-            appStateHandler.getCurrentRoomGroupingMethod() is RoomGroupingMethod.BySpace) {
-        RoomListSectionBuilderSpace(
-                session,
-                stringProvider,
-                appStateHandler,
-                viewModelScope,
-                autoAcceptInvites,
-                {
-                    updatableQuery = it
-                },
-                suggestedRoomJoiningState,
-                !vectorPreferences.prefSpacesShowAllRoomInHome()
-        )
-    } else {
-        RoomListSectionBuilderGroup(
-                viewModelScope,
-                session,
-                stringProvider,
-                appStateHandler,
-                autoAcceptInvites
-        ) {
-            updatableQuery = it
-        }
-    }
+    private val roomListSectionBuilder = RoomListSectionBuilder(
+            session,
+            stringProvider,
+            appStateHandler,
+            viewModelScope,
+            autoAcceptInvites,
+            {
+                updatableQuery = it
+            },
+            suggestedRoomJoiningState,
+            !vectorPreferences.prefSpacesShowAllRoomInHome()
+    )
 
     val sections: List<RoomsSection> by lazy {
         viewPagerDimber.i { "Build sections for ${initialState.displayMode}, ${initialState.explicitSpaceId}" }

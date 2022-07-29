@@ -38,7 +38,8 @@ internal open class RoomSummaryEntity(
         @PrimaryKey var roomId: String = "",
         var roomType: String? = null,
         var parents: RealmList<SpaceParentSummaryEntity> = RealmList(),
-        var children: RealmList<SpaceChildSummaryEntity> = RealmList()
+        var children: RealmList<SpaceChildSummaryEntity> = RealmList(),
+        var directParentNames: RealmList<String> = RealmList(),
 ) : RealmObject() {
 
     private var displayName: String? = ""
@@ -315,11 +316,6 @@ internal open class RoomSummaryEntity(
      * Whether the flattenParentIds thing is only non-empty because of DMs auto-added to spaces
      */
     var isOrphanDm: Boolean = false
-
-    var groupIds: String? = null
-        set(value) {
-            if (value != field) field = value
-        }
 
     @Index
     private var membershipStr: String = Membership.NONE.name

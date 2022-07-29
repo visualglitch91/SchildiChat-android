@@ -37,8 +37,8 @@ import de.spiritcroc.matrixsdk.util.Dimber
 import de.spiritcroc.viewpager.reduceDragSensitivity
 import im.vector.app.AppStateHandler
 import im.vector.app.R
-import im.vector.app.RoomGroupingMethod
 import im.vector.app.SelectSpaceFrom
+import im.vector.app.core.extensions.commitTransaction
 import im.vector.app.core.extensions.restart
 import im.vector.app.core.extensions.toMvRxBundle
 import im.vector.app.core.platform.OnBackPressed
@@ -51,14 +51,16 @@ import im.vector.app.core.ui.views.CurrentCallsView
 import im.vector.app.core.ui.views.CurrentCallsViewPresenter
 import im.vector.app.core.ui.views.KeysBackupBanner
 import im.vector.app.databinding.FragmentHomeDetailBinding
+import im.vector.app.features.VectorFeatures
 import im.vector.app.features.call.SharedKnownCallsViewModel
 import im.vector.app.features.call.VectorCallActivity
 import im.vector.app.features.call.dialpad.DialPadFragment
 import im.vector.app.features.call.webrtc.WebRtcCallManager
 import im.vector.app.features.home.room.list.RoomListFragment
 import im.vector.app.features.home.room.list.RoomListParams
-import im.vector.app.features.home.room.list.RoomListSectionBuilderSpace.Companion.SPACE_ID_FOLLOW_APP
+import im.vector.app.features.home.room.list.RoomListSectionBuilder.Companion.SPACE_ID_FOLLOW_APP
 import im.vector.app.features.home.room.list.UnreadCounterBadgeView
+import im.vector.app.features.home.room.list.home.HomeRoomListFragment
 import im.vector.app.features.popup.PopupAlertManager
 import im.vector.app.features.popup.VerificationVectorAlert
 import im.vector.app.features.settings.VectorLocale
@@ -68,7 +70,6 @@ import im.vector.app.features.themes.ThemeUtils
 import im.vector.app.features.workers.signout.BannerState
 import im.vector.app.features.workers.signout.ServerBackupStatusViewModel
 import org.matrix.android.sdk.api.session.crypto.model.DeviceInfo
-import org.matrix.android.sdk.api.session.group.model.GroupSummary
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import timber.log.Timber
 import javax.inject.Inject
@@ -80,7 +81,8 @@ class HomeDetailFragment @Inject constructor(
         private val alertManager: PopupAlertManager,
         private val callManager: WebRtcCallManager,
         private val vectorPreferences: VectorPreferences,
-        private val appStateHandler: AppStateHandler
+        private val appStateHandler: AppStateHandler,
+        private val vectorFeatures: VectorFeatures,
 ) : VectorBaseFragment<FragmentHomeDetailBinding>(),
         KeysBackupBanner.Delegate,
         CurrentCallsView.Callback,
@@ -114,7 +116,7 @@ class HomeDetailFragment @Inject constructor(
     private var pagerSpaces: List<String?>? = null
     private var pagerTab: HomeTab? = null
     private var pagerPagingEnabled: Boolean = false
-    private var previousRoomGroupingMethodPair: Pair<RoomGroupingMethod, SelectSpaceFrom>? = null
+    private var previousSelectedSpacePair: Pair<RoomSummary?, SelectSpaceFrom>? = null
 
     override fun getMenuRes() = R.menu.room_list
 
@@ -173,15 +175,12 @@ class HomeDetailFragment @Inject constructor(
             }
         })
 
-        viewModel.onEach(HomeDetailViewState::roomGroupingMethod) { roomGroupingMethod ->
+        viewModel.onEach(HomeDetailViewState::selectedSpace) { selectedSpace ->
             // While paging is enabled, make title follow the view pager directly
             if (pagerPagingEnabled) {
                 return@onEach
             }
-            when (roomGroupingMethod) {
-                is RoomGroupingMethod.ByLegacyGroup -> onGroupChange(roomGroupingMethod.groupSummary)
-                is RoomGroupingMethod.BySpace -> onSpaceChange(roomGroupingMethod.spaceSummary)
-            }
+            onSpaceChange(selectedSpace)
         }
 
         viewModel.onEach(HomeDetailViewState::currentTab) { currentTab ->
@@ -229,17 +228,17 @@ class HomeDetailFragment @Inject constructor(
             )
         }
 
-        viewModel.onEach(HomeDetailViewState::roomGroupingMethodIgnoreSwipe,
+        viewModel.onEach(HomeDetailViewState::selectedSpaceIgnoreSwipe,
                 HomeDetailViewState::rootSpacesOrdered,
                 HomeDetailViewState::currentTab,
                 UniqueOnly("HomeDetail_${System.identityHashCode(this)}"))
-        { roomGroupingMethod, rootSpacesOrdered, currentTab ->
-            if (roomGroupingMethod == null) {
+        { selectedSpace, rootSpacesOrdered, currentTab ->
+            if (selectedSpace == null) {
                 // Uninitialized
                 return@onEach
             }
-            setupViewPager(roomGroupingMethod, rootSpacesOrdered, currentTab)
-            previousRoomGroupingMethodPair = roomGroupingMethod
+            setupViewPager(selectedSpace, rootSpacesOrdered, currentTab)
+            previousSelectedSpacePair = selectedSpace
         }
 
         sharedCallActionViewModel
@@ -261,25 +260,15 @@ class HomeDetailFragment @Inject constructor(
     }
 
     private fun navigateBack() {
-        try {
-            val lastSpace = appStateHandler.getSpaceBackstack().removeLast()
-            setCurrentSpace(lastSpace)
-        } catch (e: NoSuchElementException) {
-            navigateUpOneSpace()
-        }
+        val previousSpaceId = appStateHandler.getSpaceBackstack().removeLastOrNull()
+        val parentSpaceId = appStateHandler.getCurrentSpace()?.flattenParentIds?.lastOrNull()
+        setCurrentSpace(previousSpaceId ?: parentSpaceId)
     }
 
     private fun setCurrentSpace(spaceId: String?) {
         appStateHandler.setCurrentSpace(spaceId, isForwardNavigation = false)
-        sharedActionViewModel.post(HomeActivitySharedAction.CloseGroup)
+        sharedActionViewModel.post(HomeActivitySharedAction.OnCloseSpace)
     }
-
-    private fun navigateUpOneSpace() {
-        val parentId = getCurrentSpace()?.flattenParentIds?.lastOrNull()
-        setCurrentSpace(parentId)
-    }
-
-    private fun getCurrentSpace() = (appStateHandler.getCurrentRoomGroupingMethod() as? RoomGroupingMethod.BySpace)?.spaceSummary
 
     private fun handleCallStarted() {
         dismissLoadingDialog()
@@ -309,27 +298,18 @@ class HomeDetailFragment @Inject constructor(
 
     private fun refreshSpaceState() {
         /* Upstream impl without care for viewPager
-        when (val roomGroupingMethod = appStateHandler.getCurrentRoomGroupingMethod()) {
-            is RoomGroupingMethod.ByLegacyGroup -> onGroupChange(roomGroupingMethod.groupSummary)
-            is RoomGroupingMethod.BySpace -> onSpaceChange(roomGroupingMethod.spaceSummary)
-            else -> Unit
+        appStateHandler.getCurrentSpace()?.let {
+            onSpaceChange(it)
         }
         */
 
         // Current space/group is not live so at least refresh toolbar on resume
-        appStateHandler.getCurrentRoomGroupingMethod()?.let { roomGroupingMethod ->
+        appStateHandler.getCurrentSpace()?.let { currentSpace ->
             // While paging is enabled, make title follow the view pager directly
             if (pagerPagingEnabled) {
                 return@let
             }
-            when (roomGroupingMethod) {
-                is RoomGroupingMethod.ByLegacyGroup -> {
-                    onGroupChange(roomGroupingMethod.groupSummary)
-                }
-                is RoomGroupingMethod.BySpace       -> {
-                    onSpaceChange(roomGroupingMethod.spaceSummary)
-                }
-            }
+            onSpaceChange(currentSpace)
         }
     }
 
@@ -449,15 +429,6 @@ class HomeDetailFragment @Inject constructor(
         )
     }
 
-    private fun onGroupChange(groupSummary: GroupSummary?) {
-        if (groupSummary == null) {
-            views.groupToolbarSpaceTitleView.isVisible = false
-        } else {
-            views.groupToolbarSpaceTitleView.isVisible = true
-            views.groupToolbarSpaceTitleView.text = groupSummary.displayName
-        }
-    }
-
     private fun onSpaceChange(spaceSummary: RoomSummary?) {
         if (spaceSummary == null) {
             views.groupToolbarSpaceTitleView.isVisible = false
@@ -493,16 +464,9 @@ class HomeDetailFragment @Inject constructor(
         }
 
         views.homeToolbarContent.debouncedClicks {
-            withState(viewModel) {
-                when (it.roomGroupingMethod) {
-                    is RoomGroupingMethod.ByLegacyGroup -> {
-                        // do nothing
-                    }
-                    is RoomGroupingMethod.BySpace -> {
-                        it.roomGroupingMethod.spaceSummary?.let { spaceSummary ->
-                            sharedActionViewModel.post(HomeActivitySharedAction.ShowSpaceSettings(spaceSummary.roomId))
-                        }
-                    }
+            withState(viewModel) { viewState ->
+                viewState.selectedSpace?.let {
+                    sharedActionViewModel.post(HomeActivitySharedAction.ShowSpaceSettings(it.roomId))
                 }
             }
         }
@@ -549,8 +513,12 @@ class HomeDetailFragment @Inject constructor(
             if (fragmentToShow == null) {
                 when (tab) {
                     is HomeTab.RoomList -> {
-                        val params = RoomListParams(tab.displayMode)
-                        add(R.id.roomListContainer, RoomListFragment::class.java, params.toMvRxBundle(), fragmentTag)
+                        if (vectorFeatures.isNewAppLayoutEnabled()) {
+                            add(R.id.roomListContainer, HomeRoomListFragment::class.java, null, fragmentTag)
+                        } else {
+                            val params = RoomListParams(tab.displayMode)
+                            add(R.id.roomListContainer, RoomListFragment::class.java, params.toMvRxBundle(), fragmentTag)
+                        }
                     }
                     is HomeTab.DialPad -> {
                         add(R.id.roomListContainer, createDialPadFragment(), fragmentTag)
@@ -566,8 +534,8 @@ class HomeDetailFragment @Inject constructor(
     }
      */
 
-    private fun setupViewPager(roomGroupingMethodPair: Pair<RoomGroupingMethod, SelectSpaceFrom>, spaces: List<RoomSummary>?, tab: HomeTab) {
-        val roomGroupingMethod = roomGroupingMethodPair.first
+    private fun setupViewPager(selectedSpacePair: Pair<RoomSummary?, SelectSpaceFrom>, spaces: List<RoomSummary>?, tab: HomeTab) {
+        val selectedSpace = selectedSpacePair.first
         val oldAdapter = views.roomListContainerPager.adapter as? FragmentStateAdapter
         val pagingAllowed = vectorPreferences.enableSpacePager() && tab is HomeTab.RoomList
         if (pagingAllowed && spaces == null) {
@@ -579,27 +547,27 @@ class HomeDetailFragment @Inject constructor(
         }
         viewPagerDimber.i{"Home pager: setup, old adapter: $oldAdapter"}
         val unsafeSpaces = spaces?.map { it.roomId } ?: listOf()
-        val selectedSpaceId = (roomGroupingMethod as? RoomGroupingMethod.BySpace)?.spaceSummary?.roomId
-        val selectedIndex = if (previousRoomGroupingMethodPair == roomGroupingMethodPair && tab != pagerTab) {
+        val selectedSpaceId = selectedSpace?.roomId
+        val selectedIndex = if (previousSelectedSpacePair == selectedSpacePair && tab != pagerTab) {
             // Stick with previously selected space for tab changes
             views.roomListContainerPager.currentItem
         } else {
             getPageIndexForSpaceId(selectedSpaceId, unsafeSpaces)
         }
-        val pagingEnabled = pagingAllowed && roomGroupingMethod is RoomGroupingMethod.BySpace && unsafeSpaces.isNotEmpty() && selectedIndex != null
+        val pagingEnabled = pagingAllowed && unsafeSpaces.isNotEmpty() && selectedIndex != null
         val safeSpaces = if (pagingEnabled) unsafeSpaces else listOf()
         // Check if we need to recreate the adapter for a new tab
         if (oldAdapter != null) {
             val changed = pagerTab != tab || pagerSpaces != safeSpaces || pagerPagingEnabled != pagingEnabled
-            viewPagerDimber.i{ "has changed: $changed (${pagerTab != tab} ${pagerSpaces != safeSpaces} ${pagerPagingEnabled != pagingEnabled} $selectedIndex ${roomGroupingMethodPair.second} ${views.roomListContainerPager.currentItem}) | $safeSpaces" }
+            viewPagerDimber.i{ "has changed: $changed (${pagerTab != tab} ${pagerSpaces != safeSpaces} ${pagerPagingEnabled != pagingEnabled} $selectedIndex ${selectedSpacePair.second} ${views.roomListContainerPager.currentItem}) | $safeSpaces" }
             if (!changed) {
                 // No need to re-setup pager, just check for selected page
                 if (pagingEnabled) {
                     // Prioritize the actually displayed space for all space changes except for SELECT ones, to avoid
                     // unexpected page changes onResume for old updates
-                    if (roomGroupingMethodPair.second != SelectSpaceFrom.SELECT) {
+                    if (selectedSpacePair.second != SelectSpaceFrom.SELECT) {
                         // Tell the rest of the UI that we want to keep displaying the current space
-                        viewPagerDimber.i { "Discard space change from ${roomGroupingMethodPair.second} (${selectedSpaceId}/$selectedIndex), persist own (${views.roomListContainerPager.currentItem})" }
+                        viewPagerDimber.i { "Discard space change from ${selectedSpacePair.second} (${selectedSpaceId}/$selectedIndex), persist own (${views.roomListContainerPager.currentItem})" }
                         if (views.roomListContainerPager.currentItem != selectedIndex) {
                             selectSpaceFromSwipe(views.roomListContainerPager.currentItem)
                         }
@@ -697,14 +665,7 @@ class HomeDetailFragment @Inject constructor(
             }
         } else {
             // Set title, in case we missed it while paging
-            when (roomGroupingMethod) {
-                is RoomGroupingMethod.ByLegacyGroup -> {
-                    onGroupChange(roomGroupingMethod.groupSummary)
-                }
-                is RoomGroupingMethod.BySpace       -> {
-                    onSpaceChange(roomGroupingMethod.spaceSummary)
-                }
-            }
+            onSpaceChange(selectedSpace)
         }
     }
 
@@ -835,7 +796,7 @@ class HomeDetailFragment @Inject constructor(
         return this
     }
 
-    override fun onBackPressed(toolbarButton: Boolean) = if (vectorPreferences.spaceBackNavigation() && getCurrentSpace() != null) {
+    override fun onBackPressed(toolbarButton: Boolean) = if (vectorPreferences.spaceBackNavigation() && appStateHandler.getCurrentSpace() != null) {
         navigateBack()
         true
     } else {

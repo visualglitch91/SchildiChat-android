@@ -21,7 +21,6 @@ import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.Uninitialized
 import im.vector.app.R
-import im.vector.app.RoomGroupingMethod
 import im.vector.app.SelectSpaceFrom
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import org.matrix.android.sdk.api.session.sync.SyncRequestState
@@ -29,8 +28,8 @@ import org.matrix.android.sdk.api.session.sync.SyncState
 import org.matrix.android.sdk.api.util.MatrixItem
 
 data class HomeDetailViewState(
-        val roomGroupingMethod: RoomGroupingMethod = RoomGroupingMethod.BySpace(null),
-        val roomGroupingMethodIgnoreSwipe: Pair<RoomGroupingMethod, SelectSpaceFrom>? = null,
+        val selectedSpace: RoomSummary? = null,
+        val selectedSpaceIgnoreSwipe: Pair<RoomSummary?, SelectSpaceFrom>? = null,
         val myMatrixItem: MatrixItem? = null,
         val asyncRooms: Async<List<RoomSummary>> = Uninitialized,
         val currentTab: HomeTab = HomeTab.RoomList(RoomListDisplayMode.ALL),

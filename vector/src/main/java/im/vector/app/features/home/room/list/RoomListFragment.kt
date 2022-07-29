@@ -53,7 +53,7 @@ import im.vector.app.features.analytics.plan.MobileScreen
 import im.vector.app.features.analytics.plan.ViewRoom
 import im.vector.app.features.home.RoomListDisplayMode
 import im.vector.app.features.home.room.filtered.FilteredRoomFooterItem
-import im.vector.app.features.home.room.list.RoomListSectionBuilderSpace.Companion.SPACE_ID_FOLLOW_APP
+import im.vector.app.features.home.room.list.RoomListSectionBuilder.Companion.SPACE_ID_FOLLOW_APP
 import im.vector.app.features.home.room.list.actions.RoomListQuickActionsBottomSheet
 import im.vector.app.features.home.room.list.actions.RoomListQuickActionsSharedAction
 import im.vector.app.features.home.room.list.actions.RoomListQuickActionsSharedActionViewModel
@@ -61,7 +61,6 @@ import im.vector.app.features.home.room.list.widget.NotifsFabMenuView
 import im.vector.app.features.matrixto.OriginOfMatrixTo
 import im.vector.app.features.notifications.NotificationDrawerManager
 import im.vector.app.features.settings.VectorPreferences
-import im.vector.app.space
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
@@ -181,8 +180,8 @@ class RoomListFragment @Inject constructor(
                         (it.contentEpoxyController as? RoomSummaryPagedController)?.roomChangeMembershipStates = ms
                     }
         }
-        roomListViewModel.onEach(RoomListViewState::currentRoomGrouping) {
-            val spaceId = it.invoke()?.space()?.roomId
+        roomListViewModel.onEach(RoomListViewState::asyncSelectedSpace) {
+            val spaceId = it.invoke()?.roomId
             onSwitchSpace(spaceId)
         }
 
@@ -207,7 +206,7 @@ class RoomListFragment @Inject constructor(
                 viewPagerDimber.i {
                     "dbgUpdate rlvm/${roomListViewModel.dbgId} explicit ${roomListParams.explicitSpaceId} expand $expandStatusSpaceId vm-space ${roomListViewModel.dbgExplicitSpaceId}"
                 }
-                val currentSpace = it.currentRoomGrouping.invoke()?.space()
+                val currentSpace = it.asyncSelectedSpace.invoke()
                 var text = "rlf/$dbgId rlvm/${roomListViewModel.dbgId}\nexplicit: ${roomListParams.explicitSpaceId}"
                 if (currentSpace?.roomId != roomListParams.explicitSpaceId) {
                     text += "\ngrouping: ${currentSpace?.roomId}"
