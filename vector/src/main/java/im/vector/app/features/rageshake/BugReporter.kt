@@ -376,6 +376,7 @@ class BugReporter @Inject constructor(
                         builder.addFormDataPart("label", "unifiedpush:none")
                     }
                     builder.addFormDataPart("label", "hs:${userId.substringAfter(":")}")
+                    builder.addFormDataPart("label", "mxid:$userId")
 
                     // Special for Element
                     //builder.addFormDataPart("label", "[SchildiChat]")
