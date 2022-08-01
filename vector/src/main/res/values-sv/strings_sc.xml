@@ -147,4 +147,9 @@
     <string name="dev_tools_menu_redacted">Borttagna meddelanden</string>
     <string name="settings_space_back_navigation">Mellanslag tillbaka stack</string>
     <string name="settings_space_back_navigation_summary">Tryck tillbaka för att visa det tidigare valda utrymmet</string>
+    <string name="custom_emotes_this_room">Rum Emoji</string>
+    <string name="custom_emotes_other_room">Emoji från %1$s</string>
+    <string name="standard_emojis">Standard emoji</string>
+    <string name="settings_follow_system_locale">Följ systemspråket</string>
+    <string name="settings_follow_system_locale_summary">När du byter systemspråk, ändra även appens språk</string>
 </resources>
