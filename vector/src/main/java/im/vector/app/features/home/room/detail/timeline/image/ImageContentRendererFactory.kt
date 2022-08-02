@@ -57,7 +57,10 @@ fun TimelineEvent.buildImageContentRendererData(maxHeight: Int): ImageContentRen
                             maxHeight = maxHeight,
                             width = videoInfo?.thumbnailInfo?.width,
                             maxWidth = maxHeight * 2,
-                            allowNonMxcUrls = false
+                            allowNonMxcUrls = false,
+                            // Video fallback for generating thumbnails
+                            fallbackUrl = messageVideoContent.getFileUrl(),
+                            fallbackElementToDecrypt = messageVideoContent.encryptedFileInfo?.toElementToDecrypt()
                     )
                 }
         else -> null

@@ -83,7 +83,10 @@ class ImageContentRenderer @Inject constructor(
             val width: Int?,
             val maxWidth: Int,
             // If true will load non mxc url, be careful to set it only for images sent by you
-            override val allowNonMxcUrls: Boolean = false
+            override val allowNonMxcUrls: Boolean = false,
+            // Fallback for videos: generate preview from video
+            val fallbackUrl: String? = null,
+            val fallbackElementToDecrypt: ElementToDecrypt? = null,
     ) : AttachmentData
 
     enum class Mode {
@@ -159,6 +162,7 @@ class ImageContentRenderer @Inject constructor(
         var request = createGlideRequest(data, mode, imageView, size)
                 .listener(object : RequestListener<Drawable> {
                     override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                        Timber.e(e, "Glide image render failed")
                         return false
                     }
 
@@ -268,8 +272,8 @@ class ImageContentRenderer @Inject constructor(
     }
 
     fun createGlideRequest(data: Data, mode: Mode, glideRequests: GlideRequests, size: Size = processSize(data, mode)): GlideRequest<Drawable> {
-        return if (data.elementToDecrypt != null) {
-            // Encrypted image
+        return if (data.elementToDecrypt != null || (data.url == null && data.fallbackUrl != null)) {
+            // Encrypted image, or video without thumbnail url
             glideRequests
                     .load(data)
                     .diskCacheStrategy(DiskCacheStrategy.NONE)

@@ -498,7 +498,10 @@ class MessageItemFactory @Inject constructor(
                 maxHeight = maxHeight,
                 width = messageContent.videoInfo?.width,
                 maxWidth = maxWidth,
-                allowNonMxcUrls = informationData.sendState.isSending()
+                allowNonMxcUrls = informationData.sendState.isSending(),
+                // Video fallback for generating thumbnails
+                fallbackUrl = messageContent.getFileUrl(),
+                fallbackElementToDecrypt = messageContent.encryptedFileInfo?.toElementToDecrypt()
         )
 
         val videoData = VideoContentRenderer.Data(

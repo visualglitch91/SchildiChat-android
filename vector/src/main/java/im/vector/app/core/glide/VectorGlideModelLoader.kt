@@ -25,6 +25,7 @@ import com.bumptech.glide.load.model.ModelLoader
 import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.signature.ObjectKey
+import de.spiritcroc.util.ThumbnailExtractor
 import im.vector.app.core.extensions.singletonEntryPoint
 import im.vector.app.core.files.LocalFilesHelper
 import im.vector.app.features.media.ImageContentRenderer
@@ -70,6 +71,8 @@ class VectorGlideDataFetcher(
 
     private val localFilesHelper = LocalFilesHelper(context)
     private val activeSessionHolder = context.singletonEntryPoint().activeSessionHolder()
+
+    private val thumbnailExtractor = ThumbnailExtractor(context)
 
     private val client = activeSessionHolder.getSafeActiveSession()?.getOkHttpClient() ?: OkHttpClient()
 
@@ -118,13 +121,23 @@ class VectorGlideDataFetcher(
         }
         // Use the file vector service, will avoid flickering and redownload after upload
         activeSessionHolder.getSafeActiveSession()?.coroutineScope?.launch {
-            val result = runCatching {
+            var result = runCatching {
                 fileService.downloadFile(
                         fileName = data.filename,
                         mimeType = data.mimeType,
                         url = data.url,
                         elementToDecrypt = data.elementToDecrypt
                 )
+            }
+            if (result.isFailure && (data.fallbackUrl != null || data.fallbackElementToDecrypt != null)) {
+                result = runCatching {
+                    fileService.downloadFile(
+                            fileName = data.filename,
+                            mimeType = data.mimeType,
+                            url = data.fallbackUrl,
+                            elementToDecrypt = data.fallbackElementToDecrypt)
+                }
+                result = result.getOrNull()?.let { thumbnailExtractor.extractThumbnail(it) } ?: result
             }
             withContext(Dispatchers.Main) {
                 result.fold(
