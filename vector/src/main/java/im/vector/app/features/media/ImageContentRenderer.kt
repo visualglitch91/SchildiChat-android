@@ -85,6 +85,7 @@ class ImageContentRenderer @Inject constructor(
             // If true will load non mxc url, be careful to set it only for images sent by you
             override val allowNonMxcUrls: Boolean = false,
             // Fallback for videos: generate preview from video
+            val downloadFallbackIfThumbnailMissing: Boolean = false,
             val fallbackUrl: String? = null,
             val fallbackElementToDecrypt: ElementToDecrypt? = null,
     ) : AttachmentData

@@ -27,7 +27,7 @@ import org.matrix.android.sdk.api.session.room.model.message.getFileUrl
 import org.matrix.android.sdk.api.session.room.model.message.getThumbnailUrl
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 
-fun TimelineEvent.buildImageContentRendererData(maxHeight: Int): ImageContentRenderer.Data? {
+fun TimelineEvent.buildImageContentRendererData(maxHeight: Int, generateMissingVideoThumbnails: Boolean): ImageContentRenderer.Data? {
     return when {
         root.isImageMessage() -> root.getClearContent().toModel<MessageImageContent>()
                 ?.let { messageImageContent ->
@@ -59,6 +59,7 @@ fun TimelineEvent.buildImageContentRendererData(maxHeight: Int): ImageContentRen
                             maxWidth = maxHeight * 2,
                             allowNonMxcUrls = false,
                             // Video fallback for generating thumbnails
+                            downloadFallbackIfThumbnailMissing = generateMissingVideoThumbnails,
                             fallbackUrl = messageVideoContent.getFileUrl(),
                             fallbackElementToDecrypt = messageVideoContent.encryptedFileInfo?.toElementToDecrypt()
                     )

@@ -17,6 +17,7 @@ package im.vector.app.features.home.room.detail.timeline.action
 
 import com.airbnb.epoxy.TypedEpoxyController
 import com.airbnb.mvrx.Success
+import de.spiritcroc.util.ThumbnailGenerationVideoDownloadDecider
 import im.vector.app.EmojiCompatFontProvider
 import im.vector.app.R
 import im.vector.app.core.date.DateFormatKind
@@ -66,6 +67,7 @@ class MessageActionsEpoxyController @Inject constructor(
         private val spanUtils: SpanUtils,
         private val eventDetailsFormatter: EventDetailsFormatter,
         private val vectorPreferences: VectorPreferences,
+        private val thumbnailGenerationVideoDownloadDecider: ThumbnailGenerationVideoDownloadDecider,
         private val dateFormatter: VectorDateFormatter,
         private val urlMapProvider: UrlMapProvider,
         private val locationPinProvider: LocationPinProvider
@@ -88,7 +90,7 @@ class MessageActionsEpoxyController @Inject constructor(
             matrixItem(state.informationData.matrixItem)
             movementMethod(createLinkMovementMethod(host.listener))
             imageContentRenderer(host.imageContentRenderer)
-            data(state.timelineEvent()?.buildImageContentRendererData(host.dimensionConverter.dpToPx(66)))
+            data(state.timelineEvent()?.buildImageContentRendererData(host.dimensionConverter.dpToPx(66), host.thumbnailGenerationVideoDownloadDecider.enableVideoDownloadForThumbnailGeneration()))
             userClicked { host.listener?.didSelectMenuAction(EventSharedAction.OpenUserProfile(state.informationData.senderId)) }
             bindingOptions(bindingOptions)
             body(body.toEpoxyCharSequence())

@@ -17,6 +17,8 @@
 package im.vector.app.core.glide
 
 import android.content.Context
+import android.net.ConnectivityManager
+import androidx.core.content.getSystemService
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.Options
@@ -62,7 +64,7 @@ class VectorGlideModelLoader(private val context: Context) :
 }
 
 class VectorGlideDataFetcher(
-        context: Context,
+        private val context: Context,
         private val data: ImageContentRenderer.Data,
         private val width: Int,
         private val height: Int
@@ -130,14 +132,26 @@ class VectorGlideDataFetcher(
                 )
             }
             if (result.isFailure && (data.fallbackUrl != null || data.fallbackElementToDecrypt != null)) {
-                result = runCatching {
-                    fileService.downloadFile(
-                            fileName = data.filename,
-                            mimeType = data.mimeType,
-                            url = data.fallbackUrl,
-                            elementToDecrypt = data.fallbackElementToDecrypt)
+                // Extract thumbnail from video
+                val isInCache = fileService.isFileInCache(
+                        fileName = data.filename,
+                        mimeType = data.mimeType,
+                        mxcUrl = data.fallbackUrl,
+                        elementToDecrypt = data.fallbackElementToDecrypt)
+                if (data.downloadFallbackIfThumbnailMissing || isInCache) {
+                    // Disable automatic download for metered connections
+                    if (isInCache || !context.getSystemService<ConnectivityManager>()!!.isActiveNetworkMetered) {
+                        result = runCatching {
+                            fileService.downloadFile(
+                                    fileName = data.filename,
+                                    mimeType = data.mimeType,
+                                    url = data.fallbackUrl,
+                                    elementToDecrypt = data.fallbackElementToDecrypt
+                            )
+                        }
+                        result = result.getOrNull()?.let { thumbnailExtractor.extractThumbnail(it) } ?: result
+                    }
                 }
-                result = result.getOrNull()?.let { thumbnailExtractor.extractThumbnail(it) } ?: result
             }
             withContext(Dispatchers.Main) {
                 result.fold(

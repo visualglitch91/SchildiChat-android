@@ -15,6 +15,7 @@
  */
 package im.vector.app.features.home.room.detail.timeline.helper
 
+import de.spiritcroc.util.ThumbnailGenerationVideoDownloadDecider
 import im.vector.app.EmojiCompatFontProvider
 import im.vector.app.R
 import im.vector.app.core.resources.StringProvider
@@ -36,6 +37,7 @@ class MessageItemAttributesFactory @Inject constructor(
         private val stringProvider: StringProvider,
         private val displayableEventFormatter: DisplayableEventFormatter,
         private val preferencesProvider: UserPreferencesProvider,
+        private val thumbnailGenerationVideoDownloadDecider: ThumbnailGenerationVideoDownloadDecider,
         private val emojiCompatFontProvider: EmojiCompatFontProvider
 ) {
 
@@ -71,7 +73,8 @@ class MessageItemAttributesFactory @Inject constructor(
                 threadDetails = threadDetails,
                 reactionsSummaryEvents = reactionsSummaryEvents,
                 areThreadMessagesEnabled = preferencesProvider.areThreadMessagesEnabled(),
-                autoplayAnimatedImages = preferencesProvider.autoplayAnimatedImages()
+                autoplayAnimatedImages = preferencesProvider.autoplayAnimatedImages(),
+                generateMissingVideoThumbnails = thumbnailGenerationVideoDownloadDecider.enableVideoDownloadForThumbnailGeneration(informationData)
         )
     }
 }

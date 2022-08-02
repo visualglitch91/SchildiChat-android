@@ -500,6 +500,7 @@ class MessageItemFactory @Inject constructor(
                 maxWidth = maxWidth,
                 allowNonMxcUrls = informationData.sendState.isSending(),
                 // Video fallback for generating thumbnails
+                downloadFallbackIfThumbnailMissing = attributes.generateMissingVideoThumbnails,
                 fallbackUrl = messageContent.getFileUrl(),
                 fallbackElementToDecrypt = messageContent.encryptedFileInfo?.toElementToDecrypt()
         )

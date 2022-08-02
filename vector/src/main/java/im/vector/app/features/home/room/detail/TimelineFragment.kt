@@ -77,6 +77,7 @@ import de.spiritcroc.menu.toggleExec
 import de.spiritcroc.recyclerview.StickyHeaderItemDecoration
 import de.spiritcroc.recyclerview.widget.BetterLinearLayoutManager
 import de.spiritcroc.recyclerview.widget.LinearLayoutManager
+import de.spiritcroc.util.ThumbnailGenerationVideoDownloadDecider
 import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.animations.play
@@ -283,6 +284,7 @@ class TimelineFragment @Inject constructor(
         private val notificationDrawerManager: NotificationDrawerManager,
         private val eventHtmlRenderer: EventHtmlRenderer,
         private val vectorPreferences: VectorPreferences,
+        private val generationVideoDownloadDecider: ThumbnailGenerationVideoDownloadDecider,
         private val bubbleThemeUtils: BubbleThemeUtils,
         private val threadsManager: ThreadsManager,
         private val colorProvider: ColorProvider,
@@ -1454,7 +1456,7 @@ class TimelineFragment @Inject constructor(
         views.composerLayout.views.composerRelatedMessageContent.text = (formattedBody ?: nonFormattedBody)
 
         // Image Event
-        val data = event.buildImageContentRendererData(dimensionConverter.dpToPx(66))
+        val data = event.buildImageContentRendererData(dimensionConverter.dpToPx(66), generationVideoDownloadDecider.enableVideoDownloadForThumbnailGeneration())
         val isImageVisible = if (data != null) {
             imageContentRenderer.render(data, ImageContentRenderer.Mode.THUMBNAIL, views.composerLayout.views.composerRelatedMessageImage)
             true
