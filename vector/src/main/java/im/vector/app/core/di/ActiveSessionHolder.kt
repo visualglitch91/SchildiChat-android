@@ -20,6 +20,7 @@ import android.content.Context
 import arrow.core.Option
 import im.vector.app.ActiveSessionDataSource
 import im.vector.app.core.extensions.configureAndStart
+import im.vector.app.core.extensions.startSyncing
 import im.vector.app.core.pushers.UnifiedPushHelper
 import im.vector.app.core.services.GuardServiceStarter
 import im.vector.app.features.call.webrtc.WebRtcCallManager
@@ -30,6 +31,7 @@ import im.vector.app.features.session.SessionListener
 import kotlinx.coroutines.runBlocking
 import org.matrix.android.sdk.api.auth.AuthenticationService
 import org.matrix.android.sdk.api.session.Session
+import org.matrix.android.sdk.api.session.sync.SyncState
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
@@ -100,7 +102,14 @@ class ActiveSessionHolder @Inject constructor(
     }
 
     suspend fun getOrInitializeSession(startSync: Boolean): Session? {
-        return activeSessionReference.get() ?: sessionInitializer.tryInitialize(readCurrentSession = { activeSessionReference.get() }) { session ->
+        return activeSessionReference.get()?.also { session ->
+            val syncState = session.syncService().getSyncState()
+            Timber.i("SC-SYNC-0803 session existed already; $syncState") // SC-TODO clean up
+            if (startSync && syncState == SyncState.Idle) {
+                session.startSyncing(applicationContext)
+            }
+        } ?: sessionInitializer.tryInitialize(readCurrentSession = { activeSessionReference.get() }) { session ->
+            Timber.i("SC-SYNC-0803 getOrInitializeSession new session $startSync") // SC-TODO clean up
             setActiveSession(session)
             session.configureAndStart(applicationContext, startSyncing = startSync)
         }
