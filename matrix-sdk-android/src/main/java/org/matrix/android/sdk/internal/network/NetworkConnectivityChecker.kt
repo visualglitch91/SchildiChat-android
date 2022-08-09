@@ -88,6 +88,9 @@ internal class DefaultNetworkConnectivityChecker @Inject constructor(
         listeners.remove(listener)
         if (listeners.isEmpty()) {
             backgroundDetectionObserver.unregister(backgroundDetectionObserverListener)
+            if (!backgroundDetectionObserver.isInBackground) {
+                unbind()
+            }
         }
     }
 
