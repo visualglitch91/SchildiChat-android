@@ -50,9 +50,11 @@ abstract class FontScaleItem : VectorEpoxyModel<FontScaleItem.Holder>(R.layout.i
         holder.textView.isEnabled = enabled
         holder.button.isChecked = selected
         holder.button.isEnabled = enabled
-        holder.button.isClickable = enabled
+        holder.view.isClickable = enabled
         holder.view.onClick {
-            holder.button.performClick()
+            if (enabled) {
+                holder.button.performClick()
+            }
         }
         holder.button.setOnCheckedChangeListener(checkChangeListener)
     }
