@@ -162,6 +162,7 @@ git_changelog() {
         | grep -v "weblate/sc" \
         | grep -v "\\[.*merge.*\\]" \
         | grep -v "Disable Android Auto supports" \
+        | grep -v "\\[gplay-release\\]" \
         || echo "No significant changes since the last stable release"
 }
 
