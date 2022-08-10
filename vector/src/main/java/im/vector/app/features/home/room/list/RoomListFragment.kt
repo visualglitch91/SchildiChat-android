@@ -37,7 +37,6 @@ import com.airbnb.epoxy.OnModelBuildFinishedListener
 import com.airbnb.mvrx.args
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
-import im.vector.app.AppStateHandler
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.spiritcroc.matrixsdk.util.DbgUtil
 import de.spiritcroc.matrixsdk.util.Dimber
@@ -81,7 +80,6 @@ data class RoomListParams(
 ) : Parcelable
 
 class RoomListFragment @Inject constructor(
-        private val appStateHandler: AppStateHandler,
         private val pagedControllerFactory: RoomSummaryPagedControllerFactory,
         private val notificationDrawerManager: NotificationDrawerManager,
         private val vectorPreferences: VectorPreferences,

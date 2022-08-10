@@ -21,9 +21,9 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import androidx.core.content.edit
-import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.di.DefaultSharedPreferences
+import im.vector.app.core.resources.BuildMeta
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -67,12 +67,14 @@ object VectorLocale {
     var followSystemLocale: Boolean = false
 
     private lateinit var context: Context
+    private lateinit var buildMeta: BuildMeta
 
     /**
      * Init this object.
      */
-    fun init(context: Context) {
+    fun init(context: Context, buildMeta: BuildMeta) {
         this.context = context
+        this.buildMeta = buildMeta
         val preferences = DefaultSharedPreferences.getInstance(context)
 
         followSystemLocale = preferences.getBoolean(VectorPreferences.SETTINGS_FOLLOW_SYSTEM_LOCALE, false)
@@ -210,7 +212,7 @@ object VectorLocale {
                         .setScript(script)
                         .build()
             } catch (exception: IllformedLocaleException) {
-                if (BuildConfig.DEBUG) {
+                if (buildMeta.isDebug) {
                     //throw exception
                     exception.printStackTrace()
                 }

@@ -19,5 +19,11 @@
 
 /**/build
 
+# Added by SC
 .tmp_unpatched_strings
 .tmp_new_patched_strings
+
+# Added by yarn
+/package.json
+/yarn.lock
+/node_modules

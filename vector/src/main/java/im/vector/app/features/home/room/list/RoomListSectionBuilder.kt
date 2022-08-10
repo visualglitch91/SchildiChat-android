@@ -25,8 +25,8 @@ import androidx.paging.PagedList
 import com.airbnb.mvrx.Async
 import de.spiritcroc.matrixsdk.util.DbgUtil
 import de.spiritcroc.matrixsdk.util.Dimber
-import im.vector.app.AppStateHandler
 import im.vector.app.R
+import im.vector.app.SpaceStateHandler
 import im.vector.app.core.resources.StringProvider
 import im.vector.app.features.home.RoomListDisplayMode
 import im.vector.app.features.invite.AutoAcceptInvites
@@ -61,7 +61,7 @@ import timber.log.Timber
 class RoomListSectionBuilder(
         private val session: Session,
         private val stringProvider: StringProvider,
-        private val appStateHandler: AppStateHandler,
+        private val spaceStateHandler: SpaceStateHandler,
         private val viewModelScope: CoroutineScope,
         private val autoAcceptInvites: AutoAcceptInvites,
         private val onUpdatable: (UpdatableLivePageResult) -> Unit,
@@ -108,7 +108,7 @@ class RoomListSectionBuilder(
         }
 
         if (explicitSpaceId == SPACE_ID_FOLLOW_APP) {
-            appStateHandler.selectedSpaceFlow
+            spaceStateHandler.getSelectedSpaceFlow()
                     .distinctUntilChanged()
                     .onEach { selectedSpaceOption ->
                         val selectedSpace = selectedSpaceOption.orNull()
@@ -256,7 +256,7 @@ class RoomListSectionBuilder(
         ) {
             it.memberships = listOf(Membership.JOIN)
             it.roomCategoryFilter = RoomCategoryFilter.ONLY_ROOMS
-            it.roomTagQueryFilter = RoomTagQueryFilter(false, false, false)
+            it.roomTagQueryFilter = RoomTagQueryFilter(isFavorite = false, isLowPriority = false, isServerNotice = false)
         }
 
         addSection(
@@ -300,7 +300,7 @@ class RoomListSectionBuilder(
                                          explicitSpaceId: String?) {
         // add suggested rooms
         val suggestedRoomsFlow = if (explicitSpaceId == SPACE_ID_FOLLOW_APP) { // MutableLiveData<List<SpaceChildInfo>>()
-                appStateHandler.selectedSpaceFlow
+                spaceStateHandler.getSelectedSpaceFlow()
                         .distinctUntilChanged()
                         .flatMapLatest { selectedSpaceOption ->
                             val selectedSpace = selectedSpaceOption.orNull()
@@ -418,7 +418,7 @@ class RoomListSectionBuilder(
         ) {
             it.memberships = listOf(Membership.JOIN)
             it.roomCategoryFilter = RoomCategoryFilter.ONLY_DM
-            it.roomTagQueryFilter = RoomTagQueryFilter(false, false, null)
+            it.roomTagQueryFilter = RoomTagQueryFilter(isFavorite = false, isLowPriority = false, isServerNotice = null)
         }
 
         addSection(
@@ -435,14 +435,14 @@ class RoomListSectionBuilder(
         ) {
             it.memberships = listOf(Membership.JOIN)
             it.roomCategoryFilter = RoomCategoryFilter.ONLY_DM
-            it.roomTagQueryFilter = RoomTagQueryFilter(false, true, null)
+            it.roomTagQueryFilter = RoomTagQueryFilter(isFavorite = false, isLowPriority = true, isServerNotice = null)
         }
 
     }
 
-    private fun AppStateHandler.explicitOrSafeActiveSpaceId(explicitSpaceId: String?): String? {
+    private fun SpaceStateHandler.explicitOrSafeActiveSpaceId(explicitSpaceId: String?): String? {
         return if (explicitSpaceId == SPACE_ID_FOLLOW_APP) {
-            safeActiveSpaceId()
+            getSafeActiveSpaceId()
         } else {
             explicitSpaceId
         }
@@ -525,7 +525,7 @@ class RoomListSectionBuilder(
             query: (RoomSummaryQueryParams.Builder) -> Unit
     ) {
         withQueryParams(query) { roomQueryParams ->
-            val updatedQueryParams = roomQueryParams.process(spaceFilterStrategy, appStateHandler.explicitOrSafeActiveSpaceId(explicitSpaceId))
+            val updatedQueryParams = roomQueryParams.process(spaceFilterStrategy, spaceStateHandler.explicitOrSafeActiveSpaceId(explicitSpaceId))
             val liveQueryParams = MutableStateFlow(updatedQueryParams)
             val itemCountFlow = liveQueryParams
                     .flatMapLatest {
@@ -536,7 +536,7 @@ class RoomListSectionBuilder(
 
             val name = stringProvider.getString(nameRes)
             val filteredPagedRoomSummariesLive = session.roomService().getFilteredPagedRoomSummariesLive(
-                    roomQueryParams.process(spaceFilterStrategy, appStateHandler.explicitOrSafeActiveSpaceId(explicitSpaceId)),
+                    roomQueryParams.process(spaceFilterStrategy, spaceStateHandler.explicitOrSafeActiveSpaceId(explicitSpaceId)),
                     pagedListConfig
             )
             when (spaceFilterStrategy) {
@@ -583,7 +583,7 @@ class RoomListSectionBuilder(
                                             RoomAggregateNotificationCount(it.size, it.size, 0)
                                         } else {
                                             session.roomService().getNotificationCountForRooms(
-                                                    roomQueryParams.process(spaceFilterStrategy, appStateHandler.explicitOrSafeActiveSpaceId(explicitSpaceId))
+                                                    roomQueryParams.process(spaceFilterStrategy, spaceStateHandler.explicitOrSafeActiveSpaceId(explicitSpaceId))
                                             )
                                         }
                                 )

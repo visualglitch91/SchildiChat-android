@@ -78,7 +78,6 @@ import de.spiritcroc.recyclerview.StickyHeaderItemDecoration
 import de.spiritcroc.recyclerview.widget.BetterLinearLayoutManager
 import de.spiritcroc.recyclerview.widget.LinearLayoutManager
 import de.spiritcroc.util.ThumbnailGenerationVideoDownloadDecider
-import im.vector.app.BuildConfig
 import im.vector.app.R
 import im.vector.app.core.animations.play
 import im.vector.app.core.dialogs.ConfirmationDialogBuilder
@@ -104,6 +103,7 @@ import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.core.platform.VectorMenuProvider
 import im.vector.app.core.platform.lifecycleAwareLazy
 import im.vector.app.core.platform.showOptimizedSnackbar
+import im.vector.app.core.resources.BuildMeta
 import im.vector.app.core.resources.ColorProvider
 import im.vector.app.core.resources.UserPreferencesProvider
 import im.vector.app.core.time.Clock
@@ -137,6 +137,7 @@ import im.vector.app.core.utils.startInstallFromSourceIntent
 import im.vector.app.core.utils.toast
 import im.vector.app.databinding.DialogReportContentBinding
 import im.vector.app.databinding.FragmentTimelineBinding
+import im.vector.app.features.VectorFeatures
 import im.vector.app.features.analytics.extensions.toAnalyticsInteraction
 import im.vector.app.features.analytics.plan.Interaction
 import im.vector.app.features.analytics.plan.MobileScreen
@@ -299,7 +300,9 @@ class TimelineFragment @Inject constructor(
         private val typingHelper: TypingHelper,
         private val audioMessagePlaybackTracker: AudioMessagePlaybackTracker,
         private val shareIntentHandler: ShareIntentHandler,
-        private val clock: Clock
+        private val clock: Clock,
+        private val vectorFeatures: VectorFeatures,
+        private val buildMeta: BuildMeta,
 ) :
         VectorBaseFragment<FragmentTimelineBinding>(),
         TimelineEventController.Callback,
@@ -401,7 +404,7 @@ class TimelineFragment @Inject constructor(
         sharedActionViewModel = activityViewModelProvider.get(MessageSharedActionViewModel::class.java)
         sharedActivityActionViewModel = activityViewModelProvider.get(RoomDetailSharedActionViewModel::class.java)
         knownCallsViewModel = activityViewModelProvider.get(SharedKnownCallsViewModel::class.java)
-        attachmentsHelper = AttachmentsHelper(requireContext(), this).register()
+        attachmentsHelper = AttachmentsHelper(requireContext(), this, buildMeta).register()
         callActionsHandler = StartCallActionsHandler(
                 roomId = timelineArgs.roomId,
                 fragment = this,
@@ -699,8 +702,8 @@ class TimelineFragment @Inject constructor(
                 )
     }
 
-    private fun navigateToLocationLiveMap() {
-        navigator.openLocationLiveMap(
+    private fun navigateToLiveLocationMap() {
+        navigator.openLiveLocationMap(
                 context = requireContext(),
                 roomId = timelineArgs.roomId
         )
@@ -900,11 +903,11 @@ class TimelineFragment @Inject constructor(
     }
 
     private fun setupLiveLocationIndicator() {
-        views.locationLiveStatusIndicator.stopButton.debouncedClicks {
+        views.liveLocationStatusIndicator.stopButton.debouncedClicks {
             timelineViewModel.handle(RoomDetailAction.StopLiveLocationSharing)
         }
-        views.locationLiveStatusIndicator.debouncedClicks {
-            navigateToLocationLiveMap()
+        views.liveLocationStatusIndicator.debouncedClicks {
+            navigateToLiveLocationMap()
         }
     }
 
@@ -1005,7 +1008,7 @@ class TimelineFragment @Inject constructor(
     }
 
     override fun onDestroyView() {
-        audioMessagePlaybackTracker.makeAllPlaybacksIdle()
+        messageComposerViewModel.endAllVoiceActions()
         lazyLoadedViews.unBind()
         timelineEventController.callback = null
         timelineEventController.removeModelBuildListener(modelBuildListener)
@@ -1157,7 +1160,7 @@ class TimelineFragment @Inject constructor(
                 else -> state.isAllowedToManageWidgets
             }
             menu.findItem(R.id.video_call).icon?.alpha = if (callButtonsEnabled) 0xFF else 0x40
-            menu.findItem(R.id.voice_call).icon?.alpha = if (callButtonsEnabled  || state.hasActiveElementCallWidget()) 0xFF else 0x40
+            menu.findItem(R.id.voice_call).icon?.alpha = if (callButtonsEnabled || state.hasActiveElementCallWidget()) 0xFF else 0x40
 
             val matrixAppsMenuItem = menu.findItem(R.id.open_matrix_apps)
             val widgetsCount = state.activeRoomWidgets.invoke()?.size ?: 0
@@ -1827,7 +1830,7 @@ class TimelineFragment @Inject constructor(
                     attachmentTypeSelector = AttachmentTypeSelectorView(vectorBaseActivity, vectorBaseActivity.layoutInflater, this@TimelineFragment)
                     attachmentTypeSelector.setAttachmentVisibility(
                             AttachmentTypeSelectorView.Type.LOCATION,
-                            BuildConfig.enableLocationSharing
+                            vectorFeatures.isLocationSharingEnabled(),
                     )
                     attachmentTypeSelector.setAttachmentVisibility(
                             AttachmentTypeSelectorView.Type.POLL, !isThreadTimeLine()
@@ -1965,7 +1968,7 @@ class TimelineFragment @Inject constructor(
     }
 
     private fun updateLiveLocationIndicator(isSharingLiveLocation: Boolean) {
-        views.locationLiveStatusIndicator.isVisible = isSharingLiveLocation
+        views.liveLocationStatusIndicator.isVisible = isSharingLiveLocation
     }
 
     private fun FragmentTimelineBinding.hideComposerViews() {
@@ -2380,7 +2383,7 @@ class TimelineFragment @Inject constructor(
                 handleShowLocationPreview(messageContent, informationData.senderId)
             }
             is MessageBeaconInfoContent -> {
-                navigateToLocationLiveMap()
+                navigateToLiveLocationMap()
             }
             else -> {
                 val handled = onThreadSummaryClicked(informationData.eventId, isRootThreadEvent)
@@ -2993,7 +2996,6 @@ class TimelineFragment @Inject constructor(
     }
 
     override fun onContactAttachmentReady(contactAttachment: ContactAttachment) {
-        super.onContactAttachmentReady(contactAttachment)
         val formattedContact = contactAttachment.toHumanReadable()
         messageComposerViewModel.handle(MessageComposerAction.SendMessage(formattedContact, false))
     }

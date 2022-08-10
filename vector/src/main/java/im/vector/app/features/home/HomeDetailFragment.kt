@@ -35,9 +35,9 @@ import com.google.android.material.badge.BadgeDrawable
 import de.spiritcroc.matrixsdk.util.DbgUtil
 import de.spiritcroc.matrixsdk.util.Dimber
 import de.spiritcroc.viewpager.reduceDragSensitivity
-import im.vector.app.AppStateHandler
 import im.vector.app.R
 import im.vector.app.SelectSpaceFrom
+import im.vector.app.SpaceStateHandler
 import im.vector.app.core.extensions.commitTransaction
 import im.vector.app.core.extensions.restart
 import im.vector.app.core.extensions.toMvRxBundle
@@ -51,7 +51,6 @@ import im.vector.app.core.ui.views.CurrentCallsView
 import im.vector.app.core.ui.views.CurrentCallsViewPresenter
 import im.vector.app.core.ui.views.KeysBackupBanner
 import im.vector.app.databinding.FragmentHomeDetailBinding
-import im.vector.app.features.VectorFeatures
 import im.vector.app.features.call.SharedKnownCallsViewModel
 import im.vector.app.features.call.VectorCallActivity
 import im.vector.app.features.call.dialpad.DialPadFragment
@@ -60,7 +59,6 @@ import im.vector.app.features.home.room.list.RoomListFragment
 import im.vector.app.features.home.room.list.RoomListParams
 import im.vector.app.features.home.room.list.RoomListSectionBuilder.Companion.SPACE_ID_FOLLOW_APP
 import im.vector.app.features.home.room.list.UnreadCounterBadgeView
-import im.vector.app.features.home.room.list.home.HomeRoomListFragment
 import im.vector.app.features.popup.PopupAlertManager
 import im.vector.app.features.popup.VerificationVectorAlert
 import im.vector.app.features.settings.VectorLocale
@@ -81,8 +79,7 @@ class HomeDetailFragment @Inject constructor(
         private val alertManager: PopupAlertManager,
         private val callManager: WebRtcCallManager,
         private val vectorPreferences: VectorPreferences,
-        private val appStateHandler: AppStateHandler,
-        private val vectorFeatures: VectorFeatures,
+        private val spaceStateHandler: SpaceStateHandler,
 ) : VectorBaseFragment<FragmentHomeDetailBinding>(),
         KeysBackupBanner.Delegate,
         CurrentCallsView.Callback,
@@ -157,7 +154,7 @@ class HomeDetailFragment @Inject constructor(
         // Reduce sensitivity of viewpager to avoid scrolling horizontally by accident too easily
         views.roomListContainerPager.reduceDragSensitivity(4)
 
-        // space pager: update appStateHandler's current page to update rest of the UI accordingly
+        // space pager: update spaceStateHandler's current page to update rest of the UI accordingly
         views.roomListContainerPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 viewPagerDimber.i{"Home pager: selected page $position $initialPageSelected"}
@@ -251,7 +248,7 @@ class HomeDetailFragment @Inject constructor(
 
     private fun selectSpaceFromSwipe(position: Int) {
         val selectedId = getSpaceIdForPageIndex(position)
-        appStateHandler.setCurrentSpace(selectedId, from = SelectSpaceFrom.SWIPE)
+        spaceStateHandler.setCurrentSpace(selectedId, from = SelectSpaceFrom.SWIPE)
         if (pagerPagingEnabled) {
             onSpaceChange(
                     selectedId?.let { viewModel.getRoom(it)?.roomSummary() }
@@ -260,13 +257,13 @@ class HomeDetailFragment @Inject constructor(
     }
 
     private fun navigateBack() {
-        val previousSpaceId = appStateHandler.getSpaceBackstack().removeLastOrNull()
-        val parentSpaceId = appStateHandler.getCurrentSpace()?.flattenParentIds?.lastOrNull()
+        val previousSpaceId = spaceStateHandler.getSpaceBackstack().removeLastOrNull()
+        val parentSpaceId = spaceStateHandler.getCurrentSpace()?.flattenParentIds?.lastOrNull()
         setCurrentSpace(previousSpaceId ?: parentSpaceId)
     }
 
     private fun setCurrentSpace(spaceId: String?) {
-        appStateHandler.setCurrentSpace(spaceId, isForwardNavigation = false)
+        spaceStateHandler.setCurrentSpace(spaceId, isForwardNavigation = false)
         sharedActionViewModel.post(HomeActivitySharedAction.OnCloseSpace)
     }
 
@@ -298,13 +295,13 @@ class HomeDetailFragment @Inject constructor(
 
     private fun refreshSpaceState() {
         /* Upstream impl without care for viewPager
-        appStateHandler.getCurrentSpace()?.let {
+        spaceStateHandler.getCurrentSpace()?.let {
             onSpaceChange(it)
         }
         */
 
         // Current space/group is not live so at least refresh toolbar on resume
-        appStateHandler.getCurrentSpace()?.let { currentSpace ->
+        spaceStateHandler.getCurrentSpace()?.let { currentSpace ->
             // While paging is enabled, make title follow the view pager directly
             if (pagerPagingEnabled) {
                 return@let
@@ -317,7 +314,7 @@ class HomeDetailFragment @Inject constructor(
         super.onPause()
 
         // Persist swiped
-        appStateHandler.persistSelectedSpace()
+        spaceStateHandler.persistSelectedSpace()
     }
 
     private fun checkNotificationTabStatus(enableDialPad: Boolean? = null) {
@@ -513,12 +510,8 @@ class HomeDetailFragment @Inject constructor(
             if (fragmentToShow == null) {
                 when (tab) {
                     is HomeTab.RoomList -> {
-                        if (vectorFeatures.isNewAppLayoutEnabled()) {
-                            add(R.id.roomListContainer, HomeRoomListFragment::class.java, null, fragmentTag)
-                        } else {
-                            val params = RoomListParams(tab.displayMode)
-                            add(R.id.roomListContainer, RoomListFragment::class.java, params.toMvRxBundle(), fragmentTag)
-                        }
+                        val params = RoomListParams(tab.displayMode)
+                        add(R.id.roomListContainer, RoomListFragment::class.java, params.toMvRxBundle(), fragmentTag)
                     }
                     is HomeTab.DialPad -> {
                         add(R.id.roomListContainer, createDialPadFragment(), fragmentTag)
@@ -601,7 +594,7 @@ class HomeDetailFragment @Inject constructor(
             }
         }
         // In case the last space change was caused by swiping, we don't want to lose it
-        appStateHandler.persistSelectedSpace()
+        spaceStateHandler.persistSelectedSpace()
         pagerSpaces = safeSpaces
         pagerTab = tab
         pagerPagingEnabled = pagingEnabled
@@ -796,7 +789,7 @@ class HomeDetailFragment @Inject constructor(
         return this
     }
 
-    override fun onBackPressed(toolbarButton: Boolean) = if (vectorPreferences.spaceBackNavigation() && appStateHandler.getCurrentSpace() != null) {
+    override fun onBackPressed(toolbarButton: Boolean) = if (vectorPreferences.spaceBackNavigation() && spaceStateHandler.getCurrentSpace() != null) {
         navigateBack()
         true
     } else {

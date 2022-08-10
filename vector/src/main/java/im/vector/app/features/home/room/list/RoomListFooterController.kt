@@ -24,11 +24,13 @@ import im.vector.app.core.resources.UserPreferencesProvider
 import im.vector.app.features.home.RoomListDisplayMode
 import im.vector.app.features.home.room.filtered.FilteredRoomFooterItem
 import im.vector.app.features.home.room.filtered.filteredRoomFooterItem
+import im.vector.app.features.settings.VectorPreferences
 import javax.inject.Inject
 
 class RoomListFooterController @Inject constructor(
         private val stringProvider: StringProvider,
-        private val userPreferencesProvider: UserPreferencesProvider
+        private val userPreferencesProvider: UserPreferencesProvider,
+        private val vectorPreferences: VectorPreferences,
 ) : TypedEpoxyController<RoomListViewState>() {
 
     var listener: FilteredRoomFooterItem.Listener? = null
@@ -42,6 +44,7 @@ class RoomListFooterController @Inject constructor(
                     listener(host.listener)
                     currentFilter(data.roomFilter)
                     inSpace(data.asyncSelectedSpace.invoke() != null)
+                    simplifiedMode(host.vectorPreferences.simplifiedMode())
                 }
             }
             else -> {

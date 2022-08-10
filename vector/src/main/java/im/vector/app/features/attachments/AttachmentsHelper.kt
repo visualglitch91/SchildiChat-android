@@ -26,9 +26,9 @@ import androidx.activity.result.ActivityResultLauncher
 import im.vector.app.R
 import im.vector.app.core.dialogs.PhotoOrVideoDialog
 import im.vector.app.core.platform.Restorable
+import im.vector.app.core.resources.BuildMeta
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.lib.multipicker.MultiPicker
-import org.matrix.android.sdk.BuildConfig
 import org.matrix.android.sdk.api.session.content.ContentAttachmentData
 import timber.log.Timber
 
@@ -38,15 +38,14 @@ private const val PENDING_TYPE_KEY = "PENDING_TYPE_KEY"
 /**
  * This class helps to handle attachments by providing simple methods.
  */
-class AttachmentsHelper(val context: Context, val callback: Callback) : Restorable {
+class AttachmentsHelper(
+        val context: Context,
+        val callback: Callback,
+        private val buildMeta: BuildMeta,
+) : Restorable {
 
     interface Callback {
-        fun onContactAttachmentReady(contactAttachment: ContactAttachment) {
-            if (BuildConfig.LOG_PRIVATE_DATA) {
-                Timber.v("On contact attachment ready: $contactAttachment")
-            }
-        }
-
+        fun onContactAttachmentReady(contactAttachment: ContactAttachment)
         fun onContentAttachmentsReady(attachments: List<ContentAttachmentData>)
     }
 
@@ -155,6 +154,9 @@ class AttachmentsHelper(val context: Context, val callback: Callback) : Restorab
                 .firstOrNull()
                 ?.toContactAttachment()
                 ?.let {
+                    if (buildMeta.lowPrivacyLoggingEnabled) {
+                        Timber.v("On contact attachment ready: $it")
+                    }
                     callback.onContactAttachmentReady(it)
                 }
     }

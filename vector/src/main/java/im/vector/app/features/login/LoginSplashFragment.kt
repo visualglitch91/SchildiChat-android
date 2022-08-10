@@ -23,8 +23,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import im.vector.app.BuildConfig
 import im.vector.app.R
+import im.vector.app.core.resources.BuildMeta
 import im.vector.app.core.utils.openUrlInChromeCustomTab
 import im.vector.app.databinding.FragmentLoginSplashBinding
 import im.vector.app.features.analytics.plan.MobileScreen
@@ -38,7 +38,8 @@ import javax.inject.Inject
  * In this screen, the user is viewing an introduction to what he can do with this application.
  */
 class LoginSplashFragment @Inject constructor(
-        private val vectorPreferences: VectorPreferences
+        private val vectorPreferences: VectorPreferences,
+        private val buildMeta: BuildMeta,
 ) : AbstractLoginFragment<FragmentLoginSplashBinding>() {
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentLoginSplashBinding {
@@ -60,12 +61,12 @@ class LoginSplashFragment @Inject constructor(
         views.loginSplashSubmit.debouncedClicks { getStarted() }
         views.showPrivacyPolicyButton.debouncedClicks { showPrivacyPolicy() }
 
-        if (BuildConfig.DEBUG || vectorPreferences.developerMode()) {
+        if (buildMeta.isDebug || vectorPreferences.developerMode()) {
             views.loginSplashVersion.isVisible = true
             @SuppressLint("SetTextI18n")
-            views.loginSplashVersion.text = "Version : ${BuildConfig.VERSION_NAME}\n" +
-                    "Branch: ${BuildConfig.GIT_BRANCH_NAME}\n" +
-                    "Build: ${BuildConfig.BUILD_NUMBER}"
+            views.loginSplashVersion.text = "Version : ${buildMeta.versionName}\n" +
+                    "Branch: ${buildMeta.gitBranchName}\n" +
+                    "Build: ${buildMeta.buildNumber}"
             views.loginSplashVersion.debouncedClicks { navigator.openDebug(requireContext()) }
         }
     }

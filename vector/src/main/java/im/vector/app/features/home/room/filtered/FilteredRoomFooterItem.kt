@@ -40,13 +40,15 @@ abstract class FilteredRoomFooterItem : VectorEpoxyModel<FilteredRoomFooterItem.
     @EpoxyAttribute
     var inSpace: Boolean = false
 
+    @EpoxyAttribute
+    var simplifiedMode: Boolean = false
+
     override fun bind(holder: Holder) {
         super.bind(holder)
-        val vectorPreferences = VectorPreferences(holder.createRoomButton.context, DefaultClock())
         holder.createRoomButton.onClick { listener?.createRoom(currentFilter) }
         holder.createDirectChat.onClick { listener?.createDirectChat() }
         holder.openRoomDirectory.onClick { listener?.openRoomDirectory(currentFilter) }
-        holder.openRoomDirectory.visibility = if (vectorPreferences.simplifiedMode()) View.GONE else View.VISIBLE
+        holder.openRoomDirectory.visibility = if (simplifiedMode) View.GONE else View.VISIBLE
 
         holder.openRoomDirectory.setText(
                 if (inSpace) R.string.space_explore_activity_title else R.string.room_filtering_footer_open_room_directory
