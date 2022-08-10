@@ -1975,7 +1975,7 @@
 \nウェブクライエントを使用してサインインしますか？</string>
     <string name="login_sso_error_message">%1$sを読み込み中にエラーが発生しました（%2$d）</string>
     <string name="login_server_url_form_common_notice">利用したいサーバーのアドレスを入力してください</string>
-    <string name="login_server_url_form_modular_notice">利用したいModular SchildiChatまたはサーバーのアドレスを入力してください</string>
+    <string name="login_server_url_form_modular_notice">利用したいModular Elementまたはサーバーのアドレスを入力してください</string>
     <string name="ftue_auth_use_case_skip">迷っていますか？%sしてもいいです</string>
     <string name="ftue_auth_use_case_subtitle">みんなと繋がる手助けをいたします。</string>
     <string name="user_code_my_code">自分のコード</string>
@@ -2011,7 +2011,7 @@
     <string name="failed_to_unban">ユーザーのブロックを解除できませんでした</string>
     <string name="three_pid_revoke_invite_dialog_content">%1$sへの招待を取り消しますか？</string>
     <string name="loading_contact_book">連絡先を取得しています…</string>
-    <string name="disclaimer_title">RiotはSchildiChatになりました！</string>
+    <string name="disclaimer_title">RiotはElementになりました！</string>
     <string name="notice_crypto_unable_to_decrypt_final">このメッセージにアクセスできません</string>
     <string name="room_settings_set_avatar">アバターを設定</string>
     <string name="identity_server_set_alternative_notice_no_default">IDサーバーのURLを入力</string>
