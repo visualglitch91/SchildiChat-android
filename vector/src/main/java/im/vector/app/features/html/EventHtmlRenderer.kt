@@ -27,11 +27,15 @@ package im.vector.app.features.html
 
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.text.Spannable
 import androidx.core.text.toSpannable
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
+import com.bumptech.glide.load.resource.bitmap.TransformationUtils
 import com.bumptech.glide.request.target.Target
 import im.vector.app.R
 import im.vector.app.core.di.ActiveSessionHolder
@@ -56,7 +60,9 @@ import io.noties.markwon.inlineparser.MarkwonInlineParserPlugin
 import org.commonmark.node.Node
 import org.commonmark.parser.Parser
 import org.matrix.android.sdk.api.MatrixUrls.isMxcUrl
+import org.matrix.android.sdk.api.extensions.tryOrNull
 import timber.log.Timber
+import java.security.MessageDigest
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -64,9 +70,21 @@ import javax.inject.Singleton
 class EventHtmlRenderer @Inject constructor(
         private val htmlConfigure: MatrixHtmlPluginConfigure,
         private val context: Context,
+        private val dimensionConverter: DimensionConverter,
         private val activeSessionHolder: ActiveSessionHolder,
         private val vectorPreferences: VectorPreferences
 ) {
+
+    companion object {
+        private const val IMG_HEIGHT_ATTR = "height"
+        private const val IMG_WIDTH_ATTR = "width"
+        private val IMG_HEIGHT_REGEX = IMG_HEIGHT_ATTR.toAttrRegex()
+        private val IMG_WIDTH_REGEX = IMG_WIDTH_ATTR.toAttrRegex()
+
+        private fun String.toAttrRegex(): Regex {
+            return Regex("""\s+$this="([^"]*)"""")
+        }
+    }
 
     private fun resolveCodeBlockBackground() =
             ThemeUtils.getColor(context, R.attr.code_block_bg_color)
@@ -81,8 +99,68 @@ class EventHtmlRenderer @Inject constructor(
     }
 
     private fun String.removeHeightWidthAttrs(): String {
-        return replace(Regex("""height="([^"]*)""""), "")
-                .replace(Regex("""width="([^"]*)""""), "")
+        return replace(IMG_HEIGHT_REGEX, "")
+                .replace(IMG_WIDTH_REGEX, "")
+    }
+
+    private fun String.scalePx(regex: Regex, attr: String): Pair<String, Boolean> {
+        // To avoid searching the same regex multiple times, return if we actually found this attr
+        var foundAttr = false
+        val result = tryOrNull {
+            regex.find(this)?.let {
+                foundAttr = true
+                val pixelSize = dimensionConverter.dpToPx(it.groupValues[1].toInt())
+                this.replaceRange(it.range, """ $attr="$pixelSize"""")
+            }
+        } ?: this
+        return Pair(result, foundAttr)
+    }
+
+    private fun String.scaleImageHeightAndWidth(): String {
+        return tryOrNull { this.replace(Regex("""<img(\s+[^>]*)>""")) { matchResult ->
+            var result = Pair(matchResult.groupValues[1], false)
+            var foundDimension = false
+            for (dimension in listOf(Pair(IMG_WIDTH_ATTR, IMG_WIDTH_REGEX), Pair(IMG_HEIGHT_ATTR, IMG_HEIGHT_REGEX))) {
+                result = result.first.scalePx(dimension.second, dimension.first)
+                foundDimension = foundDimension || result.second
+            }
+            if (foundDimension) {
+                matchResult.groupValues[0].replace(matchResult.groupValues[1], result.first)
+            } else {
+                // Fallback height to ensure sane measures
+                //matchResult.groupValues[0].replace(matchResult.groupValues[1], """ height="3em" ${matchResult.groupValues[1]}""")
+                matchResult.groupValues[0]
+            }
+        } } ?: this
+    }
+
+    // https://github.com/bumptech/glide/issues/2391#issuecomment-336798418
+    class MaxSizeTransform(private val maxWidth: Int, private val maxHeight: Int) : BitmapTransformation() {
+        private val ID = "MaxSizeTransform"
+        private val ID_BYTES = ID.toByteArray()
+
+        override fun updateDiskCacheKey(messageDigest: MessageDigest) {
+            messageDigest.update(ID_BYTES)
+        }
+
+        override fun transform(pool: BitmapPool, toTransform: Bitmap, outWidth: Int, outHeight: Int): Bitmap {
+            if (toTransform.height <= maxHeight && toTransform.width <= maxWidth) {
+                return toTransform;
+            }
+            return if (toTransform.height / maxHeight > toTransform.width / maxWidth) {
+                // Scale to maxHeight
+                TransformationUtils.centerCrop(
+                        pool, toTransform,
+                        toTransform.width * maxHeight / toTransform.height, maxHeight
+                )
+            } else {
+                // Scale to maxWidth
+                TransformationUtils.centerCrop(
+                        pool, toTransform,
+                        maxWidth, toTransform.height * maxWidth / toTransform.width
+                )
+            }
+        }
     }
 
     private fun buildMarkwon() = Markwon.builder(context)
@@ -103,6 +181,9 @@ class EventHtmlRenderer @Inject constructor(
                                         """<img height="1.2em" """ + matchResult.groupValues[1].removeHeightWidthAttrs() +
                                                 " data-mx-emoticon" + matchResult.groupValues[2].removeHeightWidthAttrs() + ">"
                                     }
+                                    // Note: doesn't scale previously set mx-emoticon height, since "1.2em" is no integer
+                                    // (which strictly shouldn't be allowed, but we're hacking our way around the library already either way)
+                                    .scaleImageHeightAndWidth()
                         }
                     },
                     DetailsTagPostProcessor(this),
@@ -112,8 +193,8 @@ class EventHtmlRenderer @Inject constructor(
                             if (url.isMxcUrl()) {
                                 val contentUrlResolver = activeSessionHolder.getActiveSession().contentUrlResolver()
                                 val imageUrl = contentUrlResolver.resolveFullSize(url)
-                                // Override size to avoid crashes for huge pictures
-                                return Glide.with(context).load(imageUrl).override(500)
+                                // Set max size to avoid crashes for huge pictures, and also ensure sane measures while showing on screen
+                                return Glide.with(context).load(imageUrl).transform(MaxSizeTransform(1000, 500))
                             }
                             // We don't want to support other url schemes here, so just return a request for null
                             return Glide.with(context).load(null as String?)
