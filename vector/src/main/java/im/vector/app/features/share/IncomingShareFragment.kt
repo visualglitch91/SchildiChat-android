@@ -40,6 +40,7 @@ import im.vector.app.features.attachments.ShareIntentHandler
 import im.vector.app.features.attachments.preview.AttachmentsPreviewActivity
 import im.vector.app.features.attachments.preview.AttachmentsPreviewArgs
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -106,17 +107,24 @@ class IncomingShareFragment @Inject constructor(
         }
     }
 
-    private fun handleIncomingShareIntent(intent: Intent) = shareIntentHandler.handleIncomingShareIntent(
-            intent,
-            onFile = {
-                val sharedData = SharedData.Attachments(it)
-                viewModel.handle(IncomingShareAction.UpdateSharedData(sharedData))
-            },
-            onPlainText = {
-                val sharedData = SharedData.Text(it)
-                viewModel.handle(IncomingShareAction.UpdateSharedData(sharedData))
-            }
-    )
+    private fun handleIncomingShareIntent(intent: Intent): Boolean {
+        return try {
+            shareIntentHandler.handleIncomingShareIntent(
+                    intent,
+                    onFile = {
+                        val sharedData = SharedData.Attachments(it)
+                        viewModel.handle(IncomingShareAction.UpdateSharedData(sharedData))
+                    },
+                    onPlainText = {
+                        val sharedData = SharedData.Text(it)
+                        viewModel.handle(IncomingShareAction.UpdateSharedData(sharedData))
+                    }
+            )
+        } catch (e: SecurityException) {
+            Timber.e(e, "Security exception handling incoming share")
+            false
+        }
+    }
 
     private fun handleMultipleRoomsShareDone(viewEvent: IncomingShareViewEvents.MultipleRoomsShareDone) {
         requireActivity().let {
