@@ -42,6 +42,7 @@ class FDroidGuardServiceStarter @Inject constructor(
     }
 
     override fun stop() {
+        Timber.i("## Sync: stopping GuardService")
         val intent = Intent(appContext, GuardAndroidService::class.java)
         appContext.stopService(intent)
     }

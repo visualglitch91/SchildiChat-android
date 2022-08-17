@@ -250,6 +250,10 @@ class UnifiedPushHelper @Inject constructor(
         return UnifiedPush.getDistributor(context) == context.packageName && !fcmHelper.isFirebaseAvailable()
     }
 
+    fun doesBackgroundSync(): Boolean {
+        return isBackgroundSync() || (vectorPreferences.forceAllowBackgroundSync() && vectorPreferences.isBackgroundSyncEnabled())
+    }
+
     fun getPrivacyFriendlyUpEndpoint(): String? {
         val endpoint = unifiedPushStore.getEndpointOrToken()
         if (endpoint.isNullOrEmpty()) return null

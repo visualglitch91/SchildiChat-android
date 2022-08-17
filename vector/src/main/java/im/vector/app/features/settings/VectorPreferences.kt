@@ -230,6 +230,7 @@ class VectorPreferences @Inject constructor(
         private const val SETTINGS_FLOATING_DATE = "SETTINGS_FLOATING_DATE"
         private const val SETTINGS_SPACE_BACK_NAVIGATION = "SETTINGS_SPACE_BACK_NAVIGATION"
         const val SETTINGS_FOLLOW_SYSTEM_LOCALE = "SETTINGS_FOLLOW_SYSTEM_LOCALE"
+        const val SETTINGS_FORCE_ALLOW_BACKGROUND_SYNC = "SETTINGS_FORCE_ALLOW_BACKGROUND_SYNC"
 
         private const val DID_ASK_TO_ENABLE_SESSION_PUSH = "DID_ASK_TO_ENABLE_SESSION_PUSH"
 
@@ -1258,6 +1259,11 @@ class VectorPreferences @Inject constructor(
 
     fun isBackgroundSyncEnabled(): Boolean {
         return getFdroidSyncBackgroundMode() != BackgroundSyncMode.FDROID_BACKGROUND_SYNC_MODE_DISABLED
+    }
+
+    // SC addition
+    fun forceAllowBackgroundSync(): Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_FORCE_ALLOW_BACKGROUND_SYNC, false)
     }
 
     fun setFdroidSyncBackgroundMode(mode: BackgroundSyncMode) {

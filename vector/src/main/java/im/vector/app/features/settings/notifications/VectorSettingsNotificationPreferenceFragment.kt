@@ -22,6 +22,8 @@ import android.content.Intent
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.Parcelable
 import android.widget.Toast
 import androidx.lifecycle.LiveData
@@ -51,6 +53,7 @@ import im.vector.app.features.settings.BackgroundSyncModeChooserDialog
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.settings.VectorSettingsBaseFragment
 import im.vector.app.features.settings.VectorSettingsFragmentInteractionListener
+import im.vector.app.push.fcm.FcmHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.matrix.android.sdk.api.extensions.tryOrNull
@@ -64,6 +67,7 @@ import javax.inject.Inject
 // Referenced in vector_settings_preferences_root.xml
 class VectorSettingsNotificationPreferenceFragment @Inject constructor(
         private val unifiedPushHelper: UnifiedPushHelper,
+        private val fcmHelper: FcmHelper,
         private val pushersManager: PushersManager,
         private val activeSessionHolder: ActiveSessionHolder,
         private val vectorPreferences: VectorPreferences,
@@ -110,6 +114,22 @@ class VectorSettingsNotificationPreferenceFragment @Inject constructor(
                     unifiedPushHelper.unregister(pushersManager)
                     session.pushersService().refreshPushers()
                 }
+            }
+        }
+
+        // SC addition
+        findPreference<SwitchPreference>(VectorPreferences.SETTINGS_FORCE_ALLOW_BACKGROUND_SYNC)?.let {
+            it.setTransactionalSwitchChangeListener(lifecycleScope) { isChecked ->
+                if (isChecked) {
+                    if (!vectorPreferences.isBackgroundSyncEnabled()) {
+                        vectorPreferences.setFdroidSyncBackgroundMode(BackgroundSyncMode.FDROID_BACKGROUND_SYNC_MODE_FOR_BATTERY)
+                    }
+                } else {
+                    if (!unifiedPushHelper.isBackgroundSync() && vectorPreferences.isBackgroundSyncEnabled()) {
+                        vectorPreferences.setFdroidSyncBackgroundMode(BackgroundSyncMode.FDROID_BACKGROUND_SYNC_MODE_DISABLED)
+                    }
+                }
+                Handler(Looper.getMainLooper()).postDelayed({ refreshBackgroundSyncPrefs() } , 500)
             }
         }
 
@@ -241,8 +261,15 @@ class VectorSettingsNotificationPreferenceFragment @Inject constructor(
         }
 
         findPreference<VectorPreferenceCategory>(VectorPreferences.SETTINGS_BACKGROUND_SYNC_PREFERENCE_KEY)?.let {
-            it.isVisible = unifiedPushHelper.isBackgroundSync()
+            it.isVisible = unifiedPushHelper.doesBackgroundSync()
         }
+
+        // SC addition
+        findPreference<SwitchPreference>(VectorPreferences.SETTINGS_FORCE_ALLOW_BACKGROUND_SYNC)?.let {
+            // FCM variant doesn't have background sync code...
+            it.isVisible = !unifiedPushHelper.isBackgroundSync() && !fcmHelper.isFirebaseAvailable()
+        }
+
 
         val backgroundSyncEnabled = vectorPreferences.isBackgroundSyncEnabled()
         findPreference<VectorEditTextPreference>(VectorPreferences.SETTINGS_SET_SYNC_TIMEOUT_PREFERENCE_KEY)?.let {
@@ -350,7 +377,7 @@ class VectorSettingsNotificationPreferenceFragment @Inject constructor(
 
     private fun refreshPref() {
         // This pref may have change from troubleshoot pref fragment
-        if (unifiedPushHelper.isBackgroundSync()) {
+        if (unifiedPushHelper.doesBackgroundSync()) {
             findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_START_ON_BOOT_PREFERENCE_KEY)
                     ?.isChecked = vectorPreferences.autoStartOnBoot()
         }

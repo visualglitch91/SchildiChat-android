@@ -273,7 +273,7 @@ class WebRtcCallManager @Inject constructor(
             audioManager.setMode(CallAudioManager.Mode.DEFAULT)
             // did we start background sync? so we should stop it
             if (isInBackground) {
-                if (!unifiedPushHelper.isBackgroundSync()) {
+                if (!unifiedPushHelper.doesBackgroundSync()) {
                     currentSession?.syncService()?.stopAnyBackgroundSync()
                 } else {
                     // for fdroid we should not stop, it should continue syncing
@@ -379,7 +379,7 @@ class WebRtcCallManager @Inject constructor(
         // and thus won't be able to received events. For example if the call is
         // accepted on an other session this device will continue ringing
         if (isInBackground) {
-            if (!unifiedPushHelper.isBackgroundSync()) {
+            if (!unifiedPushHelper.doesBackgroundSync()) {
                 // only for push version as fdroid version is already doing it?
                 currentSession?.syncService()?.startAutomaticBackgroundSync(30, 0)
             } else {

@@ -57,6 +57,12 @@
             android:persistent="false"
             android:title="@string/settings_notification_method" />
 
+        <im.vector.app.core.preference.VectorSwitchPreference
+            android:key="SETTINGS_FORCE_ALLOW_BACKGROUND_SYNC"
+            android:title="@string/settings_force_allow_background_sync"
+            android:summary="@string/settings_force_allow_background_sync_summary"
+            android:defaultValue="false" />
+
         <!-- For API < 26 -->
         <im.vector.app.core.preference.VectorPreference
             android:dialogTitle="@string/settings_notification_ringtone"

@@ -140,9 +140,11 @@ class VectorMessagingReceiver : MessagingReceiver() {
                 Timber.tag(loggerTag.value).i("onNewEndpoint: skipped")
             }
         }
-        val mode = BackgroundSyncMode.FDROID_BACKGROUND_SYNC_MODE_DISABLED
-        vectorPreferences.setFdroidSyncBackgroundMode(mode)
-        guardServiceStarter.stop()
+        if (!vectorPreferences.forceAllowBackgroundSync()) {
+            val mode = BackgroundSyncMode.FDROID_BACKGROUND_SYNC_MODE_DISABLED
+            vectorPreferences.setFdroidSyncBackgroundMode(mode)
+            guardServiceStarter.stop()
+        }
     }
 
     override fun onRegistrationFailed(context: Context, instance: String) {
