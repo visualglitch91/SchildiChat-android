@@ -39,7 +39,7 @@ ext.versionMinor = 4
 // is the value for the next regular release.
 ext.versionPatch = 32
 
-ext.scVersion = 56
+ext.scVersion = 57
 
 static def getGitTimestamp() {
     def cmd = 'git show -s --format=%ct'
@@ -145,10 +145,10 @@ android {
 
         // `develop` branch will have version code from timestamp, to ensure each build from CI has a incremented versionCode.
         // Other branches (main, features, etc.) will have version code based on application version.
-        versionCode 40100890
+        versionCode 40100900
 
         // Required for sonar analysis
-        versionName "1.4.31.sc56"
+        versionName "1.4.32.sc57"
 
         // Generate a random app task affinity
         manifestPlaceholders = [appTaskAffinitySuffix: "H_${gitRevision()}"]
@@ -310,7 +310,7 @@ android {
             dimension "store"
             isDefault = true
 
-            versionName "1.4.31.sc56"
+            versionName "1.4.32.sc57"
 
             resValue "bool", "isGplay", "true"
             buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"G\""
@@ -320,7 +320,7 @@ android {
         fdroid {
             dimension "store"
 
-            versionName "1.4.31.sc56"
+            versionName "1.4.32.sc57"
 
             resValue "bool", "isGplay", "false"
             buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"F\""
