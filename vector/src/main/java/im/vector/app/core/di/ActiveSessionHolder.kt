@@ -71,7 +71,7 @@ class ActiveSessionHolder @Inject constructor(
 
     suspend fun clearActiveSession() {
         // Do some cleanup first
-        getSafeActiveSession()?.let {
+        getSafeActiveSession(startSync = false)?.let {
             Timber.w("clearActiveSession of ${it.myUserId}")
             it.callSignalingService().removeCallListener(callManager)
             it.removeListener(sessionListener)
@@ -92,8 +92,8 @@ class ActiveSessionHolder @Inject constructor(
         return activeSessionReference.get() != null || authenticationService.hasAuthenticatedSessions()
     }
 
-    fun getSafeActiveSession(): Session? {
-        return runBlocking { getOrInitializeSession(startSync = true) }
+    fun getSafeActiveSession(startSync: Boolean = true): Session? {
+        return runBlocking { getOrInitializeSession(startSync = startSync) }
     }
 
     fun getActiveSession(): Session {
@@ -102,17 +102,16 @@ class ActiveSessionHolder @Inject constructor(
     }
 
     suspend fun getOrInitializeSession(startSync: Boolean): Session? {
-        return activeSessionReference.get()?.also { session ->
-            val syncState = session.syncService().getSyncState()
-            Timber.i("SC-SYNC-0803 session existed already; $syncState") // SC-TODO clean up
-            if (startSync && syncState == SyncState.Idle) {
-                session.startSyncing(applicationContext)
-            }
-        } ?: sessionInitializer.tryInitialize(readCurrentSession = { activeSessionReference.get() }) { session ->
-            Timber.i("SC-SYNC-0803 getOrInitializeSession new session $startSync") // SC-TODO clean up
-            setActiveSession(session)
-            session.configureAndStart(applicationContext, startSyncing = startSync)
-        }
+        return activeSessionReference.get()
+                ?.also {
+                    if (startSync && !it.syncService().isSyncThreadAlive()) {
+                        it.startSyncing(applicationContext)
+                    }
+                }
+                ?: sessionInitializer.tryInitialize(readCurrentSession = { activeSessionReference.get() }) { session ->
+                    setActiveSession(session)
+                    session.configureAndStart(applicationContext, startSyncing = startSync)
+                }
     }
 
     fun isWaitingForSessionInitialization() = activeSessionReference.get() == null && authenticationService.hasAuthenticatedSessions()

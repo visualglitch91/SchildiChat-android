@@ -17,7 +17,7 @@
 package im.vector.app.features.home.room.list.home
 
 import im.vector.app.core.platform.VectorViewModelAction
-import im.vector.app.features.home.room.list.RoomListAction
+import im.vector.app.features.home.room.list.home.filter.HomeRoomFilter
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import org.matrix.android.sdk.api.session.room.notification.RoomNotificationState
 
@@ -28,4 +28,6 @@ sealed class HomeRoomListAction : VectorViewModelAction {
     data class LeaveRoom(val roomId: String) : HomeRoomListAction()
 
     data class SetMarkedUnread(val roomId: String, val markedUnread: Boolean) : HomeRoomListAction()
+
+    data class ChangeRoomFilter(val filter: HomeRoomFilter) : HomeRoomListAction()
 }

@@ -39,6 +39,7 @@ import im.vector.app.core.preference.VectorEditTextPreference
 import im.vector.app.core.preference.VectorPreference
 import im.vector.app.core.preference.VectorPreferenceCategory
 import im.vector.app.core.preference.VectorSwitchPreference
+import im.vector.app.core.pushers.FcmHelper
 import im.vector.app.core.pushers.PushersManager
 import im.vector.app.core.pushers.UnifiedPushHelper
 import im.vector.app.core.services.GuardServiceStarter
@@ -53,7 +54,6 @@ import im.vector.app.features.settings.BackgroundSyncModeChooserDialog
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.settings.VectorSettingsBaseFragment
 import im.vector.app.features.settings.VectorSettingsFragmentInteractionListener
-import im.vector.app.push.fcm.FcmHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.matrix.android.sdk.api.extensions.tryOrNull

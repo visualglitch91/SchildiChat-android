@@ -25,8 +25,7 @@ sealed class RoomListQuickActionsSharedAction(
         @StringRes val titleRes: Int,
         @DrawableRes val iconResId: Int?,
         val destructive: Boolean = false
-) :
-        VectorSharedAction {
+) : VectorSharedAction {
 
     data class MarkUnread(val roomId: String) : RoomListQuickActionsSharedAction(
             R.string.room_list_quick_actions_mark_room_unread,
