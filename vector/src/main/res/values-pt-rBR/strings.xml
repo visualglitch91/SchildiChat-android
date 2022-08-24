@@ -1166,7 +1166,7 @@
     <string name="login_server_url_form_modular_hint">Endereço de Element Matrix Services</string>
     <string name="login_server_url_form_other_hint">Endereço</string>
     <string name="login_server_url_form_modular_text">Hospedagem premium para organizações</string>
-    <string name="login_server_url_form_modular_notice">Entre o endereço do Modular SchildiChat ou Servidor que você quer usar</string>
+    <string name="login_server_url_form_modular_notice">Entre o endereço do Modular Element ou Servidor que você quer usar</string>
     <string name="login_server_url_form_common_notice">Entre o endereço do servidor que você quer usar</string>
     <string name="login_sso_error_message">Um erro ocorreu quando carregando a página: %1$s (%2$d)</string>
     <string name="login_mode_not_supported">O aplicativo não é capaz de fazer signin a este servidorcasa. O servidorcasa suporta o(s) seguinte(s) tipo(s) de signin: %1$s.
@@ -1603,7 +1603,7 @@
     <string name="crypto_error_withheld_unverified">Você não pode acessar esta mensagem porque sua sessão não é confiada pelo(a) enviador(a)</string>
     <string name="crypto_error_withheld_generic">Você não pode acessar esta mensagem porque o/a enviador(a) propositalmente não enviou as chaves</string>
     <string name="notice_crypto_unable_to_decrypt_merged">Esperando por histórico de encriptação</string>
-    <string name="disclaimer_title">Riot agora é SchildiChat!</string>
+    <string name="disclaimer_title">Riot agora é Element!</string>
     <string name="disclaimer_content">Nós estamos animados em anunciar que nós temos mudado de nome! Seu app está atualizado e você está com signin feito a sua conta.</string>
     <string name="disclaimer_negative_button">ENTENDI</string>
     <string name="disclaimer_positive_button">SABER MAIS</string>
@@ -2588,8 +2588,8 @@
     <string name="font_size_section_manually">Escolher manualmente</string>
     <string name="font_size_section_auto">Definir automaticamente</string>
     <string name="font_size_title">Encolher tamanho de fonte</string>
-    <string name="labs_enable_element_call_permission_shortcuts_summary">Auto-aprovar widgets de SchildiChat Call e conceder acesso de câmera / mic</string>
-    <string name="labs_enable_element_call_permission_shortcuts">Habilitar atalhos de permissão de SchildiChat Call</string>
+    <string name="labs_enable_element_call_permission_shortcuts_summary">Auto-aprovar widgets de Element Call e conceder acesso de câmera / mic</string>
+    <string name="labs_enable_element_call_permission_shortcuts">Habilitar atalhos de permissão de Element Call</string>
     <string name="live_location_description">Localização ao vivo</string>
     <string name="verify_invalid_qr_notice">Este QR code parece malformado. Por favor tente verificar com um outro método.</string>
     <string name="crosssigning_cannot_verify_this_session_desc">Você não vai ser capaz de acessar histórico de mensagem encriptada. Resette seu Backup de Mensagem Seguro e chaves de verificação para começar do zero.</string>
