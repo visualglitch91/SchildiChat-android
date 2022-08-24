@@ -11,6 +11,7 @@ object DbgUtil {
     const val DBG_TIMELINE_CHUNKS = "DBG_TIMELINE_CHUNKS"
     const val DBG_SHOW_DISPLAY_INDEX = "DBG_SHOW_DISPLAY_INDEX"
     const val DBG_VIEW_PAGER = "DBG_VIEW_PAGER"
+    const val DBG_VIEW_PAGER_VISUALS = "DBG_VIEW_PAGER_VISUALS"
 
     private val prefs = HashMap<String, Boolean>()
 
@@ -20,6 +21,7 @@ object DbgUtil {
             DBG_TIMELINE_CHUNKS,
             DBG_SHOW_DISPLAY_INDEX,
             DBG_VIEW_PAGER,
+            DBG_VIEW_PAGER_VISUALS,
     )
 
     fun load(context: Context) {

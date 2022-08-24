@@ -198,7 +198,7 @@ class RoomListFragment @Inject constructor(
     }
 
     private fun updateDebugView() {
-        if (DbgUtil.isDbgEnabled(DbgUtil.DBG_VIEW_PAGER)) {
+        if (DbgUtil.isDbgEnabled(DbgUtil.DBG_VIEW_PAGER_VISUALS)) {
             views.scRoomListDebugView.isVisible = true
             withState(roomListViewModel) {
                 viewPagerDimber.i {

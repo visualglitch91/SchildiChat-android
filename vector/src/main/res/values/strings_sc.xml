@@ -163,6 +163,7 @@
     <string name="settings_sc_dbg_show_display_index">Show displayIndex in timeline</string>
     <string name="settings_sc_dbg_show_read_tracking">Show read tracking</string>
     <string name="settings_sc_dbg_view_pager">ViewPager debugging</string>
+    <string name="settings_sc_dbg_view_pager_visuals">Show ViewPager debugging information</string>
 
     <!-- SC labs -->
     <string name="settings_upstream_labs">Element features</string>
