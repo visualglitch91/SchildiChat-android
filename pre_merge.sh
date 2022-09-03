@@ -9,7 +9,7 @@ source "$mydir/merge_helpers.sh"
 require_clean_git
 
 # Revert Schildi's upstream string changes
-git checkout `upstream_previous_tag` -- "$mydir/vector/src/main/res/**/strings.xml"
+git checkout `upstream_common_base` -- "$mydir/vector/src/main/res/**/strings.xml"
 git commit -m "Automatic revert to unchanged upstream strings, pt.1"
 
 # Keep in sync with post_merge.sh!
