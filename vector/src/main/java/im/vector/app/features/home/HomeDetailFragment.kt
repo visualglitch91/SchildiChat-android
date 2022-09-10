@@ -101,8 +101,8 @@ class HomeDetailFragment :
     private lateinit var sharedCallActionViewModel: SharedKnownCallsViewModel
 
     // When this changes, restart the activity for changes to apply
-    private val shouldShowUnimportantCounterBadge = vectorPreferences.shouldShowUnimportantCounterBadge()
-    private val useAggregateCounts = vectorPreferences.aggregateUnreadRoomCounts()
+    private val shouldShowUnimportantCounterBadge: Boolean by lazy { vectorPreferences.shouldShowUnimportantCounterBadge() }
+    private val useAggregateCounts: Boolean by lazy { vectorPreferences.aggregateUnreadRoomCounts() }
 
     private var hasUnreadRooms = false
         set(value) {

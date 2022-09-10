@@ -1611,43 +1611,45 @@ class TimelineFragment :
         }
     }
 
-    private val stickyHeaderItemDecoration = object : StickyHeaderItemDecoration(timelineEventController, reverse = true) {
-        override fun isHeader(model: EpoxyModel<*>?): Boolean {
-            return model is DaySeparatorItem
-        }
-
-        override fun preventOverlay(model: EpoxyModel<*>?): Boolean {
-            return model is TimelineReadMarkerItem
-        }
-
-        override fun getHeaderViewHolderForItem(headerPosition: Int, parent: RecyclerView): EpoxyViewHolder {
-            // Same as super
-            val viewHolder = timelineEventController.adapter.onCreateViewHolder(
-                    parent,
-                    timelineEventController.adapter.getItemViewType(headerPosition)
-            )
-            timelineEventController.adapter.onBindViewHolder(viewHolder, headerPosition)
-            // Same as super -- end
-
-            // We want to hide the separator line for floating dates
-            (viewHolder.holder as? DaySeparatorItem.Holder)?.let { DaySeparatorItem.asFloatingDate(it) }
-
-            return viewHolder
-        }
-
-        // While the header has a sticky overlay, only hide its text, not the separator lines
-        override fun updateOverlaidHeader(parent: RecyclerView, position: Int, isCurrentlyOverlaid: Boolean): Boolean {
-            val model = tryOrNull { timelineEventController.adapter.getModelAtPosition(position) as? DaySeparatorItem }
-            if (model != null) {
-                val viewHolder = ((parent.findViewHolderForAdapterPosition(position) as? EpoxyViewHolder)?.holder) as? DaySeparatorItem.Holder
-                model.shouldBeVisible(!isCurrentlyOverlaid, viewHolder)
-                return true
+    private val stickyHeaderItemDecoration: StickyHeaderItemDecoration by lazy {
+        object : StickyHeaderItemDecoration(timelineEventController, reverse = true) {
+            override fun isHeader(model: EpoxyModel<*>?): Boolean {
+                return model is DaySeparatorItem
             }
-            return false
-        }
 
-        override fun getViewForFadeAnimation(holder: EpoxyViewHolder): View {
-            return (holder.holder as? DaySeparatorItem.Holder)?.dayTextView ?: super.getViewForFadeAnimation(holder)
+            override fun preventOverlay(model: EpoxyModel<*>?): Boolean {
+                return model is TimelineReadMarkerItem
+            }
+
+            override fun getHeaderViewHolderForItem(headerPosition: Int, parent: RecyclerView): EpoxyViewHolder {
+                // Same as super
+                val viewHolder = timelineEventController.adapter.onCreateViewHolder(
+                        parent,
+                        timelineEventController.adapter.getItemViewType(headerPosition)
+                )
+                timelineEventController.adapter.onBindViewHolder(viewHolder, headerPosition)
+                // Same as super -- end
+
+                // We want to hide the separator line for floating dates
+                (viewHolder.holder as? DaySeparatorItem.Holder)?.let { DaySeparatorItem.asFloatingDate(it) }
+
+                return viewHolder
+            }
+
+            // While the header has a sticky overlay, only hide its text, not the separator lines
+            override fun updateOverlaidHeader(parent: RecyclerView, position: Int, isCurrentlyOverlaid: Boolean): Boolean {
+                val model = tryOrNull { timelineEventController.adapter.getModelAtPosition(position) as? DaySeparatorItem }
+                if (model != null) {
+                    val viewHolder = ((parent.findViewHolderForAdapterPosition(position) as? EpoxyViewHolder)?.holder) as? DaySeparatorItem.Holder
+                    model.shouldBeVisible(!isCurrentlyOverlaid, viewHolder)
+                    return true
+                }
+                return false
+            }
+
+            override fun getViewForFadeAnimation(holder: EpoxyViewHolder): View {
+                return (holder.holder as? DaySeparatorItem.Holder)?.dayTextView ?: super.getViewForFadeAnimation(holder)
+            }
         }
     }
 
