@@ -154,4 +154,5 @@
     <string name="custom_emotes_this_room">Emoji z místnosti</string>
     <string name="settings_follow_system_locale">Použít systémový jazyk</string>
     <string name="settings_follow_system_locale_summary">Při změně jazyka systému změnit také jazyk aplikace</string>
+    <string name="settings_sc_dbg_view_pager_visuals">Zobrazení ladicích informací ViewPageru</string>
 </resources>
