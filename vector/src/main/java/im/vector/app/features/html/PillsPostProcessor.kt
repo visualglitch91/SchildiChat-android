@@ -26,6 +26,7 @@ import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.glide.GlideApp
 import im.vector.app.features.home.AvatarRenderer
 import io.noties.markwon.core.spans.LinkSpan
+import io.noties.markwon.image.AsyncDrawableSpan
 import org.matrix.android.sdk.api.session.getRoomSummary
 import org.matrix.android.sdk.api.session.getUser
 import org.matrix.android.sdk.api.session.permalinks.PermalinkData
@@ -83,6 +84,11 @@ class PillsPostProcessor @AssistedInject constructor(
             val pillSpan = linkSpan.createPillSpan(roomId) ?: return@forEach
             val startSpan = renderedText.getSpanStart(linkSpan)
             val endSpan = renderedText.getSpanEnd(linkSpan)
+            // GlideImagesPlugin causes duplicated pills if we have a nested image: https://github.com/SchildiChat/SchildiChat-android/issues/148
+            // -> do not add pills if we have a nested image
+            if (renderedText.getSpans(startSpan, endSpan, AsyncDrawableSpan::class.java).isNotEmpty()) {
+                return@forEach
+            }
             addPillSpan(renderedText, pillSpan, startSpan, endSpan)
         }
     }
