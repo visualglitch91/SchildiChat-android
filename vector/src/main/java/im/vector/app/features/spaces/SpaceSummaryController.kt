@@ -80,7 +80,7 @@ class SpaceSummaryController @Inject constructor(
                         avatarRenderer(host.avatarRenderer)
                         id("invite_${roomSummary.roomId}")
                         matrixItem(roomSummary.toMatrixItem())
-                        countState(UnreadCounterBadgeView.State(1, true, 0, false))
+                        countState(UnreadCounterBadgeView.State.Count(1, true, 0, false))
                         selected(false)
                         description(host.stringProvider.getString(R.string.you_are_invited))
                         canDrag(false)
@@ -91,7 +91,7 @@ class SpaceSummaryController @Inject constructor(
         homeSpaceSummaryItem {
             id("space_home")
             selected(selectedSpace == null)
-            countState(UnreadCounterBadgeView.State(homeCount.totalCount, homeCount.isHighlight, homeCount.unreadCount, false))
+            countState(UnreadCounterBadgeView.State.Count(homeCount.totalCount, homeCount.isHighlight, homeCount.unreadCount, false))
             listener { host.callback?.onSpaceSelected(null) }
         }
 
@@ -123,7 +123,7 @@ class SpaceSummaryController @Inject constructor(
                         listener { host.callback?.onSpaceSelected(roomSummary) }
                         toggleExpand { host.callback?.onToggleExpand(roomSummary) }
                         countState(
-                                UnreadCounterBadgeView.State(
+                                UnreadCounterBadgeView.State.Count(
                                         if (useAggregateCounts) roomSummary.aggregatedNotificationCount else roomSummary.notificationCount,
                                         roomSummary.highlightCount > 0,
                                         if (useAggregateCounts) roomSummary.aggregatedUnreadCount else roomSummary.safeUnreadCount,
@@ -179,7 +179,7 @@ class SpaceSummaryController @Inject constructor(
             toggleExpand { host.callback?.onToggleExpand(childSummary) }
             indent(currentDepth)
             countState(
-                    UnreadCounterBadgeView.State(
+                    UnreadCounterBadgeView.State.Count(
                             if (useAggregateCounts) childSummary.aggregatedNotificationCount else childSummary.notificationCount,
                             childSummary.highlightCount > 0,
                             if (useAggregateCounts) childSummary.aggregatedUnreadCount else childSummary.safeUnreadCount,

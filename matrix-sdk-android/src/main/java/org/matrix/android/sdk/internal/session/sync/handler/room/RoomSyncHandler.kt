@@ -154,12 +154,12 @@ internal class RoomSyncHandler @Inject constructor(
             }
             is HandlingStrategy.INVITED ->
                 handlingStrategy.data.mapWithProgress(reporter, InitialSyncStep.ImportingAccountInvitedRooms, 0.1f) {
-                    handleInvitedRoom(realm, it.key, it.value, insertType, syncLocalTimeStampMillis)
+                    handleInvitedRoom(realm, it.key, it.value, insertType, syncLocalTimeStampMillis, aggregator)
                 }
 
             is HandlingStrategy.LEFT -> {
                 handlingStrategy.data.mapWithProgress(reporter, InitialSyncStep.ImportingAccountLeftRooms, 0.3f) {
-                    handleLeftRoom(realm, it.key, it.value, insertType, syncLocalTimeStampMillis)
+                    handleLeftRoom(realm, it.key, it.value, insertType, syncLocalTimeStampMillis, aggregator)
                 }
             }
         }
@@ -286,7 +286,8 @@ internal class RoomSyncHandler @Inject constructor(
                 roomSync.summary,
                 roomSync.unreadNotifications,
                 roomSync.unreadCount,
-                updateMembers = hasRoomMember
+                updateMembers = hasRoomMember,
+                aggregator = aggregator
         )
         return roomEntity
     }
@@ -296,7 +297,8 @@ internal class RoomSyncHandler @Inject constructor(
             roomId: String,
             roomSync: InvitedRoomSync,
             insertType: EventInsertType,
-            syncLocalTimestampMillis: Long
+            syncLocalTimestampMillis: Long,
+            aggregator: SyncResponsePostTreatmentAggregator
     ): RoomEntity {
         Timber.v("Handle invited sync for room $roomId")
         val isInitialSync = insertType == EventInsertType.INITIAL_SYNC
@@ -320,7 +322,7 @@ internal class RoomSyncHandler @Inject constructor(
             it.type == EventType.STATE_ROOM_MEMBER
         }
         roomChangeMembershipStateDataSource.setMembershipFromSync(roomId, Membership.INVITE)
-        roomSummaryUpdater.update(realm, roomId, Membership.INVITE, updateMembers = true, inviterId = inviterEvent?.senderId)
+        roomSummaryUpdater.update(realm, roomId, Membership.INVITE, updateMembers = true, inviterId = inviterEvent?.senderId, aggregator = aggregator)
         return roomEntity
     }
 
@@ -329,7 +331,8 @@ internal class RoomSyncHandler @Inject constructor(
             roomId: String,
             roomSync: RoomSync,
             insertType: EventInsertType,
-            syncLocalTimestampMillis: Long
+            syncLocalTimestampMillis: Long,
+            aggregator: SyncResponsePostTreatmentAggregator
     ): RoomEntity {
         val isInitialSync = insertType == EventInsertType.INITIAL_SYNC
         val roomEntity = RoomEntity.getOrCreate(realm, roomId)
@@ -367,7 +370,7 @@ internal class RoomSyncHandler @Inject constructor(
         roomEntity.chunks.clearWith { it.deleteOnCascade(deleteStateEvents = true, canDeleteRoot = true) }
         roomTypingUsersHandler.handle(realm, roomId, null)
         roomChangeMembershipStateDataSource.setMembershipFromSync(roomId, Membership.LEAVE)
-        roomSummaryUpdater.update(realm, roomId, membership, roomSync.summary, roomSync.unreadNotifications)
+        roomSummaryUpdater.update(realm, roomId, membership, roomSync.summary, roomSync.unreadNotifications, aggregator = aggregator)
         return roomEntity
     }
 

@@ -74,7 +74,7 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
         forceAllowFooterOverlay = null
         super.bind(holder)
 
-        val isImageMessage = attributes.informationData.messageType == MessageType.MSGTYPE_IMAGE
+        val isImageMessage = attributes.informationData.messageType in listOf(MessageType.MSGTYPE_IMAGE, MessageType.MSGTYPE_STICKER_LOCAL)
         val autoplayAnimatedImages = attributes.autoplayAnimatedImages
 
         val bubbleWrapView = (holder.view as? ScMessageBubbleWrapView)
@@ -228,6 +228,6 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
     }
 
     companion object {
-        private const val STUB_ID = R.id.messageContentMediaStub
+        private val STUB_ID = R.id.messageContentMediaStub
     }
 }

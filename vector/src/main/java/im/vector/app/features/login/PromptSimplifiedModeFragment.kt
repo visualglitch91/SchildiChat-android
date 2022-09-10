@@ -20,11 +20,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.databinding.FragmentPromptSimplifiedModeBinding
 import im.vector.app.features.settings.VectorPreferences
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class PromptSimplifiedModeFragment @Inject constructor(private val vectorPreferences: VectorPreferences) : VectorBaseFragment<FragmentPromptSimplifiedModeBinding>() {
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPromptSimplifiedModeBinding {

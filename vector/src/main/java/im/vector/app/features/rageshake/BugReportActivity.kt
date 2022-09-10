@@ -135,7 +135,7 @@ class BugReportActivity :
         }
     }
 
-    private fun isInternalBuild(): Boolean = BuildConfig.DEBUG || BuildConfig.GIT_BRANCH_NAME == "sm_fdroid"
+    private fun isInternalBuild(): Boolean = BuildConfig.DEBUG || buildMeta.gitBranchName == "sm_fdroid"
 
     private fun minBugReportLength(): Int {
         return if (isInternalBuild()) {

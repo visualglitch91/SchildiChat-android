@@ -133,6 +133,6 @@ abstract class MessageLiveLocationItem : AbsMessageLocationItem<MessageLiveLocat
     }
 
     companion object {
-        private const val STUB_ID = R.id.messageContentLiveLocationStub
+        private val STUB_ID = R.id.messageContentLiveLocationStub
     }
 }

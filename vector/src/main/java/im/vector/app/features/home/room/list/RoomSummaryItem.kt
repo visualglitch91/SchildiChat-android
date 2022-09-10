@@ -119,7 +119,7 @@ abstract class RoomSummaryItem : VectorEpoxyModel<RoomSummaryItem.Holder>(R.layo
             itemLongClickListener?.onLongClick(it) ?: false
         }
         holder.titleView.text = matrixItem.getBestName()
-        holder.unreadCounterBadgeView.render(UnreadCounterBadgeView.State(unreadNotificationCount, showHighlighted, unreadCount ?: 0, markedUnread))
+        holder.unreadCounterBadgeView.render(UnreadCounterBadgeView.State.Count(unreadNotificationCount, showHighlighted, unreadCount ?: 0, markedUnread))
         holder.unreadIndentIndicator.isVisible = hasUnreadMessage
         // Mirror unreadCounterBadgeView colors
         holder.unreadIndentIndicator.setBackgroundColor(

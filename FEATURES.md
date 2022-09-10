@@ -23,7 +23,6 @@ Here you can find some extra features and changes compared to Element Android (w
 - Option to open a room without marking anything as read automatically
 - Remember across app restarts which categories in the chat overview are expanded or collapsed
 - Message count passed to the notification badge (visible next to the launcher icon on recent Android versions)
-- Bigger stickers
 - Don't always repeat sender name for multiple stickers by the same sender
 - Chat options menu: add entry for member list (to skip the step of clicking on the room name, to enter room settings), and hide the less frequently used invite option (which is still available from the member list)
 - Smaller compose area (as before Element 1.0.12)

@@ -484,7 +484,7 @@ internal class DefaultTimeline(
         return targetEventOffset
     }
 
-    override fun getTargetEventOffset(offset: Int) {
+    override fun setTargetEventOffset(offset: Int) {
         targetEventOffset = offset
     }
 }

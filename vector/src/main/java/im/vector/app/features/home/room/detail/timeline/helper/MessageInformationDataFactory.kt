@@ -38,11 +38,13 @@ import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.events.model.content.EncryptedEventContent
 import org.matrix.android.sdk.api.session.events.model.getMsgType
 import org.matrix.android.sdk.api.session.events.model.isAttachmentMessage
+import org.matrix.android.sdk.api.session.events.model.isSticker
 import org.matrix.android.sdk.api.session.events.model.toModel
 import org.matrix.android.sdk.api.session.room.members.roomMemberQueryParams
 import org.matrix.android.sdk.api.session.room.model.Membership
 import org.matrix.android.sdk.api.session.room.model.ReferencesAggregatedContent
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
+import org.matrix.android.sdk.api.session.room.model.message.MessageType
 import org.matrix.android.sdk.api.session.room.model.message.MessageVerificationRequestContent
 import org.matrix.android.sdk.api.session.room.send.SendState
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
@@ -173,7 +175,7 @@ class MessageInformationDataFactory @Inject constructor(
                 isLastFromThisSender = isLastFromThisSender,
                 e2eDecoration = e2eDecoration,
                 sendStateDecoration = sendStateDecoration,
-                messageType = event.root.getMsgType()
+                messageType = if (event.root.isSticker()) { MessageType.MSGTYPE_STICKER_LOCAL } else { event.root.getMsgType() }
         )
     }
 
@@ -211,7 +213,7 @@ class MessageInformationDataFactory @Inject constructor(
                             .toModel<EncryptedEventContent>()
                             ?.deviceId
                             ?.let { deviceId ->
-                                session.cryptoService().getDeviceInfo(event.root.senderId ?: "", deviceId)
+                                session.cryptoService().getCryptoDeviceInfo(event.root.senderId ?: "", deviceId)
                             }
                     when {
                         sendingDevice == null -> {

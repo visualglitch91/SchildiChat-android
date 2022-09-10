@@ -22,6 +22,7 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.core.dialogs.PhotoOrVideoDialog
 import im.vector.app.core.extensions.restart
@@ -30,6 +31,7 @@ import im.vector.app.core.preference.VectorPreference
 import im.vector.app.core.preference.VectorSwitchPreference
 import im.vector.app.features.MainActivity
 import im.vector.app.features.MainActivityArgs
+import im.vector.app.features.VectorFeatures
 import im.vector.app.features.analytics.plan.MobileScreen
 import im.vector.app.features.configuration.VectorConfiguration
 import im.vector.app.features.settings.font.FontScaleSettingActivity
@@ -40,12 +42,15 @@ import org.matrix.android.sdk.api.session.presence.model.PresenceEnum
 import java.util.Locale
 import javax.inject.Inject
 
-class VectorSettingsPreferencesFragment @Inject constructor(
-        private val vectorConfiguration: VectorConfiguration,
-        private val bubbleThemeUtils: BubbleThemeUtils,
-        private val vectorPreferences: VectorPreferences,
-        private val fontScalePreferences: FontScalePreferences,
-) : VectorSettingsBaseFragment() {
+@AndroidEntryPoint
+class VectorSettingsPreferencesFragment :
+        VectorSettingsBaseFragment() {
+
+    @Inject lateinit var vectorPreferences: VectorPreferences
+    @Inject lateinit var bubbleThemeUtils: BubbleThemeUtils
+    @Inject lateinit var vectorConfiguration: VectorConfiguration
+    @Inject lateinit var fontScalePreferences: FontScalePreferences
+    @Inject lateinit var vectorFeatures: VectorFeatures
 
     companion object {
         const val BUBBLE_APPEARANCE_KEY = "BUBBLE_APPEARANCE_KEY"
@@ -153,6 +158,11 @@ class VectorSettingsPreferencesFragment @Inject constructor(
                 MainActivity.restartApp(requireActivity(), MainActivityArgs(clearCache = false))
                 true
             }
+        }
+
+        findPreference<Preference>(VectorPreferences.SETTINGS_PREF_SPACE_CATEGORY)!!.let { pref ->
+            pref.isVisible = !vectorFeatures.isNewAppLayoutFeatureEnabled()
+            pref.isEnabled = !vectorPreferences.isNewAppLayoutEnabled()
         }
 
         // Url preview

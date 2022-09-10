@@ -321,7 +321,7 @@ class BugReporter @Inject constructor(
                     val enabledDebugSettings = DbgUtil.ALL_PREFS.filter { DbgUtil.isDbgEnabled(it) }
                     builder.addFormDataPart("enabledDebugSettings", enabledDebugSettings.joinToString())
                             .addFormDataPart("reportTime", reportTime)
-                            .addFormDataPart("packageName", BuildConfig.APPLICATION_ID)
+                            .addFormDataPart("packageName", buildMeta.applicationId)
 
                     val buildNumber = buildMeta.buildNumber
                     if (buildNumber.isNotEmpty() && buildNumber != "0") {

@@ -74,7 +74,7 @@ interface Timeline {
     /**
      * Set the offset for the target event, e.g. if we want to load the event just below said id
      */
-    fun getTargetEventOffset(offset: Int)
+    fun setTargetEventOffset(offset: Int)
 
     /**
      * Check if the timeline can be enriched by paginating.

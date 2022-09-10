@@ -20,6 +20,7 @@ import android.os.Bundle
 import androidx.preference.Preference
 import androidx.preference.SeekBarPreference
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.core.platform.VectorBaseActivity
 import im.vector.app.core.preference.VectorPreference
@@ -29,9 +30,11 @@ import im.vector.app.features.analytics.plan.MobileScreen
 import im.vector.app.features.rageshake.RageShake
 import javax.inject.Inject
 
-class VectorSettingsAdvancedSettingsFragment @Inject constructor(
-        private val vectorPreferences: VectorPreferences
-): VectorSettingsBaseFragment() {
+@AndroidEntryPoint
+class VectorSettingsAdvancedSettingsFragment :
+        VectorSettingsBaseFragment() {
+
+    @Inject lateinit var vectorPreferences: VectorPreferences
 
     override var titleRes = R.string.settings_advanced_settings
     override val preferenceXmlRes = R.xml.vector_settings_advanced_settings

@@ -43,7 +43,7 @@ fi
 
 last_tag=`downstream_latest_tag`
 
-build_gradle="vector/build.gradle"
+build_gradle="vector-app/build.gradle"
 
 get_prop() {
     local prop="$1"

@@ -47,6 +47,7 @@ class AttachmentsHelper(
     interface Callback {
         fun onContactAttachmentReady(contactAttachment: ContactAttachment)
         fun onContentAttachmentsReady(attachments: List<ContentAttachmentData>)
+        fun onAttachmentError(throwable: Throwable)
     }
 
     // Capture path allows to handle camera image picking. It must be restored if the activity gets killed.
@@ -76,21 +77,21 @@ class AttachmentsHelper(
     /**
      * Starts the process for handling file picking.
      */
-    fun selectFile(activityResultLauncher: ActivityResultLauncher<Intent>) {
+    fun selectFile(activityResultLauncher: ActivityResultLauncher<Intent>) = doSafe {
         MultiPicker.get(MultiPicker.FILE).startWith(activityResultLauncher)
     }
 
     /**
      * Starts the process for handling image/video picking.
      */
-    fun selectGallery(activityResultLauncher: ActivityResultLauncher<Intent>) {
+    fun selectGallery(activityResultLauncher: ActivityResultLauncher<Intent>) = doSafe {
         MultiPicker.get(MultiPicker.MEDIA).startWith(activityResultLauncher)
     }
 
     /**
      * Starts the process for handling audio picking.
      */
-    fun selectAudio(activityResultLauncher: ActivityResultLauncher<Intent>) {
+    fun selectAudio(activityResultLauncher: ActivityResultLauncher<Intent>) = doSafe {
         MultiPicker.get(MultiPicker.AUDIO).startWith(activityResultLauncher)
     }
 
@@ -104,20 +105,12 @@ class AttachmentsHelper(
             cameraVideoActivityResultLauncher: ActivityResultLauncher<Intent>
     ) {
         PhotoOrVideoDialog(activity, vectorPreferences).show(object : PhotoOrVideoDialog.PhotoOrVideoDialogListener {
-            override fun takePhoto() {
-                try {
-                    captureUri = MultiPicker.get(MultiPicker.CAMERA).startWithExpectingFile(context, cameraActivityResultLauncher)
-                } catch (e: ActivityNotFoundException) {
-                    Toast.makeText(activity, R.string.error_no_external_application_found, Toast.LENGTH_LONG).show()
-                }
+            override fun takePhoto() = doSafe {
+                captureUri = MultiPicker.get(MultiPicker.CAMERA).startWithExpectingFile(context, cameraActivityResultLauncher)
             }
 
-            override fun takeVideo() {
-                try {
-                    captureUri = MultiPicker.get(MultiPicker.CAMERA_VIDEO).startWithExpectingFile(context, cameraVideoActivityResultLauncher)
-                } catch (e: ActivityNotFoundException) {
-                    Toast.makeText(activity, R.string.error_no_external_application_found, Toast.LENGTH_LONG).show()
-                }
+            override fun takeVideo() = doSafe {
+                captureUri = MultiPicker.get(MultiPicker.CAMERA_VIDEO).startWithExpectingFile(context, cameraVideoActivityResultLauncher)
             }
         })
     }
@@ -125,8 +118,16 @@ class AttachmentsHelper(
     /**
      * Starts the process for handling contact picking.
      */
-    fun selectContact(activityResultLauncher: ActivityResultLauncher<Intent>) {
+    fun selectContact(activityResultLauncher: ActivityResultLauncher<Intent>) = doSafe {
         MultiPicker.get(MultiPicker.CONTACT).startWith(activityResultLauncher)
+    }
+
+    private fun doSafe(function: () -> Unit) {
+        try {
+            function()
+        } catch (activityNotFound: ActivityNotFoundException) {
+            callback.onAttachmentError(activityNotFound)
+        }
     }
 
     /**
