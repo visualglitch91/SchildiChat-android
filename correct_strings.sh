@@ -15,18 +15,19 @@ if [ ! -z "$uncommitted" ]; then
 fi
 
 mydir="."
+stringdir="$mydir/library/ui-strings/src/main/res"
 
 # Element -> SchildiChat
-find "$mydir/vector/src/main/res" -name strings.xml -exec \
+find "$stringdir" -name strings.xml -exec \
     sed -i 's|Element|SchildiChat|g' '{}' \;
 # Restore Element where it makes sense
-find "$mydir/vector/src/main/res" -name strings.xml -exec \
+find "$stringdir" -name strings.xml -exec \
     sed -i 's/SchildiChat \(Web\|iOS\|Desktop\)/Element \1/g' '{}' \;
-find "$mydir/vector/src/main/res" -name strings.xml -exec \
+find "$stringdir" -name strings.xml -exec \
     sed -i 's|SchildiChat Matrix Services|Element Matrix Services|g' '{}' \;
-find "$mydir/vector/src/main/res" -name strings.xml -exec \
+find "$stringdir" -name strings.xml -exec \
     sed -i 's|\("use_latest_riot">.*\)SchildiChat\(.*</string>\)|\1Element\2|g' '{}' \;
-find "$mydir/vector/src/main/res" -name strings.xml -exec \
+find "$stringdir" -name strings.xml -exec \
     sed -i 's|\("use_other_session_content_description">.*\)SchildiChat\(.*SchildiChat.*</string>\)|\1SchildiChat/Element\2|' '{}' \;
 
 unpatched_strings_file=.tmp_unpatched_strings
@@ -35,8 +36,8 @@ new_patched_strings_file=.tmp_new_patched_strings
 patch_file_updated=0
 
 # Requires manual intervention for correct grammar
-#for strings_de in "$mydir/vector/src/main/res/values-de/strings.xml" "$mydir/matrix-sdk-android/src/main/res/values-de/strings.xml"; do
-for strings_de in "$mydir/vector/src/main/res/values-de/strings.xml"; do
+#for strings_de in "$stringdir/values-de/strings.xml" "$mydir/matrix-sdk-android/src/main/res/values-de/strings.xml"; do
+for strings_de in "$stringdir/values-de/strings.xml"; do
     echo "Apply known language fixes to $strings_de..."
     source ./correct_strings_de.sh
     while grep -q "wolpertinger\|schlumpfwesen" "$strings_de"; do
