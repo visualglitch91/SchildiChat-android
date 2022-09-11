@@ -97,9 +97,10 @@ class SpaceStateHandlerImpl @Inject constructor(
             from: SelectSpaceFrom,
     ) {
         val activeSession = session ?: activeSessionHolder.getSafeActiveSession() ?: return
-        val spaceToLeave = selectedSpaceDataSourceSc.currentValue?.orNull()?.first
+        val currentValue = selectedSpaceDataSourceSc.currentValue?.orNull()
+        val spaceToLeave = currentValue?.first
         val spaceToSet = spaceId?.let { activeSession.getRoomSummary(spaceId) }
-        val sameSpaceSelected = spaceId == spaceToLeave?.roomId
+        val sameSpaceSelected = currentValue != null && spaceId == spaceToLeave?.roomId
 
         if (sameSpaceSelected) {
             return
