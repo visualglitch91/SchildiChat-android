@@ -472,7 +472,7 @@ class TimelineViewModel @AssistedInject constructor(
             is RoomDetailAction.OnClickMisconfiguredEncryption -> handleClickMisconfiguredE2E()
             is RoomDetailAction.ResendMessage -> handleResendEvent(action)
             is RoomDetailAction.RemoveFailedEcho -> handleRemove(action)
-            is RoomDetailAction.MarkAllAsRead -> handleMarkAllAsRead()
+            is RoomDetailAction.MarkAllAsRead -> handleMarkAllAsRead(action)
             is RoomDetailAction.ReportContent -> handleReportContent(action)
             is RoomDetailAction.IgnoreUser -> handleIgnoreUser(action)
             is RoomDetailAction.EnterTrackingUnreadMessagesState -> startTrackingUnreadMessages(action)
@@ -835,6 +835,7 @@ class TimelineViewModel @AssistedInject constructor(
                     // SC extras start
                     R.id.show_room_info -> true // SC
                     R.id.show_participants -> true // SC
+                    R.id.menu_mark_as_read -> initialState.openAnonymously
                     // SC dev start
                     R.id.dev_bubble_style,
                     R.id.dev_hidden_events,
@@ -1120,11 +1121,11 @@ class TimelineViewModel @AssistedInject constructor(
      */
     private fun TimelineEvent.indexOfEvent(): Int = timeline?.getIndexOfEvent(eventId) ?: Int.MAX_VALUE
 
-    private fun handleMarkAllAsRead() {
+    private fun handleMarkAllAsRead(action: RoomDetailAction.MarkAllAsRead) {
         if (room == null) return
         setState { copy(unreadState = UnreadState.HasNoUnread) }
         viewModelScope.launch {
-            tryOrNullAnon { room.readService().markAsRead(ReadService.MarkAsReadParams.BOTH) }
+            tryOrNullAnon(action.forceIfOpenedAnonymously) { room.readService().markAsRead(ReadService.MarkAsReadParams.BOTH) }
         }
     }
 
@@ -1481,8 +1482,8 @@ class TimelineViewModel @AssistedInject constructor(
         return initialState.openAtFirstUnread ?: vectorPreferences.loadRoomAtFirstUnread()
     }
 
-    private inline fun <A>tryOrNullAnon(operation: () -> A): A? {
-        if (initialState.openAnonymously) {
+    private inline fun <A>tryOrNullAnon(forceAllow: Boolean = false, operation: () -> A): A? {
+        if (initialState.openAnonymously && !forceAllow) {
             return null
         }
         return tryOrNull { operation() }

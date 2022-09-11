@@ -1073,7 +1073,7 @@ class TimelineFragment :
             onJumpToReadMarkerClicked()
         }
         views.jumpToReadMarkerView.setOnCloseIconClickListener {
-            timelineViewModel.handle(RoomDetailAction.MarkAllAsRead)
+            timelineViewModel.handle(RoomDetailAction.MarkAllAsRead())
         }
     }
 
@@ -1289,6 +1289,10 @@ class TimelineFragment :
             }
             R.id.show_room_info -> {
                 navigator.openRoomProfile(requireActivity(), timelineArgs.roomId)
+                true
+            }
+            R.id.menu_mark_as_read -> {
+                timelineViewModel.handle(RoomDetailAction.MarkAllAsRead(forceIfOpenedAnonymously = true))
                 true
             }
             R.id.dev_hidden_events -> {
