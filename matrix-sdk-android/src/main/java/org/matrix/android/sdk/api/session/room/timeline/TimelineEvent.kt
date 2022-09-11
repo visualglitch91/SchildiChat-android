@@ -193,9 +193,9 @@ fun TimelineEvent.getTextEditableContent(): String {
  * Get the latest displayable content.
  * Will take care to hide spoiler text
  */
-fun MessageContent.getTextDisplayableContent(): String {
-    return newContent?.toModel<MessageTextContent>()?.matrixFormattedBody?.let { ContentUtils.formatSpoilerTextFromHtml(it) }
+fun MessageContent.getTextDisplayableContent(imageFallback: String = "￼"): String {
+    return newContent?.toModel<MessageTextContent>()?.matrixFormattedBody?.let { ContentUtils.formatSpoilerTextFromHtml(it, imageFallback = imageFallback) }
             ?: newContent?.toModel<MessageContent>()?.body
-            ?: (this as MessageTextContent?)?.matrixFormattedBody?.let { ContentUtils.formatSpoilerTextFromHtml(it) }
+            ?: (this as MessageTextContent?)?.matrixFormattedBody?.let { ContentUtils.formatSpoilerTextFromHtml(it, imageFallback = imageFallback) }
             ?: body
 }

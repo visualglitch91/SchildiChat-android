@@ -49,7 +49,7 @@ object ContentUtils {
     }
 
     @Suppress("RegExpRedundantEscape")
-    fun formatSpoilerTextFromHtml(formattedBody: String): String {
+    fun formatSpoilerTextFromHtml(formattedBody: String, imageFallback: String = "￼"): String {
         // var reason = "",
         // can capture the spoiler reason for better formatting? ex. { reason = it.value;  ">"}
         return formattedBody.replace("(?<=<span data-mx-spoiler)=\\\".+?\\\">".toRegex(), ">")
@@ -59,7 +59,7 @@ object ContentUtils {
                     tryOrNull {
                         val alt = Regex("""\s+alt="([^"]*)"""").find(matchResult.groupValues[1])
                         alt?.groupValues?.get(1)
-                    } ?: "￼"
+                    } ?: imageFallback
                 }
                 .unescapeHtml()
     }

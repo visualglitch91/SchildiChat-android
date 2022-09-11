@@ -63,7 +63,7 @@ class DisplayableEventFormatter @Inject constructor(
                 timelineEvent.getLastMessageContent()?.let { messageContent ->
                     when (messageContent.msgType) {
                         MessageType.MSGTYPE_TEXT -> {
-                            val body = messageContent.getTextDisplayableContent()
+                            val body = messageContent.getTextDisplayableContent(imageFallback = stringProvider.getString(R.string.sent_an_image))
                             if (messageContent is MessageTextContent && messageContent.matrixFormattedBody.isNullOrBlank().not()) {
                                 val localFormattedBody = htmlRenderer.get().parse(body) as Document
                                 val renderedBody = htmlRenderer.get().render(localFormattedBody) ?: body
@@ -175,7 +175,7 @@ class DisplayableEventFormatter @Inject constructor(
                 (event.getClearContent().toModel() as? MessageContent)?.let { messageContent ->
                     when (messageContent.msgType) {
                         MessageType.MSGTYPE_TEXT -> {
-                            val body = messageContent.getTextDisplayableContent()
+                            val body = messageContent.getTextDisplayableContent(imageFallback = stringProvider.getString(R.string.sent_an_image))
                             if (messageContent is MessageTextContent && messageContent.matrixFormattedBody.isNullOrBlank().not()) {
                                 val localFormattedBody = htmlRenderer.get().parse(body) as Document
                                 val renderedBody = htmlRenderer.get().render(localFormattedBody) ?: body
