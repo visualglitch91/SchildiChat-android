@@ -27,7 +27,9 @@ import im.vector.app.features.settings.VectorPreferences
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PromptSimplifiedModeFragment @Inject constructor(private val vectorPreferences: VectorPreferences) : VectorBaseFragment<FragmentPromptSimplifiedModeBinding>() {
+class PromptSimplifiedModeFragment : VectorBaseFragment<FragmentPromptSimplifiedModeBinding>() {
+
+    @Inject lateinit var vectorPreferences: VectorPreferences
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPromptSimplifiedModeBinding {
         return FragmentPromptSimplifiedModeBinding.inflate(inflater, container, false)
