@@ -27,7 +27,7 @@ fi
 
 require_clean_git
 
-build_gradle="$mydir/vector/build.gradle"
+build_gradle="$mydir/vector-app/build.gradle"
 src_dir="$mydir/vector/src"
 fastlane_dir="$mydir/fastlane"
 
