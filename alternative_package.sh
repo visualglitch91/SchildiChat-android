@@ -29,6 +29,7 @@ require_clean_git
 
 build_gradle="$mydir/vector-app/build.gradle"
 src_dir="$mydir/vector/src"
+app_src_dir="$mydir/vector-app/src"
 fastlane_dir="$mydir/fastlane"
 
 if grep -q "de.spiritcroc.riotx.$package_add" "$build_gradle"; then
@@ -98,7 +99,7 @@ case "$package_add" in
 esac
 
 sed -i "s|\"SchildiChat|\"$name_replace|g" "$build_gradle"
-sed -i "s|de.spiritcroc.riotx|de.spiritcroc.riotx.$package_add|g" "$build_gradle" `find "$src_dir" -name google-services.json` `find "$src_dir" -name shortcuts.xml`
+sed -i "s|de.spiritcroc.riotx|de.spiritcroc.riotx.$package_add|g" "$build_gradle" `find "$app_src_dir" -name google-services.json` `find "$src_dir" -name shortcuts.xml`
 sed -i "s|SchildiChat|$name_replace|g" `find "$fastlane_dir/metadata/android" -name "title.txt"`
 
 
