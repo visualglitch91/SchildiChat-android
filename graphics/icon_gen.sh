@@ -2,8 +2,6 @@
 
 mydir="$(dirname "$(realpath "$0")")"
 
-base_out="$mydir/../vector/src/main/res"
-
 export_files() {
     newfile="$(basename "$file" .svg).png"
     mkdir -p $base_folder-mdpi
@@ -38,7 +36,7 @@ export_files
 rm "$mydir/element_logo_sc.svg"
 
 
-base_folder="$mydir/../vector/src/main/res/mipmap"
+base_folder="$mydir/../vector-app/src/main/res/mipmap"
 dpi=24 # 96/4
 
 file="$mydir/ic_launcher_sc.svg"
