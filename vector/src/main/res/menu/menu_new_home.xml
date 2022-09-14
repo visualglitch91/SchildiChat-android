@@ -12,11 +12,13 @@
         android:title="@string/invite_friends"
         app:showAsAction="never" />
 
+    <!--
     <item
         android:id="@+id/menu_home_suggestion"
         android:icon="@drawable/ic_material_bug_report"
         android:title="@string/send_suggestion"
         app:showAsAction="never" />
+        -->
 
     <item
         android:id="@+id/menu_home_report_bug"
