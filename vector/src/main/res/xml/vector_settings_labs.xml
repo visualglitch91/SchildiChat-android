@@ -157,7 +157,7 @@
     <im.vector.app.core.preference.VectorSwitchPreference
         android:defaultValue="@bool/settings_labs_new_app_layout_default"
         android:key="SETTINGS_LABS_NEW_APP_LAYOUT_KEY"
-        android:summary="@string/labs_enable_new_app_layout_summary"
+        android:summary="@string/labs_enable_new_app_layout_summary_sc"
         android:title="@string/labs_enable_new_app_layout_title" />
 
     </im.vector.app.core.preference.VectorPreferenceCategory>

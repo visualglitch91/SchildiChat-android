@@ -43,4 +43,36 @@
         app:iconTint="?vctr_content_secondary"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/dev_theming"
+        android:title="@string/settings_theme"
+        android:visible="false"
+        tools:visible="true"
+        app:showAsAction="never">
+        <menu>
+            <group>
+                <item
+                    android:id="@+id/dev_base_theme"
+                    android:title="@string/settings_theme">
+                    <!-- Programmatically inflated menu -->
+                    <menu>
+                        <group
+                            android:id="@+id/dev_base_theme_group"
+                            android:checkableBehavior="single" />
+                    </menu>
+                </item>
+                <item
+                    android:id="@+id/dev_theme_accent"
+                    android:title="@string/setting_sc_accent_color">
+                    <!-- Programmatically inflated menu -->
+                    <menu>
+                        <group
+                            android:id="@+id/dev_theme_accent_group"
+                            android:checkableBehavior="single" />
+                    </menu>
+                </item>
+            </group>
+        </menu>
+    </item>
+
 </menu>

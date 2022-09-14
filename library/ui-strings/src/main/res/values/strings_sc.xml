@@ -198,4 +198,5 @@
     <string name="settings_follow_system_locale">Follow system language</string>
     <string name="settings_follow_system_locale_summary">When changing the system language, also change the app\'s language</string>
 
+    <string name="labs_enable_new_app_layout_summary_sc">Element\'s new simplified layout with optional tabs</string>
 </resources>
