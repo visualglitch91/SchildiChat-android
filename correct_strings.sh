@@ -29,6 +29,8 @@ find "$stringdir" -name strings.xml -exec \
     sed -i 's|\("use_latest_riot">.*\)SchildiChat\(.*</string>\)|\1Element\2|g' '{}' \;
 find "$stringdir" -name strings.xml -exec \
     sed -i 's|\("use_other_session_content_description">.*\)SchildiChat\(.*SchildiChat.*</string>\)|\1SchildiChat/Element\2|' '{}' \;
+find "$stringdir" -name strings.xml -exec \
+    sed -i 's|SchildiChat Call|Element Call|g' '{}' \;
 
 unpatched_strings_file=.tmp_unpatched_strings
 new_patched_strings_file=.tmp_new_patched_strings
