@@ -2581,8 +2581,8 @@
     <string name="font_size_section_manually">Escolher manualmente</string>
     <string name="font_size_section_auto">Definir automaticamente</string>
     <string name="font_size_title">Encolher tamanho de fonte</string>
-    <string name="labs_enable_element_call_permission_shortcuts_summary">Auto-aprovar widgets de SchildiChat Call e conceder acesso de câmera / mic</string>
-    <string name="labs_enable_element_call_permission_shortcuts">Habilitar atalhos de permissão de SchildiChat Call</string>
+    <string name="labs_enable_element_call_permission_shortcuts_summary">Auto-aprovar widgets de Element Call e conceder acesso de câmera / mic</string>
+    <string name="labs_enable_element_call_permission_shortcuts">Habilitar atalhos de permissão de Element Call</string>
     <string name="live_location_description">Localização ao vivo</string>
     <string name="verify_invalid_qr_notice">Este QR code parece malformado. Por favor tente verificar com um outro método.</string>
     <string name="crosssigning_cannot_verify_this_session_desc">Você não vai ser capaz de acessar histórico de mensagem encriptada. Resette seu Backup de Mensagem Seguro e chaves de verificação para começar do zero.</string>

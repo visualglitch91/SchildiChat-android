@@ -3218,9 +3218,9 @@
         <item quantity="other">%d messages removed</item>
     </plurals>
 
-    <!-- SchildiChat Call Widget -->
-    <string name="labs_enable_element_call_permission_shortcuts">Enable SchildiChat Call permission shortcuts</string>
-    <string name="labs_enable_element_call_permission_shortcuts_summary">Auto-approve SchildiChat Call widgets and grant camera / mic access</string>
+    <!-- Element Call Widget -->
+    <string name="labs_enable_element_call_permission_shortcuts">Enable Element Call permission shortcuts</string>
+    <string name="labs_enable_element_call_permission_shortcuts_summary">Auto-approve Element Call widgets and grant camera / mic access</string>
 
     <!-- Device Manager -->
     <string name="device_manager_settings_active_sessions_show_all">Show All Sessions (V2, WIP)</string>

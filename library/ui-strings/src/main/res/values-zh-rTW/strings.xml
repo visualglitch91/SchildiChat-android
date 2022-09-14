@@ -2532,8 +2532,8 @@
     <string name="font_size_section_manually">手動選擇</string>
     <string name="font_size_section_auto">自動設定</string>
     <string name="font_size_title">選擇字型大小</string>
-    <string name="labs_enable_element_call_permission_shortcuts_summary">自動批准 SchildiChat Call 小工具並授予相機/麥克風存取權限</string>
-    <string name="labs_enable_element_call_permission_shortcuts">啟用 SchildiChat Call 權限捷徑</string>
+    <string name="labs_enable_element_call_permission_shortcuts_summary">自動批准 Element Call 小工具並授予相機/麥克風存取權限</string>
+    <string name="labs_enable_element_call_permission_shortcuts">啟用 Element Call 權限捷徑</string>
     <string name="live_location_description">即時位置</string>
     <string name="verify_invalid_qr_notice">這個 QR code 的格式似乎不正確。請嘗試使用其他方法進行驗證。</string>
     <string name="crosssigning_cannot_verify_this_session_desc">您將無法存取已加密的訊息歷史紀錄。重設您的安全訊息備份與驗證金鑰以重新開始。</string>

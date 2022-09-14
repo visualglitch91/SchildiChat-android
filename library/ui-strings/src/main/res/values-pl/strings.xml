@@ -2665,8 +2665,8 @@
     <string name="font_size_section_manually">Ustaw ręcznie</string>
     <string name="font_size_section_auto">Ustaw automatycznie</string>
     <string name="font_size_title">Wybierz rozmiar czcionki</string>
-    <string name="labs_enable_element_call_permission_shortcuts_summary">Automatycznie akceptuj widżety SchildiChat Call i przyznaj dostęp do kamery i mikrofonu</string>
-    <string name="labs_enable_element_call_permission_shortcuts">Włącz skróty uprawnień dla SchildiChat Call</string>
+    <string name="labs_enable_element_call_permission_shortcuts_summary">Automatycznie akceptuj widżety Element Call i przyznaj dostęp do kamery i mikrofonu</string>
+    <string name="labs_enable_element_call_permission_shortcuts">Włącz skróty uprawnień dla Element Call</string>
     <string name="live_location_labs_promotion_description">Uwaga: to eksperymentalna funkcja wykorzystująca tymczasową implementację. Oznacza to, że nie będzie możliwości usunięcia historii lokalizacji, a zaawansowani użytkownicy będą mogli ją zobaczyć nawet gdy przestaniesz dzielić się lokalizacją na żywo z tym pokojem.</string>
     <string name="live_location_description">Lokalizacja na żywo</string>
     <string name="labs_enable_msc3061_share_history_desc">Zapraszając kogoś do zaszyfrowanego pokoju który współdzieli historię, zaszyfrowana historia będzie dla tej osoby widoczna.</string>

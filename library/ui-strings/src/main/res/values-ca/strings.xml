@@ -2582,8 +2582,8 @@
     <string name="ftue_auth_forgot_password">Contrasenya oblidada</string>
     <string name="ftue_auth_choose_server_ems_subtitle">Element Matrix Services (EMS) és un servei robust i fiable d\'allotjament (servidors) per comunicacions ràpides, segures i en temps real. Descobreix-ho a &lt;a href=\"${ftue_ems_url}\"&gt;element.io/ems&lt;/a&gt;</string>
     <string name="crosssigning_cannot_verify_this_session_desc">No podràs accedir a l\'històric de missatges xifrats. Restableix la còpia de seguretat de missatges i les claus de verificació per començar de nou.</string>
-    <string name="labs_enable_element_call_permission_shortcuts_summary">Aprova automàticament els ginys d\'SchildiChat Call i permet l\'accés a la càmera i el micròfon</string>
-    <string name="labs_enable_element_call_permission_shortcuts">Activa els permisos d\'accés directe d\'SchildiChat Call</string>
+    <string name="labs_enable_element_call_permission_shortcuts_summary">Aprova automàticament els ginys d\'Element Call i permet l\'accés a la càmera i el micròfon</string>
+    <string name="labs_enable_element_call_permission_shortcuts">Activa els permisos d\'accés directe d\'Element Call</string>
     <string name="live_location_description">Ubicació en directe</string>
     <string name="verify_invalid_qr_notice">Aquest codi QR sembla incorrecte. Prova de fer la verificació amb un altre mètode.</string>
     <string name="crosssigning_cannot_verify_this_session">No s\'ha pogut verificar aquest dispositiu</string>

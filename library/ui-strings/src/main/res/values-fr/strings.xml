@@ -2581,8 +2581,8 @@
     <string name="font_size_section_manually">Choisir manuellement</string>
     <string name="font_size_section_auto">Automatique</string>
     <string name="font_size_title">Choisir la taille de la police</string>
-    <string name="labs_enable_element_call_permission_shortcuts_summary">Approuve automatiquement les widgets de SchildiChat Call et leur donner l’accès au micro et à la caméra</string>
-    <string name="labs_enable_element_call_permission_shortcuts">Activer les raccourcis de permission de SchildiChat Call</string>
+    <string name="labs_enable_element_call_permission_shortcuts_summary">Approuve automatiquement les widgets de Element Call et leur donner l’accès au micro et à la caméra</string>
+    <string name="labs_enable_element_call_permission_shortcuts">Activer les raccourcis de permission de Element Call</string>
     <string name="live_location_description">Position en direct</string>
     <string name="verify_invalid_qr_notice">Ce QR code semble incorrect. Veuillez réessayer la vérification avec une autre méthode.</string>
     <string name="crosssigning_cannot_verify_this_session_desc">Vous ne pourrez plus accéder à l’historique des messages chiffrés. Réinitialiser votre sauvegarde sécurisée des messages et vos clés de récupération pour un nouveau départ.</string>

@@ -2534,8 +2534,8 @@ Di masa mendatang proses verifikasi ini akan dimutakhirkan.</string>
     <string name="font_size_section_manually">Pilih secara manual</string>
     <string name="font_size_section_auto">Atur secara otomatis</string>
     <string name="font_size_title">Pilih ukuran font</string>
-    <string name="labs_enable_element_call_permission_shortcuts_summary">Terima akses kamera / mikrofon widget SchildiChat Call secara otomatis</string>
-    <string name="labs_enable_element_call_permission_shortcuts">Aktifkan pintasan izin SchildiChat Call</string>
+    <string name="labs_enable_element_call_permission_shortcuts_summary">Terima akses kamera / mikrofon widget Element Call secara otomatis</string>
+    <string name="labs_enable_element_call_permission_shortcuts">Aktifkan pintasan izin Element Call</string>
     <string name="live_location_description">Lokasi langsung</string>
     <string name="location_share_loading_map_error">Tidak dapat memuat peta
 \nHomeserver ini mungkin tidak diatur untuk menampilkan peta.</string>
