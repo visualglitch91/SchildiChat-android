@@ -61,7 +61,7 @@ function generate_accent_common() {
     local name="$1"
     local name_str="$2"
     local name_lc=`echo "$name" | tr '[:upper:]' '[:lower:]'`
-    insert_above_xml_comment "vector/src/main/res/values/strings_sc.xml" "do not change this comment for accent generation" "<string name=\"sc_accent_$name_lc\">$name_str</string>" "    "
+    insert_above_xml_comment "library/ui-strings/src/main/res/values/strings_sc.xml" "do not change this comment for accent generation" "<string name=\"sc_accent_$name_lc\">$name_str</string>" "    "
 }
 
 function generate_accent_light() {

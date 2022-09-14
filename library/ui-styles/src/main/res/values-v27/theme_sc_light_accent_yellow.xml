@@ -2,7 +2,8 @@
 <resources>
 
     <style name="AppTheme.SC.Light.Yellow.v27" parent="AppTheme.SC.Light.Yellow.v23">
-        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:navigationBarColor">@color/background_sc_light_toolbar</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 
     <style name="AppTheme.SC.Light.Yellow" parent="AppTheme.SC.Light.Yellow.v27" />
