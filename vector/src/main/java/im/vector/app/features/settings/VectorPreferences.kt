@@ -1400,6 +1400,10 @@ class VectorPreferences @Inject constructor(
      * Only the IDs of the spaces are stored.
      */
     fun setSpaceBackstack(spaceBackstack: List<String?>) {
+        if (!spaceBackNavigation()) {
+            // Don't build a huge stack that'll never get cleared
+            return
+        }
         val spaceIdsJoined = spaceBackstack.takeIf { it.isNotEmpty() }?.joinToString(",")
         defaultPrefs.edit().putString(SETTINGS_PERSISTED_SPACE_BACKSTACK, spaceIdsJoined).apply()
     }

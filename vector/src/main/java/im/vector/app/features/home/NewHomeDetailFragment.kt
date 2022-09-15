@@ -391,7 +391,7 @@ class NewHomeDetailFragment :
         }
     }
 
-    override fun onBackPressed(toolbarButton: Boolean) = if (spaceStateHandler.isRoot()) {
+    override fun onBackPressed(toolbarButton: Boolean) = if (spaceStateHandler.isRoot() || !vectorPreferences.spaceBackNavigation()) {
         false
     } else {
         val lastSpace = spaceStateHandler.popSpaceBackstack()
