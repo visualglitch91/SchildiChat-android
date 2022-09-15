@@ -70,4 +70,11 @@
         </menu>
     </item>
 
+    <item
+        android:id="@+id/dev_new_layout"
+        android:title="@string/dev_tools_menu_new_layout"
+        android:checkable="true"
+        android:checked="false"
+        app:showAsAction="never" />
+
 </menu>

@@ -608,6 +608,7 @@ class HomeActivity :
         menu.findItem(R.id.menu_home_init_sync_legacy)?.isVisible = vectorPreferences.developerMode()
         menu.findItem(R.id.menu_home_init_sync_optimized)?.isVisible = vectorPreferences.developerMode()
         menu.findItem(R.id.dev_theming)?.isVisible = vectorPreferences.developerMode()
+        menu.findItem(R.id.dev_new_layout)?.isVisible = vectorFeatures.isNewAppLayoutFeatureEnabled() && vectorPreferences.developerMode()
 
         // Base theme setting
         ArrayOptionsMenuHelper.createSubmenu(
@@ -672,6 +673,11 @@ class HomeActivity :
             }
             R.id.menu_home_setting -> {
                 navigator.openSettings(this)
+                true
+            }
+            R.id.dev_new_layout -> {
+                vectorPreferences.setNewAppLayoutEnabled(!item.isChecked)
+                restart()
                 true
             }
             R.id.menu_home_layout_settings -> {

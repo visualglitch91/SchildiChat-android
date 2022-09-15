@@ -1420,6 +1420,10 @@ class VectorPreferences @Inject constructor(
                 defaultPrefs.getBoolean(SETTINGS_LABS_NEW_APP_LAYOUT_KEY, getDefault(R.bool.settings_labs_new_app_layout_default))
     }
 
+    fun setNewAppLayoutEnabled(enabled: Boolean) {
+        defaultPrefs.edit().putBoolean(SETTINGS_LABS_NEW_APP_LAYOUT_KEY, enabled).apply()
+    }
+
     fun showLiveSenderInfo(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_TIMELINE_SHOW_LIVE_SENDER_INFO, getDefault(R.bool.settings_timeline_show_live_sender_info_default))
     }

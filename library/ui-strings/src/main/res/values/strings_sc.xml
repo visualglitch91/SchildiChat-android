@@ -191,6 +191,7 @@
     <string name="dev_tools_menu_membership_changes">Membership changes</string>
     <string name="dev_tools_menu_display_name_changes">Account events</string>
     <string name="dev_tools_menu_redacted">Deleted messages</string>
+    <string name="dev_tools_menu_new_layout">New layout</string>
 
     <string name="settings_space_back_navigation">Spaces back stack</string>
     <string name="settings_space_back_navigation_summary">Press back to show the previously selected space</string>
