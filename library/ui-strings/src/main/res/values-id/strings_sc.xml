@@ -154,4 +154,5 @@
     <string name="settings_follow_system_locale_summary">Ketika mengubah bahasa sistem, sekalian ubah bahasa aplikasi</string>
     <string name="settings_sc_dbg_view_pager_visuals">Tampilkan informasi pengawakutuan ViewPager</string>
     <string name="labs_enable_new_app_layout_summary_sc">Tata letak sederhana baru dari Element dengan fitur tab opsional</string>
+    <string name="dev_tools_menu_new_layout">Tampilan baru</string>
 </resources>
