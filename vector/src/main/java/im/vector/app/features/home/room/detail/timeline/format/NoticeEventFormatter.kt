@@ -16,6 +16,7 @@
 
 package im.vector.app.features.home.room.detail.timeline.format
 
+import de.spiritcroc.matrixsdk.util.DbgUtil
 import im.vector.app.ActiveSessionDataSource
 import im.vector.app.R
 import im.vector.app.core.resources.StringProvider
@@ -108,7 +109,7 @@ class NoticeEventFormatter @Inject constructor(
             EventType.STICKER,
             in EventType.POLL_RESPONSE,
             in EventType.POLL_END,
-            in EventType.BEACON_LOCATION_DATA -> formatDebug(timelineEvent.root)
+            in EventType.BEACON_LOCATION_DATA -> formatDebug(timelineEvent/*.root*/)
             else -> {
                 Timber.v("Type $type not handled by this formatter")
                 null
@@ -196,9 +197,11 @@ class NoticeEventFormatter @Inject constructor(
         }
     }
 
-    private fun formatDebug(event: Event): CharSequence {
+    private fun formatDebug(/*event: Event*/ timelineEvent: TimelineEvent): CharSequence {
+       val event = timelineEvent.root
         val threadPrefix = if (event.isThread()) "thread" else ""
-        return "Debug: $threadPrefix event type \"${event.getClearType()}\""
+        val displayIndexSuffix = if (DbgUtil.isDbgEnabled(DbgUtil.DBG_SHOW_DISPLAY_INDEX)) " | ${timelineEvent.displayIndex}" else ""
+        return "Debug: $threadPrefix event type \"${event.getClearType()}\"$displayIndexSuffix"
     }
 
     private fun formatRoomCreateEvent(event: Event, isDm: Boolean): CharSequence? {
