@@ -60,14 +60,10 @@ import java.util.concurrent.atomic.AtomicReference
  * Once we got a ChunkEntity we wrap it with TimelineChunk class so we dispatch any methods for loading data.
  */
 
-// Whether to search for timeline loops, and fix them.
-// TODO: once we feel comfortable that this is no longer necessary,
-// we probably want to disable this again for improving performance.
-const val ENABLE_TIMELINE_LOOP_SPLITTING = true
-// Whether to search for stuck timelines due to empty self-linking chunks.
-// TODO: once we feel comfortable that this is no longer necessary,
-// we probably want to disable this again for improving performance.
-const val ENABLE_TIMELINE_EMPTY_CHUNK_CLEANUP = true
+// [No longer necessary] Whether to search for timeline loops, and fix them.
+const val ENABLE_TIMELINE_LOOP_SPLITTING = false
+// [No longer necessary] Whether to search for stuck timelines due to empty self-linking chunks.
+const val ENABLE_TIMELINE_EMPTY_CHUNK_CLEANUP = false
 // Performance consideration for huge timelines, when having ENABLE_TIMELINE_LOOP_SPLITTING or ENABLE_TIMELINE_EMPTY_CHUNK_CLEANUP set to true
 const val MAX_CHUNK_REPAIR_CHECK_COUNT = 100
 
