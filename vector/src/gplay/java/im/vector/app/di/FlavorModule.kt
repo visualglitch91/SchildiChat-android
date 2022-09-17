@@ -26,7 +26,7 @@ import im.vector.app.core.pushers.FcmHelper
 import im.vector.app.core.services.GuardServiceStarter
 import im.vector.app.features.home.NightlyProxy
 import im.vector.app.features.settings.legals.FlavorLegals
-import im.vector.app.nightly.FirebaseNightlyProxy
+//import im.vector.app.nightly.FirebaseNightlyProxy
 import im.vector.app.push.fcm.GoogleFcmHelper
 
 @InstallIn(SingletonComponent::class)
@@ -38,10 +38,18 @@ abstract class FlavorModule {
         fun provideGuardServiceStarter(): GuardServiceStarter {
             return object : GuardServiceStarter {}
         }
+
+        // SC: Copied from fdroid FlavorModule
+        @Provides
+        fun provideNightlyProxy() = object : NightlyProxy {
+            override fun onHomeResumed() {
+                // no op
+            }
+        }
     }
 
-    @Binds
-    abstract fun bindsNightlyProxy(nightlyProxy: FirebaseNightlyProxy): NightlyProxy
+    //@Binds
+    //abstract fun bindsNightlyProxy(nightlyProxy: FirebaseNightlyProxy): NightlyProxy
 
     @Binds
     abstract fun bindsFcmHelper(fcmHelper: GoogleFcmHelper): FcmHelper

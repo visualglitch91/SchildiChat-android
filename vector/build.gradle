@@ -187,9 +187,9 @@ dependencies {
 
     // Nightly
     // API-only library
-    gplayImplementation libs.google.appdistributionApi
+    //gplayImplementation libs.google.appdistributionApi
     // Full SDK implementation
-    gplayImplementation libs.google.appdistribution
+    //gplayImplementation libs.google.appdistribution
 
     // Work
     api libs.androidx.work
