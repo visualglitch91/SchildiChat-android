@@ -109,6 +109,9 @@ abstract class RoomSummaryItem : VectorEpoxyModel<RoomSummaryItem.Holder>(R.layo
     @EpoxyAttribute
     var showSelected: Boolean = false
 
+    @EpoxyAttribute
+    var useSingleLineForLastEvent: Boolean = false
+
     override fun bind(holder: Holder) {
         super.bind(holder)
 
@@ -137,6 +140,10 @@ abstract class RoomSummaryItem : VectorEpoxyModel<RoomSummaryItem.Holder>(R.layo
         holder.roomAvatarFailSendingImageView.isVisible = hasFailedSending
         renderSelection(holder, showSelected)
         holder.roomAvatarPresenceImageView.render(showPresence, userPresence)
+
+        if (useSingleLineForLastEvent) {
+            holder.subtitleView.setLines(1)
+        }
     }
 
     private fun renderDisplayMode(holder: Holder) = when (displayMode) {

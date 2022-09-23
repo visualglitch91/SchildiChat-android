@@ -33,4 +33,5 @@ sealed class RoomListAction : VectorViewModelAction {
     data class SetSectionExpanded(val section: RoomsSection, val expanded: Boolean) : RoomListAction()
     data class JoinSuggestedRoom(val roomId: String, val viaServers: List<String>?) : RoomListAction()
     data class ShowRoomDetails(val roomId: String, val viaServers: List<String>?) : RoomListAction()
+    object DeleteAllLocalRoom : RoomListAction()
 }

@@ -18,6 +18,11 @@
         android:title="@string/invite_friends"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/menu_home_qr"
+        android:title="@string/add_by_qr_code"
+        app:showAsAction="never" />
+
     <!--
     <item
         android:id="@+id/menu_home_suggestion"

@@ -87,6 +87,7 @@ import im.vector.app.features.spaces.SpaceSettingsMenuBottomSheet
 import im.vector.app.features.spaces.invite.SpaceInviteBottomSheet
 import im.vector.app.features.spaces.share.ShareSpaceBottomSheet
 import im.vector.app.features.themes.ThemeUtils
+import im.vector.app.features.usercode.UserCodeActivity
 import im.vector.app.features.workers.signout.ServerBackupStatusViewModel
 import im.vector.app.features.permalink.PermalinkHandler.Companion.SC_MATRIX_TO_CUSTOM_SCHEME_URL_BASE
 import im.vector.app.features.permalink.PermalinkHandler.Companion.SC_ROOM_LINK_PREFIX
@@ -529,7 +530,7 @@ class HomeActivity :
         )
     }
 
-    private fun promptSecurityEvent(userItem: MatrixItem.UserItem?, titleRes: Int, descRes: Int, action: ((VectorBaseActivity<*>) -> Unit)) {
+    private fun promptSecurityEvent(userItem: MatrixItem.UserItem, titleRes: Int, descRes: Int, action: ((VectorBaseActivity<*>) -> Unit)) {
         popupAlertManager.postVectorAlert(
                 VerificationVectorAlert(
                         uid = "upgradeSecurity",
@@ -688,6 +689,10 @@ class HomeActivity :
                 launchInviteFriends()
                 true
             }
+            R.id.menu_home_qr -> {
+                launchQrCode()
+                true
+            }
             else -> false
         }
 
@@ -695,6 +700,10 @@ class HomeActivity :
                 R.id.dev_base_theme,
                 R.id.dev_theme_accent
         )
+    }
+
+    private fun launchQrCode() {
+        startActivity(UserCodeActivity.newIntent(this, sharedActionViewModel.session.myUserId))
     }
 
     private fun launchInviteFriends() {

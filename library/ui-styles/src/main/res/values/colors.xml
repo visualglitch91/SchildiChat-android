@@ -145,9 +145,10 @@
 
     <!-- Shield colors -->
     <color name="shield_color_trust">#8BC34A</color>
+    <color name="shield_color_trust_background">#0F8BC34A</color>
     <color name="shield_color_black">#212121</color>
-    <color name="shield_color_warning">#FF4B55</color>
-    <color name="shield_color_warning_background">#0FFF4B55</color>
+    <color name="shield_color_warning">#E53935</color>
+    <color name="shield_color_warning_background">#0FE53935</color>
 
     <!-- Badge Colors -->
     <attr name="vctr_badge_color_border" format="color" />

@@ -31,7 +31,6 @@ data class RoomListViewState(
         val asyncSuggestedRooms: Async<List<SpaceChildInfo>> = Uninitialized,
         val currentUserName: String? = null,
         val asyncSelectedSpace: Async<RoomSummary?> = Uninitialized,
-        val localRoomIds: Set<String> = emptySet(),
         // In comparison to currentRoomGrouping, the explicit space id fixes a filter method that should not change afterwards
         val explicitSpaceId: String? = null
 ) : MavericksState {
