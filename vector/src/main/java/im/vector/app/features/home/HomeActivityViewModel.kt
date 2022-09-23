@@ -114,10 +114,11 @@ class HomeActivityViewModel @AssistedInject constructor(
         checkSessionPushIsOn()
         observeCrossSigningReset()
         observeAnalytics()
-        observeReleaseNotes()
+        //observeReleaseNotes()
         initThreadsMigration()
     }
 
+    /*
     private fun observeReleaseNotes() = withState { state ->
         if (vectorPreferences.isNewAppLayoutEnabled()) {
             // we don't want to show release notes for new users or after relogin
@@ -135,6 +136,7 @@ class HomeActivityViewModel @AssistedInject constructor(
             }
         }
     }
+    */
 
     private fun observeAnalytics() {
         if (analyticsConfig.isEnabled) {
