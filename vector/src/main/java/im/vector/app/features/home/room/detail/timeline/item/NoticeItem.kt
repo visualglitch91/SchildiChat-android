@@ -45,15 +45,8 @@ abstract class NoticeItem : BaseEventItem<NoticeItem.Holder>(R.layout.item_timel
         holder.view.setOnLongClickListener(attributes.itemLongClickListener)
         holder.avatarImageView.onClick(attributes.avatarClickListener)
 
-        when (attributes.informationData.e2eDecoration) {
-            E2EDecoration.NONE -> {
-                holder.e2EDecorationView.render(null)
-            }
-            E2EDecoration.WARN_IN_CLEAR,
-            E2EDecoration.WARN_SENT_BY_UNVERIFIED,
-            E2EDecoration.WARN_SENT_BY_UNKNOWN -> {
-                holder.e2EDecorationView.render(RoomEncryptionTrustLevel.Warning)
-            }
+        if (attributes.informationData.messageLayout.showE2eDecoration) {
+            holder.e2EDecorationView.renderE2EDecoration(attributes.informationData.e2eDecoration)
         }
 
         (holder.view as? TimelineMessageLayoutRenderer).scOnlyRenderMessageLayout(attributes.informationData.messageLayout, this, holder)
