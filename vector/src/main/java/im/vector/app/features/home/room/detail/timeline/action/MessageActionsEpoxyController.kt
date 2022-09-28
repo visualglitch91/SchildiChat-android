@@ -137,6 +137,7 @@ class MessageActionsEpoxyController @Inject constructor(
                 }
             }
             E2EDecoration.WARN_SENT_BY_UNVERIFIED,
+            E2EDecoration.WARN_SENT_BY_DELETED_SESSION,
             E2EDecoration.WARN_SENT_BY_UNKNOWN -> {
                 bottomSheetSendStateItem {
                     id("e2e_unverified")
