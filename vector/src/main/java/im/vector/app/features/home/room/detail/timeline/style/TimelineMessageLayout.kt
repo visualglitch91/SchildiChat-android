@@ -19,6 +19,7 @@ package im.vector.app.features.home.room.detail.timeline.style
 import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import im.vector.app.R
+import im.vector.app.features.home.room.detail.timeline.view.infoInBubbles
 import im.vector.app.features.themes.ScBubbleAppearance
 import kotlinx.parcelize.Parcelize
 
@@ -28,14 +29,14 @@ sealed interface TimelineMessageLayout : Parcelable {
     val showAvatar: Boolean
     val showDisplayName: Boolean
     val showTimestamp: Boolean
-    val showE2eDecoration: Boolean
+
+    open fun showsE2eDecorationInFooter(): Boolean = false
 
     @Parcelize
     data class Default(
             override val showAvatar: Boolean,
             override val showDisplayName: Boolean,
             override val showTimestamp: Boolean,
-            override val showE2eDecoration: Boolean,
             // Keep defaultLayout generated on epoxy items
             override val layoutRes: Int = 0,
     ) : TimelineMessageLayout
@@ -45,7 +46,6 @@ sealed interface TimelineMessageLayout : Parcelable {
             override val showAvatar: Boolean,
             override val showDisplayName: Boolean,
             override val showTimestamp: Boolean = true,
-            override val showE2eDecoration: Boolean = true,
             val addTopMargin: Boolean = false,
             val isIncoming: Boolean,
             val isPseudoBubble: Boolean,
@@ -73,7 +73,6 @@ sealed interface TimelineMessageLayout : Parcelable {
             override val showAvatar: Boolean,
             override val showDisplayName: Boolean,
             override val showTimestamp: Boolean = true,
-            override val showE2eDecoration: Boolean = false,
             val bubbleAppearance: ScBubbleAppearance,
             val isIncoming: Boolean,
             val reverseBubble: Boolean,
@@ -103,6 +102,8 @@ sealed interface TimelineMessageLayout : Parcelable {
                     bubbleAppearance.textBubbleIncomingNoTail
                 }
             }
-    ) : TimelineMessageLayout
+    ) : TimelineMessageLayout {
+        override fun showsE2eDecorationInFooter(): Boolean = infoInBubbles(this)
+    }
 
 }

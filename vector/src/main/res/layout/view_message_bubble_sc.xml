@@ -192,6 +192,16 @@
                     tools:tint="?vctr_content_secondary"
                     tools:src="@drawable/ic_processing_msg"
                     android:contentDescription="@string/footer_read_receipt_content_description" />
+
+                <im.vector.app.core.ui.views.ShieldImageView
+                    android:id="@+id/bubbleFooterMessageE2EDecoration"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="0dp"
+                    android:layout_gravity="bottom"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
             </LinearLayout>
 
         </RelativeLayout>

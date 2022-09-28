@@ -200,8 +200,7 @@ class TimelineMessageLayoutFactory @Inject constructor(
             else -> TimelineMessageLayout.Default(
                     showAvatar = false,
                     showDisplayName = false,
-                    showTimestamp = vectorPreferences.alwaysShowTimeStamps(),
-                    showE2eDecoration = false
+                    showTimestamp = vectorPreferences.alwaysShowTimeStamps()
             )
         }
     }
@@ -249,12 +248,11 @@ class TimelineMessageLayoutFactory @Inject constructor(
         return messageContent?.msgType in MSG_TYPES_WITHOUT_BUBBLE_LAYOUT
     }
 
-    private fun buildModernLayout(showInformation: Boolean, forScBubbles: Boolean = false): TimelineMessageLayout.Default {
+    private fun buildModernLayout(showInformation: Boolean): TimelineMessageLayout.Default {
         return TimelineMessageLayout.Default(
                 showAvatar = showInformation,
                 showDisplayName = showInformation,
-                showTimestamp = showInformation || vectorPreferences.alwaysShowTimeStamps(),
-                showE2eDecoration = !forScBubbles
+                showTimestamp = showInformation || vectorPreferences.alwaysShowTimeStamps()
         )
     }
 

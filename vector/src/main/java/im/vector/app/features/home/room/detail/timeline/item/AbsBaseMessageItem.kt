@@ -33,7 +33,6 @@ import im.vector.app.R
 import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.extensions.getDrawableAsSpannable
-import im.vector.app.core.ui.views.BubbleDependentView
 import im.vector.app.core.ui.views.ShieldImageView
 import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.features.home.AvatarRenderer
@@ -42,6 +41,7 @@ import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import im.vector.app.features.home.room.detail.timeline.helper.AvatarSizeProvider
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.home.room.detail.timeline.view.TimelineMessageLayoutRenderer
+import im.vector.app.features.home.room.detail.timeline.view.infoInBubbles
 import im.vector.app.features.home.room.detail.timeline.view.scRenderMessageLayout
 import im.vector.app.features.reactions.widget.ReactionButton
 import im.vector.app.features.themes.ThemeUtils
@@ -85,8 +85,8 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder>(@LayoutRes layo
     override fun bind(holder: H) {
         super.bind(holder)
         renderReactions(holder, baseAttributes.informationData.reactionsSummary)
-        if (baseAttributes.informationData.messageLayout.showE2eDecoration) {
-            holder.e2EDecorationView.renderE2EDecoration(baseAttributes.informationData.e2eDecoration)
+        if (!baseAttributes.informationData.messageLayout.showsE2eDecorationInFooter()) {
+            holder.getEffectiveE2eDecorationView().renderE2EDecoration(baseAttributes.informationData.e2eDecoration)
         }
         holder.view.onClick(baseAttributes.itemClickListener)
         holder.view.setOnLongClickListener(baseAttributes.itemLongClickListener)
@@ -190,6 +190,8 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder>(@LayoutRes layo
         val reactionsContainer by bind<ViewGroup>(R.id.reactionsContainer)
         val informationBottom by bind<ViewGroup>(R.id.informationBottom)
         val e2EDecorationView by bind<ShieldImageView>(R.id.messageE2EDecoration)
+
+        open fun getEffectiveE2eDecorationView() = e2EDecorationView
     }
 
     /**

@@ -30,7 +30,6 @@ import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import im.vector.app.features.home.room.detail.timeline.view.TimelineMessageLayoutRenderer
 import im.vector.app.features.home.room.detail.timeline.view.scOnlyRenderMessageLayout
 import im.vector.lib.core.utils.epoxy.charsequence.EpoxyCharSequence
-import org.matrix.android.sdk.api.session.crypto.model.RoomEncryptionTrustLevel
 
 @EpoxyModelClass
 abstract class NoticeItem : BaseEventItem<NoticeItem.Holder>(R.layout.item_timeline_event_base_noinfo) {
@@ -45,7 +44,7 @@ abstract class NoticeItem : BaseEventItem<NoticeItem.Holder>(R.layout.item_timel
         holder.view.setOnLongClickListener(attributes.itemLongClickListener)
         holder.avatarImageView.onClick(attributes.avatarClickListener)
 
-        if (attributes.informationData.messageLayout.showE2eDecoration) {
+        if (!attributes.informationData.messageLayout.showsE2eDecorationInFooter()) {
             holder.e2EDecorationView.renderE2EDecoration(attributes.informationData.e2eDecoration)
         }
 

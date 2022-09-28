@@ -24,6 +24,7 @@ import im.vector.app.databinding.ViewMessageBubbleScBinding
 import im.vector.app.features.home.room.detail.timeline.item.AbsMessageItem
 import im.vector.app.features.home.room.detail.timeline.item.AnonymousReadReceipt
 import im.vector.app.features.home.room.detail.timeline.item.BaseEventItem
+import im.vector.app.features.home.room.detail.timeline.item.E2EDecoration
 import im.vector.app.features.home.room.detail.timeline.item.MessageInformationData
 import im.vector.app.features.home.room.detail.timeline.item.SendStateDecoration
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
@@ -205,6 +206,10 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
         } else {
             views.messageSendStateImageView.render(attributes.informationData.sendStateDecoration)
             views.eventSendingIndicator.isVisible = attributes.informationData.sendStateDecoration == SendStateDecoration.SENDING_MEDIA
+        }
+
+        if (attributes.informationData.messageLayout.showsE2eDecorationInFooter()) {
+            views.bubbleFooterMessageE2EDecoration.renderE2EDecoration(attributes.informationData.e2eDecoration)
         }
 
         return true
@@ -497,8 +502,18 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
                     views.bubbleFooterReadReceipt.paddingBottom
         }
 
-        var footerWidth = timeWidth + readReceiptWidth
-        var footerHeight = max(timeHeight, readReceiptHeight)
+        val e2eWidth: Int
+        val e2eHeight: Int
+        if (informationData?.e2eDecoration in listOf(null, E2EDecoration.NONE)) {
+            e2eWidth = 0
+            e2eHeight = 0
+        } else {
+            e2eWidth = views.bubbleFooterMessageE2EDecoration.layoutParams.width + views.bubbleFooterMessageE2EDecoration.paddingLeft + views.bubbleFooterMessageE2EDecoration.paddingRight
+            e2eHeight = views.bubbleFooterMessageE2EDecoration.layoutParams.height + views.bubbleFooterMessageE2EDecoration.paddingTop + views.bubbleFooterMessageE2EDecoration.paddingBottom
+        }
+
+        var footerWidth = timeWidth + readReceiptWidth + e2eWidth
+        var footerHeight = max(max(timeHeight, readReceiptHeight), e2eHeight)
         // Reserve extra padding, if we do have actual content
         if (footerWidth > 0) {
             footerWidth += views.bubbleFootView.paddingLeft + views.bubbleFootView.paddingRight
