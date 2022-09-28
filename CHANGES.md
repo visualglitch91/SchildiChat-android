@@ -1,3 +1,12 @@
+Changes in Element v1.5.1 (2022-09-23)
+======================================
+
+Security ⚠️
+----------
+
+This update provides important security fixes, update now.
+
+
 Changes in Element v1.5.0 (2022-09-23)
 ======================================
 

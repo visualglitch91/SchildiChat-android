@@ -45,7 +45,6 @@ import im.vector.app.features.home.room.detail.timeline.view.TimelineMessageLayo
 import im.vector.app.features.home.room.detail.timeline.view.scRenderMessageLayout
 import im.vector.app.features.reactions.widget.ReactionButton
 import im.vector.app.features.themes.ThemeUtils
-import org.matrix.android.sdk.api.session.crypto.model.RoomEncryptionTrustLevel
 import org.matrix.android.sdk.api.session.room.send.SendState
 import kotlin.math.ceil
 
@@ -87,18 +86,8 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder>(@LayoutRes layo
         super.bind(holder)
         renderReactions(holder, baseAttributes.informationData.reactionsSummary)
         if (baseAttributes.informationData.messageLayout.showE2eDecoration) {
-        when (baseAttributes.informationData.e2eDecoration) {
-            E2EDecoration.NONE -> {
-                holder.e2EDecorationView.render(null)
-            }
-            E2EDecoration.WARN_IN_CLEAR,
-            E2EDecoration.WARN_SENT_BY_UNVERIFIED,
-            E2EDecoration.WARN_SENT_BY_UNKNOWN -> {
-                holder.e2EDecorationView.render(RoomEncryptionTrustLevel.Warning)
-            }
+            holder.e2EDecorationView.renderE2EDecoration(baseAttributes.informationData.e2eDecoration)
         }
-        }
-
         holder.view.onClick(baseAttributes.itemClickListener)
         holder.view.setOnLongClickListener(baseAttributes.itemLongClickListener)
         (holder.view as? TimelineMessageLayoutRenderer).scRenderMessageLayout(baseAttributes.informationData.messageLayout, this, holder)
