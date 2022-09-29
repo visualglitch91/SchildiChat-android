@@ -99,6 +99,30 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
      */
     private boolean mLastStackFromEnd;
 
+    /**
+     * Whether the last layout filled the entire viewport
+     *
+     * If the last layout did not fill the viewport, we should not attempt to calculate an
+     * anchoring based on the current children (other than if one is focused), because there
+     * isn't any scrolling that could have occurred that would indicate a position in the list
+     * that needs to be preserved - and in fact, trying to do so could produce the wrong result,
+     * such as the case of anchoring to a loading spinner at the end of the list.
+     */
+    private boolean mLastLayoutFilledViewport = false;
+
+    /**
+     * Whether the *current* layout filled the entire viewport
+     *
+     * This is used to populate mLastLayoutFilledViewport. It exists as a separate variable
+     * because we need to populate it at the correct moment, which is tricky due to the
+     * LayoutManager layout being called multiple times.  We want to not set it in prelayout
+     * (because that's not the real layout), but we want to set it the *first* time that the
+     * actual layout is run, because for certain non-exact layout cases, there are two passes,
+     * with the second pass being provided an EXACTLY spec (when the actual spec was non-exact).
+     * This would otherwise incorrectly believe the viewport was filled, because it was provided
+     * just enough space to contain the content, and thus it would always fill the viewport.
+     */
+    private Boolean mThisLayoutFilledViewport = null;
 
     /**
      * Defines if layout should be calculated from end to start.
@@ -185,7 +209,11 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
      *
      * @param context Current context, will be used to access resources.
      */
-    public BetterLinearLayoutManager(Context context) {
+    public BetterLinearLayoutManager(
+            // Suppressed because fixing it requires a source-incompatible change to a very
+            // commonly used constructor, for no benefit: the context parameter is unused
+            @SuppressLint("UnknownNullness") Context context
+    ) {
         this(context, DEFAULT_ORIENTATION, false);
     }
 
@@ -195,8 +223,13 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
      *                      #VERTICAL}.
      * @param reverseLayout When set to true, layouts from end to start.
      */
-    public BetterLinearLayoutManager(Context context, @RecyclerView.Orientation int orientation,
-                                     boolean reverseLayout) {
+    public BetterLinearLayoutManager(
+            // Suppressed because fixing it requires a source-incompatible change to a very
+            // commonly used constructor, for no benefit: the context parameter is unused
+            @SuppressLint("UnknownNullness") Context context,
+            @RecyclerView.Orientation int orientation,
+            boolean reverseLayout
+    ) {
         super(context, orientation, reverseLayout);
         setOrientation(orientation);
         setReverseLayout(reverseLayout);
@@ -210,6 +243,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
      * {@link androidx.recyclerview.R.attr#reverseLayout}
      * {@link androidx.recyclerview.R.attr#stackFromEnd}
      */
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public BetterLinearLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,
                                      int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -228,6 +262,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
      * {@inheritDoc}
      */
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
         return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -262,6 +297,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {
         super.onDetachedFromWindow(view, recycler);
         if (mRecycleChildrenOnDetach) {
@@ -271,6 +307,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
         super.onInitializeAccessibilityEvent(event);
         if (getChildCount() > 0) {
@@ -280,6 +317,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public Parcelable onSaveInstanceState() {
         if (mPendingSavedState != null) {
             return new SavedState(mPendingSavedState);
@@ -307,6 +345,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onRestoreInstanceState(Parcelable state) {
         if (state instanceof SavedState) {
             mPendingSavedState = (SavedState) state;
@@ -452,6 +491,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
      * {@inheritDoc}
      */
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public View findViewByPosition(int position) {
         final int childCount = getChildCount();
         if (childCount == 0) {
@@ -546,6 +586,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state,
                                        int position) {
         LinearSmoothScroller linearSmoothScroller =
@@ -555,6 +596,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public PointF computeScrollVectorForPosition(int targetPosition) {
         if (getChildCount() == 0) {
             return null;
@@ -572,6 +614,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
      * {@inheritDoc}
      */
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         // layout algorithm:
         // 1) by checking children and other variables, find an anchor coordinate and an anchor
@@ -598,11 +641,25 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
         // resolve layout direction
         resolveShouldLayoutReverse();
 
+        boolean layoutFromEnd = mShouldReverseLayout ^ mStackFromEnd;
+
+        // The 2 booleans below are necessary because if we are laying out from the end, and the
+        // previous measured dimension is different from the new measured value, then any
+        // previously calculated anchor will be incorrect.
+        boolean reCalcAnchorDueToVertical = layoutFromEnd
+                && getOrientation() == RecyclerView.VERTICAL
+                && state.getPreviousMeasuredHeight() != getHeight();
+        boolean reCalcAnchorDueToHorizontal = layoutFromEnd
+                && getOrientation() == RecyclerView.HORIZONTAL
+                && state.getPreviousMeasuredWidth() != getWidth();
+
+        boolean reCalcAnchor = reCalcAnchorDueToVertical || reCalcAnchorDueToHorizontal
+                || mPendingScrollPosition != RecyclerView.NO_POSITION || mPendingSavedState != null;
+
         final View focused = getFocusedChild();
-        if (!mAnchorInfo.mValid || mPendingScrollPosition != RecyclerView.NO_POSITION
-                || mPendingSavedState != null) {
+        if (!mAnchorInfo.mValid || reCalcAnchor) {
             mAnchorInfo.reset();
-            mAnchorInfo.mLayoutFromEnd = mShouldReverseLayout ^ mStackFromEnd;
+            mAnchorInfo.mLayoutFromEnd = layoutFromEnd;
             // calculate anchor position and coordinate
             updateAnchorInfoForLayout(recycler, state, mAnchorInfo);
             mAnchorInfo.mValid = true;
@@ -741,13 +798,17 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
             // because layout from end may be changed by scroll to position
             // we re-calculate it.
             // find which side we should check for gaps.
-            if (mShouldReverseLayout ^ mStackFromEnd) {
+            if (layoutFromEnd) {
                 int fixOffset = fixLayoutEndGap(endOffset, recycler, state, true);
                 startOffset += fixOffset;
                 endOffset += fixOffset;
                 fixOffset = fixLayoutStartGap(startOffset, recycler, state, false);
                 startOffset += fixOffset;
                 endOffset += fixOffset;
+                if (!state.isPreLayout() && mThisLayoutFilledViewport == null) {
+                    mThisLayoutFilledViewport =
+                            (startOffset <= mOrientationHelper.getStartAfterPadding());
+                }
             } else {
                 int fixOffset = fixLayoutStartGap(startOffset, recycler, state, true);
                 startOffset += fixOffset;
@@ -755,6 +816,10 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
                 fixOffset = fixLayoutEndGap(endOffset, recycler, state, false);
                 startOffset += fixOffset;
                 endOffset += fixOffset;
+                if (!state.isPreLayout() && mThisLayoutFilledViewport == null) {
+                    mThisLayoutFilledViewport =
+                            (endOffset >= mOrientationHelper.getEndAfterPadding());
+                }
             }
         }
         layoutForPredictiveAnimations(recycler, state, startOffset, endOffset);
@@ -770,11 +835,14 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
         mPendingSavedState = null; // we don't need this anymore
         mPendingScrollPosition = RecyclerView.NO_POSITION;
         mPendingScrollPositionOffset = INVALID_OFFSET;
+        mLastLayoutFilledViewport = mThisLayoutFilledViewport != null && mThisLayoutFilledViewport;
+        mThisLayoutFilledViewport = null;
         mAnchorInfo.reset();
     }
 
@@ -897,6 +965,13 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
             anchorInfo.assignFromViewAndKeepVisibleRect(focused, getPosition(focused));
             return true;
         }
+
+        // If we did not fill the layout, don't anchor. This prevents, for example,
+        // anchoring to the bottom of the list when there is a loading indicator.
+        if (!mLastLayoutFilledViewport) {
+            return false;
+        }
+
         if (mLastStackFromEnd != mStackFromEnd) {
             return false;
         }
@@ -1177,6 +1252,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
      * {@inheritDoc}
      */
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,
                                     RecyclerView.State state) {
         if (mOrientation == VERTICAL) {
@@ -1189,6 +1265,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
      * {@inheritDoc}
      */
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,
                                   RecyclerView.State state) {
         if (mOrientation == HORIZONTAL) {
@@ -1198,31 +1275,37 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public int computeHorizontalScrollOffset(RecyclerView.State state) {
         return computeScrollOffset(state);
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public int computeVerticalScrollOffset(RecyclerView.State state) {
         return computeScrollOffset(state);
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public int computeHorizontalScrollExtent(RecyclerView.State state) {
         return computeScrollExtent(state);
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public int computeVerticalScrollExtent(RecyclerView.State state) {
         return computeScrollExtent(state);
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public int computeHorizontalScrollRange(RecyclerView.State state) {
         return computeScrollRange(state);
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public int computeVerticalScrollRange(RecyclerView.State state) {
         return computeScrollRange(state);
     }
@@ -1348,6 +1431,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void collectInitialPrefetchPositions(int adapterItemCount,
                                                 LayoutPrefetchRegistry layoutPrefetchRegistry) {
         final boolean fromEnd;
@@ -1428,6 +1512,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,
                                                  LayoutPrefetchRegistry layoutPrefetchRegistry) {
         int delta = (mOrientation == HORIZONTAL) ? dx : dy;
@@ -1470,6 +1555,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public void assertNotInLayoutOrScroll(String message) {
         if (mPendingSavedState == null) {
             super.assertNotInLayoutOrScroll(message);
@@ -2164,6 +2250,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
     }
 
     @Override
+    @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
     public View onFocusSearchFailed(View focused, int focusDirection,
                                     RecyclerView.Recycler recycler, RecyclerView.State state) {
         resolveShouldLayoutReverse();
@@ -2544,6 +2631,7 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
 
         boolean mAnchorLayoutFromEnd;
 
+        @SuppressLint("UnknownNullness") // b/240775049: Cannot annotate properly
         public SavedState() {
 
         }
