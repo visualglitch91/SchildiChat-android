@@ -153,9 +153,9 @@ class VerificationEmojiCodeController @Inject constructor(
             bottomSheetVerificationActionItem {
                 id("ok")
                 title(host.stringProvider.getString(R.string.verification_sas_match))
-                titleColor(host.colorProvider.getColorFromAttribute(R.attr.colorPrimary))
+                titleColor(host.colorProvider.getColorFromAttribute(R.attr.vctr_encrypting_message_text_color))
                 iconRes(R.drawable.ic_check_on)
-                iconColor(host.colorProvider.getColorFromAttribute(R.attr.colorPrimary))
+                iconColor(host.colorProvider.getColorFromAttribute(R.attr.vctr_encrypting_message_text_color))
                 listener { host.listener?.onMatchButtonTapped() }
             }
         }
