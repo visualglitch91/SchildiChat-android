@@ -258,6 +258,18 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
         return true;
     }
 
+    // Moved from androidx' State in RecyclerView.java, so we can access it
+    private int mPreviousMeasuredWidth = 0;
+    private int mPreviousMeasuredHeight = 0;
+    private boolean isBLLRecyclerView = false;
+    public void setPreviousMeasure(int width, int height) {
+        mPreviousMeasuredWidth = width;
+        mPreviousMeasuredHeight = height;
+    }
+    public void setIsBLLRecyclerView() {
+        isBLLRecyclerView = true;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -646,15 +658,22 @@ public class BetterLinearLayoutManager extends LinearLayoutManager implements
         // The 2 booleans below are necessary because if we are laying out from the end, and the
         // previous measured dimension is different from the new measured value, then any
         // previously calculated anchor will be incorrect.
-        boolean reCalcAnchorDueToVertical = layoutFromEnd
-                && getOrientation() == RecyclerView.VERTICAL
-                && state.getPreviousMeasuredHeight() != getHeight();
-        boolean reCalcAnchorDueToHorizontal = layoutFromEnd
-                && getOrientation() == RecyclerView.HORIZONTAL
-                && state.getPreviousMeasuredWidth() != getWidth();
+        boolean reCalcAnchor;
+        if (isBLLRecyclerView) {
+            boolean reCalcAnchorDueToVertical = layoutFromEnd
+                    && getOrientation() == RecyclerView.VERTICAL
+                    && /*state.getPreviousMeasuredHeight()*/ mPreviousMeasuredHeight != getHeight();
+            boolean reCalcAnchorDueToHorizontal = layoutFromEnd
+                    && getOrientation() == RecyclerView.HORIZONTAL
+                    && /*state.getPreviousMeasuredWidth()*/ mPreviousMeasuredWidth != getWidth();
 
-        boolean reCalcAnchor = reCalcAnchorDueToVertical || reCalcAnchorDueToHorizontal
-                || mPendingScrollPosition != RecyclerView.NO_POSITION || mPendingSavedState != null;
+            reCalcAnchor = reCalcAnchorDueToVertical || reCalcAnchorDueToHorizontal
+                    || mPendingScrollPosition != RecyclerView.NO_POSITION || mPendingSavedState != null;
+        } else {
+            Timber.w("Using legacy layouting method without BLLRecyclerView");
+            // Legacy fallback for 0815 RecyclerViews without exposed previous measured width/height
+            reCalcAnchor = mPendingScrollPosition != RecyclerView.NO_POSITION || mPendingSavedState != null;
+        }
 
         final View focused = getFocusedChild();
         if (!mAnchorInfo.mValid || reCalcAnchor) {

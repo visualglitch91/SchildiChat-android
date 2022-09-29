@@ -79,7 +79,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/liveLocationStatusIndicator" />
 
-    <androidx.recyclerview.widget.RecyclerView
+    <de.spiritcroc.recyclerview.widget.BLLRecyclerView
         android:id="@+id/timelineRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
