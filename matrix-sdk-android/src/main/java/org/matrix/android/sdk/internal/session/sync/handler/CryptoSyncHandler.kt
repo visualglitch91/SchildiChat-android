@@ -46,18 +46,18 @@ internal class CryptoSyncHandler @Inject constructor(
         toDevice.events
                 ?.filter { isSupportedToDevice(it) }
                 ?.forEachIndexed { index, event ->
-            progressReporter?.reportProgress(index * 100F / total)
-            // Decrypt event if necessary
-            Timber.tag(loggerTag.value).i("To device event from ${event.senderId} of type:${event.type}")
-            decryptToDeviceEvent(event, null)
-            if (event.getClearType() == EventType.MESSAGE &&
-                    event.getClearContent()?.toModel<MessageContent>()?.msgType == "m.bad.encrypted") {
-                Timber.tag(loggerTag.value).e("handleToDeviceEvent() : Warning: Unable to decrypt to-device event : ${event.content}")
-            } else {
-                verificationService.onToDeviceEvent(event)
-                cryptoService.onToDeviceEvent(event)
-            }
-        }
+                    progressReporter?.reportProgress(index * 100F / total)
+                    // Decrypt event if necessary
+                    Timber.tag(loggerTag.value).i("To device event from ${event.senderId} of type:${event.type}")
+                    decryptToDeviceEvent(event, null)
+                    if (event.getClearType() == EventType.MESSAGE &&
+                            event.getClearContent()?.toModel<MessageContent>()?.msgType == "m.bad.encrypted") {
+                        Timber.tag(loggerTag.value).e("handleToDeviceEvent() : Warning: Unable to decrypt to-device event : ${event.content}")
+                    } else {
+                        verificationService.onToDeviceEvent(event)
+                        cryptoService.onToDeviceEvent(event)
+                    }
+                }
     }
 
     private val unsupportedPlainToDeviceEventTypes = listOf(

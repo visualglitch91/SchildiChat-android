@@ -86,7 +86,7 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder>(@LayoutRes layo
         super.bind(holder)
         renderReactions(holder, baseAttributes.informationData.reactionsSummary)
         if (!baseAttributes.informationData.messageLayout.showsE2eDecorationInFooter()) {
-            holder.getEffectiveE2eDecorationView().renderE2EDecoration(baseAttributes.informationData.e2eDecoration)
+            holder.e2EDecorationView.renderE2EDecoration(baseAttributes.informationData.e2eDecoration)
         }
         holder.view.onClick(baseAttributes.itemClickListener)
         holder.view.setOnLongClickListener(baseAttributes.itemLongClickListener)
@@ -190,8 +190,6 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder>(@LayoutRes layo
         val reactionsContainer by bind<ViewGroup>(R.id.reactionsContainer)
         val informationBottom by bind<ViewGroup>(R.id.informationBottom)
         val e2EDecorationView by bind<ShieldImageView>(R.id.messageE2EDecoration)
-
-        open fun getEffectiveE2eDecorationView() = e2EDecorationView
     }
 
     /**

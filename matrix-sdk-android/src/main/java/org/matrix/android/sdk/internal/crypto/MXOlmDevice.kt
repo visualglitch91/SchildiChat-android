@@ -656,7 +656,7 @@ internal class MXOlmDevice @Inject constructor(
                     }
                     // else if the new one is safe and does not connect with existing, import the new one
                 } else {
-                // If our existing session is better we keep it
+                    // If our existing session is better we keep it
                     if (existingFirstKnown <= newKnownFirstIndex) {
                         val shouldUpdateTrust = trusted && (existingSession.sessionData.trusted != true)
                         Timber.tag(loggerTag.value).d("## addInboundGroupSession() : updateTrust for $sessionId")
@@ -664,10 +664,10 @@ internal class MXOlmDevice @Inject constructor(
                             // the existing as a better index but the new one is trusted so update trust
                             inboundGroupSessionStore.updateToSafe(existingSessionHolder, sessionId, senderKey)
                         }
-                    Timber.tag(loggerTag.value).d("## addInboundGroupSession() : ignore session our is better $senderKey/$sessionId")
+                        Timber.tag(loggerTag.value).d("## addInboundGroupSession() : ignore session our is better $senderKey/$sessionId")
                         candidateSession.releaseSession()
-                    return AddSessionResult.NotImportedHigherIndex(newKnownFirstIndex.toInt())
-                }
+                        return AddSessionResult.NotImportedHigherIndex(newKnownFirstIndex.toInt())
+                    }
                 }
             } catch (failure: Throwable) {
                 Timber.tag(loggerTag.value).e("## addInboundGroupSession() Failed to add inbound: ${failure.localizedMessage}")

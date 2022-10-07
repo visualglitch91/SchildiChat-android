@@ -225,23 +225,23 @@ class MessageInformationDataFactory @Inject constructor(
                     if (event.root.mxDecryptionResult?.isSafe == false) {
                         E2EDecoration.WARN_UNSAFE_KEY
                     } else {
-                    when {
-                        sendingDevice == null -> {
-                            // For now do not decorate this with warning
-                            // maybe it's a deleted session
+                        when {
+                            sendingDevice == null -> {
+                                // For now do not decorate this with warning
+                                // maybe it's a deleted session
                                 E2EDecoration.WARN_SENT_BY_DELETED_SESSION
-                        }
-                        sendingDevice.trustLevel == null -> {
-                            E2EDecoration.WARN_SENT_BY_UNKNOWN
-                        }
-                        sendingDevice.trustLevel?.isVerified().orFalse() -> {
-                            E2EDecoration.NONE
-                        }
-                        else -> {
-                            E2EDecoration.WARN_SENT_BY_UNVERIFIED
+                            }
+                            sendingDevice.trustLevel == null -> {
+                                E2EDecoration.WARN_SENT_BY_UNKNOWN
+                            }
+                            sendingDevice.trustLevel?.isVerified().orFalse() -> {
+                                E2EDecoration.NONE
+                            }
+                            else -> {
+                                E2EDecoration.WARN_SENT_BY_UNVERIFIED
+                            }
                         }
                     }
-                }
                 }
             } else {
                 e2EDecorationForClearEventInE2ERoom(event, roomSummary)
@@ -254,11 +254,11 @@ class MessageInformationDataFactory @Inject constructor(
                     E2EDecoration.NONE
                 } else {
                     E2EDecoration.WARN_UNSAFE_KEY
+                }
+            } else {
+                E2EDecoration.NONE
             }
-        } else {
-            E2EDecoration.NONE
         }
-    }
     }
 
     private fun e2EDecorationForClearEventInE2ERoom(event: TimelineEvent, roomSummary: RoomSummary) =
