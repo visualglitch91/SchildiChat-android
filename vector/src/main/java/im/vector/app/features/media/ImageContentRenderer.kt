@@ -40,7 +40,6 @@ import im.vector.app.core.glide.GlideRequest
 import im.vector.app.core.glide.GlideRequests
 import im.vector.app.core.ui.model.Size
 import im.vector.app.core.utils.DimensionConverter
-import im.vector.app.features.settings.VectorPreferences
 import kotlinx.parcelize.Parcelize
 import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.api.session.content.ContentUrlResolver
@@ -68,7 +67,6 @@ class ImageContentRenderer @Inject constructor(
         private val localFilesHelper: LocalFilesHelper,
         private val activeSessionHolder: ActiveSessionHolder,
         private val dimensionConverter: DimensionConverter,
-        private val vectorPreferences: VectorPreferences
 ) {
 
     @Parcelize
@@ -92,10 +90,8 @@ class ImageContentRenderer @Inject constructor(
 
     enum class Mode {
         FULL_SIZE,
-        THUMBNAIL,
-        // Animated thumbnail: scale like a thumbnail, but use full_size resource,
-        // since the thumbnail resource might not support animating.
         ANIMATED_THUMBNAIL,
+        THUMBNAIL,
         STICKER
     }
 
@@ -180,7 +176,7 @@ class ImageContentRenderer @Inject constructor(
                         return false
                     }
                 })
-        request = if (animate && vectorPreferences.autoplayAnimatedImages()) {
+        request = if (animate && mode == Mode.ANIMATED_THUMBNAIL) {
             // Glide seems to already do some dp to px calculation for animated gifs?
             request.transform(RoundedCorners(cornerRoundnessDp))
             //request.apply(RequestOptions.bitmapTransform(RoundedCorners(3)))

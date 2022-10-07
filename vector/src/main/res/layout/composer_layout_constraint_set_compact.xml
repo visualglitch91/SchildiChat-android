@@ -169,11 +169,13 @@
         android:contentDescription="@string/a11y_open_emoji_picker"
         android:src="@drawable/ic_insert_emoji"
         app:tint="?android:textColorHint"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@id/sendButton"
         app:layout_constraintEnd_toStartOf="@+id/composerEditText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/sendButton"
-        tools:ignore="MissingPrefix" />
+        tools:ignore="MissingPrefix"
+        tools:visibility="visible" />
 
     <ImageButton
         android:id="@+id/sendButton"

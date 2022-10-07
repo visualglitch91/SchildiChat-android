@@ -28,8 +28,8 @@ import androidx.annotation.StyleRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.preference.PreferenceManager
 import im.vector.app.R
-import im.vector.app.core.di.DefaultSharedPreferences
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicReference
 
@@ -76,7 +76,8 @@ object ThemeUtils {
      */
     fun darkThemePossible(context: Context): Boolean {
         // On Lineage, available since 15.1: https://review.lineageos.org/c/LineageOS/android_frameworks_base/+/209022
-        return darkThemeDefinitivelyPossible() || DefaultSharedPreferences.getInstance(context).getBoolean(SYSTEM_DARK_THEME_PRE_TEN, false)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
+        return darkThemeDefinitivelyPossible() || prefs.getBoolean(SYSTEM_DARK_THEME_PRE_TEN, false)
     }
 
     fun darkThemeDefinitivelyPossible(): Boolean {
@@ -174,7 +175,7 @@ object ThemeUtils {
     fun getApplicationLightTheme(context: Context): String {
         val currentTheme = this.currentLightTheme.get()
         return if (currentTheme == null) {
-            val prefs = DefaultSharedPreferences.getInstance(context)
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
             var themeFromPref = prefs.getString(APPLICATION_THEME_KEY, THEME_SC_LIGHT_VALUE) ?: THEME_SC_LIGHT_VALUE
             if (themeFromPref == "status") {
                 // Migrate to the default theme
@@ -198,7 +199,7 @@ object ThemeUtils {
     fun getApplicationDarkTheme(context: Context): String {
         val currentTheme = this.currentDarkTheme.get()
         return if (currentTheme == null) {
-            val prefs = DefaultSharedPreferences.getInstance(context)
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
             var themeFromPref = prefs.getString(APPLICATION_DARK_THEME_KEY, THEME_SC_DARK_VALUE) ?: THEME_SC_DARK_VALUE
             if (themeFromPref == "status") {
                 // Migrate to light theme, which is the closest theme
@@ -215,7 +216,8 @@ object ThemeUtils {
     fun getApplicationLightThemeAccent(context: Context): String {
         val currentAccent = this.currentLightThemeAccent.get()
         return if (currentAccent == null) {
-            val accentFromPref = DefaultSharedPreferences.getInstance(context).getString(SETTINGS_SC_ACCENT_LIGHT, "green") ?: "green"
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
+            val accentFromPref = prefs.getString(SETTINGS_SC_ACCENT_LIGHT, "green") ?: "green"
             this.currentLightThemeAccent.set(accentFromPref)
             accentFromPref
         } else {
@@ -226,7 +228,8 @@ object ThemeUtils {
     fun getApplicationDarkThemeAccent(context: Context): String {
         val currentAccent = this.currentDarkThemeAccent.get()
         return if (currentAccent == null) {
-            val accentFromPref = DefaultSharedPreferences.getInstance(context).getString(SETTINGS_SC_ACCENT_DARK, "green") ?: "green"
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
+            val accentFromPref = prefs.getString(SETTINGS_SC_ACCENT_DARK, "green") ?: "green"
             this.currentDarkThemeAccent.set(accentFromPref)
             accentFromPref
         } else {

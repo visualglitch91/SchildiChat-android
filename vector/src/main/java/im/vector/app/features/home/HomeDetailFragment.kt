@@ -62,11 +62,12 @@ import im.vector.app.features.home.room.list.RoomListSectionBuilder.Companion.SP
 import im.vector.app.features.home.room.list.UnreadCounterBadgeView
 import im.vector.app.features.popup.PopupAlertManager
 import im.vector.app.features.popup.VerificationVectorAlert
-import im.vector.app.features.settings.VectorLocale
+import im.vector.app.features.settings.VectorLocaleProvider
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.settings.VectorSettingsActivity.Companion.EXTRA_DIRECT_ACCESS_SECURITY_PRIVACY_MANAGE_SESSIONS
 import im.vector.app.features.themes.ThemeUtils
 import im.vector.app.features.workers.signout.BannerState
+import im.vector.app.features.workers.signout.ServerBackupStatusAction
 import im.vector.app.features.workers.signout.ServerBackupStatusViewModel
 import org.matrix.android.sdk.api.session.crypto.model.DeviceInfo
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
@@ -88,6 +89,7 @@ class HomeDetailFragment :
     @Inject lateinit var callManager: WebRtcCallManager
     @Inject lateinit var vectorPreferences: VectorPreferences
     @Inject lateinit var spaceStateHandler: SpaceStateHandler
+    @Inject lateinit var vectorLocale: VectorLocaleProvider
 
     private val DEBUG_VIEW_PAGER = DbgUtil.isDbgEnabled(DbgUtil.DBG_VIEW_PAGER)
     private val viewPagerDimber = Dimber("Home pager", DbgUtil.DBG_VIEW_PAGER)
@@ -440,13 +442,15 @@ class HomeDetailFragment :
     }
 
     private fun setupKeysBackupBanner() {
+        serverBackupStatusViewModel.handle(ServerBackupStatusAction.OnBannerDisplayed)
         serverBackupStatusViewModel
                 .onEach {
                     when (val banState = it.bannerState.invoke()) {
-                        is BannerState.Setup -> views.homeKeysBackupBanner.render(KeysBackupBanner.State.Setup(banState.numberOfKeys), false)
-                        BannerState.BackingUp -> views.homeKeysBackupBanner.render(KeysBackupBanner.State.BackingUp, false)
-                        null,
-                        BannerState.Hidden -> views.homeKeysBackupBanner.render(KeysBackupBanner.State.Hidden, false)
+                        is BannerState.Setup,
+                        BannerState.BackingUp,
+                        BannerState.Hidden -> views.homeKeysBackupBanner.render(banState, false)
+                        null -> views.homeKeysBackupBanner.render(BannerState.Hidden, false)
+                        else -> Unit /* No op? */
                     }
                 }
         views.homeKeysBackupBanner.delegate = this
@@ -694,7 +698,7 @@ class HomeDetailFragment :
             arguments = Bundle().apply {
                 putBoolean(DialPadFragment.EXTRA_ENABLE_DELETE, true)
                 putBoolean(DialPadFragment.EXTRA_ENABLE_OK, true)
-                putString(DialPadFragment.EXTRA_REGION_CODE, VectorLocale.applicationLocale.country)
+                putString(DialPadFragment.EXTRA_REGION_CODE, vectorLocale.applicationLocale.country)
             }
             applyCallback()
         }
@@ -721,6 +725,10 @@ class HomeDetailFragment :
     /* ==========================================================================================
      * KeysBackupBanner Listener
      * ========================================================================================== */
+
+    override fun onCloseClicked() {
+        serverBackupStatusViewModel.handle(ServerBackupStatusAction.OnBannerClosed)
+    }
 
     override fun setupKeysBackup() {
         navigator.openKeysBackupSetup(requireActivity(), false)

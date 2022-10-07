@@ -127,8 +127,10 @@
         android:background="?android:attr/selectableItemBackground"
         android:contentDescription="@string/a11y_open_emoji_picker"
         android:src="@drawable/ic_insert_emoji"
+        android:visibility="invisible"
         app:tint="?android:textColorHint"
-        tools:ignore="MissingConstraints,MissingPrefix" />
+        tools:ignore="MissingConstraints,MissingPrefix"
+        tools:visibility="visible" />
 
     <ImageButton
         android:id="@+id/sendButton"

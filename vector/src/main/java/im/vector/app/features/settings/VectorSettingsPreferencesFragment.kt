@@ -51,6 +51,7 @@ class VectorSettingsPreferencesFragment :
     @Inject lateinit var vectorConfiguration: VectorConfiguration
     @Inject lateinit var fontScalePreferences: FontScalePreferences
     @Inject lateinit var vectorFeatures: VectorFeatures
+    @Inject lateinit var vectorLocale: VectorLocale
 
     companion object {
         const val BUBBLE_APPEARANCE_KEY = "BUBBLE_APPEARANCE_KEY"
@@ -86,8 +87,8 @@ class VectorSettingsPreferencesFragment :
         findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_FOLLOW_SYSTEM_LOCALE)?.onPreferenceChangeListener =
                 Preference.OnPreferenceChangeListener { _, newValue ->
                     if (newValue is Boolean) {
-                        VectorLocale.followSystemLocale = newValue
-                        VectorLocale.reloadLocale()
+                        vectorLocale.followSystemLocale = newValue
+                        vectorLocale.reloadLocale()
                         vectorConfiguration.applyToApplicationContext()
                         // Restart the Activity
                         activity?.restart()
@@ -259,7 +260,7 @@ class VectorSettingsPreferencesFragment :
 
     private fun setUserInterfacePreferences() {
         // Selected language
-        selectedLanguagePreference.summary = VectorLocale.localeToLocalisedString(VectorLocale.applicationLocale)
+        selectedLanguagePreference.summary = vectorLocale.localeToLocalisedString(vectorLocale.applicationLocale)
 
         // Text size
         textSizePreference.summary = getString(fontScalePreferences.getResolvedFontScaleValue().nameResId)

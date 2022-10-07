@@ -177,12 +177,14 @@
         android:background="?android:attr/selectableItemBackground"
         android:contentDescription="@string/a11y_open_emoji_picker"
         android:src="@drawable/ic_insert_emoji"
+        android:visibility="invisible"
         app:layout_constraintTop_toTopOf="@id/sendButton"
         app:layout_constraintBottom_toBottomOf="@id/sendButton"
         app:layout_constraintEnd_toStartOf="@id/composerEditText"
         app:layout_constraintStart_toStartOf="parent"
         app:tint="?android:textColorHint"
-        tools:ignore="MissingPrefix" />
+        tools:ignore="MissingPrefix"
+        tools:visibility="visible" />
 
     <ImageButton
         android:id="@+id/sendButton"
