@@ -69,7 +69,9 @@ class SpaceBarController @Inject constructor(
             )
             onBind { _, view, _ ->
                 host.carousel = view
-                host.scrollToSpace(selectedSpace?.roomId)
+                view.post {
+                    host.scrollToSpace(selectedSpace?.roomId)
+                }
             }
 
             onUnbind { _, _ ->
@@ -137,12 +139,17 @@ class SpaceBarController @Inject constructor(
         var effectivePosition = position
         val lm = safeCarousel.layoutManager as? LinearLayoutManager
         if (lm != null) {
-            // Look-ahead of 1
-            if (lm.findFirstCompletelyVisibleItemPosition() >= position) {
-                effectivePosition--
-            } else if (lm.findLastVisibleItemPosition() <= position) {
-                effectivePosition++
+            // Scroll to an element such that the new selection is roughly in the middle
+            val firstVisible = lm.findFirstCompletelyVisibleItemPosition()
+            val visibleRange = lm.findLastCompletelyVisibleItemPosition() - firstVisible + 1
+            val overshoot = visibleRange/2
+            val currentMiddle = firstVisible + overshoot
+            if (currentMiddle < position) {
+                effectivePosition = position + overshoot
+            } else if (currentMiddle > position) {
+                effectivePosition = position - overshoot
             }
+            // List limits
             effectivePosition = max(0, min(effectivePosition, lm.itemCount-1))
         }
         safeCarousel.smoothScrollToPosition(effectivePosition)

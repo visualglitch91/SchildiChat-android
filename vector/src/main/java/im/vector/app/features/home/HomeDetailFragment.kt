@@ -171,10 +171,10 @@ class HomeDetailFragment :
 
         checkNotificationTabStatus()
 
+        views.spaceBarRecyclerView.layoutManager = LinearLayoutManager(context)
         val spaceBarAdapter = spaceBarController.also { controller ->
             controller.spaceRoomListener = spaceBarListener
         }.adapter
-        views.spaceBarRecyclerView.layoutManager = LinearLayoutManager(context)
         views.spaceBarRecyclerView.adapter = spaceBarAdapter
 
         // Reduce sensitivity of viewpager to avoid scrolling horizontally by accident too easily
