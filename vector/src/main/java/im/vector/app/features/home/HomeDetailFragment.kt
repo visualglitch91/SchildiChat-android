@@ -241,16 +241,15 @@ class HomeDetailFragment :
         }
 
         unreadMessagesSharedViewModel.onEach { state ->
-            views.drawerUnreadCounterBadgeView.render(
+            val count =
                     UnreadCounterBadgeView.State.Count(
                             count = state.otherSpacesUnread.totalCount,
                             highlighted = state.otherSpacesUnread.isHighlight,
                             unread = state.otherSpacesUnread.unreadCount,
                             markedUnread = false
-                    ).also {
-                        spaceBarController.submitHomeUnreadCounts(it)
-                    }
-            )
+                    )
+            spaceBarController.submitHomeUnreadCounts(count)
+            renderDrawerUnreads(count)
         }
 
         viewModel.onEach(HomeDetailViewState::selectedSpaceIgnoreSwipe,
@@ -272,6 +271,15 @@ class HomeDetailFragment :
                     currentCallsViewPresenter.updateCall(callManager.getCurrentCall(), callManager.getCalls())
                     invalidateOptionsMenu()
                 }
+    }
+
+    private fun renderDrawerUnreads(count: UnreadCounterBadgeView.State.Count) {
+        if (pagerPagingEnabled) {
+            // Bottom bar shows unread counts already, so remove unnecessary noise
+            views.drawerUnreadCounterBadgeView.render(count.copy(unread = 0))
+        } else {
+            views.drawerUnreadCounterBadgeView.render(count)
+        }
     }
 
     private fun selectSpaceFromSwipe(position: Int) {
@@ -645,7 +653,20 @@ class HomeDetailFragment :
         spaceStateHandler.persistSelectedSpace()
         pagerSpaces = safeSpaces
         pagerTab = tab
-        pagerPagingEnabled = pagingEnabled
+        if (pagerPagingEnabled != pagingEnabled) {
+            pagerPagingEnabled = pagingEnabled
+            // Update counts which depend on pagerPagingEnabled
+            withState(unreadMessagesSharedViewModel) { state ->
+                renderDrawerUnreads(
+                    UnreadCounterBadgeView.State.Count(
+                            count = state.otherSpacesUnread.totalCount,
+                            highlighted = state.otherSpacesUnread.isHighlight,
+                            unread = state.otherSpacesUnread.unreadCount,
+                            markedUnread = false
+                    )
+                )
+            }
+        }
         initialPageSelected = false
 
         // OFFSCREEN_PAGE_LIMIT_DEFAULT: default recyclerview caching mechanism instead of explicit fixed prefetching
