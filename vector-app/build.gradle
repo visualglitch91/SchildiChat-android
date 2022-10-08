@@ -307,7 +307,6 @@ android {
             }
 
             dimension "store"
-            isDefault = true
             versionName "1.5.1.sc60"
             buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"G\""
             buildConfigField "String", "FLAVOR_DESCRIPTION", "\"GooglePlay\""
@@ -318,6 +317,7 @@ android {
             versionName "1.5.1.sc60"
             buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"F\""
             buildConfigField "String", "FLAVOR_DESCRIPTION", "\"FDroid\""
+            isDefault = true
         }
     }
 
