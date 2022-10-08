@@ -25,6 +25,7 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.airbnb.mvrx.UniqueOnly
@@ -60,6 +61,8 @@ import im.vector.app.features.home.room.list.RoomListFragment
 import im.vector.app.features.home.room.list.RoomListParams
 import im.vector.app.features.home.room.list.RoomListSectionBuilder.Companion.SPACE_ID_FOLLOW_APP
 import im.vector.app.features.home.room.list.UnreadCounterBadgeView
+import im.vector.app.features.home.room.list.home.spacebar.SpaceBarController
+import im.vector.app.features.home.room.list.home.spacebar.SpaceBarData
 import im.vector.app.features.popup.PopupAlertManager
 import im.vector.app.features.popup.VerificationVectorAlert
 import im.vector.app.features.settings.VectorLocaleProvider
@@ -69,6 +72,7 @@ import im.vector.app.features.themes.ThemeUtils
 import im.vector.app.features.workers.signout.BannerState
 import im.vector.app.features.workers.signout.ServerBackupStatusAction
 import im.vector.app.features.workers.signout.ServerBackupStatusViewModel
+import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.api.session.crypto.model.DeviceInfo
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import timber.log.Timber
@@ -90,6 +94,7 @@ class HomeDetailFragment :
     @Inject lateinit var vectorPreferences: VectorPreferences
     @Inject lateinit var spaceStateHandler: SpaceStateHandler
     @Inject lateinit var vectorLocale: VectorLocaleProvider
+    @Inject lateinit var spaceBarController: SpaceBarController
 
     private val DEBUG_VIEW_PAGER = DbgUtil.isDbgEnabled(DbgUtil.DBG_VIEW_PAGER)
     private val viewPagerDimber = Dimber("Home pager", DbgUtil.DBG_VIEW_PAGER)
@@ -145,6 +150,16 @@ class HomeDetailFragment :
 
     private val currentCallsViewPresenter = CurrentCallsViewPresenter()
 
+    private val spaceBarListener = object: SpaceBarController.SpaceBarListener {
+        override fun onSpaceBarSelectSpace(space: RoomSummary?) {
+            spaceStateHandler.setCurrentSpace(space?.roomId, from = SelectSpaceFrom.SELECT)
+        }
+        override fun onSpaceBarLongPressSpace(space: RoomSummary?): Boolean {
+            sharedActionViewModel.post(HomeActivitySharedAction.OpenDrawer)
+            return true
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         sharedActionViewModel = activityViewModelProvider.get(HomeSharedActionViewModel::class.java)
@@ -155,6 +170,12 @@ class HomeDetailFragment :
         setupActiveCallView()
 
         checkNotificationTabStatus()
+
+        val spaceBarAdapter = spaceBarController.also { controller ->
+            controller.spaceRoomListener = spaceBarListener
+        }.adapter
+        views.spaceBarRecyclerView.layoutManager = LinearLayoutManager(context)
+        views.spaceBarRecyclerView.adapter = spaceBarAdapter
 
         // Reduce sensitivity of viewpager to avoid scrolling horizontally by accident too easily
         views.roomListContainerPager.reduceDragSensitivity(4)
@@ -226,7 +247,9 @@ class HomeDetailFragment :
                             highlighted = state.otherSpacesUnread.isHighlight,
                             unread = state.otherSpacesUnread.unreadCount,
                             markedUnread = false
-                    )
+                    ).also {
+                        spaceBarController.submitHomeUnreadCounts(it)
+                    }
             )
         }
 
@@ -239,7 +262,7 @@ class HomeDetailFragment :
                 // Uninitialized
                 return@onEach
             }
-            setupViewPager(selectedSpace, rootSpacesOrdered, currentTab)
+            setupViewPager(selectedSpace, rootSpacesOrdered , currentTab)
             previousSelectedSpacePair = selectedSpace
         }
 
@@ -280,6 +303,9 @@ class HomeDetailFragment :
 
     override fun onDestroyView() {
         currentCallsViewPresenter.unBind()
+
+        spaceBarController.spaceRoomListener = null
+
         super.onDestroyView()
     }
 
@@ -433,12 +459,20 @@ class HomeDetailFragment :
     }
 
     private fun onSpaceChange(spaceSummary: RoomSummary?) {
+        if (pagerPagingEnabled) {
+            spaceBarController.selectSpace(spaceSummary)
+        }
         if (spaceSummary == null) {
             views.groupToolbarSpaceTitleView.isVisible = false
         } else {
             views.groupToolbarSpaceTitleView.isVisible = true
             views.groupToolbarSpaceTitleView.text = spaceSummary.displayName
         }
+    }
+
+    private fun setCurrentPagerItem(index: Int, smoothScroll: Boolean) {
+        views.roomListContainerPager.setCurrentItem(index, smoothScroll)
+        spaceBarController.scrollToSpacePosition(index)
     }
 
     private fun setupKeysBackupBanner() {
@@ -556,6 +590,12 @@ class HomeDetailFragment :
             getPageIndexForSpaceId(selectedSpaceId, unsafeSpaces)
         }
         val pagingEnabled = pagingAllowed && unsafeSpaces.isNotEmpty() && selectedIndex != null
+        if (pagingEnabled) {
+            views.spaceBarRecyclerView.isVisible = true
+            spaceBarController.submitData(SpaceBarData(spaces?.let { listOf<RoomSummary?>(null) + it }, selectedSpace))
+        } else {
+            views.spaceBarRecyclerView.isVisible = false
+        }
         val safeSpaces = if (pagingEnabled) unsafeSpaces else listOf()
         // Check if we need to recreate the adapter for a new tab
         if (oldAdapter != null) {
@@ -582,7 +622,7 @@ class HomeDetailFragment :
                                 // Do not smooth scroll large distances to avoid loading unnecessary many room lists
                                 val diff = selectedIndex - views.roomListContainerPager.currentItem
                                 val smoothScroll = abs(diff) <= 1
-                                views.roomListContainerPager.setCurrentItem(selectedIndex, smoothScroll)
+                                setCurrentPagerItem(selectedIndex, smoothScroll)
                             }
                         }
                         return
@@ -656,7 +696,7 @@ class HomeDetailFragment :
                         }
                         try {
                             viewPagerDimber.i{"Home pager: set initial page $selectedIndex"}
-                            views.roomListContainerPager.setCurrentItem(selectedIndex ?: 0, false)
+                            setCurrentPagerItem(selectedIndex ?: 0, false)
                             initialPageSelected = true
                         } catch (e: Exception) {
                             Timber.e("Home pager: Could not set initial page after creating adapter: $e")
