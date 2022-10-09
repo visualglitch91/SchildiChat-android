@@ -152,4 +152,7 @@
     <string name="standard_emojis">Standard emoji</string>
     <string name="settings_follow_system_locale">Följ systemspråket</string>
     <string name="settings_follow_system_locale_summary">När du byter systemspråk, ändra även appens språk</string>
+    <string name="settings_sc_dbg_view_pager_visuals">Visa ViewPager-felsökningsinformation</string>
+    <string name="labs_enable_new_app_layout_summary_sc">Elements nya förenklade layout med valfria flikar</string>
+    <string name="dev_tools_menu_new_layout">Ny layout</string>
 </resources>
