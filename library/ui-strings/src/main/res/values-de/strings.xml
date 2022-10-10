@@ -2550,8 +2550,8 @@
         <item quantity="one">%d Nachricht gelöscht</item>
         <item quantity="other">%d Nachrichten gelöscht</item>
     </plurals>
-    <string name="labs_enable_element_call_permission_shortcuts">Keine SchildiChat-Call-Berechtigungsabfragen</string>
-    <string name="labs_enable_element_call_permission_shortcuts_summary">Bestätige automatisch SchildiChat-Call-Widgets und erlaube Kamera- und Mikrofonzugriff</string>
+    <string name="labs_enable_element_call_permission_shortcuts">Keine Element-Call-Berechtigungsabfragen</string>
+    <string name="labs_enable_element_call_permission_shortcuts_summary">Bestätige automatisch Element-Call-Widgets und erlaube Kamera- und Mikrofonzugriff</string>
     <string name="create_room_action_go">Los</string>
     <string name="ftue_auth_create_account_edit_server_selection">ändern</string>
     <string name="ftue_auth_create_account_sso_section_header">oder</string>
