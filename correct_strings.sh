@@ -30,7 +30,7 @@ find "$stringdir" -name strings.xml -exec \
 find "$stringdir" -name strings.xml -exec \
     sed -i 's|\("use_other_session_content_description">.*\)SchildiChat\(.*SchildiChat.*</string>\)|\1SchildiChat/Element\2|' '{}' \;
 find "$stringdir" -name strings.xml -exec \
-    sed -i 's|SchildiChat Call|Element Call|g' '{}' \;
+    sed -i 's/SchildiChat\( \|-\)Call/Element\1Call/g' '{}' \;
 
 unpatched_strings_file=.tmp_unpatched_strings
 new_patched_strings_file=.tmp_new_patched_strings
