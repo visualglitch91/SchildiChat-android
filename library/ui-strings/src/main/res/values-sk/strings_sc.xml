@@ -49,4 +49,8 @@
     <string name="login_server_other_title_sc">Vlastný server</string>
     <string name="bubble_style_both">Obidve strany</string>
     <string name="sc_dark_theme">SC Tmavá</string>
+    <string name="bubble_appearance">vzhľad bublín</string>
+    <string name="bubble_rounded_corners">Rohy</string>
+    <string name="bubble_rounded_corners_default">Východzí</string>
+    <string name="bubble_rounded_corners_r1">Oblé</string>
 </resources>
