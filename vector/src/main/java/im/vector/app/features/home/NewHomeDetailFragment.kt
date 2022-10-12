@@ -123,6 +123,7 @@ class NewHomeDetailFragment :
             val isRoomList = state.currentTab is HomeTab.RoomList
             menu.findItem(R.id.menu_home_mark_all_as_read).isVisible = isRoomList && hasUnreadRooms
             menu.findItem(R.id.menu_home_dialpad).isVisible = state.showDialPadTab
+            menu.findItem(R.id.menu_room_sort_order).isVisible = false
         }
     }
 

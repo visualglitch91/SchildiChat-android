@@ -20,6 +20,7 @@ import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.Uninitialized
 import im.vector.app.features.home.RoomListDisplayMode
+import org.matrix.android.sdk.api.session.room.RoomSortOrder
 import org.matrix.android.sdk.api.session.room.members.ChangeMembershipState
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import org.matrix.android.sdk.api.session.room.model.SpaceChildInfo
@@ -32,8 +33,9 @@ data class RoomListViewState(
         val currentUserName: String? = null,
         val asyncSelectedSpace: Async<RoomSummary?> = Uninitialized,
         // In comparison to currentRoomGrouping, the explicit space id fixes a filter method that should not change afterwards
-        val explicitSpaceId: String? = null
+        val explicitSpaceId: String? = null,
+        val roomSortOrder: RoomSortOrder = RoomSortOrder.ACTIVITY,
 ) : MavericksState {
 
-    constructor(args: RoomListParams) : this(displayMode = args.displayMode, explicitSpaceId = args.explicitSpaceId)
+    constructor(args: RoomListParams) : this(displayMode = args.displayMode, explicitSpaceId = args.explicitSpaceId, roomSortOrder = args.roomSortOrder)
 }

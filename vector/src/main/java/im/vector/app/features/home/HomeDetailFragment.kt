@@ -23,8 +23,10 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import androidx.core.content.edit
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -74,6 +76,7 @@ import im.vector.app.features.workers.signout.ServerBackupStatusAction
 import im.vector.app.features.workers.signout.ServerBackupStatusViewModel
 import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.api.session.crypto.model.DeviceInfo
+import org.matrix.android.sdk.api.session.room.RoomSortOrder
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import timber.log.Timber
 import javax.inject.Inject
@@ -124,6 +127,7 @@ class HomeDetailFragment :
     private var pagerTab: HomeTab? = null
     private var pagerPagingEnabled: Boolean = false
     private var previousSelectedSpacePair: Pair<RoomSummary?, SelectSpaceFrom>? = null
+    private var roomSortOrderSettings: RoomSortOrderSettings? = null
 
     override fun getMenuRes() = R.menu.room_list
 
@@ -133,7 +137,42 @@ class HomeDetailFragment :
                 viewModel.handle(HomeDetailAction.MarkAllRoomsRead)
                 true
             }
+            R.id.menu_room_sort_order_activity -> {
+                storeRoomSortOrder(RoomSortOrder.ACTIVITY)
+                updateViewPager()
+                true
+            }
+            R.id.menu_room_sort_order_unread -> {
+                storeRoomSortOrder(RoomSortOrder.UNREAD_AND_ACTIVITY)
+                updateViewPager()
+                true
+            }
             else -> false
+        }
+    }
+
+    private fun currentEffectiveSpace(): String? {
+        return if (pagerPagingEnabled) {
+            getSpaceIdForPageIndex(views.roomListContainerPager.currentItem)
+        } else {
+            SPACE_ID_FOLLOW_APP
+        }
+    }
+
+    private fun storeRoomSortOrder(roomSortOrder: RoomSortOrder) {
+        val sharedPreferences = context?.let { PreferenceManager.getDefaultSharedPreferences(it) } ?: return
+        val space = currentEffectiveSpace()
+        val pref = if (space == null) VectorPreferences.SETTINGS_ROOM_SORT_ORDER_NULL else VectorPreferences.SETTINGS_ROOM_SORT_ORDER_NON_NULL
+        sharedPreferences.edit {
+            putString(pref, roomSortOrder.toString())
+        }
+    }
+
+    private fun updateViewPager() {
+        withState(viewModel) {
+            val selectedSpace = it.selectedSpaceIgnoreSwipe ?: return@withState
+            spaceStateHandler.persistSelectedSpace()
+            setupViewPager(selectedSpace, it.rootSpacesOrdered, it.currentTab)
         }
     }
 
@@ -141,6 +180,21 @@ class HomeDetailFragment :
         withState(viewModel) { state ->
             val isRoomList = state.currentTab is HomeTab.RoomList
             menu.findItem(R.id.menu_home_mark_all_as_read).isVisible = isRoomList && hasUnreadRooms
+            menu.findItem(R.id.menu_room_sort_order).isVisible = true
+
+            // Room sort order
+            val space = currentEffectiveSpace()
+            val roomSortOrder =
+                    if (space == null) {
+                        roomSortOrderSettings?.nullSpace
+                    } else {
+                        roomSortOrderSettings?.space
+                    }
+            when (roomSortOrder) {
+                RoomSortOrder.ACTIVITY -> menu.findItem(R.id.menu_room_sort_order_activity).isChecked = true
+                RoomSortOrder.UNREAD_AND_ACTIVITY -> menu.findItem(R.id.menu_room_sort_order_unread).isChecked = true
+                else -> Unit
+            }
         }
     }
 
@@ -605,10 +659,11 @@ class HomeDetailFragment :
             views.spaceBarRecyclerView.isVisible = false
         }
         val safeSpaces = if (pagingEnabled) unsafeSpaces else listOf()
+        val newRoomSortOrderSettings = loadRoomSortOrderSettings()
         // Check if we need to recreate the adapter for a new tab
         if (oldAdapter != null) {
-            val changed = pagerTab != tab || pagerSpaces != safeSpaces || pagerPagingEnabled != pagingEnabled
-            viewPagerDimber.i{ "has changed: $changed (${pagerTab != tab} ${pagerSpaces != safeSpaces} ${pagerPagingEnabled != pagingEnabled} $selectedIndex ${selectedSpacePair.second} ${views.roomListContainerPager.currentItem}) | $safeSpaces" }
+            val changed = pagerTab != tab || pagerSpaces != safeSpaces || pagerPagingEnabled != pagingEnabled || roomSortOrderSettings != newRoomSortOrderSettings
+            viewPagerDimber.i{ "has changed: $changed (${pagerTab != tab} ${pagerSpaces != safeSpaces} ${pagerPagingEnabled != pagingEnabled} ${roomSortOrderSettings != newRoomSortOrderSettings} $selectedIndex ${selectedSpacePair.second} ${views.roomListContainerPager.currentItem}) | $safeSpaces" }
             if (!changed) {
                 // No need to re-setup pager, just check for selected page
                 if (pagingEnabled) {
@@ -653,6 +708,7 @@ class HomeDetailFragment :
         spaceStateHandler.persistSelectedSpace()
         pagerSpaces = safeSpaces
         pagerTab = tab
+        roomSortOrderSettings = newRoomSortOrderSettings
         if (pagerPagingEnabled != pagingEnabled) {
             pagerPagingEnabled = pagingEnabled
             // Update counts which depend on pagerPagingEnabled
@@ -691,10 +747,10 @@ class HomeDetailFragment :
                         val params = if (pagingEnabled) {
                             val spaceId = getSpaceIdForPageIndex(position)
                             viewPagerDimber.i{"Home pager: position $position -> space $spaceId"}
-                            RoomListParams(tab.displayMode, spaceId).toMvRxBundle()
+                            RoomListParams(tab.displayMode, spaceId, getRoomSortOrder(spaceId)).toMvRxBundle()
                         } else {
                             viewPagerDimber.i{"Home pager: paging disabled; position $position -> follow"}
-                            RoomListParams(tab.displayMode, SPACE_ID_FOLLOW_APP).toMvRxBundle()
+                            RoomListParams(tab.displayMode, SPACE_ID_FOLLOW_APP, getRoomSortOrder(SPACE_ID_FOLLOW_APP)).toMvRxBundle()
                         }
                         childFragmentManager.fragmentFactory.instantiate(activity!!.classLoader, RoomListFragment::class.java.name).apply {
                             arguments = params
@@ -751,6 +807,26 @@ class HomeDetailFragment :
             Timber.e(Exception("getSpaceIdForPageIndex: null space!"))
         }
         return if (position == 0) null else spaces[position-1]
+    }
+
+    data class RoomSortOrderSettings(val nullSpace: RoomSortOrder, val space: RoomSortOrder)
+
+    private fun loadRoomSortOrderSettings(): RoomSortOrderSettings? {
+        val sharedPreferences = context?.let { PreferenceManager.getDefaultSharedPreferences(it) } ?: return null
+        val default = RoomSortOrder.ACTIVITY
+        return RoomSortOrderSettings(
+                tryOrNull { sharedPreferences.getString(VectorPreferences.SETTINGS_ROOM_SORT_ORDER_NULL, null)?.let { RoomSortOrder.valueOf(it) } } ?: default,
+                tryOrNull { sharedPreferences.getString(VectorPreferences.SETTINGS_ROOM_SORT_ORDER_NON_NULL, null)?.let { RoomSortOrder.valueOf(it) } } ?: default,
+        )
+    }
+
+    private fun getRoomSortOrder(space: String?): RoomSortOrder {
+        return (
+                if (space == null)
+                    roomSortOrderSettings?.nullSpace
+                else
+                    roomSortOrderSettings?.space
+                ) ?: RoomSortOrder.ACTIVITY
     }
 
     private fun createDialPadFragment(): Fragment {

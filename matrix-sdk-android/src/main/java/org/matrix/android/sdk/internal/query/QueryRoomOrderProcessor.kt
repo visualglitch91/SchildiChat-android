@@ -30,6 +30,11 @@ internal fun RealmQuery<RoomSummaryEntity>.process(sortOrder: RoomSortOrder): Re
         RoomSortOrder.ACTIVITY -> {
             sort(RoomSummaryEntityFields.LAST_ACTIVITY_TIME, Sort.DESCENDING)
         }
+        RoomSortOrder.UNREAD_AND_ACTIVITY -> {
+            sort(
+                    arrayOf(RoomSummaryEntityFields.TREAT_AS_UNREAD_LEVEL, RoomSummaryEntityFields.LAST_ACTIVITY_TIME),
+                    arrayOf(Sort.DESCENDING, Sort.DESCENDING))
+        }
         RoomSortOrder.PRIORITY_AND_ACTIVITY -> {
             sort(
                     arrayOf(

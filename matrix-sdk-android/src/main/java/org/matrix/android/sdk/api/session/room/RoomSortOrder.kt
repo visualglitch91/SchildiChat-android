@@ -31,6 +31,11 @@ enum class RoomSortOrder {
     ACTIVITY,
 
     /**
+     * Show unread above read
+     */
+    UNREAD_AND_ACTIVITY,
+
+    /**
      * Sort room list by room priority and last activity: favorite room first, low priority room last,
      * then descending last activity.
      */

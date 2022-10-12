@@ -68,6 +68,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import org.matrix.android.sdk.api.extensions.orTrue
+import org.matrix.android.sdk.api.extensions.tryOrNull
+import org.matrix.android.sdk.api.session.room.RoomSortOrder
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import org.matrix.android.sdk.api.session.room.model.SpaceChildInfo
 import org.matrix.android.sdk.api.session.room.model.tag.RoomTag
@@ -77,7 +79,8 @@ import javax.inject.Inject
 @Parcelize
 data class RoomListParams(
         val displayMode: RoomListDisplayMode,
-        val explicitSpaceId: String? = SPACE_ID_FOLLOW_APP
+        val explicitSpaceId: String? = SPACE_ID_FOLLOW_APP,
+        val roomSortOrder: RoomSortOrder = RoomSortOrder.ACTIVITY
 ) : Parcelable
 
 @AndroidEntryPoint

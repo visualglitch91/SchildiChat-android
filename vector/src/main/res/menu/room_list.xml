@@ -14,4 +14,21 @@
         android:visible="false"
         app:showAsAction="never"
         tools:visible="true" />
+
+    <item
+        android:id="@+id/menu_room_sort_order"
+        android:title="@string/home_layout_preferences_sort_by"
+        app:showAsAction="never">
+        <menu>
+            <group
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/menu_room_sort_order_activity"
+                    android:title="@string/home_layout_preferences_sort_activity" />
+                <item
+                    android:id="@+id/menu_room_sort_order_unread"
+                    android:title="@string/home_layout_preferences_sort_unread" />
+            </group>
+        </menu>
+    </item>
 </menu>

@@ -47,6 +47,7 @@ import org.matrix.android.sdk.api.query.QueryStringValue
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.getRoom
 import org.matrix.android.sdk.api.session.getRoomSummary
+import org.matrix.android.sdk.api.session.room.RoomSortOrder
 import org.matrix.android.sdk.api.session.room.UpdatableLivePageResult
 import org.matrix.android.sdk.api.session.room.members.ChangeMembershipState
 import org.matrix.android.sdk.api.session.room.model.localecho.RoomLocalEcho
@@ -152,8 +153,8 @@ class RoomListViewModel @AssistedInject constructor(
     )
 
     val sections: List<RoomsSection> by lazy {
-        viewPagerDimber.i { "Build sections for ${initialState.displayMode}, ${initialState.explicitSpaceId}" }
-        roomListSectionBuilder.buildSections(initialState.displayMode, initialState.explicitSpaceId)
+        viewPagerDimber.i { "Build sections for ${initialState.displayMode}, ${initialState.explicitSpaceId} ${initialState.roomSortOrder}" }
+        roomListSectionBuilder.buildSections(initialState.displayMode, initialState.explicitSpaceId, initialState.roomSortOrder)
     }
 
     override fun handle(action: RoomListAction) {

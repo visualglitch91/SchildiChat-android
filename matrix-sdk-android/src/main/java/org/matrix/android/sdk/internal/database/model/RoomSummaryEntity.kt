@@ -21,6 +21,7 @@ import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.annotations.Index
 import io.realm.annotations.PrimaryKey
+import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.api.session.crypto.model.RoomEncryptionTrustLevel
 import org.matrix.android.sdk.api.session.room.model.Membership
@@ -122,16 +123,19 @@ internal open class RoomSummaryEntity(
     var notificationCount: Int = 0
         set(value) {
             if (value != field) field = value
+            updateTreatAsUnread()
         }
 
     var highlightCount: Int = 0
         set(value) {
             if (value != field) field = value
+            updateTreatAsUnread()
         }
 
     var unreadCount: Int? = null
         set(value) {
             if (value != field) field = value
+            updateTreatAsUnread()
         }
         /* -> safeUnreadCount
         get() {
@@ -193,8 +197,24 @@ internal open class RoomSummaryEntity(
 
     var markedUnread: Boolean = false
         set(value) {
-            if (value != field) field = value
+            if (value != field) {
+                field = value
+                updateTreatAsUnread()
+            }
         }
+
+    /**
+     * SchildiChat: Helper var so we can sort depending on how "unread" a chat is: mentions > {notifications, marked unread} > unreads > all read
+     * Make sure to call `updateTreatAsUnread()` when necessary.
+     */
+    @Index
+    private var treatAsUnreadLevel: Int = calculateUnreadLevel()
+    private fun updateTreatAsUnread() {
+        treatAsUnreadLevel = calculateUnreadLevel()
+    }
+    private fun calculateUnreadLevel(): Int {
+        return calculateUnreadLevel(highlightCount, notificationCount, markedUnread, unreadCount)
+    }
 
     private var tags: RealmList<RoomTagEntity> = RealmList()
 
@@ -377,7 +397,23 @@ internal open class RoomSummaryEntity(
             }
         }
 
-    companion object
+    companion object {
+        private const val UNREAD_LEVEL_HIGHLIGHT = 4
+        private const val UNREAD_LEVEL_NOTIFIED = 3
+        private const val UNREAD_LEVEL_MARKED_UNREAD = UNREAD_LEVEL_NOTIFIED
+        private const val UNREAD_LEVEL_SILENT_UNREAD = 1
+        private const val UNREAD_LEVEL_NONE = 0
+
+        fun calculateUnreadLevel(highlightCount: Int, notificationCount: Int, markedUnread: Boolean, unreadCount: Int?): Int {
+            return when {
+                highlightCount > 0 -> UNREAD_LEVEL_HIGHLIGHT
+                notificationCount > 0 -> UNREAD_LEVEL_NOTIFIED
+                markedUnread -> UNREAD_LEVEL_MARKED_UNREAD
+                unreadCount?.let { it > 0 }.orFalse() -> UNREAD_LEVEL_SILENT_UNREAD
+                else -> UNREAD_LEVEL_NONE
+            }
+        }
+    }
 
 
     // Keep sync with RoomSummary.scHasUnreadMessages!
