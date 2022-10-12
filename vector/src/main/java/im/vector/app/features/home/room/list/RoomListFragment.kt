@@ -101,6 +101,7 @@ class RoomListFragment :
     private lateinit var stateRestorer: LayoutManagerStateRestorer
 
     private var expandStatusSpaceId: String? = null
+    private var lastLoadForcedExpand: Boolean = false
 
     val dbgId = System.identityHashCode(this)
     private val viewPagerDimber = Dimber("Home pager rlf/$dbgId", DbgUtil.DBG_VIEW_PAGER)
@@ -240,9 +241,13 @@ class RoomListFragment :
 
     private fun refreshCollapseStates() {
         val sectionsCount = adapterInfosList.count { !it.sectionHeaderAdapter.roomsSectionData.isHidden }
+        val isRoomSectionCollapsable = sectionsCount > 1
+        if (lastLoadForcedExpand && isRoomSectionCollapsable) {
+            loadExpandStatus()
+        }
+        lastLoadForcedExpand = !isRoomSectionCollapsable
         roomListViewModel.sections.forEachIndexed { index, roomsSection ->
             val actualBlock = adapterInfosList[index]
-            val isRoomSectionCollapsable = sectionsCount > 1
             val isRoomSectionExpanded = roomsSection.isExpanded.value.orTrue()
             if (actualBlock.section.isExpanded && !isRoomSectionExpanded) {
                 // mark controller as collapsed
@@ -705,6 +710,8 @@ class RoomListFragment :
     }
 
     private fun persistExpandStatus() {
+        // No need to persist force-expanded values
+        if (lastLoadForcedExpand) return
         val spEdit = getSharedPreferences()?.edit() ?: return
         roomListViewModel.sections.forEach{section ->
             val isExpanded = section.isExpanded.value
