@@ -17,12 +17,16 @@
 
 package im.vector.app.features.home.room.list.home.spacebar
 
+import android.content.Context
+import android.view.Gravity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.SnapHelper
 import com.airbnb.epoxy.Carousel
-import com.airbnb.epoxy.CarouselModelBuilder
+import com.airbnb.epoxy.Carousel.SnapHelperFactory
 import com.airbnb.epoxy.EpoxyController
 import com.airbnb.epoxy.EpoxyModel
-import com.airbnb.epoxy.carousel
+import com.airbnb.epoxy.ModelView
+import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import im.vector.app.core.resources.StringProvider
 import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.list.UnreadCounterBadgeView
@@ -56,7 +60,7 @@ class SpaceBarController @Inject constructor(
     }
 
     private fun addSpaces(host: SpaceBarController, spaces: List<RoomSummary?>, selectedSpace: RoomSummary?) {
-        carousel {
+        spaceBarCarousel {
             id("spaces_carousel")
             padding(
                     Carousel.Padding(
@@ -156,9 +160,24 @@ class SpaceBarController @Inject constructor(
     }
 }
 
-private inline fun <T> CarouselModelBuilder.withModelsFrom(
+private inline fun <T> SpaceBarCarouselModelBuilder.withModelsFrom(
         items: List<T>,
         modelBuilder: (T) -> EpoxyModel<*>
 ) {
     models(items.map { modelBuilder(it) })
 }
+
+@ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
+internal class SpaceBarCarousel(context: Context?) : Carousel(context) {
+    override fun getSnapHelperFactory(): SnapHelperFactory? {
+        return null // SpaceBarSnapHelperFactory()
+    }
+}
+
+/*
+internal class SpaceBarSnapHelperFactory: SnapHelperFactory() {
+    override fun buildSnapHelper(context: Context?): SnapHelper {
+        return GravitySnapHelper(Gravity.CENTER)
+    }
+}
+ */
