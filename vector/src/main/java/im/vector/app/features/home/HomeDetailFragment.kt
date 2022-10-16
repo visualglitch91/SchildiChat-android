@@ -206,7 +206,15 @@ class HomeDetailFragment :
 
     private val spaceBarListener = object: SpaceBarController.SpaceBarListener {
         override fun onSpaceBarSelectSpace(space: RoomSummary?) {
-            spaceStateHandler.setCurrentSpace(space?.roomId, from = SelectSpaceFrom.SELECT)
+            // This is only called for viewpager spaces, so we can switch directly to the selected page,
+            // instead of going the spaceStateHandler route (which would support any space (also non-root-spaces))
+            val spacePos = getPageIndexForSpaceId(space?.roomId)
+            if (spacePos == null) {
+                // Fallback, shouldn't happen usually
+                spaceStateHandler.setCurrentSpace(space?.roomId, from = SelectSpaceFrom.SELECT)
+            } else {
+                setCurrentPagerItem(spacePos)
+            }
         }
         override fun onSpaceBarLongPressSpace(space: RoomSummary?): Boolean {
             sharedActionViewModel.post(HomeActivitySharedAction.OpenDrawer)
@@ -532,8 +540,10 @@ class HomeDetailFragment :
         }
     }
 
-    private fun setCurrentPagerItem(index: Int, smoothScroll: Boolean) {
-        views.roomListContainerPager.setCurrentItem(index, smoothScroll)
+    private fun setCurrentPagerItem(index: Int, smoothScroll: Boolean? = null) {
+        // Do not smooth scroll large distances to avoid loading unnecessary many room list
+        val safeSmoothScroll = smoothScroll ?: (abs(index - views.roomListContainerPager.currentItem) <= 1)
+        views.roomListContainerPager.setCurrentItem(index, safeSmoothScroll)
         spaceBarController.scrollToSpacePosition(index)
     }
 
@@ -682,10 +692,7 @@ class HomeDetailFragment :
                         if (selectedIndex != views.roomListContainerPager.currentItem || selectedIndex == 0) {
                             // post() mitigates a case where we could end up in an endless loop circling around the same few spaces
                             views.roomListContainerPager.post {
-                                // Do not smooth scroll large distances to avoid loading unnecessary many room lists
-                                val diff = selectedIndex - views.roomListContainerPager.currentItem
-                                val smoothScroll = abs(diff) <= 1
-                                setCurrentPagerItem(selectedIndex, smoothScroll)
+                                setCurrentPagerItem(selectedIndex)
                             }
                         }
                         return
