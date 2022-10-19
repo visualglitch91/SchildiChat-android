@@ -401,9 +401,13 @@ class NewHomeDetailFragment :
     override fun onBackPressed(toolbarButton: Boolean) = if (spaceStateHandler.isRoot() || !vectorPreferences.spaceBackNavigation()) {
         false
     } else {
-        val lastSpace = spaceStateHandler.popSpaceBackstack()
-        spaceStateHandler.setCurrentSpace(lastSpace, isForwardNavigation = false)
-        true
+        try {
+            val lastSpace = spaceStateHandler.popSpaceBackstack()
+            spaceStateHandler.setCurrentSpace(lastSpace, isForwardNavigation = false)
+            true
+        } catch(e: NoSuchElementException) {
+            false
+        }
     }
 
     private fun SpaceStateHandler.isRoot() = getSpaceBackstack().isEmpty()

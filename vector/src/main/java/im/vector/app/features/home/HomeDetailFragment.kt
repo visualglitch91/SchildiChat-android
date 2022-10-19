@@ -946,8 +946,12 @@ class HomeDetailFragment :
     }
 
     override fun onBackPressed(toolbarButton: Boolean) = if (vectorPreferences.spaceBackNavigation() && spaceStateHandler.getCurrentSpace() != null) {
-        navigateBack()
-        true
+        try {
+            navigateBack()
+            true
+        } catch (e: NoSuchElementException) {
+            false
+        }
     } else {
         false
     }
