@@ -33,9 +33,16 @@ class VectorLocaleProvider @Inject constructor(
      * SharedPref values has been initialized in [VectorLocale.init]
      */
     val applicationLocale: Locale
-        get() = Locale(
-                preferences.getString(VectorLocale.APPLICATION_LOCALE_LANGUAGE_KEY, "")!!,
-                preferences.getString(VectorLocale.APPLICATION_LOCALE_COUNTRY_KEY, "")!!,
-                preferences.getString(VectorLocale.APPLICATION_LOCALE_VARIANT_KEY, "")!!
-        )
+        get() {
+            val followSystemLocale = preferences.getBoolean(VectorPreferences.SETTINGS_FOLLOW_SYSTEM_LOCALE, false)
+            return if (followSystemLocale) {
+                Locale.getDefault()
+            } else {
+                Locale(
+                        preferences.getString(VectorLocale.APPLICATION_LOCALE_LANGUAGE_KEY, "")!!,
+                        preferences.getString(VectorLocale.APPLICATION_LOCALE_COUNTRY_KEY, "")!!,
+                        preferences.getString(VectorLocale.APPLICATION_LOCALE_VARIANT_KEY, "")!!
+                )
+            }
+        }
 }
