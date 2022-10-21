@@ -89,4 +89,8 @@ sealed class RoomDetailViewEvents : VectorViewEvents {
     data class ScDbgReadTracking(val event: TimelineEvent?, val unreadState: UnreadState, val trackUnreadMessages: Boolean) : RoomDetailViewEvents()
 
     object OpenElementCallWidget : RoomDetailViewEvents()
+
+    // SC
+    object JumpToBottom : RoomDetailViewEvents()
+    data class SetInitialForceScroll(val enabled: Boolean, val stickToBottom: Boolean) : RoomDetailViewEvents()
 }

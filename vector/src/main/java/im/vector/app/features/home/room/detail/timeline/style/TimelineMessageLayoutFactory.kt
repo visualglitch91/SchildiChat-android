@@ -18,6 +18,7 @@ package im.vector.app.features.home.room.detail.timeline.style
 
 import android.content.res.Resources
 import im.vector.app.R
+import im.vector.app.core.extensions.getVectorLastMessageContent
 import im.vector.app.core.extensions.localDateTime
 import im.vector.app.core.resources.LocaleProvider
 import im.vector.app.core.resources.isRTL
@@ -157,7 +158,7 @@ class TimelineMessageLayoutFactory @Inject constructor(
                             isLastFromThisSender = isLastFromThisSender
                     )
 
-                    val messageContent = event.getLastMessageContent()
+                    val messageContent = event.getVectorLastMessageContent()
                     TimelineMessageLayout.Bubble(
                             showAvatar = showInformation && !isSentByMe,
                             showDisplayName = showInformation && !isSentByMe,
@@ -237,7 +238,7 @@ class TimelineMessageLayoutFactory @Inject constructor(
         }
         val type = root.getClearType()
         if (type in EVENT_TYPES_WITH_BUBBLE_LAYOUT) {
-            val messageContent = getLastMessageContent()
+            val messageContent = getVectorLastMessageContent()
             return messageContent?.msgType !in MSG_TYPES_WITHOUT_BUBBLE_LAYOUT
         }
         return false
@@ -287,7 +288,7 @@ class TimelineMessageLayoutFactory @Inject constructor(
             EventType.KEY_VERIFICATION_DONE,
             EventType.KEY_VERIFICATION_CANCEL -> true
             EventType.MESSAGE -> {
-                event.getLastMessageContent() is MessageVerificationRequestContent
+                event.getVectorLastMessageContent() is MessageVerificationRequestContent
             }
             else -> false
         }

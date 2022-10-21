@@ -27,7 +27,7 @@
         android:layout_marginBottom="0dp"
         android:background="?android:attr/selectableItemBackground"
         android:contentDescription="@string/a11y_start_voice_message"
-        android:src="@drawable/ic_voice_mic"
+        android:src="@drawable/ic_microphone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

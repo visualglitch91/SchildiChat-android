@@ -71,12 +71,6 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder>(
         }
     }
 
-    private val _memberNameClickListener = object : ClickListener {
-        override fun invoke(p1: View) {
-            attributes.avatarCallback?.onMemberNameClicked(attributes.informationData)
-        }
-    }
-
     private val _threadClickListener = object : ClickListener {
         override fun invoke(p1: View) {
             attributes.threadCallback?.onThreadSummaryClicked(attributes.informationData.eventId, attributes.threadDetails?.isRootThread ?: false)
@@ -86,7 +80,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder>(
     override fun bind(holder: H) {
         super.bind(holder)
 
-        if ((holder.view as? ScMessageBubbleWrapView)?.customBind(this, holder, attributes, _avatarClickListener, _memberNameClickListener) != true) {
+        if ((holder.view as? ScMessageBubbleWrapView)?.customBind(this, holder, attributes, _avatarClickListener) != true) {
         // Wrong indention for merge-ability
 
         if (attributes.informationData.messageLayout.showAvatar) {
@@ -107,7 +101,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder>(
             holder.memberNameView.isVisible = true
             holder.memberNameView.text = attributes.informationData.memberName
             holder.memberNameView.setTextColor(attributes.getMemberNameColor())
-            holder.memberNameView.onClick(_memberNameClickListener)
+            holder.memberNameView.onClick(attributes.memberClickListener)
             holder.memberNameView.setOnLongClickListener(attributes.itemLongClickListener)
         } else {
             holder.memberNameView.setOnClickListener(null)

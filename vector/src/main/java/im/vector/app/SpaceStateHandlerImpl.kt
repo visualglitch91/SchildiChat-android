@@ -17,8 +17,6 @@
 package im.vector.app
 
 import androidx.lifecycle.LifecycleOwner
-import arrow.core.Option
-import arrow.core.getOrElse
 import de.spiritcroc.matrixsdk.util.DbgUtil
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.utils.BehaviorDataSource
@@ -45,6 +43,8 @@ import org.matrix.android.sdk.api.session.getRoom
 import org.matrix.android.sdk.api.session.getRoomSummary
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import org.matrix.android.sdk.api.session.sync.SyncRequestState
+import org.matrix.android.sdk.api.util.Optional
+import org.matrix.android.sdk.api.util.toOption
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -75,14 +75,14 @@ class SpaceStateHandlerImpl @Inject constructor(
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
-    //private val selectedSpaceDataSource = BehaviorDataSource<Option<RoomSummary>>(Option.empty())
+    //private val selectedSpaceDataSource = BehaviorDataSource<Optional<RoomSummary>>(Optional.empty())
 
     // SC: Call it different then the upstream one so we don't forget adding `first` to upstream's logic.
-    private val selectedSpaceDataSourceSc = BehaviorDataSource<Option<Pair<RoomSummary?, SelectSpaceFrom>>>(Option.empty())
+    private val selectedSpaceDataSourceSc = BehaviorDataSource<Optional<Pair<RoomSummary?, SelectSpaceFrom>>>(Optional.empty())
     //private val selectedSpaceFlow = selectedSpaceDataSource.stream()
     private val selectedSpaceFlow = selectedSpaceDataSourceSc.stream().map { it.map { it.first } }
     private val selectedSpaceFlowIgnoreSwipe = selectedSpaceDataSourceSc.stream()
-            .filter { it.getOrElse{ null }?.second != SelectSpaceFrom.SWIPE }
+            .filter { it.orNull()?.second != SelectSpaceFrom.SWIPE }
 
     override fun getCurrentSpace(): RoomSummary? {
         return selectedSpaceDataSourceSc.currentValue?.orNull()?.first?.let { spaceSummary ->
@@ -129,9 +129,9 @@ class SpaceStateHandlerImpl @Inject constructor(
 
         if (spaceToSet == null) {
             //selectedSpaceDataSourceSc.post(Option.empty())
-            selectedSpaceDataSourceSc.post(Option.just(Pair(null, from)))
+            selectedSpaceDataSourceSc.post(Pair(null, from).toOption())
         } else {
-            selectedSpaceDataSourceSc.post(Option.just(Pair(spaceToSet, from)))
+            selectedSpaceDataSourceSc.post(Pair(spaceToSet, from).toOption())
         }
 
         if (spaceId != null) {
@@ -214,7 +214,7 @@ class SpaceStateHandlerImpl @Inject constructor(
 
         // We want to persist it, so we also want to remove the pendingSwipe status
         if (currentValue.second == SelectSpaceFrom.SWIPE) {
-            selectedSpaceDataSourceSc.post(Option.just(Pair(currentMethod, SelectSpaceFrom.PERSIST_SWIPE)))
+            selectedSpaceDataSourceSc.post(Pair(currentMethod, SelectSpaceFrom.PERSIST_SWIPE).toOption())
         }
 
         // Persist it across app restarts

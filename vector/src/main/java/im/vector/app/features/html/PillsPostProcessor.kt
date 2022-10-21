@@ -28,7 +28,7 @@ import im.vector.app.features.home.AvatarRenderer
 import io.noties.markwon.core.spans.LinkSpan
 import io.noties.markwon.image.AsyncDrawableSpan
 import org.matrix.android.sdk.api.session.getRoomSummary
-import org.matrix.android.sdk.api.session.getUser
+import org.matrix.android.sdk.api.session.getUserOrDefault
 import org.matrix.android.sdk.api.session.permalinks.PermalinkData
 import org.matrix.android.sdk.api.session.permalinks.PermalinkParser
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
@@ -107,7 +107,7 @@ class PillsPostProcessor @AssistedInject constructor(
 
     private fun PermalinkData.UserLink.toMatrixItem(roomId: String?): MatrixItem? =
             if (roomId == null) {
-                sessionHolder.getSafeActiveSession()?.getUser(userId)?.toMatrixItem()
+                sessionHolder.getSafeActiveSession()?.getUserOrDefault(userId)?.toMatrixItem()
             } else {
                 sessionHolder.getSafeActiveSession()?.roomService()?.getRoomMember(userId, roomId)?.toMatrixItem()
             }

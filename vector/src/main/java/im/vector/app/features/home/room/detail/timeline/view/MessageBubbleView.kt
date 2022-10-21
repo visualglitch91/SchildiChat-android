@@ -33,7 +33,7 @@ import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import com.google.android.material.shape.MaterialShapeDrawable
 import im.vector.app.R
-import im.vector.app.core.resources.LocaleProvider
+import im.vector.app.core.resources.DefaultLocaleProvider
 import im.vector.app.core.resources.getLayoutDirectionFromCurrentLocale
 import im.vector.app.core.ui.views.BubbleDependentView
 import im.vector.app.core.utils.DimensionConverter
@@ -69,7 +69,7 @@ class MessageBubbleView @JvmOverloads constructor(
     override fun onFinishInflate() {
         super.onFinishInflate()
         views = ViewMessageBubbleBinding.bind(this)
-        val currentLayoutDirection = LocaleProvider(resources).getLayoutDirectionFromCurrentLocale()
+        val currentLayoutDirection = DefaultLocaleProvider(resources).getLayoutDirectionFromCurrentLocale()
         val layoutDirectionToSet = if (isIncoming) {
             currentLayoutDirection
         } else {

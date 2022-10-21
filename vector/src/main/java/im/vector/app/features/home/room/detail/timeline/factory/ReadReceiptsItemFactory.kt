@@ -16,6 +16,7 @@
 
 package im.vector.app.features.home.room.detail.timeline.factory
 
+import im.vector.app.core.resources.LocaleProvider
 import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptData
@@ -26,7 +27,9 @@ import org.matrix.android.sdk.api.session.room.model.ReadReceipt
 import javax.inject.Inject
 
 class ReadReceiptsItemFactory @Inject constructor(private val avatarRenderer: AvatarRenderer,
-                                                  private val messageLayoutFactory: TimelineMessageLayoutFactory) {
+                                                  private val messageLayoutFactory: TimelineMessageLayoutFactory,
+                                                  private val localeProvider: LocaleProvider,
+) {
 
     fun create(
             eventId: String,
@@ -52,5 +55,6 @@ class ReadReceiptsItemFactory @Inject constructor(private val avatarRenderer: Av
                 .clickListener {
                     callback?.onReadReceiptsClicked(readReceiptsData)
                 }
+                .localeProvider(localeProvider)
     }
 }

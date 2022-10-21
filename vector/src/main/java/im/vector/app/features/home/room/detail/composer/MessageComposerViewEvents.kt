@@ -41,10 +41,15 @@ sealed class MessageComposerViewEvents : VectorViewEvents {
 
     data class OpenRoomMemberProfile(val userId: String) : MessageComposerViewEvents()
 
+    // SC
+    object ClearFocus : MessageComposerViewEvents()
+
     // TODO Remove
     object SlashCommandNotImplemented : SendMessageResult()
 
     data class ShowRoomUpgradeDialog(val newVersion: String, val isPublic: Boolean) : MessageComposerViewEvents()
 
     data class VoicePlaybackOrRecordingFailure(val throwable: Throwable) : MessageComposerViewEvents()
+
+    data class InsertUserDisplayName(val userId: String) : MessageComposerViewEvents()
 }

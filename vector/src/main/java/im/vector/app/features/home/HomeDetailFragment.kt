@@ -233,7 +233,7 @@ class HomeDetailFragment :
 
         checkNotificationTabStatus()
 
-        views.spaceBarRecyclerView.layoutManager = LinearLayoutManager(context)
+        views.spaceBarRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         val spaceBarAdapter = spaceBarController.also { controller ->
             controller.spaceRoomListener = spaceBarListener
         }.adapter

@@ -28,6 +28,8 @@ import im.vector.app.core.dialogs.PhotoOrVideoDialog
 import im.vector.app.core.platform.Restorable
 import im.vector.app.core.resources.BuildMeta
 import im.vector.app.features.settings.VectorPreferences
+import im.vector.lib.core.utils.compat.getParcelableCompat
+import im.vector.lib.core.utils.compat.getSerializableCompat
 import im.vector.lib.multipicker.MultiPicker
 import org.matrix.android.sdk.api.session.content.ContentAttachmentData
 import timber.log.Timber
@@ -68,8 +70,8 @@ class AttachmentsHelper(
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        captureUri = savedInstanceState?.getParcelable(CAPTURE_PATH_KEY) as? Uri
-        pendingType = savedInstanceState?.getSerializable(PENDING_TYPE_KEY) as? AttachmentTypeSelectorView.Type
+        captureUri = savedInstanceState?.getParcelableCompat(CAPTURE_PATH_KEY)
+        pendingType = savedInstanceState?.getSerializableCompat(PENDING_TYPE_KEY)
     }
 
     // Public Methods
