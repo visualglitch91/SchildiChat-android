@@ -85,9 +85,12 @@ class PillsPostProcessor @AssistedInject constructor(
             val startSpan = renderedText.getSpanStart(linkSpan)
             val endSpan = renderedText.getSpanEnd(linkSpan)
             // GlideImagesPlugin causes duplicated pills if we have a nested image: https://github.com/SchildiChat/SchildiChat-android/issues/148
-            // -> do not add pills if we have a nested image
-            if (renderedText.getSpans(startSpan, endSpan, AsyncDrawableSpan::class.java).isNotEmpty()) {
-                return@forEach
+            // Same can happen for other spans: https://github.com/SchildiChat/SchildiChat-android/issues/156
+            // -> Remove all spans from pill content before rendering
+            renderedText.getSpans(startSpan, endSpan, Any::class.java).forEach {
+                if (it !is LinkSpan) {
+                    renderedText.removeSpan(it)
+                }
             }
             addPillSpan(renderedText, pillSpan, startSpan, endSpan)
         }
