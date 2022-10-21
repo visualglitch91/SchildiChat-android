@@ -87,8 +87,14 @@ class PillsPostProcessor @AssistedInject constructor(
             // GlideImagesPlugin causes duplicated pills if we have a nested image: https://github.com/SchildiChat/SchildiChat-android/issues/148
             // Same can happen for other spans: https://github.com/SchildiChat/SchildiChat-android/issues/156
             // -> Remove all spans from pill content before rendering
-            renderedText.getSpans(startSpan, endSpan, Any::class.java).forEach {
+            renderedText.getSpans(startSpan, endSpan, Any::class.java).forEach remove@{
                 if (it !is LinkSpan) {
+                    // Make sure to only remove spans that are contained in this link, and not are bigger than this link, e.g. like reply-blocks
+                    val start = renderedText.getSpanStart(it)
+                    if (start < startSpan) return@remove
+                    val end = renderedText.getSpanEnd(it)
+                    if (end > endSpan) return@remove
+
                     renderedText.removeSpan(it)
                 }
             }
