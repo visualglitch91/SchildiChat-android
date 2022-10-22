@@ -262,7 +262,7 @@ internal class MXOlmDecryption(
             return null
         }
 
-        Timber.tag(loggerTag.value).v("## decryptMessage() :  Created new inbound Olm session get id ${res["session_id"]} with $theirDeviceIdentityKey")
+        Timber.tag(loggerTag.value).d("## decryptMessage() :  Created new inbound Olm session get id ${res["session_id"]} with $theirDeviceIdentityKey")
 
         return res["payload"]
     }

@@ -19,6 +19,8 @@ package im.vector.app.features.home.room.detail.timeline.format
 import dagger.Lazy
 import im.vector.app.EmojiSpanify
 import im.vector.app.R
+import im.vector.app.core.date.DateFormatKind
+import im.vector.app.core.date.VectorDateFormatter
 import im.vector.app.core.resources.ColorProvider
 import im.vector.app.core.resources.StringProvider
 import im.vector.app.features.html.EventHtmlRenderer
@@ -36,11 +38,13 @@ import org.matrix.android.sdk.api.session.room.model.relation.ReactionContent
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.getLastMessageContent
 import org.matrix.android.sdk.api.session.room.timeline.getTextDisplayableContent
+import timber.log.Timber
 import javax.inject.Inject
 
 class DisplayableEventFormatter @Inject constructor(
         private val stringProvider: StringProvider,
         private val colorProvider: ColorProvider,
+        private val dateFormatter: VectorDateFormatter,
         private val emojiSpanify: EmojiSpanify,
         private val noticeEventFormatter: NoticeEventFormatter,
         private val htmlRenderer: Lazy<EventHtmlRenderer>
@@ -53,6 +57,11 @@ class DisplayableEventFormatter @Inject constructor(
 
         if (timelineEvent.root.isEncrypted() &&
                 timelineEvent.root.mxDecryptionResult == null) {
+
+            // Include timestamp as rendered on screenshots to make it easier to identify
+            val cryptoError = timelineEvent.root.mCryptoError
+            val timestamp = dateFormatter.format(timelineEvent.root.originServerTs, DateFormatKind.MESSAGE_DETAIL)
+            Timber.i("Render UTD preview: $cryptoError, ${timelineEvent.root.mCryptoErrorReason}, event: ${timelineEvent.root.eventId}, room: ${timelineEvent.root.roomId}, timestamp: $timestamp, sender: ${timelineEvent.senderInfo.userId}, sessionId: ${timelineEvent.root.content?.get("session_id")}")
             return stringProvider.getString(R.string.encrypted_message)
         }
 

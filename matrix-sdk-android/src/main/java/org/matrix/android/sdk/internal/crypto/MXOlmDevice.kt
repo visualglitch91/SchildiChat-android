@@ -763,6 +763,7 @@ internal class MXOlmDevice @Inject constructor(
                     Timber.tag(loggerTag.value)
                             .w("## importInboundGroupSession() : Can't check session null index $existingFirstKnown/$candidateFirstKnownIndex")
                 } else {
+                    Timber.tag(loggerTag.value).e("## importInboundGroupSession() : compare first known index, existing: $existingFirstKnown, candidate: $candidateFirstKnownIndex")
                     if (existingFirstKnown <= candidateFirstKnownIndex) {
                         // Ignore this, keep existing
                         candidateOlmInboundGroupSession.releaseSession()

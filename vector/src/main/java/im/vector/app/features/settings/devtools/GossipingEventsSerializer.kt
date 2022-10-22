@@ -33,6 +33,7 @@ class GossipingEventsSerializer {
                 val info = trail.info
                 append("[${getFormattedDate(trail.ageLocalTs)}] ${type.name} ")
                 append("sessionId: ${info.sessionId} ")
+                append("roomId: ${info.roomId} ")
                 when (type) {
                     TrailType.IncomingKeyRequest -> {
                         append("from:${info.userId}|${info.deviceId} - ")

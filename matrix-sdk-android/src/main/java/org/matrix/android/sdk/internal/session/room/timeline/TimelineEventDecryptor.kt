@@ -85,7 +85,8 @@ internal class TimelineEventDecryptor @Inject constructor(
         synchronized(unknownSessionsFailure) {
             for (requests in unknownSessionsFailure.values) {
                 if (request in requests) {
-                    Timber.d("Skip Decryption request for event ${request.event.eventId}, unknown session")
+                    // Could be other MXCryptoError, UNKNOWN_INBOUND_SESSION_ID check is commented out
+                    Timber.d("Skip Decryption request for event ${request.event.eventId}, unknown session (or other MXCryptoError)")
                     return
                 }
             }

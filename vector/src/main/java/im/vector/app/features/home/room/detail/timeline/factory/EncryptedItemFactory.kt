@@ -17,6 +17,8 @@
 package im.vector.app.features.home.room.detail.timeline.factory
 
 import im.vector.app.R
+import im.vector.app.core.date.DateFormatKind
+import im.vector.app.core.date.VectorDateFormatter
 import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.core.resources.ColorProvider
 import im.vector.app.core.resources.DrawableProvider
@@ -35,6 +37,7 @@ import org.matrix.android.sdk.api.session.crypto.MXCryptoError
 import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.events.model.content.EncryptedEventContent
 import org.matrix.android.sdk.api.session.events.model.toModel
+import timber.log.Timber
 import javax.inject.Inject
 
 // This class handles timeline events who haven't been successfully decrypted
@@ -44,8 +47,9 @@ class EncryptedItemFactory @Inject constructor(
         private val stringProvider: StringProvider,
         private val avatarSizeProvider: AvatarSizeProvider,
         private val drawableProvider: DrawableProvider,
+        private val dateFormatter: VectorDateFormatter,
         private val attributesFactory: MessageItemAttributesFactory,
-        private val vectorPreferences: VectorPreferences
+        private val vectorPreferences: VectorPreferences,
 ) {
 
     fun create(params: TimelineItemFactoryParams): VectorEpoxyModel<*>? {
@@ -55,6 +59,10 @@ class EncryptedItemFactory @Inject constructor(
         return when {
             EventType.ENCRYPTED == event.root.getClearType() -> {
                 val cryptoError = event.root.mCryptoError
+
+                // Include timestamp as rendered on screenshots to make it easier to identify
+                val timestamp = dateFormatter.format(event.root.originServerTs, DateFormatKind.MESSAGE_DETAIL)
+                Timber.i("Render UTD: $cryptoError, ${event.root.mCryptoErrorReason}, event: ${event.root.eventId}, room: ${event.root.roomId}, timestamp: $timestamp, sender: ${event.senderInfo.userId}, sessionId: ${event.root.content?.get("session_id")}")
 
                 val spannableStr = if (vectorPreferences.developerMode()) {
                     val errorDescription =
