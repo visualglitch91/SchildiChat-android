@@ -150,13 +150,25 @@
         android:id="@+id/roomListContainerStateView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/spaceBarRecyclerView"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
         app:layout_constraintTop_toBottomOf="@+id/homeKeysBackupBanner">
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/roomListContainerPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </im.vector.app.core.platform.StateView>
+
+    <!-- Elevation: match space bar -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        app:elevation="4dp"
+        app:layout_constraintBottom_toTopOf="@id/spaceBarRecyclerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/home_bottom_navigation" />
 
     <!-- Own view for spacebar bg in case of wrap_content of spaceBarRecyclerView is smaller than screen estate -->
     <View
@@ -165,6 +177,7 @@
         android:layout_height="0dp"
         android:background="@drawable/bg_bottom_navigation"
         android:elevation="4dp"
+        app:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="@id/spaceBarRecyclerView"
         app:layout_constraintTop_toTopOf="@id/spaceBarRecyclerView"
         app:layout_constraintStart_toStartOf="parent"
@@ -177,17 +190,9 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:elevation="80dp"
+        app:elevation="80dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView" />
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigationView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/home_bottom_navigation" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
