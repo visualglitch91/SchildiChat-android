@@ -21,16 +21,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.core.platform.VectorBaseBottomSheetDialogFragment
 import im.vector.app.databinding.FragmentNewChatBottomSheetBinding
 import im.vector.app.features.navigation.Navigator
+import im.vector.app.features.settings.VectorPreferences
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class NewChatBottomSheet : VectorBaseBottomSheetDialogFragment<FragmentNewChatBottomSheetBinding>() {
 
     @Inject lateinit var navigator: Navigator
+    @Inject lateinit var vectorPreferences: VectorPreferences
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentNewChatBottomSheetBinding {
         return FragmentNewChatBottomSheetBinding.inflate(inflater, container, false)
@@ -55,6 +58,7 @@ class NewChatBottomSheet : VectorBaseBottomSheetDialogFragment<FragmentNewChatBo
             dismiss()
             navigator.openRoomDirectory(requireContext())
         }
+        views.exploreRooms.isVisible = !vectorPreferences.simplifiedMode()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
