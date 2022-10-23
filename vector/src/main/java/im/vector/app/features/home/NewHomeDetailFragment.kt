@@ -51,6 +51,7 @@ import im.vector.app.features.home.room.list.actions.RoomListSharedAction
 import im.vector.app.features.home.room.list.actions.RoomListSharedActionViewModel
 import im.vector.app.features.home.room.list.home.HomeRoomListFragment
 import im.vector.app.features.home.room.list.home.NewChatBottomSheet
+import im.vector.app.features.login.PromptSimplifiedModeActivity
 import im.vector.app.features.popup.PopupAlertManager
 import im.vector.app.features.popup.VerificationVectorAlert
 import im.vector.app.features.settings.VectorPreferences
@@ -132,6 +133,15 @@ class NewHomeDetailFragment :
     }
 
     private val currentCallsViewPresenter = CurrentCallsViewPresenter()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // SC: settings migration
+        vectorPreferences.scPreferenceUpdate()
+        // SC-Easy mode prompt
+        PromptSimplifiedModeActivity.showIfRequired(requireContext(), vectorPreferences)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
