@@ -228,7 +228,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
             }
         }
 
-        if (savedInstanceState != null) {
+        if (savedInstanceState == null) {
             handleShareData()
         }
     }
