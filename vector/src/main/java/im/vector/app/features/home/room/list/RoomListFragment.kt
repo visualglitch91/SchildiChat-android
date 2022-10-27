@@ -243,8 +243,9 @@ class RoomListFragment :
     }
 
     private fun refreshCollapseStates() {
-        val sectionsCount = adapterInfosList.count { !it.sectionHeaderAdapter.roomsSectionData.isHidden }
-        val isRoomSectionCollapsable = sectionsCount > 1
+        // SC: let's just always allow collapsing sections. This messes with our persisted collapse state otherwise.
+        // val sectionsCount = adapterInfosList.count { !it.sectionHeaderAdapter.roomsSectionData.isHidden }
+        val isRoomSectionCollapsable = true // sectionsCount > 1
         if (lastLoadForcedExpand && isRoomSectionCollapsable) {
             loadExpandStatus()
         }
