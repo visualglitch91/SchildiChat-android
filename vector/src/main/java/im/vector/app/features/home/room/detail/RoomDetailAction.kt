@@ -79,7 +79,6 @@ sealed class RoomDetailAction : VectorViewModelAction {
     data class ReRequestKeys(val eventId: String) : RoomDetailAction()
 
     object SelectStickerAttachment : RoomDetailAction()
-    object StartVoiceBroadcast : RoomDetailAction()
     object OpenIntegrationManager : RoomDetailAction()
     object ManageIntegrations : RoomDetailAction()
     data class AddJitsiWidget(val withVideo: Boolean) : RoomDetailAction()
@@ -103,6 +102,9 @@ sealed class RoomDetailAction : VectorViewModelAction {
     object QuickActionSetTopic : RoomDetailAction()
     data class ShowRoomAvatarFullScreen(val matrixItem: MatrixItem?, val transitionView: View?) : RoomDetailAction()
 
+    // SC
+    object JumpToBottom : RoomDetailAction()
+
     // Preview URL
     data class DoNotShowPreviewUrlFor(val eventId: String, val url: String) : RoomDetailAction()
 
@@ -120,4 +122,19 @@ sealed class RoomDetailAction : VectorViewModelAction {
     object StopLiveLocationSharing : RoomDetailAction()
 
     object OpenElementCallWidget : RoomDetailAction()
+
+    sealed class VoiceBroadcastAction : RoomDetailAction() {
+        sealed class Recording : VoiceBroadcastAction() {
+            object Start : Recording()
+            object Pause : Recording()
+            object Resume : Recording()
+            object Stop : Recording()
+        }
+
+        sealed class Listening : VoiceBroadcastAction() {
+            data class PlayOrResume(val eventId: String) : Listening()
+            object Pause : Listening()
+            object Stop : Listening()
+        }
+    }
 }

@@ -20,6 +20,7 @@ import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.Uninitialized
 import im.vector.app.features.home.room.detail.arguments.TimelineArgs
+import im.vector.app.features.share.SharedData
 import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.session.events.model.Event
 import org.matrix.android.sdk.api.session.room.members.ChangeMembershipState
@@ -81,6 +82,8 @@ data class RoomDetailViewState(
         val threadNotificationBadgeState: ThreadNotificationBadgeState = ThreadNotificationBadgeState(),
         val typingUsers: List<SenderInfo>? = null,
         val isSharingLiveLocation: Boolean = false,
+        val showKeyboardWhenPresented: Boolean = false,
+        val sharedData: SharedData? = null,
 ) : MavericksState {
 
     constructor(args: TimelineArgs) : this(
@@ -92,7 +95,9 @@ data class RoomDetailViewState(
             openAtFirstUnread = args.openAtFirstUnread,
             openAnonymously = args.openAnonymously,
             switchToParentSpace = args.switchToParentSpace,
-            rootThreadEventId = args.threadTimelineArgs?.rootThreadEventId
+            rootThreadEventId = args.threadTimelineArgs?.rootThreadEventId,
+            showKeyboardWhenPresented = args.threadTimelineArgs?.showKeyboard.orFalse(),
+            sharedData = args.sharedData,
     )
 
     fun isCallOptionAvailable(): Boolean {

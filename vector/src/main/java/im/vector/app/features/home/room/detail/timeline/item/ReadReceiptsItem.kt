@@ -27,6 +27,7 @@ import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.VectorEpoxyHolder
 import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.core.epoxy.onClick
+import im.vector.app.core.resources.DefaultLocaleProvider
 import im.vector.app.core.resources.LocaleProvider
 import im.vector.app.core.resources.getLayoutDirectionFromCurrentLocale
 import im.vector.app.core.ui.views.BubbleDependentView
@@ -45,6 +46,7 @@ abstract class ReadReceiptsItem : VectorEpoxyModel<ReadReceiptsItem.Holder>(R.la
     @EpoxyAttribute var shouldHideReadReceipts: Boolean = false
     @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash) lateinit var avatarRenderer: AvatarRenderer
     @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash) lateinit var clickListener: ClickListener
+    @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash) lateinit var localeProvider: LocaleProvider
 
     override fun canAppendReadMarker(): Boolean = false
 
@@ -66,7 +68,7 @@ abstract class ReadReceiptsItem : VectorEpoxyModel<ReadReceiptsItem.Holder>(R.la
     }
 
     override fun applyScBubbleStyle(messageLayout: TimelineMessageLayout.ScBubble, holder: Holder) {
-        val defaultDirection = LocaleProvider(holder.view.resources).getLayoutDirectionFromCurrentLocale()
+        val defaultDirection = localeProvider.getLayoutDirectionFromCurrentLocale()
         val defaultRtl = defaultDirection == View.LAYOUT_DIRECTION_RTL
         val reverseDirection = if (defaultRtl) View.LAYOUT_DIRECTION_LTR else View.LAYOUT_DIRECTION_RTL
 

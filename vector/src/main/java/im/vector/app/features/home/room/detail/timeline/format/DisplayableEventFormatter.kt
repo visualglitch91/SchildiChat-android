@@ -21,6 +21,7 @@ import im.vector.app.EmojiSpanify
 import im.vector.app.R
 import im.vector.app.core.date.DateFormatKind
 import im.vector.app.core.date.VectorDateFormatter
+import im.vector.app.core.extensions.getVectorLastMessageContent
 import im.vector.app.core.resources.ColorProvider
 import im.vector.app.core.resources.StringProvider
 import im.vector.app.features.html.EventHtmlRenderer
@@ -36,7 +37,6 @@ import org.matrix.android.sdk.api.session.room.model.message.MessageTextContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageType
 import org.matrix.android.sdk.api.session.room.model.relation.ReactionContent
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
-import org.matrix.android.sdk.api.session.room.timeline.getLastMessageContent
 import org.matrix.android.sdk.api.session.room.timeline.getTextDisplayableContent
 import timber.log.Timber
 import javax.inject.Inject
@@ -69,7 +69,7 @@ class DisplayableEventFormatter @Inject constructor(
 
         return when (timelineEvent.root.getClearType()) {
             EventType.MESSAGE -> {
-                timelineEvent.getLastMessageContent()?.let { messageContent ->
+                timelineEvent.getVectorLastMessageContent()?.let { messageContent ->
                     when (messageContent.msgType) {
                         MessageType.MSGTYPE_TEXT -> {
                             val body = messageContent.getTextDisplayableContent(imageFallback = stringProvider.getString(R.string.sent_an_image))

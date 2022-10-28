@@ -67,6 +67,7 @@ import im.vector.app.features.raw.wellknown.withElementWellKnown
 import im.vector.app.features.session.coroutineScope
 import im.vector.app.features.settings.VectorDataStore
 import im.vector.app.features.settings.VectorPreferences
+import im.vector.app.features.voicebroadcast.VoiceBroadcastHelper
 import im.vector.lib.core.utils.flow.chunk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -152,6 +153,7 @@ class TimelineViewModel @AssistedInject constructor(
         buildMeta: BuildMeta,
         timelineFactory: TimelineFactory,
         private val spaceStateHandler: SpaceStateHandler,
+        private val voiceBroadcastHelper: VoiceBroadcastHelper,
 ) : VectorViewModel<RoomDetailViewState, RoomDetailAction, RoomDetailViewEvents>(initialState),
         Timeline.Listener, ChatEffectManager.Delegate, CallProtocolsChecker.Listener, LocationSharingServiceConnection.Callback {
 
@@ -489,7 +491,7 @@ class TimelineViewModel @AssistedInject constructor(
             is RoomDetailAction.ReRequestKeys -> handleReRequestKeys(action)
             is RoomDetailAction.TapOnFailedToDecrypt -> handleTapOnFailedToDecrypt(action)
             is RoomDetailAction.SelectStickerAttachment -> handleSelectStickerAttachment()
-            is RoomDetailAction.StartVoiceBroadcast -> handleStartVoiceBroadcast()
+            is RoomDetailAction.VoiceBroadcastAction -> handleVoiceBroadcastAction(action)
             is RoomDetailAction.OpenIntegrationManager -> handleOpenIntegrationManager()
             is RoomDetailAction.StartCall -> handleStartCall(action)
             is RoomDetailAction.AcceptCall -> handleAcceptCall(action)
@@ -503,6 +505,7 @@ class TimelineViewModel @AssistedInject constructor(
             is RoomDetailAction.EnsureNativeWidgetAllowed -> handleCheckWidgetAllowed(action)
             is RoomDetailAction.CancelSend -> handleCancel(action)
             is RoomDetailAction.JumpToReadReceipt -> handleJumpToReadReceipt(action)
+            is RoomDetailAction.JumpToBottom -> _viewEvents.post(RoomDetailViewEvents.JumpToBottom)
             RoomDetailAction.QuickActionInvitePeople -> handleInvitePeople()
             RoomDetailAction.QuickActionSetAvatar -> handleQuickSetAvatar()
             is RoomDetailAction.SetAvatarAction -> handleSetNewAvatar(action)
@@ -631,9 +634,19 @@ class TimelineViewModel @AssistedInject constructor(
         }
     }
 
-    private fun handleStartVoiceBroadcast() {
-        // Todo implement start voice broadcast action
-        Timber.d("Start voice broadcast clicked")
+    private fun handleVoiceBroadcastAction(action: RoomDetailAction.VoiceBroadcastAction) {
+        if (room == null) return
+        viewModelScope.launch {
+            when (action) {
+                RoomDetailAction.VoiceBroadcastAction.Recording.Start -> voiceBroadcastHelper.startVoiceBroadcast(room.roomId)
+                RoomDetailAction.VoiceBroadcastAction.Recording.Pause -> voiceBroadcastHelper.pauseVoiceBroadcast(room.roomId)
+                RoomDetailAction.VoiceBroadcastAction.Recording.Resume -> voiceBroadcastHelper.resumeVoiceBroadcast(room.roomId)
+                RoomDetailAction.VoiceBroadcastAction.Recording.Stop -> voiceBroadcastHelper.stopVoiceBroadcast(room.roomId)
+                is RoomDetailAction.VoiceBroadcastAction.Listening.PlayOrResume -> voiceBroadcastHelper.playOrResumePlayback(room.roomId, action.eventId)
+                RoomDetailAction.VoiceBroadcastAction.Listening.Pause -> voiceBroadcastHelper.pausePlayback()
+                RoomDetailAction.VoiceBroadcastAction.Listening.Stop -> voiceBroadcastHelper.stopPlayback()
+            }
+        }
     }
 
     private fun handleOpenIntegrationManager() {
@@ -762,6 +775,10 @@ class TimelineViewModel @AssistedInject constructor(
     }
 
     private fun handleComposerFocusChange(action: RoomDetailAction.ComposerFocusChange) {
+        if (action.focused) {
+            // Prioritize staying scrolled at the bottom compared to keeping the unread messages line at the fixed position
+            _viewEvents.post(RoomDetailViewEvents.SetInitialForceScroll(true, stickToBottom = false))
+        }
         if (room == null) return
         // Ensure outbound session keys
         if (room.roomCryptoService().isEncrypted()) {

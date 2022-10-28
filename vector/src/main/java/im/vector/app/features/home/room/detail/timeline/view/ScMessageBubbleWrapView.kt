@@ -17,6 +17,7 @@ import im.vector.app.R
 import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.VectorEpoxyHolder
 import im.vector.app.core.epoxy.onClick
+import im.vector.app.core.resources.DefaultLocaleProvider
 import im.vector.app.core.resources.LocaleProvider
 import im.vector.app.core.resources.getLayoutDirectionFromCurrentLocale
 import im.vector.app.core.ui.views.BubbleDependentView
@@ -45,6 +46,8 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
 
     private lateinit var views: ViewMessageBubbleScBinding
 
+    private val localeProvider = DefaultLocaleProvider(resources)
+
     init {
         inflate(context, R.layout.view_message_bubble_sc, this)
         context.withStyledAttributes(attrs, R.styleable.MessageBubble) {
@@ -62,7 +65,7 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
             holder: H,
             attributes: AbsMessageItem.Attributes,
             _avatarClickListener: ClickListener,
-            _memberNameClickListener: ClickListener): Boolean {
+    ): Boolean {
         if (attributes.informationData.messageLayout !is TimelineMessageLayout.ScBubble) {
             Timber.v("Can't render messageLayout ${attributes.informationData.messageLayout}")
             return false
@@ -168,7 +171,7 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
         avatarImageView?.visibility = View.VISIBLE
         avatarImageView?.onClick(_avatarClickListener)
         memberNameView?.visibility = View.VISIBLE
-        memberNameView?.onClick(_memberNameClickListener)
+        memberNameView?.onClick(attributes.memberClickListener)
         timeView?.visibility = View.VISIBLE
         timeView?.text = attributes.informationData.time
         memberNameView?.text = attributes.informationData.memberName
@@ -258,7 +261,7 @@ class ScMessageBubbleWrapView @JvmOverloads constructor(context: Context, attrs:
         val informationData = bubbleDependentView.getInformationData()
         val contentInBubble = infoInBubbles(messageLayout)
 
-        val defaultDirection = LocaleProvider(resources).getLayoutDirectionFromCurrentLocale()
+        val defaultDirection = localeProvider.getLayoutDirectionFromCurrentLocale()
         val defaultRtl = defaultDirection == View.LAYOUT_DIRECTION_RTL
         val reverseDirection = if (defaultRtl) View.LAYOUT_DIRECTION_LTR else View.LAYOUT_DIRECTION_RTL
 

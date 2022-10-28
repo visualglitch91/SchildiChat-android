@@ -32,7 +32,7 @@ object ArrayOptionsMenuHelper {
         }
         metadata.action = action
 
-        menuItem.subMenu.apply {
+        menuItem.subMenu?.apply {
             clear()
             val themeEntries = resources.getStringArray(entriesId)
             val themeValues = resources.getStringArray(valuesId)
