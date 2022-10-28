@@ -16,6 +16,7 @@ sed -i 's|"@style/VectorButtonStyle"|"?materialButtonStyle"|g' vector/src/*/res/
 sed -i 's|"@color/element_background_light"|"?backgroundColorLight"|g' vector/src/*/res/layout/* library/ui-styles/src/main/res/layout/*
 sed -i 's|#FF4B55|#E53935|g' vector/src/*/res/drawable/* vector-app/src/*/res/drawable/*
 sed -i 's|#ff4b55|#e53935|g' vector/src/*/res/drawable/* vector-app/src/*/res/drawable/*
+sed -i 's|#737D8C|#808080|g' vector/src/*/res/drawable/* vector-app/src/*/res/drawable/*
 uncommitted=`git status --porcelain`
 if [ -z "$uncommitted" ]; then
     echo "Seems like colors are still fine :)"
