@@ -185,6 +185,12 @@
             android:summary="@string/settings_show_emoji_keyboard_summary"
             android:title="@string/settings_show_emoji_keyboard" />
 
+        <im.vector.app.core.preference.VectorSwitchPreference
+            android:defaultValue="true"
+            android:key="SETTINGS_VOICE_MESSAGE"
+            android:title="@string/settings_show_voice_message_recorder_ui"
+            android:summary="@string/settings_show_voice_message_recorder_ui_summary" />
+
         <im.vector.app.core.preference.VectorPreference
             android:key="SETTINGS_INTERFACE_TAKE_PHOTO_VIDEO"
             android:persistent="false"

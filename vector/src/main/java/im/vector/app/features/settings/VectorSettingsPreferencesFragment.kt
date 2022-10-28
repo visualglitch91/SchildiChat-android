@@ -18,6 +18,7 @@ package im.vector.app.features.settings
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
@@ -82,6 +83,8 @@ class VectorSettingsPreferencesFragment :
     override fun bindPref() {
         // user interface preferences
         setUserInterfacePreferences()
+
+        findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_VOICE_MESSAGE)?.isEnabled = Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP
 
         // Language: follow system
         findPreference<VectorSwitchPreference>(VectorPreferences.SETTINGS_FOLLOW_SYSTEM_LOCALE)?.onPreferenceChangeListener =
