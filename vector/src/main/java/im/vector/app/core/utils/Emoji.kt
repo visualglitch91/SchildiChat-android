@@ -38,7 +38,8 @@ fun containsOnlyEmojis(str: String?): Boolean {
     // Now rely on vanniktech library
     // Emojis sent from desktop such as thumbs-up or down are sent with a variant selection symbol "\ufe0f",
     // that the library identifies as non-emoji character, so remove that manually before.
-    return str?.replace("\ufe0f", "").isOnlyEmojis()
+    // However, use the old check as well since the "white frowning face" emoji gets lost otherwise...?
+    return str.isOnlyEmojis() || str?.replace("\ufe0f", "").isOnlyEmojis()
 }
 
 /**
