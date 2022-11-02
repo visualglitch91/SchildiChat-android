@@ -5,9 +5,9 @@
 
     <item
         android:id="@+id/spaceSearch"
-        android:icon="@drawable/ic_filter"
+        android:icon="@drawable/ic_search"
         android:title="@string/search"
-        app:searchIcon="@drawable/ic_filter"
+        app:searchIcon="@drawable/ic_search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView" />
 
