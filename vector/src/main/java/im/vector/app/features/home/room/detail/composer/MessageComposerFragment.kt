@@ -41,6 +41,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.airbnb.mvrx.parentFragmentViewModel
@@ -65,6 +66,10 @@ import im.vector.app.core.utils.onPermissionDeniedDialog
 import im.vector.app.core.utils.registerForPermissionsResult
 import im.vector.app.databinding.FragmentComposerBinding
 import im.vector.app.features.VectorFeatures
+import im.vector.app.features.attachments.AttachmentType
+import im.vector.app.features.attachments.AttachmentTypeSelectorBottomSheet
+import im.vector.app.features.attachments.AttachmentTypeSelectorSharedAction
+import im.vector.app.features.attachments.AttachmentTypeSelectorSharedActionViewModel
 import im.vector.app.features.attachments.AttachmentTypeSelectorView
 import im.vector.app.features.attachments.AttachmentsHelper
 import im.vector.app.features.attachments.ContactAttachment
@@ -95,6 +100,7 @@ import im.vector.app.features.share.SharedData
 import im.vector.app.features.themes.ThemeUtils
 import im.vector.app.features.voice.VoiceFailure
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -166,6 +172,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
     private val timelineViewModel: TimelineViewModel by parentFragmentViewModel()
     private val messageComposerViewModel: MessageComposerViewModel by parentFragmentViewModel()
     private lateinit var sharedActionViewModel: MessageSharedActionViewModel
+    private val attachmentViewModel: AttachmentTypeSelectorSharedActionViewModel by viewModels()
 
     private val composer: MessageComposerView get() {
         return if (vectorPreferences.isRichTextEditorEnabled()) {
@@ -227,6 +234,11 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
                 is SendMode.Voice -> renderVoiceMessageMode(mode.text)
             }
         }
+
+        attachmentViewModel.stream()
+                .filterIsInstance<AttachmentTypeSelectorSharedAction.SelectAttachmentTypeAction>()
+                .onEach { onTypeSelected(it.attachmentType) }
+                .launchIn(lifecycleScope)
 
         if (savedInstanceState == null) {
             handleShareData()
@@ -291,11 +303,11 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
                     !keyEvent.isShiftPressed &&
                     keyEvent.keyCode == KeyEvent.KEYCODE_ENTER &&
                     resources.configuration.keyboard != Configuration.KEYBOARD_NOKEYS
-            val result = if (isSendAction || externalKeyboardPressedEnter) {
+            val sendMessageWithEnter = externalKeyboardPressedEnter && vectorPreferences.sendMessageWithEnter()
+            val result = if (isSendAction || sendMessageWithEnter) {
                 sendTextMessage(v.text)
                 true
             } else false
-            composer.setTextIfDifferent(null)
             result
         }
 
@@ -308,21 +320,25 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
         }
         composer.callback = object : PlainTextComposerLayout.Callback {
             override fun onAddAttachment() {
-                if (!::attachmentTypeSelector.isInitialized) {
-                    attachmentTypeSelector = AttachmentTypeSelectorView(vectorBaseActivity, vectorBaseActivity.layoutInflater, this@MessageComposerFragment)
-                    attachmentTypeSelector.setAttachmentVisibility(
-                            AttachmentTypeSelectorView.Type.LOCATION,
-                            vectorFeatures.isLocationSharingEnabled(),
-                    )
-                    attachmentTypeSelector.setAttachmentVisibility(
-                            AttachmentTypeSelectorView.Type.POLL, !isThreadTimeLine()
-                    )
-                    attachmentTypeSelector.setAttachmentVisibility(
-                            AttachmentTypeSelectorView.Type.VOICE_BROADCAST,
-                            vectorPreferences.isVoiceBroadcastEnabled(), // TODO check user permission
-                    )
+                if (vectorPreferences.isRichTextEditorEnabled()) {
+                    AttachmentTypeSelectorBottomSheet.show(childFragmentManager)
+                } else {
+                    if (!::attachmentTypeSelector.isInitialized) {
+                        attachmentTypeSelector = AttachmentTypeSelectorView(vectorBaseActivity, vectorBaseActivity.layoutInflater, this@MessageComposerFragment)
+                        attachmentTypeSelector.setAttachmentVisibility(
+                                AttachmentType.LOCATION,
+                                vectorFeatures.isLocationSharingEnabled(),
+                        )
+                        attachmentTypeSelector.setAttachmentVisibility(
+                                AttachmentType.POLL, !isThreadTimeLine()
+                        )
+                        attachmentTypeSelector.setAttachmentVisibility(
+                                AttachmentType.VOICE_BROADCAST,
+                                vectorPreferences.isVoiceBroadcastEnabled(), // TODO check user permission
+                        )
+                    }
+                    attachmentTypeSelector.show(composer.attachmentButton)
                 }
-                attachmentTypeSelector.show(composer.attachmentButton)
             }
 
             override fun onExpandOrCompactChange() {
@@ -694,20 +710,20 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
         }
     }
 
-    private fun launchAttachmentProcess(type: AttachmentTypeSelectorView.Type) {
+    private fun launchAttachmentProcess(type: AttachmentType) {
         when (type) {
-            AttachmentTypeSelectorView.Type.CAMERA -> attachmentsHelper.openCamera(
+            AttachmentType.CAMERA -> attachmentsHelper.openCamera(
                     activity = requireActivity(),
                     vectorPreferences = vectorPreferences,
                     cameraActivityResultLauncher = attachmentCameraActivityResultLauncher,
                     cameraVideoActivityResultLauncher = attachmentCameraVideoActivityResultLauncher
             )
-            AttachmentTypeSelectorView.Type.FILE -> attachmentsHelper.selectFile(attachmentFileActivityResultLauncher)
-            AttachmentTypeSelectorView.Type.GALLERY -> attachmentsHelper.selectGallery(attachmentMediaActivityResultLauncher)
-            AttachmentTypeSelectorView.Type.CONTACT -> attachmentsHelper.selectContact(attachmentContactActivityResultLauncher)
-            AttachmentTypeSelectorView.Type.STICKER -> timelineViewModel.handle(RoomDetailAction.SelectStickerAttachment)
-            AttachmentTypeSelectorView.Type.POLL -> navigator.openCreatePoll(requireContext(), roomId, null, PollMode.CREATE)
-            AttachmentTypeSelectorView.Type.LOCATION -> {
+            AttachmentType.FILE -> attachmentsHelper.selectFile(attachmentFileActivityResultLauncher)
+            AttachmentType.GALLERY -> attachmentsHelper.selectGallery(attachmentMediaActivityResultLauncher)
+            AttachmentType.CONTACT -> attachmentsHelper.selectContact(attachmentContactActivityResultLauncher)
+            AttachmentType.STICKER -> timelineViewModel.handle(RoomDetailAction.SelectStickerAttachment)
+            AttachmentType.POLL -> navigator.openCreatePoll(requireContext(), roomId, null, PollMode.CREATE)
+            AttachmentType.LOCATION -> {
                 navigator
                         .openLocationSharing(
                                 context = requireContext(),
@@ -717,11 +733,11 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
                                 locationOwnerId = session.myUserId
                         )
             }
-            AttachmentTypeSelectorView.Type.VOICE_BROADCAST -> timelineViewModel.handle(VoiceBroadcastAction.Recording.Start)
+            AttachmentType.VOICE_BROADCAST -> timelineViewModel.handle(VoiceBroadcastAction.Recording.Start)
         }
     }
 
-    override fun onTypeSelected(type: AttachmentTypeSelectorView.Type) {
+    override fun onTypeSelected(type: AttachmentType) {
         if (checkPermissions(type.permissions, requireActivity(), typeSelectedActivityResultLauncher)) {
             launchAttachmentProcess(type)
         } else {

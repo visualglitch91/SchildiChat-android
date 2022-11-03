@@ -41,6 +41,7 @@ import org.matrix.android.sdk.api.session.room.powerlevels.PowerLevelsHelper
 import org.matrix.android.sdk.api.session.room.send.SendState
 import org.matrix.android.sdk.api.session.sync.model.RoomSyncSummary
 import org.matrix.android.sdk.api.session.sync.model.RoomSyncUnreadNotifications
+import org.matrix.android.sdk.api.session.sync.model.RoomSyncUnreadThreadNotifications
 import org.matrix.android.sdk.internal.crypto.EventDecryptor
 import org.matrix.android.sdk.internal.crypto.crosssigning.DefaultCrossSigningService
 import org.matrix.android.sdk.internal.database.mapper.ContentMapper
@@ -136,6 +137,7 @@ internal class RoomSummaryUpdater @Inject constructor(
             roomSummary: RoomSyncSummary? = null,
             unreadNotifications: RoomSyncUnreadNotifications? = null,
             unreadCount: Int? = null,
+            unreadThreadNotifications: Map<String, RoomSyncUnreadThreadNotifications>? = null,
             updateMembers: Boolean = false,
             inviterId: String? = null,
             updateCounts: Boolean = true,
@@ -161,6 +163,14 @@ internal class RoomSummaryUpdater @Inject constructor(
             roomSummaryEntity.aggregatedNotificationCount = roomSummaryEntity.notificationCount
             roomSummaryEntity.aggregatedUnreadCount = roomSummaryEntity.safeUnreadCount()
         }
+
+        roomSummaryEntity.threadHighlightCount = unreadThreadNotifications
+                ?.count { (it.value.highlightCount ?: 0) > 0 }
+                ?: 0
+
+        roomSummaryEntity.threadNotificationCount = unreadThreadNotifications
+                ?.count { (it.value.notificationCount ?: 0) > 0 }
+                ?: 0
 
         if (membership != null) {
             roomSummaryEntity.membership = membership
