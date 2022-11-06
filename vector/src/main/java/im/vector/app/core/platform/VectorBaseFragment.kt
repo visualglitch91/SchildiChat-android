@@ -242,6 +242,7 @@ abstract class VectorBaseFragment<VB : ViewBinding> : Fragment(), MavericksView 
     }
 
     protected fun showErrorInSnackbar(throwable: Throwable) {
+        Timber.i(throwable, "Show error snackbar for throwable")
         vectorBaseActivity.getCoordinatorLayout()?.showOptimizedSnackbar(errorFormatter.toHumanReadable(throwable))
     }
 
@@ -304,6 +305,7 @@ abstract class VectorBaseFragment<VB : ViewBinding> : Fragment(), MavericksView 
      * ========================================================================================== */
 
     protected fun displayErrorDialog(throwable: Throwable) {
+        Timber.i(throwable, "Showing error dialog for throwable")
         MaterialAlertDialogBuilder(requireActivity())
                 .setTitle(R.string.dialog_title_error)
                 .setMessage(errorFormatter.toHumanReadable(throwable))
