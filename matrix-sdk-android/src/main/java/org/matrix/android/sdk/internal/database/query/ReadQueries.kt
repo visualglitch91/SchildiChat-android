@@ -33,7 +33,8 @@ internal fun isEventRead(
         roomId: String?,
         eventId: String?,
         eventTs: Long? = null,
-        ignoreSenderId: Boolean = false
+        ignoreSenderId: Boolean = false,
+        handleAsUnreadForNonZeroUnreadCount: Boolean = false
 ): Boolean {
     if (userId.isNullOrBlank() || roomId.isNullOrBlank() || eventId.isNullOrBlank()) {
         return false
@@ -43,6 +44,15 @@ internal fun isEventRead(
     }
 
     return Realm.getInstance(realmConfiguration).use { realm ->
+        // For SetReadMarkersTask, in case the message is somehow still marked as unread even though the receipt is on bottom,
+        // we want to handle it as if it where unread.
+        // This scenario can happen after sending a message, but not updating the read receipt manually.
+        if (handleAsUnreadForNonZeroUnreadCount) {
+            val roomSummary = RoomSummaryEntity.where(realm, roomId).findFirst()
+            if (roomSummary?.hasUnreadMessages.orFalse()) {
+                return false
+            }
+        }
         val eventToCheck = TimelineEventEntity.where(realm, roomId, eventId).findFirst()
         when {
             // The event doesn't exist locally, let's assume it hasn't been read unless we know all unread events
