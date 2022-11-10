@@ -31,6 +31,8 @@ import org.matrix.android.sdk.api.session.room.model.message.MessageContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageNoticeContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageType
 import org.matrix.android.sdk.api.session.room.model.message.MessageVerificationRequestContent
+import org.matrix.android.sdk.api.session.room.model.message.MessageWithAttachmentContent
+import org.matrix.android.sdk.api.session.room.model.message.getCaption
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.getLastMessageContent
 import org.matrix.android.sdk.api.session.room.timeline.isEdition
@@ -209,6 +211,7 @@ class TimelineMessageLayoutFactory @Inject constructor(
     private fun MessageContent?.isPseudoBubble(event: TimelineEvent): Boolean {
         if (this == null) return false
         if (event.root.isRedacted()) return false
+        if (this is MessageWithAttachmentContent && !getCaption().isNullOrBlank()) return false
         return this.msgType in MSG_TYPES_WITH_PSEUDO_BUBBLE_LAYOUT
     }
 

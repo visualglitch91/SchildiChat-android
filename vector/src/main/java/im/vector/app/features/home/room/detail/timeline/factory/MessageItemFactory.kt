@@ -108,6 +108,8 @@ import org.matrix.android.sdk.api.session.room.model.message.MessageType
 import org.matrix.android.sdk.api.session.room.model.message.MessageVerificationRequestContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageVideoContent
 import org.matrix.android.sdk.api.session.room.model.message.asMessageAudioEvent
+import org.matrix.android.sdk.api.session.room.model.message.getCaption
+import org.matrix.android.sdk.api.session.room.model.message.getFileName
 import org.matrix.android.sdk.api.session.room.model.message.getFileUrl
 import org.matrix.android.sdk.api.session.room.model.message.getThumbnailUrl
 import org.matrix.android.sdk.api.settings.LightweightSettingsStorage
@@ -285,7 +287,8 @@ class MessageItemFactory @Inject constructor(
 
         return MessageAudioItem_()
                 .attributes(attributes)
-                .filename(messageContent.body)
+                .filename(messageContent.getFileName())
+                .caption(messageContent.getCaption())
                 .duration(messageContent.audioInfo?.duration ?: 0)
                 .playbackControlButtonClickListener(playbackControlButtonClickListener)
                 .audioMessagePlaybackTracker(audioMessagePlaybackTracker)
@@ -418,7 +421,8 @@ class MessageItemFactory @Inject constructor(
                 .contentUploadStateTrackerBinder(contentUploadStateTrackerBinder)
                 .contentDownloadStateTrackerBinder(contentDownloadStateTrackerBinder)
                 .highlighted(highlight)
-                .filename(messageContent.body)
+                .filename(messageContent.getFileName())
+                .caption(messageContent.getCaption())
                 .iconRes(R.drawable.ic_paperclip)
     }
 
@@ -456,7 +460,8 @@ class MessageItemFactory @Inject constructor(
         val (maxWidth, maxHeight) = timelineMediaSizeProvider.getMaxSize()
         val data = ImageContentRenderer.Data(
                 eventId = informationData.eventId,
-                filename = messageContent.body,
+                filename = messageContent.getFileName(),
+                caption = messageContent.getCaption(),
                 mimeType = messageContent.mimeType,
                 url = messageContent.getFileUrl(),
                 elementToDecrypt = messageContent.encryptedFileInfo?.toElementToDecrypt(),
@@ -505,7 +510,8 @@ class MessageItemFactory @Inject constructor(
         val (maxWidth, maxHeight) = timelineMediaSizeProvider.getMaxSize()
         val thumbnailData = ImageContentRenderer.Data(
                 eventId = informationData.eventId,
-                filename = messageContent.body,
+                filename = messageContent.getFileName(),
+                caption = messageContent.getCaption(),
                 mimeType = messageContent.mimeType,
                 url = messageContent.videoInfo?.getThumbnailUrl(),
                 elementToDecrypt = messageContent.videoInfo?.thumbnailFile?.toElementToDecrypt(),
@@ -522,7 +528,8 @@ class MessageItemFactory @Inject constructor(
 
         val videoData = VideoContentRenderer.Data(
                 eventId = informationData.eventId,
-                filename = messageContent.body,
+                filename = messageContent.getFileName(),
+                caption = messageContent.getCaption(),
                 mimeType = messageContent.mimeType,
                 url = messageContent.getFileUrl(),
                 elementToDecrypt = messageContent.encryptedFileInfo?.toElementToDecrypt(),

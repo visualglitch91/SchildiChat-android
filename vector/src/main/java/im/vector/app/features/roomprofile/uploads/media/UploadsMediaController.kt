@@ -30,6 +30,8 @@ import org.matrix.android.sdk.api.session.crypto.attachments.toElementToDecrypt
 import org.matrix.android.sdk.api.session.room.model.message.MessageImageContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageType
 import org.matrix.android.sdk.api.session.room.model.message.MessageVideoContent
+import org.matrix.android.sdk.api.session.room.model.message.getCaption
+import org.matrix.android.sdk.api.session.room.model.message.getFileName
 import org.matrix.android.sdk.api.session.room.model.message.getFileUrl
 import org.matrix.android.sdk.api.session.room.model.message.getThumbnailUrl
 import org.matrix.android.sdk.api.session.room.uploads.UploadEvent
@@ -108,7 +110,8 @@ class UploadsMediaController @Inject constructor(
 
         return ImageContentRenderer.Data(
                 eventId = eventId,
-                filename = messageContent.body,
+                filename = messageContent.getFileName(),
+                caption = messageContent.getCaption(),
                 url = messageContent.getFileUrl(),
                 mimeType = messageContent.mimeType,
                 elementToDecrypt = messageContent.encryptedFileInfo?.toElementToDecrypt(),
@@ -124,7 +127,8 @@ class UploadsMediaController @Inject constructor(
 
         val thumbnailData = ImageContentRenderer.Data(
                 eventId = eventId,
-                filename = messageContent.body,
+                filename = messageContent.getFileName(),
+                caption = messageContent.getCaption(),
                 mimeType = messageContent.mimeType,
                 url = messageContent.videoInfo?.getThumbnailUrl(),
                 elementToDecrypt = messageContent.videoInfo?.thumbnailFile?.toElementToDecrypt(),
@@ -136,7 +140,8 @@ class UploadsMediaController @Inject constructor(
 
         return VideoContentRenderer.Data(
                 eventId = eventId,
-                filename = messageContent.body,
+                filename = messageContent.getFileName(),
+                caption = messageContent.getCaption(),
                 mimeType = messageContent.mimeType,
                 url = messageContent.getFileUrl(),
                 elementToDecrypt = messageContent.encryptedFileInfo?.toElementToDecrypt(),

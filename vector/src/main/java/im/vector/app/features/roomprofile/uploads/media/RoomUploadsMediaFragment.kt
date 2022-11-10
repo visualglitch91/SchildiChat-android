@@ -50,6 +50,8 @@ import im.vector.app.features.roomprofile.uploads.RoomUploadsViewState
 import org.matrix.android.sdk.api.session.crypto.attachments.toElementToDecrypt
 import org.matrix.android.sdk.api.session.room.model.message.MessageImageContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageVideoContent
+import org.matrix.android.sdk.api.session.room.model.message.getCaption
+import org.matrix.android.sdk.api.session.room.model.message.getFileName
 import org.matrix.android.sdk.api.session.room.model.message.getFileUrl
 import org.matrix.android.sdk.api.session.room.model.message.getThumbnailUrl
 import javax.inject.Inject
@@ -132,7 +134,8 @@ class RoomUploadsMediaFragment :
                 is MessageImageContent -> {
                     ImageContentRenderer.Data(
                             eventId = it.eventId,
-                            filename = content.body,
+                            filename = content.getFileName(),
+                            caption = content.getCaption(),
                             mimeType = content.mimeType,
                             url = content.getFileUrl(),
                             elementToDecrypt = content.encryptedFileInfo?.toElementToDecrypt(),
@@ -145,7 +148,8 @@ class RoomUploadsMediaFragment :
                 is MessageVideoContent -> {
                     val thumbnailData = ImageContentRenderer.Data(
                             eventId = it.eventId,
-                            filename = content.body,
+                            filename = content.getFileName(),
+                            caption = content.getCaption(),
                             mimeType = content.mimeType,
                             url = content.videoInfo?.getThumbnailUrl(),
                             elementToDecrypt = content.videoInfo?.thumbnailFile?.toElementToDecrypt(),
@@ -156,7 +160,8 @@ class RoomUploadsMediaFragment :
                     )
                     VideoContentRenderer.Data(
                             eventId = it.eventId,
-                            filename = content.body,
+                            filename = content.getFileName(),
+                            caption = content.getCaption(),
                             mimeType = content.mimeType,
                             url = content.getFileUrl(),
                             elementToDecrypt = content.encryptedFileInfo?.toElementToDecrypt(),

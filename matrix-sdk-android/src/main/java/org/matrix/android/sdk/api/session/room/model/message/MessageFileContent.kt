@@ -38,7 +38,7 @@ data class MessageFileContent(
         /**
          * The original filename of the uploaded file.
          */
-        @Json(name = "filename") val filename: String? = null,
+        @Json(name = "filename") override val filename: String? = null,
 
         /**
          * Information about the file referred to in url.

@@ -45,6 +45,11 @@ data class MessageAudioContent(
          */
         @Json(name = "url") override val url: String? = null,
 
+        /**
+         * MSC 2530: filename as filename, using body as caption instead
+         */
+        @Json(name = "filename") override val filename: String? = null,
+
         @Json(name = "m.relates_to") override val relatesTo: RelationDefaultContent? = null,
         @Json(name = "m.new_content") override val newContent: Content? = null,
 

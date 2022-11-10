@@ -29,9 +29,12 @@ import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
 import im.vector.app.R
 import im.vector.app.core.epoxy.onClick
+import im.vector.app.core.extensions.setTextOrHide
+import im.vector.app.core.ui.views.FooteredTextView
 import im.vector.app.features.home.room.detail.timeline.helper.ContentDownloadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.helper.ContentUploadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
+import im.vector.app.features.home.room.detail.timeline.view.ScMessageBubbleWrapView
 import im.vector.app.features.themes.ThemeUtils
 import im.vector.app.features.themes.guessTextWidth
 import kotlin.math.ceil
@@ -42,6 +45,9 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
 
     @EpoxyAttribute
     var filename: String = ""
+
+    @EpoxyAttribute
+    var caption: String? = null
 
     @EpoxyAttribute
     var mxcUrl: String = ""
@@ -74,6 +80,7 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
         }
 
         holder.filenameView.text = filename
+        holder.captionView.setTextOrHide(caption)
 
         if (attributes.informationData.sendState.isSending()) {
             holder.fileImageView.setImageResource(iconRes)
@@ -124,6 +131,19 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
         holder.mainLayout.setPadding(0, 0, 0, 0)
     }
 
+    private fun hasCaption() = !caption.isNullOrBlank()
+
+    override fun allowFooterOverlay(holder: Holder, bubbleWrapView: ScMessageBubbleWrapView): Boolean = hasCaption()
+
+    override fun needsFooterReservation(): Boolean {
+        return hasCaption()
+    }
+
+    override fun reserveFooterSpace(holder: Holder, width: Int, height: Int) {
+        holder.captionView.footerWidth = width
+        holder.captionView.footerHeight = height
+    }
+
     override fun getViewStubId() = STUB_ID
 
     class Holder : AbsMessageItem.Holder(STUB_ID) {
@@ -134,6 +154,7 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
         val fileImageWrapper by bind<ViewGroup>(R.id.messageFileImageView)
         val fileDownloadProgress by bind<ProgressBar>(R.id.messageFileProgressbar)
         val filenameView by bind<TextView>(R.id.messageFilenameView)
+        val captionView by bind<FooteredTextView>(R.id.messageCaptionView)
     }
 
     companion object {

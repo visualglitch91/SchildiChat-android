@@ -23,6 +23,8 @@ import org.matrix.android.sdk.api.session.events.model.isVideoMessage
 import org.matrix.android.sdk.api.session.events.model.toModel
 import org.matrix.android.sdk.api.session.room.model.message.MessageImageContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageVideoContent
+import org.matrix.android.sdk.api.session.room.model.message.getCaption
+import org.matrix.android.sdk.api.session.room.model.message.getFileName
 import org.matrix.android.sdk.api.session.room.model.message.getFileUrl
 import org.matrix.android.sdk.api.session.room.model.message.getThumbnailUrl
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
@@ -33,7 +35,8 @@ fun TimelineEvent.buildImageContentRendererData(maxHeight: Int, generateMissingV
                 ?.let { messageImageContent ->
                     ImageContentRenderer.Data(
                             eventId = eventId,
-                            filename = messageImageContent.body,
+                            filename = messageImageContent.getFileName(),
+                            caption = messageImageContent.getCaption(),
                             mimeType = messageImageContent.mimeType,
                             url = messageImageContent.getFileUrl(),
                             elementToDecrypt = messageImageContent.encryptedFileInfo?.toElementToDecrypt(),
@@ -49,7 +52,8 @@ fun TimelineEvent.buildImageContentRendererData(maxHeight: Int, generateMissingV
                     val videoInfo = messageVideoContent.videoInfo
                     ImageContentRenderer.Data(
                             eventId = eventId,
-                            filename = messageVideoContent.body,
+                            filename = messageVideoContent.getFileName(),
+                            caption = messageVideoContent.getCaption(),
                             mimeType = videoInfo?.thumbnailInfo?.mimeType,
                             url = videoInfo?.getThumbnailUrl(),
                             elementToDecrypt = videoInfo?.thumbnailFile?.toElementToDecrypt(),

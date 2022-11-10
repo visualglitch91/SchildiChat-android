@@ -33,6 +33,9 @@ interface MessageWithAttachmentContent : MessageContent {
     val encryptedFileInfo: EncryptedFileInfo?
 
     val mimeType: String?
+
+    // MSC 2530 adds filename for other media types than m.file as well
+    val filename: String?
 }
 
 /**
@@ -40,4 +43,6 @@ interface MessageWithAttachmentContent : MessageContent {
  */
 fun MessageWithAttachmentContent.getFileUrl() = encryptedFileInfo?.url ?: url
 
-fun MessageWithAttachmentContent.getFileName() = (this as? MessageFileContent)?.getFileName() ?: body
+fun MessageWithAttachmentContent.getFileName() = (this as? MessageFileContent)?.getFileName() ?: filename ?: body
+
+fun MessageWithAttachmentContent.getCaption() = body.takeIf { filename != null && filename != it }

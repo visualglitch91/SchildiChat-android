@@ -49,6 +49,7 @@ class VideoContentRenderer @Inject constructor(
     data class Data(
             override val eventId: String,
             override val filename: String,
+            override val caption: String?,
             override val mimeType: String?,
             override val url: String?,
             override val elementToDecrypt: ElementToDecrypt?,

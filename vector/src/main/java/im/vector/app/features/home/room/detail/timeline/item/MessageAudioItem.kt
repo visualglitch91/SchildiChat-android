@@ -30,11 +30,14 @@ import com.airbnb.epoxy.EpoxyModelClass
 import im.vector.app.R
 import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.onClick
+import im.vector.app.core.extensions.setTextOrHide
+import im.vector.app.core.ui.views.FooteredTextView
 import im.vector.app.core.utils.TextUtils
 import im.vector.app.features.home.room.detail.timeline.helper.AudioMessagePlaybackTracker
 import im.vector.app.features.home.room.detail.timeline.helper.ContentDownloadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.helper.ContentUploadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
+import im.vector.app.features.home.room.detail.timeline.view.ScMessageBubbleWrapView
 import im.vector.app.features.themes.ThemeUtils
 
 @EpoxyModelClass
@@ -42,6 +45,9 @@ abstract class MessageAudioItem : AbsMessageItem<MessageAudioItem.Holder>() {
 
     @EpoxyAttribute
     var filename: String = ""
+
+    @EpoxyAttribute
+    var caption: String? = null
 
     @EpoxyAttribute
     var mxcUrl: String = ""
@@ -115,6 +121,7 @@ abstract class MessageAudioItem : AbsMessageItem<MessageAudioItem.Holder>() {
         holder.fileSize.text = holder.rootLayout.context.getString(
                 R.string.audio_message_file_size, formattedFileSize
         )
+        holder.captionView.setTextOrHide(caption)
         holder.mainLayout.contentDescription = holder.rootLayout.context.getString(
                 R.string.a11y_audio_message_item, filename, durationContentDescription, formattedFileSize
         )
@@ -195,6 +202,19 @@ abstract class MessageAudioItem : AbsMessageItem<MessageAudioItem.Holder>() {
         audioMessagePlaybackTracker.untrack(attributes.informationData.eventId)
     }
 
+    private fun hasCaption() = !caption.isNullOrBlank()
+
+    override fun allowFooterOverlay(holder: Holder, bubbleWrapView: ScMessageBubbleWrapView): Boolean = hasCaption()
+
+    override fun needsFooterReservation(): Boolean {
+        return hasCaption()
+    }
+
+    override fun reserveFooterSpace(holder: Holder, width: Int, height: Int) {
+        holder.captionView.footerWidth = width
+        holder.captionView.footerHeight = height
+    }
+
     override fun getViewStubId() = STUB_ID
 
     class Holder : AbsMessageItem.Holder(STUB_ID) {
@@ -205,6 +225,7 @@ abstract class MessageAudioItem : AbsMessageItem<MessageAudioItem.Holder>() {
         val audioPlaybackTime by bind<TextView>(R.id.audioPlaybackTime)
         val progressLayout by bind<ViewGroup>(R.id.messageFileUploadProgressLayout)
         val fileSize by bind<TextView>(R.id.fileSize)
+        val captionView by bind<FooteredTextView>(R.id.messageCaptionView)
         val audioPlaybackDuration by bind<TextView>(R.id.audioPlaybackDuration)
         val audioSeekBar by bind<SeekBar>(R.id.audioSeekBar)
     }

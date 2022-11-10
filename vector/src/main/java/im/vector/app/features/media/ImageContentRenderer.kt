@@ -52,6 +52,7 @@ import kotlin.math.min
 interface AttachmentData : Parcelable {
     val eventId: String
     val filename: String
+    val caption: String?
     val mimeType: String?
     val url: String?
     val elementToDecrypt: ElementToDecrypt?
@@ -73,6 +74,7 @@ class ImageContentRenderer @Inject constructor(
     data class Data(
             override val eventId: String,
             override val filename: String,
+            override val caption: String?,
             override val mimeType: String?,
             override val url: String?,
             override val elementToDecrypt: ElementToDecrypt?,

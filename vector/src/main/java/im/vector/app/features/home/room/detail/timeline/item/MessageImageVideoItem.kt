@@ -31,8 +31,10 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import im.vector.app.R
 import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.onClick
+import im.vector.app.core.extensions.setTextOrHide
 import im.vector.app.core.files.LocalFilesHelper
 import im.vector.app.core.glide.GlideApp
+import im.vector.app.core.ui.views.FooteredTextView
 import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.features.home.room.detail.timeline.helper.ContentUploadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
@@ -130,6 +132,8 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
         holder.mediaContentView.onClick(attributes.itemClickListener)
         holder.mediaContentView.setOnLongClickListener(attributes.itemLongClickListener)
 
+        holder.captionView.setTextOrHide(mediaData.caption)
+
         holder.playContentView.visibility = if (animate) {
             View.GONE
         } else if (playable) {
@@ -138,6 +142,8 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
             View.GONE
         }
     }
+
+    private fun hasCaption() = !mediaData.caption.isNullOrBlank()
 
     override fun unbind(holder: Holder) {
         GlideApp.with(holder.view.context.applicationContext).clear(holder.imageView)
@@ -151,6 +157,9 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
     override fun getViewStubId() = STUB_ID
 
     private fun shouldAllowFooterOverlay(footerMeasures: Array<Int>, imageWidth: Int, imageHeight: Int): Boolean {
+        if (hasCaption()) {
+            return true
+        }
         val footerWidth = footerMeasures[0]
         val footerHeight = footerMeasures[1]
         // We need enough space in both directions to remain within the image bounds.
@@ -159,6 +168,9 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
     }
 
     private fun shouldShowFooterBellow(footerMeasures: Array<Int>, imageWidth: Int, imageHeight: Int): Boolean {
+        if (hasCaption()) {
+            return false
+        }
         // Only show footer bellow if the width is not the limiting factor (or it will get cut).
         // Otherwise, we can not be sure in this place that we'll have enough space on the side
         // Also, prefer footer on the side if possible (i.e. enough height available)
@@ -168,6 +180,9 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
     }
 
     override fun allowFooterOverlay(holder: Holder, bubbleWrapView: ScMessageBubbleWrapView): Boolean {
+        if (hasCaption()) {
+            return true
+        }
         val rememberedAllowFooterOverlay = forceAllowFooterOverlay
         if (rememberedAllowFooterOverlay != null) {
             lastAllowedFooterOverlay = rememberedAllowFooterOverlay
@@ -187,13 +202,28 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
     }
 
     override fun allowFooterBelow(holder: Holder): Boolean {
+        if (hasCaption()) {
+            return true
+        }
         val showBellow = showFooterBellow
         lastShowFooterBellow = showBellow
         return showBellow
     }
 
     override fun getScBubbleMargin(resources: Resources): Int {
+        if (hasCaption()) {
+            return super.getScBubbleMargin(resources)
+        }
         return 0
+    }
+
+    override fun needsFooterReservation(): Boolean {
+        return hasCaption()
+    }
+
+    override fun reserveFooterSpace(holder: Holder, width: Int, height: Int) {
+        holder.captionView.footerWidth = width
+        holder.captionView.footerHeight = height
     }
 
     override fun applyScBubbleStyle(messageLayout: TimelineMessageLayout.ScBubble, holder: Holder) {
@@ -208,13 +238,13 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
         when {
             // Don't show it for non-bubble layouts, don't show for Stickers, ...
             // Also only supported for default corner radius
-            !(messageLayout.isRealBubble || messageLayout.isPseudoBubble) || mode != ImageContentRenderer.Mode.THUMBNAIL -> {
+            !(messageLayout.isRealBubble || messageLayout.isPseudoBubble) || hasCaption() || mode != ImageContentRenderer.Mode.THUMBNAIL -> {
                 holder.mediaContentView.background = null
             }
-            attributes.informationData.sentByMe                                    -> {
+            attributes.informationData.sentByMe -> {
                 holder.mediaContentView.setBackgroundResource(messageLayout.bubbleAppearance.imageBorderOutgoing)
             }
-            else                                                                   -> {
+            else -> {
                 holder.mediaContentView.setBackgroundResource(messageLayout.bubbleAppearance.imageBorderIncoming)
             }
         }
@@ -223,6 +253,7 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
     class Holder : AbsMessageItem.Holder(STUB_ID) {
         val progressLayout by bind<ViewGroup>(R.id.messageMediaUploadProgressLayout)
         val imageView by bind<ImageView>(R.id.messageThumbnailView)
+        val captionView by bind<FooteredTextView>(R.id.messageCaptionView)
         val playContentView by bind<ImageView>(R.id.messageMediaPlayView)
         val mediaContentView by bind<ViewGroup>(R.id.messageContentMedia)
     }

@@ -29,6 +29,8 @@ import org.matrix.android.sdk.api.session.room.model.message.MessageImageContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageStickerContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageVideoContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageWithAttachmentContent
+import org.matrix.android.sdk.api.session.room.model.message.getCaption
+import org.matrix.android.sdk.api.session.room.model.message.getFileName
 import org.matrix.android.sdk.api.session.room.model.message.getFileUrl
 import org.matrix.android.sdk.api.session.room.model.message.getThumbnailUrl
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
@@ -60,7 +62,8 @@ class RoomEventsAttachmentProvider(
             if (content is MessageImageContent) {
                 val data = ImageContentRenderer.Data(
                         eventId = it.eventId,
-                        filename = content.body,
+                        filename = content.getFileName(),
+                        caption = content.getCaption(),
                         mimeType = content.mimeType,
                         url = content.getFileUrl(),
                         elementToDecrypt = content.encryptedFileInfo?.toElementToDecrypt(),
@@ -87,7 +90,8 @@ class RoomEventsAttachmentProvider(
             } else if (content is MessageStickerContent) {
                 val data = ImageContentRenderer.Data(
                         eventId = it.eventId,
-                        filename = content.body,
+                        filename = content.getFileName(),
+                        caption = content.getCaption(),
                         mimeType = content.mimeType,
                         url = content.getFileUrl(),
                         elementToDecrypt = content.encryptedFileInfo?.toElementToDecrypt(),
@@ -114,7 +118,8 @@ class RoomEventsAttachmentProvider(
             } else if (content is MessageVideoContent) {
                 val thumbnailData = ImageContentRenderer.Data(
                         eventId = it.eventId,
-                        filename = content.body,
+                        filename = content.getFileName(),
+                        caption = content.getCaption(),
                         mimeType = content.mimeType,
                         url = content.videoInfo?.getThumbnailUrl(),
                         elementToDecrypt = content.videoInfo?.thumbnailFile?.toElementToDecrypt(),
@@ -126,7 +131,8 @@ class RoomEventsAttachmentProvider(
                 )
                 val data = VideoContentRenderer.Data(
                         eventId = it.eventId,
-                        filename = content.body,
+                        filename = content.getFileName(),
+                        caption = content.getCaption(),
                         mimeType = content.mimeType,
                         url = content.getFileUrl(),
                         elementToDecrypt = content.encryptedFileInfo?.toElementToDecrypt(),

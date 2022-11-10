@@ -95,6 +95,17 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <im.vector.app.core.ui.views.FooteredTextView
+        android:id="@+id/messageCaptionView"
+        style="@style/Widget.Vector.TextView.Body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="0dp"
+        android:textColor="?vctr_content_primary"
+        android:layout_gravity="left"
+        tools:text="@sample/messages.json/data/message"
+        tools:ignore="RtlHardcoded" />
+
     <include
         android:id="@+id/messageFileUploadProgressLayout"
         layout="@layout/media_upload_download_progress_layout"
