@@ -22,6 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.airbnb.mvrx.args
+import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.core.extensions.cleanup
 import im.vector.app.core.extensions.configureWith
 import im.vector.app.core.extensions.toReducedUrl
@@ -42,6 +43,7 @@ data class LoginTermsFragmentArgument(
 /**
  * LoginTermsFragment displays the list of policies the user has to accept.
  */
+@AndroidEntryPoint
 class LoginTermsFragment :
         AbstractLoginFragment<FragmentLoginTermsBinding>(),
         PolicyController.PolicyControllerListener {
