@@ -34,7 +34,10 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.addCallback
+import androidx.annotation.StringRes
 import androidx.appcompat.view.menu.MenuBuilder
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.net.toUri
@@ -75,6 +78,7 @@ import im.vector.app.core.dialogs.ConfirmationDialogBuilder
 import im.vector.app.core.dialogs.GalleryOrCameraDialogHelper
 import im.vector.app.core.dialogs.GalleryOrCameraDialogHelperFactory
 import im.vector.app.core.epoxy.LayoutManagerStateRestorer
+import im.vector.app.core.extensions.animateLayoutChange
 import im.vector.app.core.extensions.cleanup
 import im.vector.app.core.extensions.commitTransaction
 import im.vector.app.core.extensions.containsRtLOverride
@@ -201,7 +205,9 @@ import im.vector.app.features.widgets.WidgetKind
 import im.vector.app.features.widgets.permissions.RoomWidgetPermissionBottomSheet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -366,6 +372,7 @@ class TimelineFragment :
         setupJumpToBottomView()
         setupRemoveJitsiWidgetView()
         setupLiveLocationIndicator()
+        setupBackPressHandling()
 
         views.scRoomDebugView.isVisible = DbgUtil.isDbgEnabled(DbgUtil.DBG_SHOW_READ_TRACKING)
 
@@ -447,6 +454,31 @@ class TimelineFragment :
 
         if (savedInstanceState == null) {
             handleSpaceShare()
+        }
+
+        views.scrim.setOnClickListener {
+            messageComposerViewModel.handle(MessageComposerAction.SetFullScreen(false))
+        }
+
+        messageComposerViewModel.stateFlow.map { it.isFullScreen }
+                .distinctUntilChanged()
+                .onEach { isFullScreen ->
+                    toggleFullScreenEditor(isFullScreen)
+                }
+                .launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    private fun setupBackPressHandling() {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            withState(messageComposerViewModel) { state ->
+                if (state.isFullScreen) {
+                    messageComposerViewModel.handle(MessageComposerAction.SetFullScreen(false))
+                } else {
+                    remove() // Remove callback to avoid infinite loop
+                    @Suppress("DEPRECATION")
+                    requireActivity().onBackPressed()
+                }
+            }
         }
     }
 
@@ -1259,7 +1291,13 @@ class TimelineFragment :
             override fun onLayoutCompleted(state: RecyclerView.State) {
                 super.onLayoutCompleted(state)
                 updateJumpToReadMarkerViewVisibility()
-                jumpToBottomViewVisibilityManager.maybeShowJumpToBottomViewVisibilityWithDelay()
+                withState(messageComposerViewModel) { composerState ->
+                    if (!composerState.isFullScreen) {
+                        jumpToBottomViewVisibilityManager.maybeShowJumpToBottomViewVisibilityWithDelay()
+                    } else {
+                        jumpToBottomViewVisibilityManager.hideAndPreventVisibilityChangesWithScrolling()
+                    }
+                }
             }
         }.apply {
             // For local rooms, pin the view's content to the top edge (the layout is reversed)
@@ -1390,6 +1428,9 @@ class TimelineFragment :
             lazyLoadedViews.inviteView(false)?.isVisible = false
 
             if (mainState.tombstoneEvent == null) {
+                views.composerContainer.isInvisible = !messageComposerState.isComposerVisible
+                views.voiceMessageRecorderContainer.isVisible = messageComposerState.isVoiceMessageRecorderVisible
+
                 when (messageComposerState.canSendMessage) {
                     CanSendStatus.Allowed -> {
                         NotificationAreaView.State.Hidden
@@ -1445,36 +1486,15 @@ class TimelineFragment :
 
     private fun FragmentTimelineBinding.hideComposerViews() {
         composerContainer.isVisible = false
+        voiceMessageRecorderContainer.isVisible = false
     }
 
-    // Fully hide the typing message view with isGone, until the first user actually types
-    inline var View.isInvisibleOrGone: Boolean
-        get() = visibility != View.VISIBLE
-        set(value) {
-            // Set to invisible, unless it is already gone.
-            if (!value || !isGone) {
-                visibility = if (value) View.INVISIBLE else View.VISIBLE
-            }
-        }
-
     private fun renderTypingMessageNotification(roomSummary: RoomSummary?, state: RoomDetailViewState) {
-        // SC-TODO: setting?
-        // Old-school toolbar indicator
         if (roomSummary != null) {
             val typingMessage = typingHelper.getTypingMessage(state.typingUsers ?: listOf())
             renderSubTitle(typingMessage, roomSummary.topic)
             return
         }
-        /* New bottom typing indicator
-        if (!isThreadTimeLine() && roomSummary != null) {
-            views.typingMessageView.isInvisibleOrGone = state.typingUsers.isNullOrEmpty()
-            state.typingUsers
-                    ?.take(MAX_TYPING_MESSAGE_USERS_COUNT)
-                    ?.let { senders -> views.typingMessageView.render(senders, avatarRenderer) }
-        } else {
-            views.typingMessageView.isInvisibleOrGone = true
-        }
-         */
     }
 
     private fun renderToolbar(roomSummary: RoomSummary?) {
@@ -1576,8 +1596,12 @@ class TimelineFragment :
     }
 
     private fun displayRoomDetailActionFailure(result: RoomDetailViewEvents.ActionFailure) {
+        @StringRes val titleResId = when (result.action) {
+            RoomDetailAction.VoiceBroadcastAction.Recording.Start -> R.string.error_voice_broadcast_unauthorized_title
+            else -> R.string.dialog_title_error
+        }
         MaterialAlertDialogBuilder(requireActivity())
-                .setTitle(R.string.dialog_title_error)
+                .setTitle(titleResId)
                 .setMessage(errorFormatter.toHumanReadable(result.throwable))
                 .setPositiveButton(R.string.ok, null)
                 .show()
@@ -2344,6 +2368,19 @@ class TimelineFragment :
             // (Re-) Enable preferred anchor placement
             layoutManager.setPreferredAnchorPlacement(1f - TARGET_SCROLL_OUT_FACTOR)
         }
+    }
+
+    private fun toggleFullScreenEditor(isFullScreen: Boolean) {
+        views.composerContainer.animateLayoutChange(200)
+
+        val constraintSet = ConstraintSet()
+        val constraintSetId = if (isFullScreen) {
+            R.layout.fragment_timeline_fullscreen
+        } else {
+            R.layout.fragment_timeline
+        }
+        constraintSet.clone(requireContext(), constraintSetId)
+        constraintSet.applyTo(views.rootConstraintLayout)
     }
 
     /**

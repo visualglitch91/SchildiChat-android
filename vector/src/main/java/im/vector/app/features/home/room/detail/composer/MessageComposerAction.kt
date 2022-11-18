@@ -36,6 +36,8 @@ sealed class MessageComposerAction : VectorViewModelAction {
     // SC
     object ClearFocus : MessageComposerAction()
 
+    data class SetFullScreen(val isFullScreen: Boolean) : MessageComposerAction()
+
     // Voice Message
     data class InitializeVoiceRecorder(val attachmentData: ContentAttachmentData) : MessageComposerAction()
     data class OnVoiceRecordingUiStateChanged(val uiState: VoiceMessageRecorderView.RecordingUiState) : MessageComposerAction()
