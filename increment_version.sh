@@ -43,25 +43,6 @@ fi
 
 last_tag=`downstream_latest_tag`
 
-build_gradle="vector-app/build.gradle"
-
-get_prop() {
-    local prop="$1"
-    cat "$build_gradle" | grep "$prop = " | sed "s|$prop = ||"
-}
-set_prop() {
-    local prop="$1"
-    local value="$2"
-    if grep -q "$prop =" "$build_gradle"; then
-        local equals="= "
-        local not_equals=""
-    else
-        local equals=""
-        # Don't touch lines that have an equals in it, but not for this prop
-        local not_equals="/=/! "
-    fi
-    sed -i "$not_equals""s|\($prop $equals\).*|\1$value|g" "$build_gradle"
-}
 
 # Legacy versioning, based on Element's version codes
 #calculate_version_code() {
