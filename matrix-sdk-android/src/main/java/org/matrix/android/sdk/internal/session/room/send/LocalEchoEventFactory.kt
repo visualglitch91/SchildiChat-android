@@ -307,6 +307,7 @@ internal class LocalEchoEventFactory @Inject constructor(
         )
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun createReplaceTextOfReply(
             roomId: String,
             eventReplaced: TimelineEvent,
@@ -317,6 +318,9 @@ internal class LocalEchoEventFactory @Inject constructor(
             compatibilityText: String,
             additionalContent: Content? = null,
     ): Event {
+        // Reply edits should omit the reply fallback: https://spec.matrix.org/v1.4/client-server-api/#edits-of-replies
+        // Element Android didn't follow the spec since they didn't support rendering rich replies...
+        /*
         val permalink = permalinkFactory.createPermalink(roomId, originalEvent.root.eventId ?: "", false)
         val userLink = originalEvent.root.senderId?.let { permalinkFactory.createPermalink(it, false) } ?: ""
 
@@ -335,7 +339,9 @@ internal class LocalEchoEventFactory @Inject constructor(
         //
         // > <@alice:example.org> This is the original body
         //
-        val replyFallback = buildReplyFallback(body, originalEvent.root.senderId ?: "", newBodyText)
+         */
+
+        val replyFormatted = markdownParser.parse(newBodyText, force = true, advanced = autoMarkdown).takeFormatted()
 
         return createMessageEvent(
                 roomId,
@@ -346,7 +352,7 @@ internal class LocalEchoEventFactory @Inject constructor(
                         newContent = MessageTextContent(
                                 msgType = msgType,
                                 format = MessageFormat.FORMAT_MATRIX_HTML,
-                                body = replyFallback,
+                                body = newBodyText,
                                 formattedBody = replyFormatted
                         )
                                 .toContent()
