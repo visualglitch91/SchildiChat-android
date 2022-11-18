@@ -21,6 +21,7 @@ import com.zhuinden.monarchy.Monarchy
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.runBlocking
 import org.matrix.android.sdk.api.MatrixCoroutineDispatchers
 import org.matrix.android.sdk.api.session.room.timeline.Timeline
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
@@ -87,6 +88,17 @@ internal class DefaultTimelineService @AssistedInject constructor(
 
     override fun getTimelineEvent(eventId: String): TimelineEvent? {
         return timelineEventDataSource.getTimelineEvent(roomId, eventId)
+    }
+
+    override fun getOrFetchAndPersistTimelineEventBlocking(eventId: String): TimelineEvent? {
+        // Try to fetch it from storage first
+        getTimelineEvent(eventId)?.let { return it }
+        // Fetch it from the server
+        val params = GetContextOfEventTask.Params(roomId, eventId)
+        runBlocking {
+            contextOfEventTask.execute(params)
+        }
+        return getTimelineEvent(eventId)
     }
 
     override fun getTimelineEventLive(eventId: String): LiveData<Optional<TimelineEvent>> {

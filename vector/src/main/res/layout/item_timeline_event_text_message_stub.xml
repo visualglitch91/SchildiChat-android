@@ -8,6 +8,15 @@
     android:orientation="vertical"
     tools:viewBindingIgnore="true">
 
+    <im.vector.app.features.home.room.detail.timeline.reply.InReplyToView
+        android:id="@+id/inReplyToContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
     <!-- Layout gravity left: fixes long display name pills moving text out:
         https://github.com/SchildiChat/SchildiChat-android/issues/66
         Interestingly, this not only fixes it for LTR texts for RTL locales,

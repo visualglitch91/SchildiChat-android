@@ -61,6 +61,7 @@ import im.vector.app.features.home.room.detail.timeline.item.ReactionsSummaryEve
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptData
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptsItem
 import im.vector.app.features.home.room.detail.timeline.item.TypingItem_
+import im.vector.app.features.home.room.detail.timeline.reply.ReplyPreviewRetriever
 import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlRetriever
 import im.vector.app.features.media.AttachmentData
 import im.vector.app.features.media.ImageContentRenderer
@@ -132,6 +133,7 @@ class TimelineEventController @Inject constructor(
             AvatarCallback,
             ThreadCallback,
             UrlClickCallback,
+            InReplyToClickCallback,
             ReadReceiptsCallback,
             PreviewUrlCallback {
         fun onLoadMore(direction: Timeline.Direction)
@@ -157,6 +159,7 @@ class TimelineEventController @Inject constructor(
 
         // Introduce ViewModel scoped component (or Hilt?)
         fun getPreviewUrlRetriever(): PreviewUrlRetriever
+        fun getReplyPreviewRetriever(): ReplyPreviewRetriever
 
         fun onVoiceControlButtonClicked(eventId: String, messageAudioContent: MessageAudioContent)
         fun onVoiceWaveformTouchedUp(eventId: String, duration: Int, percentage: Float)
@@ -194,6 +197,10 @@ class TimelineEventController @Inject constructor(
     interface UrlClickCallback {
         fun onUrlClicked(url: String, title: String): Boolean
         fun onUrlLongClicked(url: String): Boolean
+    }
+
+    interface InReplyToClickCallback {
+        fun onRepliedToEventClicked(eventId: String)
     }
 
     interface PreviewUrlCallback {

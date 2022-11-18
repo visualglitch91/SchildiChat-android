@@ -40,6 +40,7 @@ import org.matrix.android.sdk.api.session.room.model.message.MessageTextContent
 import org.matrix.android.sdk.api.session.room.model.relation.RelationDefaultContent
 import org.matrix.android.sdk.api.session.room.sender.SenderInfo
 import org.matrix.android.sdk.api.util.ContentUtils
+import org.matrix.android.sdk.api.util.ContentUtils.extractUsefulTextFromHtmlReply
 import org.matrix.android.sdk.api.util.ContentUtils.extractUsefulTextFromReply
 
 /**
@@ -199,11 +200,11 @@ fun TimelineEvent.getTextEditableContent(formatted: Boolean): String {
 
 /**
  * Get the latest displayable content.
- * Will take care to hide spoiler text
+ * Will take care to hide spoiler text and removing mx-reply tags
  */
 fun MessageContent.getTextDisplayableContent(imageFallback: String = "￼"): String {
-    return newContent?.toModel<MessageTextContent>()?.matrixFormattedBody?.let { ContentUtils.formatSpoilerTextFromHtml(it, imageFallback = imageFallback) }
+    return newContent?.toModel<MessageTextContent>()?.matrixFormattedBody?.let { ContentUtils.formatSpoilerTextFromHtml(extractUsefulTextFromHtmlReply(it), imageFallback = imageFallback) }
             ?: newContent?.toModel<MessageContent>()?.body
-            ?: (this as MessageTextContent?)?.matrixFormattedBody?.let { ContentUtils.formatSpoilerTextFromHtml(it, imageFallback = imageFallback) }
+            ?: (this as MessageTextContent?)?.matrixFormattedBody?.let { ContentUtils.formatSpoilerTextFromHtml(extractUsefulTextFromHtmlReply(it), imageFallback = imageFallback) }
             ?: body
 }

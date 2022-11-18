@@ -61,6 +61,7 @@ import org.commonmark.node.Node
 import org.commonmark.parser.Parser
 import org.matrix.android.sdk.api.MatrixUrls.isMxcUrl
 import org.matrix.android.sdk.api.extensions.tryOrNull
+import org.matrix.android.sdk.api.util.ContentUtils.extractUsefulTextFromHtmlReply
 import timber.log.Timber
 import java.security.MessageDigest
 import javax.inject.Inject
@@ -172,6 +173,11 @@ class EventHtmlRenderer @Inject constructor(
                             builder.codeBlockBackgroundColor(codeBlockBackground)
                                     .codeBackgroundColor(codeBlockBackground)
                                     .blockQuoteColor(quoteBarColor)
+                        }
+                    },
+                    object: AbstractMarkwonPlugin() { // Remove fallback mx-replies
+                        override fun processMarkdown(markdown: String): String {
+                            return extractUsefulTextFromHtmlReply(markdown)
                         }
                     },
                     object : AbstractMarkwonPlugin() { // Overwrite height for data-mx-emoticon, to ensure emoji-like height
@@ -321,6 +327,7 @@ class MatrixHtmlPluginConfigure @Inject constructor(private val colorProvider: C
                 .addHandler(ListHandlerWithInitialStart())
                 .addHandler(FontTagHandler())
                 .addHandler(ParagraphHandler(DimensionConverter(resources)))
+                // Note: only for fallback replies, which we should have removed by now
                 .addHandler(MxReplyTagHandler())
                 .addHandler(CodePreTagHandler())
                 .addHandler(CodeTagHandler())

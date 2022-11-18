@@ -44,6 +44,12 @@ interface TimelineService {
     fun getTimelineEvent(eventId: String): TimelineEvent?
 
     /**
+     * Like getTimelineEvent(), but try to fetch (and persist) it from the server if not found.
+     * @param eventId the eventId to get the TimelineEvent
+     */
+    fun getOrFetchAndPersistTimelineEventBlocking(eventId: String): TimelineEvent?
+
+    /**
      * Creates a LiveData of Optional TimelineEvent event with eventId.
      * If the eventId is a local echo eventId, it will make the LiveData be updated with the synced TimelineEvent when coming through the sync.
      * In this case, makes sure to use the new synced eventId from the TimelineEvent class if you want to interact, as the local echo is removed from the SDK.

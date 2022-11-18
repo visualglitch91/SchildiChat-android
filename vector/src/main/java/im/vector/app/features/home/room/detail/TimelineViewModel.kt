@@ -25,6 +25,7 @@ import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
+import com.airbnb.mvrx.withState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -56,9 +57,17 @@ import im.vector.app.features.home.room.detail.RoomDetailAction.VoiceBroadcastAc
 import im.vector.app.features.home.room.detail.error.RoomNotFound
 import im.vector.app.features.home.room.detail.location.RedactLiveLocationShareEventUseCase
 import im.vector.app.features.home.room.detail.sticker.StickerPickerActionHandler
+import im.vector.app.features.home.room.detail.timeline.MessageColorProvider
 import im.vector.app.features.home.room.detail.timeline.factory.TimelineFactory
+import im.vector.app.features.home.room.detail.timeline.format.DisplayableEventFormatter
+import im.vector.app.features.home.room.detail.timeline.render.EventTextRenderer
+import im.vector.app.features.home.room.detail.timeline.reply.ReplyPreviewRetriever
 import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlRetriever
 import im.vector.app.features.home.room.typing.TypingHelper
+import im.vector.app.features.html.EventHtmlRenderer
+import im.vector.app.features.html.PillsPostProcessor
+import im.vector.app.features.html.SpanUtils
+import im.vector.app.features.html.VectorHtmlCompressor
 import im.vector.app.features.location.live.StopLiveLocationShareUseCase
 import im.vector.app.features.location.live.tracking.LocationSharingServiceConnection
 import im.vector.app.features.notifications.NotificationDrawerManager
@@ -156,8 +165,16 @@ class TimelineViewModel @AssistedInject constructor(
         timelineFactory: TimelineFactory,
         private val spaceStateHandler: SpaceStateHandler,
         private val voiceBroadcastHelper: VoiceBroadcastHelper,
+        displayableEventFormatter: DisplayableEventFormatter,
+        pillsPostProcessorFactory: PillsPostProcessor.Factory,
+        textRendererFactory: EventTextRenderer.Factory,
+        messageColorProvider: MessageColorProvider,
+        htmlCompressor: VectorHtmlCompressor,
+        htmlRenderer: EventHtmlRenderer,
+        spanUtils: SpanUtils,
 ) : VectorViewModel<RoomDetailViewState, RoomDetailAction, RoomDetailViewEvents>(initialState),
-        Timeline.Listener, ChatEffectManager.Delegate, CallProtocolsChecker.Listener, LocationSharingServiceConnection.Callback {
+        Timeline.Listener, ChatEffectManager.Delegate, CallProtocolsChecker.Listener, LocationSharingServiceConnection.Callback,
+        ReplyPreviewRetriever.PowerLevelProvider {
 
     private val room = session.getRoom(initialState.roomId)
     private val eventId = initialState.eventId ?: if (loadRoomAtFirstUnread() && initialState.rootThreadEventId == null) room?.roomSummary()?.readMarkerId else null
@@ -170,6 +187,19 @@ class TimelineViewModel @AssistedInject constructor(
 
     // Same lifecycle than the ViewModel (survive to screen rotation)
     val previewUrlRetriever = PreviewUrlRetriever(session, viewModelScope, buildMeta)
+    val replyPreviewRetriever = ReplyPreviewRetriever(
+            initialState.roomId,
+            session,
+            viewModelScope,
+            displayableEventFormatter,
+            pillsPostProcessorFactory,
+            textRendererFactory,
+            messageColorProvider,
+            this,
+            htmlCompressor,
+            htmlRenderer,
+            spanUtils
+    )
 
     // Slot to keep a pending action during permission request
     var pendingAction: RoomDetailAction? = null
@@ -236,6 +266,7 @@ class TimelineViewModel @AssistedInject constructor(
         observeActiveRoomWidgets()
         observePowerLevel()
         setupPreviewUrlObservers()
+        setupInReplyToObserver()
         viewModelScope.launch(Dispatchers.IO) {
             if (loadRoomAtFirstUnread()) {
                 if (vectorPreferences.readReceiptFollowsReadMarker()) {
@@ -420,6 +451,19 @@ class TimelineViewModel @AssistedInject constructor(
             }
         }
                 .launchIn(viewModelScope)
+    }
+
+    private fun setupInReplyToObserver() {
+        timelineEvents.onEach { snapshot ->
+            withContext(Dispatchers.Default) {
+                // First, invalidate edited and removed events
+                replyPreviewRetriever.invalidateEventsFromSnapshot(snapshot)
+                // Then update replied-to fields
+                snapshot.forEach {
+                    replyPreviewRetriever.getReplyTo(it)
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 
     /**
@@ -1552,5 +1596,9 @@ class TimelineViewModel @AssistedInject constructor(
             return null
         }
         return tryOrNull { operation() }
+    }
+
+    override fun getPowerLevelsHelper(): PowerLevelsHelper? = withState(this) { state ->
+        state.powerLevelsHelper
     }
 }

@@ -203,4 +203,7 @@
 
     <string name="home_layout_preferences_sort_unread">Unread</string>
 
+    <string name="in_reply_to_loading">Loading replied-to message…</string>
+    <string name="in_reply_to_error">Failed to load replied-to message</string>
+
 </resources>

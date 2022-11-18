@@ -42,6 +42,7 @@ internal class DefaultGetContextOfEventTask @Inject constructor(
         val filter = filterRepository.getRoomFilter()
         val response = executeRequest(globalErrorReceiver) {
             // We are limiting the response to the event with eventId to be sure we don't have any issue with potential merging process.
+            // In case we change this in the future, we want to make sure that the ReplyPreviewRetriever still only fetches the necessary event.
             roomAPI.getContextOfEvent(params.roomId, params.eventId, 0, filter)
         }
         return tokenChunkEventPersistor.insertInDb(response, params.roomId, PaginationDirection.FORWARDS)

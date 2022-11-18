@@ -170,6 +170,7 @@ import im.vector.app.features.home.room.detail.timeline.item.MessageVoiceItem
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptData
 import im.vector.app.features.home.room.detail.timeline.item.TimelineReadMarkerItem
 import im.vector.app.features.home.room.detail.timeline.reactions.ViewReactionsBottomSheet
+import im.vector.app.features.home.room.detail.timeline.reply.ReplyPreviewRetriever
 import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlRetriever
 import im.vector.app.features.home.room.detail.upgrade.MigrateRoomBottomSheet
 import im.vector.app.features.home.room.detail.views.RoomDetailLazyLoadedViews
@@ -1757,6 +1758,10 @@ class TimelineFragment :
         return true
     }
 
+    override fun onRepliedToEventClicked(eventId: String) {
+        timelineViewModel.handle(RoomDetailAction.NavigateToEvent(eventId, true))
+    }
+
     override fun onEventVisible(event: TimelineEvent) {
         timelineViewModel.handle(RoomDetailAction.TimelineEventTurnsVisible(event))
     }
@@ -1910,6 +1915,10 @@ class TimelineFragment :
 
     override fun getPreviewUrlRetriever(): PreviewUrlRetriever {
         return timelineViewModel.previewUrlRetriever
+    }
+
+    override fun getReplyPreviewRetriever(): ReplyPreviewRetriever {
+        return timelineViewModel.replyPreviewRetriever
     }
 
     override fun onRoomCreateLinkClicked(url: String) {
