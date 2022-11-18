@@ -361,11 +361,13 @@ class TimelineEventController @Inject constructor(
                 .setVisibilityStateChangedListener(Timeline.Direction.FORWARDS)
                 .addWhenLoading(Timeline.Direction.FORWARDS)
 
+        /* SC: don't use TypingItem
         if (!showingForwardLoader) {
             val typingUsers = partialState.roomSummary?.typingUsers.orEmpty()
             val typingItem = TypingItem_().id("typing_view").avatarRenderer(avatarRenderer).users(typingUsers)
             add(typingItem)
         }
+         */
 
         val timelineModels = getModels()
         add(timelineModels)

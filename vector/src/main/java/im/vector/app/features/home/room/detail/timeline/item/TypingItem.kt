@@ -45,6 +45,9 @@ abstract class TypingItem : EpoxyModelWithHolder<TypingItem.TypingHolder>() {
     override fun bind(holder: TypingHolder) {
         super.bind(holder)
 
+        // SC: don't use TypingItem (but instead toolbar-based typing indicator)
+        holder.typingView.isVisible = false
+        /*
         val typingUsers = users.take(MAX_TYPING_MESSAGE_USERS_COUNT)
         holder.typingView.apply {
             animate().cancel()
@@ -68,6 +71,7 @@ abstract class TypingItem : EpoxyModelWithHolder<TypingItem.TypingHolder>() {
                         .start()
             }
         }
+         */
     }
 
     class TypingHolder : VectorEpoxyHolder() {
