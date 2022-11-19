@@ -16,12 +16,14 @@
 
 package im.vector.app
 
+import android.app.ActivityManager
 import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.StrictMode
@@ -214,6 +216,17 @@ class VectorApplication :
         Mapbox.getInstance(this)
 
         initMemoryLeakAnalysis()
+
+        // Log exit reasons
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                val exitReasons = getSystemService(ActivityManager::class.java)
+                        .getHistoricalProcessExitReasons(null, 0, 1)
+                Timber.i("Exit reasons: $exitReasons")
+            } catch (e: Exception) {
+                Timber.w(e)
+            }
+        }
     }
 
     private fun configureEpoxy() {
