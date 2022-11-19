@@ -184,10 +184,13 @@ class AutoCompleter @AssistedInject constructor(
                         }
 
                         // Detect next word separator
+                        /*
                         var endIndex = editable.indexOf(" ", startIndex)
                         if (endIndex == -1) {
                             endIndex = editable.length
                         }
+                         */
+                        val endIndex = editText.selectionEnd
 
                         // Replace the word by its completion
                         editable.delete(startIndex, endIndex)
@@ -227,10 +230,13 @@ class AutoCompleter @AssistedInject constructor(
         }
 
         // Detect next word separator
+        /*
         var endIndex = editable.indexOfAny(listOf(" ", "\n"), startIndex)
         if (endIndex == -1) {
             endIndex = editable.length
         }
+         */
+        val endIndex = editText.selectionEnd
 
         // Replace the word by its completion
         val displayName = matrixItem.getBestName()
