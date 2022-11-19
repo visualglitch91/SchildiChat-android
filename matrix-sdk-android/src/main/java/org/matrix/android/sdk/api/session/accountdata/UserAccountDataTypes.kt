@@ -29,5 +29,6 @@ object UserAccountDataTypes {
     const val TYPE_ACCEPTED_TERMS = "m.accepted_terms"
     const val TYPE_OVERRIDE_COLORS = "im.vector.setting.override_colors"
     const val TYPE_EMOTE_ROOMS = "im.ponies.emote_rooms"
+    const val TYPE_USER_EMOTES = "im.ponies.user_emotes"
     const val TYPE_LOCAL_NOTIFICATION_SETTINGS = "org.matrix.msc3890.local_notification_settings."
 }

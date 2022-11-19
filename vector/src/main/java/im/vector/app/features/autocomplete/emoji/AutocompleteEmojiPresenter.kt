@@ -103,6 +103,19 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
             emoteUrls.addAll(currentRoomEmotes.map { it.mxcUrl })
             // Global emotes (only while searching)
             if (!query.isNullOrBlank()) {
+                // Account emotes
+                val userPack = session.accountDataService().getUserAccountDataEvent(UserAccountDataTypes.TYPE_USER_EMOTES)?.content
+                        ?.toModel<RoomEmoteContent>().getEmojiItems(query)
+                        .limit(AutocompleteEmojiController.CUSTOM_ACCOUNT_MAX)
+                if (userPack.isNotEmpty()) {
+                    emoteUrls.addAll(userPack.map { it.mxcUrl })
+                    emoteData += listOf(AutocompleteEmojiDataItem.Header(
+                            "de.spiritcroc.riotx.ACCOUNT_EMOJI_HEADER",
+                            context.getString(R.string.custom_emotes_account_data)
+                    ))
+                    emoteData += userPack.toAutocompleteItems()
+                }
+                // Global emotes from rooms
                 val globalPacks = session.accountDataService().getUserAccountDataEvent(UserAccountDataTypes.TYPE_EMOTE_ROOMS)
                 var packsAdded = 0
                 (globalPacks?.content?.get("rooms") as? Map<*, *>)?.forEach { pack ->
@@ -145,7 +158,11 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
     }
 
     private fun Room.getEmojiItems(query: CharSequence?): List<EmojiItem> {
-        return getStateEvent(EventType.ROOM_EMOTES, QueryStringValue.IsEmpty)?.content?.toModel<RoomEmoteContent>()?.images.orEmpty()
+        return getStateEvent(EventType.ROOM_EMOTES, QueryStringValue.IsEmpty)?.content?.toModel<RoomEmoteContent>().getEmojiItems(query)
+    }
+
+    private fun RoomEmoteContent?.getEmojiItems(query: CharSequence?): List<EmojiItem> {
+        return this?.images.orEmpty()
                 .filter {
                     val usages = it.value.usage
                     usages.isNullOrEmpty() || RoomEmoteContent.USAGE_EMOTICON in usages

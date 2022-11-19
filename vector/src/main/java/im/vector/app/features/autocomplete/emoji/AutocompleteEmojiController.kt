@@ -104,6 +104,8 @@ class AutocompleteEmojiController @Inject constructor(
         const val CUSTOM_THIS_ROOM_MAX = 10
         // Count of emojis per other image pack
         const val CUSTOM_OTHER_ROOM_MAX = 3
+        // Count of emojis for global account data
+        const val CUSTOM_ACCOUNT_MAX = 5
         // Count of other image packs
         const val MAX_CUSTOM_OTHER_ROOMS = 3
         // Total max
