@@ -173,6 +173,8 @@ class EventHtmlRenderer @Inject constructor(
                             builder.codeBlockBackgroundColor(codeBlockBackground)
                                     .codeBackgroundColor(codeBlockBackground)
                                     .blockQuoteColor(quoteBarColor)
+                                    .blockQuoteWidth(dimensionConverter.dpToPx(2))
+                                    .blockMargin(dimensionConverter.dpToPx(8))
                         }
                     },
                     object: AbstractMarkwonPlugin() { // Remove fallback mx-replies
