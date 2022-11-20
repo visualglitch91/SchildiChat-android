@@ -18,6 +18,8 @@
 package im.vector.app.features.home.room.detail.timeline.reply
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.text.Spanned
 import android.text.method.MovementMethod
 import android.util.AttributeSet
@@ -28,11 +30,14 @@ import androidx.core.text.PrecomputedTextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.TextViewCompat
 import im.vector.app.R
+import im.vector.app.core.extensions.tintBackground
 import im.vector.app.databinding.ViewInReplyToBinding
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import im.vector.app.features.home.room.detail.timeline.item.BindingOptions
 import im.vector.app.features.home.room.detail.timeline.item.MessageInformationData
+import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.home.room.detail.timeline.tools.findPillsAndProcess
+import im.vector.app.features.themes.ThemeUtils
 import kotlinx.coroutines.CoroutineScope
 import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.session.room.model.message.MessageTextContent
@@ -103,6 +108,7 @@ class InReplyToView @JvmOverloads constructor(
     private fun hideViews() {
         views.replyMemberNameView.isVisible = false
         views.replyTextView.isVisible = false
+        renderFadeOut(null)
     }
 
     private fun renderHidden() {
@@ -139,6 +145,7 @@ class InReplyToView @JvmOverloads constructor(
         if (state.event.root.isRedacted()) {
             renderRedacted()
         } else {
+            renderFadeOut(roomInformationData)
             when (val content = state.event.getLastMessageContent()) {
                 is MessageTextContent -> renderTextContent(content, retriever, movementMethod, coroutineScope)
                 else -> renderFallback(state.event, retriever)
@@ -205,6 +212,38 @@ class InReplyToView @JvmOverloads constructor(
         } else {
             setTextFuture(null)
             text = message
+        }
+    }
+
+    /**
+     * @param informationData The information data of the parent message, for background fade rendering info. Null to force expand to full height.
+     */
+    private fun renderFadeOut(informationData: MessageInformationData?) {
+        if (informationData != null) {
+            views.expandableReplyView.setExpanded(false)
+            val bgColor = when (val layout = informationData.messageLayout) {
+                is TimelineMessageLayout.ScBubble -> {
+                    if (informationData.sentByMe && !layout.singleSidedLayout) {
+                        ThemeUtils.getColor(context, R.attr.sc_message_bg_outgoing)
+                    } else {
+                        ThemeUtils.getColor(context, R.attr.sc_message_bg_incoming)
+                    }
+                }
+                is TimelineMessageLayout.Bubble -> {
+                    if (layout.isPseudoBubble) {
+                        0
+                    } else {
+                        val backgroundColorAttr = if (informationData.sentByMe) R.attr.vctr_message_bubble_outbound else R.attr.vctr_message_bubble_inbound
+                        ThemeUtils.getColor(context, backgroundColorAttr)
+                    }
+                }
+                is TimelineMessageLayout.Default -> {
+                    ThemeUtils.getColor(context, R.attr.vctr_system)
+                }
+            }
+            views.expandableReplyView.getChildAt(1).tintBackground(bgColor)
+        } else {
+            views.expandableReplyView.setExpanded(true)
         }
     }
 }

@@ -33,6 +33,7 @@ public class ExpandableViewLayout extends FrameLayout {
 
     private int mMaxHeight;
     private boolean mExpanded;
+    private boolean mAllowExpand;
     private View mExpandableControl;
     private int mChildViewHeight;
 
@@ -57,6 +58,8 @@ public class ExpandableViewLayout extends FrameLayout {
                 mMaxHeight = a.getDimensionPixelSize(attr, mMaxHeight);
             } else if (attr == R.styleable.ExpandableViewLayout_expanded) {
                 mExpanded = a.getBoolean(attr, false);
+            } else if (attr == R.styleable.ExpandableViewLayout_allowExpand) {
+                mAllowExpand = a.getBoolean(attr, false);
             }
         }
         a.recycle();
@@ -73,11 +76,19 @@ public class ExpandableViewLayout extends FrameLayout {
 
         // Obtain the expandable control
         mExpandableControl = getChildAt(1);
-        mExpandableControl.setOnClickListener(view -> {
-            mExpanded = !mExpanded;
-            setExpandableControlVisibility();
-            requestLayout();
-        });
+        if (mAllowExpand) {
+            mExpandableControl.setOnClickListener(view -> {
+                mExpanded = !mExpanded;
+                setExpandableControlVisibility();
+                requestLayout();
+            });
+        }
+    }
+
+    public void setExpanded(Boolean expanded) {
+        mExpanded = expanded;
+        setExpandableControlVisibility();
+        requestLayout();
     }
 
     @Override

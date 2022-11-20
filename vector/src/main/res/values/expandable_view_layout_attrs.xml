@@ -18,5 +18,6 @@
     <declare-styleable name="ExpandableViewLayout">
         <attr name="maxHeight" format="dimension"/>
         <attr name="expanded" format="boolean"/>
+        <attr name="allowExpand" format="boolean"/>
     </declare-styleable>
 </resources>
