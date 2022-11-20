@@ -18,6 +18,7 @@ package im.vector.app.features.home.room.detail.timeline.item
 
 import android.content.Context
 import android.graphics.Typeface
+import android.text.method.MovementMethod
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -37,6 +38,9 @@ import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.timeline.MessageColorProvider
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
+import im.vector.app.features.home.room.detail.timeline.reply.InReplyToView
+import im.vector.app.features.home.room.detail.timeline.reply.PreviewReplyUiState
+import im.vector.app.features.home.room.detail.timeline.reply.ReplyPreviewRetriever
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.home.room.detail.timeline.view.ScMessageBubbleWrapView
 import im.vector.app.features.home.room.detail.timeline.view.TimelineMessageLayoutRenderer
@@ -55,6 +59,8 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder>(
         @LayoutRes layoutId: Int = R.layout.item_timeline_event_base
 ) : AbsBaseMessageItem<H>(layoutId) {
 
+    private val replyViewUpdater = ReplyViewUpdater()
+
     override val baseAttributes: AbsBaseMessageItem.Attributes
         get() = attributes
 
@@ -64,6 +70,15 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder>(
 
     @EpoxyAttribute
     lateinit var attributes: Attributes
+
+    @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash)
+    var movementMethod: MovementMethod? = null
+
+    @EpoxyAttribute
+    var replyPreviewRetriever: ReplyPreviewRetriever? = null
+
+    @EpoxyAttribute
+    var inReplyToClickCallback: TimelineEventController.InReplyToClickCallback? = null
 
     private val _avatarClickListener = object : ClickListener {
         override fun invoke(p1: View) {
@@ -140,6 +155,18 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder>(
                 updateHighlightedMessageHeight(holder, false)
             }
         }
+
+        // Replies
+        if (holder.replyToView != null) {
+            replyViewUpdater.replyView = holder.replyToView
+            val safeReplyPreviewRetriever = replyPreviewRetriever
+            if (safeReplyPreviewRetriever == null) {
+                holder.replyToView?.isVisible = false
+            } else {
+                safeReplyPreviewRetriever.addListener(attributes.informationData.eventId, replyViewUpdater)
+            }
+            holder.replyToView?.delegate = inReplyToClickCallback
+        }
     }
 
     private fun updateHighlightedMessageHeight(holder: Holder, isExpanded: Boolean) {
@@ -160,6 +187,8 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder>(
         holder.memberNameView.setOnLongClickListener(null)
         attributes.avatarRenderer.clear(holder.threadSummaryAvatarImageView)
         holder.threadSummaryConstraintLayout.setOnClickListener(null)
+        replyPreviewRetriever?.removeListener(attributes.informationData.eventId, replyViewUpdater)
+        replyViewUpdater.replyView = null
         super.unbind(holder)
     }
 
@@ -172,6 +201,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder>(
         val timeView by bind<TextView>(R.id.messageTimeView)
         val sendStateImageView by bind<SendStateImageView>(R.id.messageSendStateImageView)
         val eventSendingIndicator by bind<ProgressBar>(R.id.eventSendingIndicator)
+        val replyToView: InReplyToView? by lazy { view.findViewById(R.id.inReplyToContainer) }
         val threadSummaryConstraintLayout by bind<ConstraintLayout>(R.id.messageThreadSummaryConstraintLayout)
         val threadSummaryCounterTextView by bind<TextView>(R.id.messageThreadSummaryCounterTextView)
         val threadSummaryAvatarImageView by bind<ImageView>(R.id.messageThreadSummaryAvatarImageView)
@@ -237,6 +267,16 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder>(
         )
     }
 
+
+    inner class ReplyViewUpdater : ReplyPreviewRetriever.PreviewReplyRetrieverListener {
+        var replyView: InReplyToView? = null
+
+        override fun onStateUpdated(state: PreviewReplyUiState) {
+            replyPreviewRetriever?.let {
+                replyView?.render(state, it, attributes.informationData, movementMethod, coroutineScope)
+            }
+        }
+    }
     override fun ignoreMessageGuideline(context: Context): Boolean {
         val messageLayout = attributes.informationData.messageLayout as? TimelineMessageLayout.ScBubble ?: return false
         return infoInBubbles(messageLayout) && canHideAvatars(attributes)

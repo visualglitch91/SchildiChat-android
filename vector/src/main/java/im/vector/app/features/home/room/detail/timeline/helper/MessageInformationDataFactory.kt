@@ -49,6 +49,7 @@ import org.matrix.android.sdk.api.session.room.model.message.MessageVerification
 import org.matrix.android.sdk.api.session.room.send.SendState
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.hasBeenEdited
+import org.matrix.android.sdk.api.session.room.timeline.isReply
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -169,6 +170,7 @@ class MessageInformationDataFactory @Inject constructor(
                 senderPowerLevel = senderPowerLevel,
                 isDirect = isEffectivelyDirect,
                 isPublic = roomSummary?.isPublic ?: false,
+                isReply = event.isReply(),
                 dmChatPartnerId = dmOtherMemberId,
                 isFirstFromThisSender = isFirstFromThisSender,
                 isLastFromThisSender = isLastFromThisSender,

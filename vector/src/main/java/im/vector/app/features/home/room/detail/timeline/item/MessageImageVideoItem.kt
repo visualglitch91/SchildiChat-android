@@ -145,6 +145,8 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
 
     private fun hasCaption() = !mediaData.caption.isNullOrBlank()
 
+    private fun needsRealBubble() = hasCaption() || attributes.informationData.isReply
+
     override fun unbind(holder: Holder) {
         GlideApp.with(holder.view.context.applicationContext).clear(holder.imageView)
         imageContentRenderer.clear(holder.imageView)
@@ -211,7 +213,7 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
     }
 
     override fun getScBubbleMargin(resources: Resources): Int {
-        if (hasCaption()) {
+        if (needsRealBubble()) {
             return super.getScBubbleMargin(resources)
         }
         return 0
@@ -238,7 +240,7 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
         when {
             // Don't show it for non-bubble layouts, don't show for Stickers, ...
             // Also only supported for default corner radius
-            !(messageLayout.isRealBubble || messageLayout.isPseudoBubble) || hasCaption() || mode != ImageContentRenderer.Mode.THUMBNAIL -> {
+            !(messageLayout.isRealBubble || messageLayout.isPseudoBubble) || needsRealBubble() || mode != ImageContentRenderer.Mode.THUMBNAIL -> {
                 holder.mediaContentView.background = null
             }
             attributes.informationData.sentByMe -> {

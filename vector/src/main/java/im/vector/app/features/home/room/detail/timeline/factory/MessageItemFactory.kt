@@ -202,11 +202,11 @@ class MessageItemFactory @Inject constructor(
             is MessageImageInfoContent -> buildImageMessageItem(messageContent, informationData, highlight, callback, attributes)
             is MessageNoticeContent -> buildNoticeMessageItem(messageContent, informationData, highlight, callback, attributes)
             is MessageVideoContent -> buildVideoMessageItem(messageContent, informationData, highlight, callback, attributes)
-            is MessageFileContent -> buildFileMessageItem(messageContent, highlight, attributes)
-            is MessageAudioContent -> buildAudioContent(params, messageContent, informationData, highlight, attributes)
+            is MessageFileContent -> buildFileMessageItem(messageContent, highlight, callback, attributes)
+            is MessageAudioContent -> buildAudioContent(params, messageContent, informationData, highlight, callback, attributes)
             is MessageVerificationRequestContent -> buildVerificationRequestMessageItem(messageContent, informationData, highlight, callback, attributes)
             is MessagePollContent -> buildPollItem(messageContent, informationData, highlight, callback, attributes)
-            is MessageLocationContent -> buildLocationItem(messageContent, informationData, highlight, attributes)
+            is MessageLocationContent -> buildLocationItem(messageContent, informationData, highlight, callback, attributes)
             is MessageBeaconInfoContent -> liveLocationShareMessageItemFactory.create(params.event, highlight, attributes)
             is MessageVoiceBroadcastInfoContent -> voiceBroadcastItemFactory.create(params, messageContent, highlight, attributes)
             else -> buildNotHandledMessageItem(messageContent, informationData, highlight, callback, attributes)
@@ -220,6 +220,7 @@ class MessageItemFactory @Inject constructor(
             locationContent: MessageLocationContent,
             informationData: MessageInformationData,
             highlight: Boolean,
+            callback: TimelineEventController.Callback?,
             attributes: AbsMessageItem.Attributes,
     ): MessageLocationItem? {
         val width = timelineMediaSizeProvider.getMaxSize().first
@@ -240,6 +241,9 @@ class MessageItemFactory @Inject constructor(
                 .locationPinProvider(locationPinProvider)
                 .highlighted(highlight)
                 .leftGuideline(avatarSizeProvider.leftGuideline)
+                .movementMethod(createLinkMovementMethod(callback))
+                .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
+                .inReplyToClickCallback(callback)
     }
 
     private fun buildPollItem(
@@ -262,6 +266,9 @@ class MessageItemFactory @Inject constructor(
                 .highlighted(highlight)
                 .leftGuideline(avatarSizeProvider.leftGuideline)
                 .callback(callback)
+                .movementMethod(createLinkMovementMethod(callback))
+                .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
+                .inReplyToClickCallback(callback)
     }
 
     private fun createPollQuestion(
@@ -279,6 +286,7 @@ class MessageItemFactory @Inject constructor(
             messageContent: MessageAudioContent,
             informationData: MessageInformationData,
             highlight: Boolean,
+            callback: TimelineEventController.Callback?,
             attributes: AbsMessageItem.Attributes
     ): MessageAudioItem {
         val fileUrl = getAudioFileUrl(messageContent, informationData)
@@ -300,6 +308,9 @@ class MessageItemFactory @Inject constructor(
                 .contentDownloadStateTrackerBinder(contentDownloadStateTrackerBinder)
                 .highlighted(highlight)
                 .leftGuideline(avatarSizeProvider.leftGuideline)
+                .movementMethod(createLinkMovementMethod(callback))
+                .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
+                .inReplyToClickCallback(callback)
     }
 
     private fun getAudioFileUrl(
@@ -328,6 +339,7 @@ class MessageItemFactory @Inject constructor(
             messageContent: MessageAudioContent,
             informationData: MessageInformationData,
             highlight: Boolean,
+            callback: TimelineEventController.Callback?,
             attributes: AbsMessageItem.Attributes
     ): MessageVoiceItem? {
         // Do not display voice broadcast messages
@@ -361,6 +373,9 @@ class MessageItemFactory @Inject constructor(
                 .contentDownloadStateTrackerBinder(contentDownloadStateTrackerBinder)
                 .highlighted(highlight)
                 .leftGuideline(avatarSizeProvider.leftGuideline)
+                .movementMethod(createLinkMovementMethod(callback))
+                .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
+                .inReplyToClickCallback(callback)
     }
 
     private fun buildVerificationRequestMessageItem(
@@ -409,6 +424,7 @@ class MessageItemFactory @Inject constructor(
     private fun buildFileMessageItem(
             messageContent: MessageFileContent,
             highlight: Boolean,
+            callback: TimelineEventController.Callback?,
             attributes: AbsMessageItem.Attributes,
     ): MessageFileItem {
         val mxcUrl = messageContent.getFileUrl() ?: ""
@@ -424,6 +440,9 @@ class MessageItemFactory @Inject constructor(
                 .filename(messageContent.getFileName())
                 .caption(messageContent.getCaption())
                 .iconRes(R.drawable.ic_paperclip)
+                .movementMethod(createLinkMovementMethod(callback))
+                .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
+                .inReplyToClickCallback(callback)
     }
 
     private fun buildAudioContent(
@@ -431,11 +450,12 @@ class MessageItemFactory @Inject constructor(
             messageContent: MessageAudioContent,
             informationData: MessageInformationData,
             highlight: Boolean,
+            callback: TimelineEventController.Callback?,
             attributes: AbsMessageItem.Attributes,
     ) = if (messageContent.voiceMessageIndicator != null) {
-        buildVoiceMessageItem(params, messageContent, informationData, highlight, attributes)
+        buildVoiceMessageItem(params, messageContent, informationData, highlight, callback, attributes)
     } else {
-        buildAudioMessageItem(params, messageContent, informationData, highlight, attributes)
+        buildAudioMessageItem(params, messageContent, informationData, highlight, callback, attributes)
     }
 
     private fun buildNotHandledMessageItem(
@@ -481,6 +501,9 @@ class MessageItemFactory @Inject constructor(
                 .contentUploadStateTrackerBinder(contentUploadStateTrackerBinder)
                 .playable(playable)
                 .highlighted(highlight)
+                .movementMethod(createLinkMovementMethod(callback))
+                .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
+                .inReplyToClickCallback(callback)
                 .mediaData(data)
                 .apply {
                     if (messageContent.msgType == MessageType.MSGTYPE_STICKER_LOCAL) {
@@ -543,6 +566,9 @@ class MessageItemFactory @Inject constructor(
                 .contentUploadStateTrackerBinder(contentUploadStateTrackerBinder)
                 .playable(true)
                 .highlighted(highlight)
+                .movementMethod(createLinkMovementMethod(callback))
+                .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
+                .inReplyToClickCallback(callback)
                 .mediaData(thumbnailData)
                 .clickListener { view -> callback?.onVideoMessageClicked(messageContent, videoData, view.findViewById(R.id.messageThumbnailView)) }
     }
@@ -604,14 +630,14 @@ class MessageItemFactory @Inject constructor(
                 .markwonPlugins(htmlRenderer.get().plugins)
                 .searchForPills(isFormatted)
                 .previewUrlRetriever(callback?.getPreviewUrlRetriever())
-                .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
-                .inReplyToClickCallback(callback)
                 .imageContentRenderer(imageContentRenderer)
                 .previewUrlCallback(callback)
                 .leftGuideline(avatarSizeProvider.leftGuideline)
                 .attributes(attributes)
                 .highlighted(highlight)
                 .movementMethod(createLinkMovementMethod(callback))
+                .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
+                .inReplyToClickCallback(callback)
     }
 
     private fun annotateWithEdited(
@@ -705,8 +731,6 @@ class MessageItemFactory @Inject constructor(
         return MessageTextItem_()
                 .leftGuideline(avatarSizeProvider.leftGuideline)
                 .previewUrlRetriever(callback?.getPreviewUrlRetriever())
-                .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
-                .inReplyToClickCallback(callback)
                 .imageContentRenderer(imageContentRenderer)
                 .previewUrlCallback(callback)
                 .attributes(attributes)
@@ -714,6 +738,8 @@ class MessageItemFactory @Inject constructor(
                 .bindingOptions(bindingOptions)
                 .highlighted(highlight)
                 .movementMethod(createLinkMovementMethod(callback))
+                .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
+                .inReplyToClickCallback(callback)
     }
 
     private fun buildEmoteMessageItem(
@@ -740,13 +766,13 @@ class MessageItemFactory @Inject constructor(
                 .bindingOptions(bindingOptions)
                 .leftGuideline(avatarSizeProvider.leftGuideline)
                 .previewUrlRetriever(callback?.getPreviewUrlRetriever())
-                .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
-                .inReplyToClickCallback(callback)
                 .imageContentRenderer(imageContentRenderer)
                 .previewUrlCallback(callback)
                 .attributes(attributes)
                 .highlighted(highlight)
                 .movementMethod(createLinkMovementMethod(callback))
+                .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
+                .inReplyToClickCallback(callback)
     }
 
     private fun MessageContentWithFormattedBody.getHtmlBody(): CharSequence {

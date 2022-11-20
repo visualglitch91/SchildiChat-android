@@ -28,6 +28,7 @@ import im.vector.app.features.themes.BubbleThemeUtils
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.room.model.message.MessageContent
+import org.matrix.android.sdk.api.session.room.model.message.MessageImageContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageNoticeContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageType
 import org.matrix.android.sdk.api.session.room.model.message.MessageVerificationRequestContent
@@ -36,6 +37,7 @@ import org.matrix.android.sdk.api.session.room.model.message.getCaption
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.getLastMessageContent
 import org.matrix.android.sdk.api.session.room.timeline.isEdition
+import org.matrix.android.sdk.api.session.room.timeline.isReply
 import org.matrix.android.sdk.api.session.room.timeline.isRootThread
 import javax.inject.Inject
 
@@ -208,9 +210,10 @@ class TimelineMessageLayoutFactory @Inject constructor(
         }
     }
 
-    private fun MessageContent?.isPseudoBubble(event: TimelineEvent): Boolean {
+    private fun MessageContent?.isPseudoBubble(event: TimelineEvent, ignoreReply: Boolean = false): Boolean {
         if (this == null) return false
         if (event.root.isRedacted()) return false
+        if  (!ignoreReply && event.isReply()) return false
         if (this is MessageWithAttachmentContent && !getCaption().isNullOrBlank()) return false
         return this.msgType in MSG_TYPES_WITH_PSEUDO_BUBBLE_LAYOUT
     }
@@ -242,6 +245,7 @@ class TimelineMessageLayoutFactory @Inject constructor(
         val type = root.getClearType()
         if (type in EVENT_TYPES_WITH_BUBBLE_LAYOUT) {
             val messageContent = getVectorLastMessageContent()
+            if (messageContent.isPseudoBubble(this, true)) return true
             return messageContent?.msgType !in MSG_TYPES_WITHOUT_BUBBLE_LAYOUT
         }
         return false

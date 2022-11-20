@@ -6,15 +6,28 @@
     android:layout_height="wrap_content"
     tools:viewBindingIgnore="true">
 
+    <im.vector.app.features.home.room.detail.timeline.reply.InReplyToView
+        android:id="@+id/inReplyToContainer"
+        style="@style/InReplyToViewParams"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
     <ImageView
         android:id="@+id/messageThumbnailView"
         android:layout_width="375dp"
         android:layout_height="0dp"
         android:contentDescription="@string/a11y_image"
+        android:layout_marginTop="8dp"
+        app:layout_goneMarginTop="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/inReplyToContainer"
         tools:layout_height="300dp"
         tools:src="@tools:sample/backgrounds/scenic" />
 
@@ -57,6 +70,6 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/messageTextView"
+        app:layout_constraintTop_toBottomOf="@id/messageCaptionView"
         tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

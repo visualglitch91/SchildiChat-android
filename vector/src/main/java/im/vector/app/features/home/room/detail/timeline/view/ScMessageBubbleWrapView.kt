@@ -604,7 +604,7 @@ fun setFlatRtl(layout: ViewGroup, direction: Int, childDirection: Int, depth: In
 }
 
 // Static to use from classes that use simplified/non-sc layouts, e.g. item_timeline_event_base_noinfo
-fun renderStubMessageLayout(messageLayout: TimelineMessageLayout, viewStubContainer: FrameLayout) {
+fun renderStubMessageLayout(messageLayout: TimelineMessageLayout, viewStubContainer: View) {
     if (messageLayout !is TimelineMessageLayout.ScBubble) {
         return
     }

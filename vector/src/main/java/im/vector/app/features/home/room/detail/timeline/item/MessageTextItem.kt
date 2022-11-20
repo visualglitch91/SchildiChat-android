@@ -61,12 +61,6 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
     var useBigFont: Boolean = false
 
     @EpoxyAttribute
-    var replyPreviewRetriever: ReplyPreviewRetriever? = null
-
-    @EpoxyAttribute
-    var inReplyToClickCallback: TimelineEventController.InReplyToClickCallback? = null
-
-    @EpoxyAttribute
     var previewUrlRetriever: PreviewUrlRetriever? = null
 
     @EpoxyAttribute
@@ -75,14 +69,14 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
     @EpoxyAttribute
     var imageContentRenderer: ImageContentRenderer? = null
 
-    @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash)
-    var movementMethod: MovementMethod? = null
+    // SC: moved to super
+    //@EpoxyAttribute(EpoxyAttribute.Option.DoNotHash)
+    //var movementMethod: MovementMethod? = null
 
     @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash)
     var markwonPlugins: (List<MarkwonPlugin>)? = null
 
     private val previewUrlViewUpdater = PreviewUrlViewUpdater()
-    private val replyViewUpdater = ReplyViewUpdater()
 
     // Remember footer measures for URL updates
     private var footerWidth: Int = 0
@@ -106,15 +100,6 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
         }
         holder.previewUrlView.delegate = previewUrlCallback
         holder.previewUrlView.renderMessageLayout(attributes.informationData.messageLayout)
-
-        replyViewUpdater.replyView = holder.replyToView
-        val safeReplyPreviewRetriever = replyPreviewRetriever
-        if (safeReplyPreviewRetriever == null) {
-            holder.replyToView.isVisible = false
-        } else {
-            safeReplyPreviewRetriever.addListener(attributes.informationData.eventId, replyViewUpdater)
-        }
-        holder.replyToView.delegate = inReplyToClickCallback
 
         if (useBigFont) {
             holder.messageView.textSize = 44F
@@ -155,7 +140,6 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
         previewUrlViewUpdater.previewUrlView = null
         previewUrlViewUpdater.imageContentRenderer = null
         previewUrlRetriever?.removeListener(attributes.informationData.eventId, previewUrlViewUpdater)
-        replyPreviewRetriever?.removeListener(attributes.informationData.eventId, replyViewUpdater)
     }
 
     override fun getViewStubId() = STUB_ID
@@ -164,7 +148,6 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
         val messageView by bind<FooteredTextView>(R.id.messageTextView)
         val previewUrlViewElement by bind<PreviewUrlView>(R.id.messageUrlPreviewElement)
         val previewUrlViewSc by bind<PreviewUrlViewSc>(R.id.messageUrlPreviewSc)
-        val replyToView by bind<InReplyToView>(R.id.inReplyToContainer)
         lateinit var previewUrlView: AbstractPreviewUrlView // set to either previewUrlViewElement or previewUrlViewSc by layout
     }
 
@@ -194,17 +177,6 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
             //holder?.messageView?.invalidate()
             holder?.messageView?.requestLayout()
             //*/
-        }
-    }
-
-    inner class ReplyViewUpdater : ReplyPreviewRetriever.PreviewReplyRetrieverListener {
-        var replyView: InReplyToView? = null
-
-        override fun onStateUpdated(state: PreviewReplyUiState) {
-            timber.log.Timber.i("REPLY STATE UPDATE $replyPreviewRetriever $replyView")
-            replyPreviewRetriever?.let {
-                replyView?.render(state, it, attributes.informationData, movementMethod, coroutineScope)
-            }
         }
     }
 
