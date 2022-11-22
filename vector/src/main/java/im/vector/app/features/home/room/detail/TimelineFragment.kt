@@ -778,6 +778,7 @@ class TimelineFragment :
     }
 
     private fun doJumpToBottom() {
+        scrollOnNewMessageCallback.initialForceScrollEventId = null
         if (timelineViewModel.timeline?.isLive == false) {
             scrollOnNewMessageCallback.forceScrollOnNextUpdate()
             timelineViewModel.timeline?.restartWithEventId(null)
