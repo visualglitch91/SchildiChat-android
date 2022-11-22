@@ -39,6 +39,7 @@ import org.matrix.android.sdk.api.session.events.model.getRelationContent
 import org.matrix.android.sdk.api.session.getRoom
 import org.matrix.android.sdk.api.session.room.getTimelineEvent
 import org.matrix.android.sdk.api.session.room.powerlevels.PowerLevelsHelper
+import org.matrix.android.sdk.api.session.room.sender.SenderInfo
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.getLatestEventId
 import org.matrix.android.sdk.api.util.MatrixItem
@@ -53,8 +54,9 @@ class ReplyPreviewRetriever(
         private val displayableEventFormatter: DisplayableEventFormatter,
         private val pillsPostProcessorFactory: PillsPostProcessor.Factory,
         private val textRendererFactory: EventTextRenderer.Factory,
+        private val callback: PreviewReplyRetrieverCallback,
+        private val powerLevelProvider: PowerLevelProvider,
         val messageColorProvider: MessageColorProvider,
-        val powerLevelProvider: PowerLevelProvider,
         val htmlCompressor: VectorHtmlCompressor,
         val htmlRenderer: EventHtmlRenderer,
         val spanUtils: SpanUtils,
@@ -190,7 +192,10 @@ class ReplyPreviewRetriever(
                             synchronized(data) {
                                 updateState(eventId, eventIdToRetrieve,
                                         if (it == null) PreviewReplyUiState.Error(Exception("Event not found"), eventIdToRetrieve) // TODO proper exception or sth.
-                                        else PreviewReplyUiState.InReplyTo(eventIdToRetrieve, it)
+                                        else {
+                                            val senderName = callback.resolveDisplayName(it.senderInfo)
+                                            PreviewReplyUiState.InReplyTo(eventIdToRetrieve, it, senderName)
+                                        }
                                 )
                             }
                         },
@@ -256,6 +261,10 @@ class ReplyPreviewRetriever(
                         powerLevelProvider.getPowerLevelsHelper()?.getUserPowerLevelValue(event.senderInfo.userId)
                 )
         )
+    }
+
+    interface PreviewReplyRetrieverCallback {
+        fun resolveDisplayName(senderInfo: SenderInfo): String
     }
 
     fun formatFallbackReply(event: TimelineEvent): CharSequence {

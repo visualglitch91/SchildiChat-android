@@ -126,6 +126,7 @@ import org.matrix.android.sdk.api.session.room.model.relation.RelationDefaultCon
 import org.matrix.android.sdk.api.session.room.model.tombstone.RoomTombstoneContent
 import org.matrix.android.sdk.api.session.room.powerlevels.PowerLevelsHelper
 import org.matrix.android.sdk.api.session.room.read.ReadService
+import org.matrix.android.sdk.api.session.room.sender.SenderInfo
 import org.matrix.android.sdk.api.session.room.timeline.Timeline
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.isLiveLocation
@@ -174,7 +175,7 @@ class TimelineViewModel @AssistedInject constructor(
         spanUtils: SpanUtils,
 ) : VectorViewModel<RoomDetailViewState, RoomDetailAction, RoomDetailViewEvents>(initialState),
         Timeline.Listener, ChatEffectManager.Delegate, CallProtocolsChecker.Listener, LocationSharingServiceConnection.Callback,
-        ReplyPreviewRetriever.PowerLevelProvider {
+        ReplyPreviewRetriever.PowerLevelProvider, ReplyPreviewRetriever.PreviewReplyRetrieverCallback {
 
     private val room = session.getRoom(initialState.roomId)
     private val eventId = initialState.eventId ?: if (loadRoomAtFirstUnread() && initialState.rootThreadEventId == null) room?.roomSummary()?.readMarkerId else null
@@ -194,12 +195,14 @@ class TimelineViewModel @AssistedInject constructor(
             displayableEventFormatter,
             pillsPostProcessorFactory,
             textRendererFactory,
+            this, this,
             messageColorProvider,
-            this,
             htmlCompressor,
             htmlRenderer,
             spanUtils
     )
+
+    override fun resolveDisplayName(senderInfo: SenderInfo): String = (timeline?.senderWithLiveRoomState(senderInfo) ?: senderInfo).disambiguatedDisplayName
 
     // Slot to keep a pending action during permission request
     var pendingAction: RoomDetailAction? = null

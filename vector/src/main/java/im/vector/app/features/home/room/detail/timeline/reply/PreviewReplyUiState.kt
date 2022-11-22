@@ -39,6 +39,7 @@ sealed class PreviewReplyUiState {
     // Is a reply
     data class InReplyTo(
             override val repliedToEventId: String,
-            val event: TimelineEvent
+            val event: TimelineEvent,
+            val senderName: String,
     ) : PreviewReplyUiState()
 }

@@ -154,7 +154,7 @@ class InReplyToView @JvmOverloads constructor(
         hideViews()
         isVisible = true
         views.replyMemberNameView.isVisible = true
-        views.replyMemberNameView.text = state.event.senderInfo.disambiguatedDisplayName
+        views.replyMemberNameView.text = state.senderName
         val senderColor = retriever.getMemberNameColor(state.event, roomInformationData)
         views.replyMemberNameView.setTextColor(senderColor)
         views.inReplyToBar.setBackgroundColor(senderColor)

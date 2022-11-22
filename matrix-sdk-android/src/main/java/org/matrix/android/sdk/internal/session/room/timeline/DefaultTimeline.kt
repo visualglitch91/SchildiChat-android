@@ -38,6 +38,7 @@ import okhttp3.internal.closeQuietly
 import org.matrix.android.sdk.api.MatrixCoroutineDispatchers
 import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.api.session.room.model.Membership
+import org.matrix.android.sdk.api.session.room.sender.SenderInfo
 import org.matrix.android.sdk.api.session.room.timeline.Timeline
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.TimelineSettings
@@ -216,6 +217,8 @@ internal class DefaultTimeline(
     override fun getSnapshot(): List<TimelineEvent> {
         return strategy.buildSnapshot()
     }
+
+    override fun senderWithLiveRoomState(senderInfo: SenderInfo): SenderInfo = strategy.senderWithLiveRoomState(senderInfo)
 
     override fun getIndexOfEvent(eventId: String?): Int? {
         if (eventId == null) return null

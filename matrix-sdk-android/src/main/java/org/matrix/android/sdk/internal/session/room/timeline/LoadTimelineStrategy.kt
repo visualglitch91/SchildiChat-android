@@ -30,6 +30,7 @@ import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.failure.Failure
 import org.matrix.android.sdk.api.failure.MatrixError
 import org.matrix.android.sdk.api.session.room.send.SendState
+import org.matrix.android.sdk.api.session.room.sender.SenderInfo
 import org.matrix.android.sdk.api.session.room.timeline.Timeline
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.TimelineSettings
@@ -272,6 +273,15 @@ internal class LoadTimelineStrategy constructor(
             events.map(this::applyLiveRoomState)
         } else {
             events
+        }
+    }
+
+    fun senderWithLiveRoomState(senderInfo: SenderInfo): SenderInfo {
+        return if (dependencies.timelineSettings.useLiveSenderInfo) {
+            val updatedState = liveRoomStateListener.getLiveState(senderInfo.userId) ?: return senderInfo
+            senderInfo.copy(avatarUrl = updatedState.avatarUrl, displayName = updatedState.displayName)
+        } else {
+            senderInfo
         }
     }
 

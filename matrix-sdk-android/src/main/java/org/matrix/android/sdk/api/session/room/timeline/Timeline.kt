@@ -16,6 +16,8 @@
 
 package org.matrix.android.sdk.api.session.room.timeline
 
+import org.matrix.android.sdk.api.session.room.sender.SenderInfo
+
 /**
  * A Timeline instance represents a contiguous sequence of events in a room.
  * <p>
@@ -110,6 +112,11 @@ interface Timeline {
      * Returns a snapshot of the timeline in his current state.
      */
     fun getSnapshot(): List<TimelineEvent>
+
+    /**
+     * Applies live state to the senderInfo, if live info is enabled in the timeline's settings.
+     */
+    fun senderWithLiveRoomState(senderInfo: SenderInfo): SenderInfo
 
     interface Listener {
         /**
