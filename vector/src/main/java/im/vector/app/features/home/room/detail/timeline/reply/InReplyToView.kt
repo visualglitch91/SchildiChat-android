@@ -20,8 +20,12 @@ package im.vector.app.features.home.room.detail.timeline.reply
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Typeface
+import android.text.SpannableString
 import android.text.Spanned
 import android.text.method.MovementMethod
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
@@ -118,14 +122,26 @@ class InReplyToView @JvmOverloads constructor(
     private fun renderLoading() {
         hideViews()
         isVisible = true
-        views.replyTextView.setText(R.string.in_reply_to_loading)
+        views.replyTextView.isVisible = true
+        val color = ThemeUtils.getColor(context, R.attr.vctr_content_secondary)
+        views.replyTextView.text = SpannableString(context.getString(R.string.in_reply_to_loading)).apply {
+            setSpan(StyleSpan(Typeface.ITALIC), 0, length, 0)
+            setSpan(ForegroundColorSpan(color), 0, length, 0)
+        }
+        views.inReplyToBar.setBackgroundColor(color)
     }
 
     private fun renderError(state: PreviewReplyUiState.Error) {
         hideViews()
         isVisible = true
         Timber.w(state.throwable, "Error rendering reply")
-        views.replyTextView.setText(R.string.in_reply_to_error)
+        views.replyTextView.isVisible = true
+        val color = ThemeUtils.getColor(context, R.attr.vctr_content_secondary)
+        views.replyTextView.text = SpannableString(context.getString(R.string.in_reply_to_error)).apply {
+            setSpan(StyleSpan(Typeface.ITALIC), 0, length, 0)
+            setSpan(ForegroundColorSpan(color), 0, length, 0)
+        }
+        views.inReplyToBar.setBackgroundColor(color)
     }
 
     private fun renderReplyTo(
