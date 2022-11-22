@@ -90,6 +90,8 @@ class ReplyPreviewRetriever(
     private val lookedUpEvents = mutableMapOf<String, String>()
     // Timestamps of allowed server requests for individual events, to not spam server with the same request
     private val serverRequests = mutableMapOf<String, Long>()
+    // eventToRetrieveId-specific locking
+    private val retrieveEventLocks = mutableMapOf<String, Any>()
 
     fun invalidateEventsFromSnapshot(snapshot: List<TimelineEvent>) {
         val snapshotEvents = snapshot.associateBy { it.eventId }
@@ -141,6 +143,9 @@ class ReplyPreviewRetriever(
             }
         }?.let { eventIdToRetrieve ->
             coroutineScope.launch(Dispatchers.IO) {
+                val retrieveEventLock = synchronized(retrieveEventLocks) {
+                    retrieveEventLocks.getOrPut(eventIdToRetrieve) { eventIdToRetrieve }
+                }
                 runCatching {
                     // Don't spam the server too often if it doesn't know the event
                     val mayAskServerForEvent = synchronized(serverRequests) {
@@ -153,10 +158,13 @@ class ReplyPreviewRetriever(
                         }
                     }
                     if (DEBUG) Timber.i("REPLY HANDLING AFTER ${System.currentTimeMillis() - now} for $eventId / $eventIdToRetrieve, may ask: $mayAskServerForEvent")// TODO remove
-                    if (mayAskServerForEvent) {
-                        session.getRoom(roomId)?.timelineService()?.getOrFetchAndPersistTimelineEventBlocking(eventIdToRetrieve)
-                    } else {
-                        session.getRoom(roomId)?.getTimelineEvent(eventIdToRetrieve)
+                    // Synchronize, so that we await a pending server fetch if necessary
+                    synchronized(retrieveEventLock) {
+                        if (mayAskServerForEvent) {
+                            session.getRoom(roomId)?.timelineService()?.getOrFetchAndPersistTimelineEventBlocking(eventIdToRetrieve)
+                        } else {
+                            session.getRoom(roomId)?.getTimelineEvent(eventIdToRetrieve)
+                        }
                     }?.apply {
                         // We need to check encryption
                         val repliedToEvent = root // TODO what if rendered event is not root, i.e. root.eventId != getLatestEventId()? (we currently just use the initial event in this case, better than nothing)
