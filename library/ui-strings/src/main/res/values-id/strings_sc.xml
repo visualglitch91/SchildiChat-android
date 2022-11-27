@@ -156,4 +156,7 @@
     <string name="labs_enable_new_app_layout_summary_sc">Tata letak sederhana baru dari Element dengan fitur tab opsional</string>
     <string name="dev_tools_menu_new_layout">Tampilan baru</string>
     <string name="home_layout_preferences_sort_unread">Belum dibaca</string>
+    <string name="in_reply_to_loading">Memuat pesan yang dibalas…</string>
+    <string name="in_reply_to_error">Gagal memuat pesan yang dibalas</string>
+    <string name="custom_emotes_account_data">Emoji sendiri</string>
 </resources>
