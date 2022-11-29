@@ -100,7 +100,7 @@ downstream_latest_tag() {
     local commit="HEAD"
     while true; do
         local tag=`git describe --abbrev=0 "$commit" --tags`
-        if [[ "$tag" =~ "sc_" ]]; then
+        if [[ "$tag" =~ "sc_v" ]]; then
             echo "$tag"
             break
         else
