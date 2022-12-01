@@ -155,4 +155,8 @@
     <string name="settings_sc_dbg_view_pager_visuals">Visa ViewPager-felsökningsinformation</string>
     <string name="labs_enable_new_app_layout_summary_sc">Elements nya förenklade layout med valfria flikar</string>
     <string name="dev_tools_menu_new_layout">Ny layout</string>
+    <string name="home_layout_preferences_sort_unread">Oläst</string>
+    <string name="in_reply_to_loading">Läser in besvarat meddelande…</string>
+    <string name="custom_emotes_account_data">Egna emoji</string>
+    <string name="in_reply_to_error">Det gick inte att läsa in besvarat meddelande</string>
 </resources>
