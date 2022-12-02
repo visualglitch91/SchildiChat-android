@@ -25,7 +25,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.Spannable
-import android.text.format.DateUtils
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -33,10 +32,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
-import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
-import androidx.annotation.StringRes
-import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
@@ -53,7 +49,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import de.spiritcroc.util.ThumbnailGenerationVideoDownloadDecider
 import im.vector.app.R
 import im.vector.app.core.error.fatalError
-import im.vector.app.core.extensions.getVectorLastMessageContent
 import im.vector.app.core.extensions.registerStartForActivityResult
 import im.vector.app.core.extensions.showKeyboard
 import im.vector.app.core.glide.GlideApp
@@ -61,7 +56,7 @@ import im.vector.app.core.platform.VectorBaseFragment
 import im.vector.app.core.platform.lifecycleAwareLazy
 import im.vector.app.core.platform.showOptimizedSnackbar
 import im.vector.app.core.resources.BuildMeta
-import im.vector.app.core.utils.DimensionConverter
+import im.vector.app.core.utils.ExpandingBottomSheetBehavior
 import im.vector.app.core.utils.checkPermissions
 import im.vector.app.core.utils.onPermissionDeniedDialog
 import im.vector.app.core.utils.registerForPermissionsResult
@@ -88,14 +83,9 @@ import im.vector.app.features.home.room.detail.RoomDetailAction.VoiceBroadcastAc
 import im.vector.app.features.home.room.detail.TimelineViewModel
 import im.vector.app.features.home.room.detail.composer.voice.VoiceMessageRecorderView
 import im.vector.app.features.home.room.detail.timeline.action.MessageSharedActionViewModel
-import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
-import im.vector.app.features.home.room.detail.timeline.image.buildImageContentRendererData
 import im.vector.app.features.home.room.detail.upgrade.MigrateRoomBottomSheet
-import im.vector.app.features.html.EventHtmlRenderer
 import im.vector.app.features.html.PillImageSpan
-import im.vector.app.features.html.PillsPostProcessor
 import im.vector.app.features.location.LocationSharingMode
-import im.vector.app.features.media.ImageContentRenderer
 import im.vector.app.features.poll.PollMode
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.share.SharedData
@@ -107,18 +97,9 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import org.commonmark.parser.Parser
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.content.ContentAttachmentData
-import org.matrix.android.sdk.api.session.room.model.message.MessageAudioContent
-import org.matrix.android.sdk.api.session.room.model.message.MessageBeaconInfoContent
-import org.matrix.android.sdk.api.session.room.model.message.MessageContent
-import org.matrix.android.sdk.api.session.room.model.message.MessageFormat
-import org.matrix.android.sdk.api.session.room.model.message.MessagePollContent
-import org.matrix.android.sdk.api.session.room.model.message.MessageTextContent
-import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.util.MatrixItem
-import org.matrix.android.sdk.api.util.toMatrixItem
 import org.matrix.android.sdk.internal.session.room.send.pills.requiresFormattedMessage
 import reactivecircus.flowbinding.android.view.focusChanges
 import reactivecircus.flowbinding.android.widget.textChanges
@@ -134,12 +115,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
 
     @Inject lateinit var autoCompleterFactory: AutoCompleter.Factory
     @Inject lateinit var avatarRenderer: AvatarRenderer
-    @Inject lateinit var matrixItemColorProvider: MatrixItemColorProvider
-    @Inject lateinit var eventHtmlRenderer: EventHtmlRenderer
-    @Inject lateinit var dimensionConverter: DimensionConverter
-    @Inject lateinit var imageContentRenderer: ImageContentRenderer
     @Inject lateinit var shareIntentHandler: ShareIntentHandler
-    @Inject lateinit var pillsPostProcessorFactory: PillsPostProcessor.Factory
     @Inject lateinit var generationVideoDownloadDecider: ThumbnailGenerationVideoDownloadDecider
     @Inject lateinit var vectorPreferences: VectorPreferences
     @Inject lateinit var vectorFeatures: VectorFeatures
@@ -150,10 +126,6 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
 
     private val autoCompleter: AutoCompleter by lazy {
         autoCompleterFactory.create(roomId, isThreadTimeLine())
-    }
-
-    private val pillsPostProcessor by lazy {
-        pillsPostProcessorFactory.create(roomId)
     }
 
     private val emojiPopup: EmojiPopup by lifecycleAwareLazy {
@@ -171,6 +143,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
 
     private lateinit var attachmentsHelper: AttachmentsHelper
     private lateinit var attachmentTypeSelector: AttachmentTypeSelectorView
+    private var bottomSheetBehavior: ExpandingBottomSheetBehavior<View>? = null
 
     private val timelineViewModel: TimelineViewModel by parentFragmentViewModel()
     private val messageComposerViewModel: MessageComposerViewModel by parentFragmentViewModel()
@@ -197,6 +170,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
 
         attachmentsHelper = AttachmentsHelper(requireContext(), this, buildMeta).register()
 
+        setupBottomSheet()
         setupComposer()
         setupEmojiButton()
 
@@ -226,22 +200,15 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
             }
         }
 
-        messageComposerViewModel.stateFlow.map { it.isFullScreen }
-                .distinctUntilChanged()
-                .onEach { isFullScreen ->
-                    composer.toggleFullScreen(isFullScreen)
-                }
-                .launchIn(viewLifecycleOwner.lifecycleScope)
-
         messageComposerViewModel.onEach(MessageComposerViewState::sendMode, MessageComposerViewState::canSendMessage) { mode, canSend ->
             if (!canSend.boolean()) {
                 return@onEach
             }
             when (mode) {
                 is SendMode.Regular -> renderRegularMode(mode.text.toString())
-                is SendMode.Edit -> renderSpecialMode(mode.timelineEvent, R.drawable.ic_edit, R.string.edit, mode.text.toString())
-                is SendMode.Quote -> renderSpecialMode(mode.timelineEvent, R.drawable.ic_quote, R.string.action_quote, mode.text.toString())
-                is SendMode.Reply -> renderSpecialMode(mode.timelineEvent, R.drawable.ic_reply, R.string.reply, mode.text.toString())
+                is SendMode.Edit -> renderSpecialMode(MessageComposerMode.Edit(mode.timelineEvent, mode.text.toString()))
+                is SendMode.Quote -> renderSpecialMode(MessageComposerMode.Quote(mode.timelineEvent, mode.text.toString()))
+                is SendMode.Reply -> renderSpecialMode(MessageComposerMode.Reply(mode.timelineEvent, mode.text.toString()))
                 is SendMode.Voice -> renderVoiceMessageMode(mode.text)
             }
         }
@@ -250,6 +217,14 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
                 .filterIsInstance<AttachmentTypeSelectorSharedAction.SelectAttachmentTypeAction>()
                 .onEach { onTypeSelected(it.attachmentType) }
                 .launchIn(lifecycleScope)
+
+        messageComposerViewModel.stateFlow.map { it.isFullScreen }
+                .distinctUntilChanged()
+                .onEach { isFullScreen ->
+                    val state = if (isFullScreen) ExpandingBottomSheetBehavior.State.Expanded else ExpandingBottomSheetBehavior.State.Collapsed
+                    bottomSheetBehavior?.setState(state)
+                }
+                .launchIn(viewLifecycleOwner.lifecycleScope)
 
         if (savedInstanceState == null) {
             handleShareData()
@@ -289,9 +264,43 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
     ) { mainState, messageComposerState, attachmentState ->
         if (mainState.tombstoneEvent != null) return@withState
 
-        composer.setInvisible(!messageComposerState.isComposerVisible)
+        (composer as? View)?.isInvisible = !messageComposerState.isComposerVisible
         composer.sendButton.isInvisible = !messageComposerState.isSendButtonVisible
         (composer as? RichTextComposerLayout)?.isTextFormattingEnabled = attachmentState.isTextFormattingEnabled
+    }
+
+    private fun setupBottomSheet() {
+        val parentView = view?.parent as? View ?: return
+        bottomSheetBehavior = ExpandingBottomSheetBehavior.from(parentView)?.apply {
+            applyInsetsToContentViewWhenCollapsed = true
+            topOffset = 22
+            useScrimView = true
+            scrimViewTranslationZ = 8
+            minCollapsedHeight = {
+                (composer as? RichTextComposerLayout)?.estimateCollapsedHeight() ?: -1
+            }
+            isDraggable = false
+            callback = object : ExpandingBottomSheetBehavior.Callback {
+                override fun onStateChanged(state: ExpandingBottomSheetBehavior.State) {
+                    // Dragging is disabled while the composer is collapsed
+                    bottomSheetBehavior?.isDraggable = state != ExpandingBottomSheetBehavior.State.Collapsed
+
+                    val setFullScreen = when (state) {
+                        ExpandingBottomSheetBehavior.State.Collapsed -> false
+                        ExpandingBottomSheetBehavior.State.Expanded -> true
+                        else -> return
+                    }
+
+                    (composer as? RichTextComposerLayout)?.setFullScreen(setFullScreen)
+
+                    messageComposerViewModel.handle(MessageComposerAction.SetFullScreen(setFullScreen))
+                }
+
+                override fun onSlidePositionChanged(view: View, yPosition: Float) {
+                    (composer as? RichTextComposerLayout)?.notifyIsBeingDragged(yPosition)
+                }
+            }
+        }
     }
 
     private fun setupComposer() {
@@ -391,8 +400,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
             return
         }
         if (text.isNotBlank()) {
-            // We collapse ASAP, if not there will be a slight annoying delay
-            composer.collapse(true)
+            composer.renderComposerMode(MessageComposerMode.Normal(""), timelineViewModel)
             lockSendButton = true
             if (formattedText != null) {
                 messageComposerViewModel.handle(MessageComposerAction.SendMessage(text, formattedText, false))
@@ -420,77 +428,12 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
 
     private fun renderRegularMode(content: CharSequence) {
         autoCompleter.exitSpecialMode()
-        composer.collapse()
-        composer.setTextIfDifferent(content)
-        composer.sendButton.contentDescription = getString(R.string.action_send)
+        composer.renderComposerMode(MessageComposerMode.Normal(content), timelineViewModel)
     }
 
-    private fun getMemberNameColor(matrixItem: MatrixItem) = matrixItemColorProvider.getColor(
-            matrixItem,
-            withState(timelineViewModel) {
-                MatrixItemColorProvider.UserInRoomInformation(
-                        it.isDm(),
-                        it.isPublic(),
-                        it.powerLevelsHelper?.getUserPowerLevelValue(matrixItem.id)
-                )
-            }
-    )
-
-    private fun renderSpecialMode(
-            event: TimelineEvent,
-            @DrawableRes iconRes: Int,
-            @StringRes descriptionRes: Int,
-            defaultContent: CharSequence,
-    ) {
+    private fun renderSpecialMode(mode: MessageComposerMode.Special) {
         autoCompleter.enterSpecialMode()
-        // switch to expanded bar
-        composer.composerRelatedMessageTitle.apply {
-            text = event.senderInfo.disambiguatedDisplayName
-            setTextColor(getMemberNameColor(MatrixItem.UserItem(event.root.senderId ?: "@")))
-        }
-
-        val messageContent: MessageContent? = event.getVectorLastMessageContent()
-        val nonFormattedBody = when (messageContent) {
-            is MessageAudioContent -> getAudioContentBodyText(messageContent)
-            is MessagePollContent -> messageContent.getBestPollCreationInfo()?.question?.getBestQuestion()
-            is MessageBeaconInfoContent -> getString(R.string.live_location_description)
-            else -> messageContent?.body.orEmpty()
-        }
-        var formattedBody: CharSequence? = null
-        if (messageContent is MessageTextContent && messageContent.format == MessageFormat.FORMAT_MATRIX_HTML) {
-            val parser = Parser.builder().build()
-            val document = parser.parse(messageContent.formattedBody ?: messageContent.body)
-            formattedBody = eventHtmlRenderer.render(document, pillsPostProcessor)
-        }
-        composer.composerRelatedMessageContent.text = (formattedBody ?: nonFormattedBody)
-
-        // Image Event
-        val data = event.buildImageContentRendererData(dimensionConverter.dpToPx(66), generationVideoDownloadDecider.enableVideoDownloadForThumbnailGeneration())
-        val isImageVisible = if (data != null) {
-            imageContentRenderer.render(data, ImageContentRenderer.Mode.THUMBNAIL, composer.composerRelatedMessageImage)
-            true
-        } else {
-            imageContentRenderer.clear(composer.composerRelatedMessageImage)
-            false
-        }
-
-        composer.composerRelatedMessageImage.isVisible = isImageVisible
-
-        composer.replaceFormattedContent(defaultContent)
-
-        composer.composerRelatedMessageActionIcon.setImageDrawable(ContextCompat.getDrawable(requireContext(), iconRes))
-        composer.sendButton.contentDescription = getString(descriptionRes)
-
-        avatarRenderer.render(event.senderInfo.toMatrixItem(), composer.composerRelatedMessageAvatar)
-
-        composer.expand {
-            if (isAdded) {
-                // need to do it here also when not using quick reply
-                focusComposerAndShowKeyboard()
-                composer.composerRelatedMessageImage.isVisible = isImageVisible
-            }
-        }
-        focusComposerAndShowKeyboard()
+        composer.renderComposerMode(mode, timelineViewModel)
     }
 
     private fun observerUserTyping() {
@@ -513,7 +456,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
     }
 
     private fun focusComposerAndShowKeyboard() {
-        if (composer.isVisible) {
+        if ((composer as? View)?.isVisible == true) {
             composer.editText.showKeyboard(andRequestFocus = true)
         }
     }
@@ -529,7 +472,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
                 views.composerLayout.sendButton.isVisible = true
                 views.composerLayout.sendButton.animate().alpha(1f).setDuration(150).start()
             }
-        } else if (!event.isVisible) {
+        } else {
             composer.sendButton.isInvisible = true
         }
     }
@@ -537,15 +480,6 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
     private fun renderVoiceMessageMode(content: String) {
         ContentAttachmentData.fromJsonString(content)?.let { audioAttachmentData ->
             messageComposerViewModel.handle(MessageComposerAction.InitializeVoiceRecorder(audioAttachmentData))
-        }
-    }
-
-    private fun getAudioContentBodyText(messageContent: MessageAudioContent): String {
-        val formattedDuration = DateUtils.formatElapsedTime(((messageContent.audioInfo?.duration ?: 0) / 1000).toLong())
-        return if (messageContent.voiceMessageIndicator != null) {
-            getString(R.string.voice_message_reply_content, formattedDuration)
-        } else {
-            getString(R.string.audio_message_reply_content, messageContent.body, formattedDuration)
         }
     }
 
@@ -871,11 +805,6 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
 
         return displayName
     }
-
-    /**
-     * Returns the root thread event if we are in a thread room, otherwise returns null.
-     */
-    fun getRootThreadEventId(): String? = withState(timelineViewModel) { it.rootThreadEventId }
 
     /**
      * Returns true if the current room is a Thread room, false otherwise.

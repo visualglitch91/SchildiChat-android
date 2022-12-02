@@ -23,19 +23,22 @@ import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptData
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptsItem
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptsItem_
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayoutFactory
+import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.room.model.ReadReceipt
 import javax.inject.Inject
 
-class ReadReceiptsItemFactory @Inject constructor(private val avatarRenderer: AvatarRenderer,
-                                                  private val messageLayoutFactory: TimelineMessageLayoutFactory,
-                                                  private val localeProvider: LocaleProvider,
+class ReadReceiptsItemFactory @Inject constructor(
+        private val avatarRenderer: AvatarRenderer,
+        private val messageLayoutFactory: TimelineMessageLayoutFactory,
+        private val localeProvider: LocaleProvider,
+        private val session: Session
 ) {
 
     fun create(
             eventId: String,
             readReceipts: List<ReadReceipt>,
             callback: TimelineEventController.Callback?,
-            isFromThreadTimeLine: Boolean
+            isFromThreadTimeLine: Boolean,
     ): ReadReceiptsItem? {
         if (readReceipts.isEmpty()) {
             return null
@@ -45,13 +48,14 @@ class ReadReceiptsItemFactory @Inject constructor(private val avatarRenderer: Av
                     ReadReceiptData(it.roomMember.userId, it.roomMember.avatarUrl, it.roomMember.displayName, it.originServerTs)
                 }
                 .sortedByDescending { it.timestamp }
+        val threadReadReceiptsSupported = session.homeServerCapabilitiesService().getHomeServerCapabilities().canUseThreadReadReceiptsAndNotifications
         return ReadReceiptsItem_()
                 .id("read_receipts_$eventId")
                 .eventId(eventId)
                 .readReceipts(readReceiptsData)
                 .messageLayout(messageLayoutFactory.createDummy())
                 .avatarRenderer(avatarRenderer)
-                .shouldHideReadReceipts(isFromThreadTimeLine)
+                .shouldHideReadReceipts(isFromThreadTimeLine && !threadReadReceiptsSupported)
                 .clickListener {
                     callback?.onReadReceiptsClicked(readReceiptsData)
                 }

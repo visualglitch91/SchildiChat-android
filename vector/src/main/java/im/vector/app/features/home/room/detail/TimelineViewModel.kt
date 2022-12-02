@@ -278,7 +278,7 @@ class TimelineViewModel @AssistedInject constructor(
                     tryOrNullAnon { room.readService().setMarkedUnread(false) }
                 }
             } else {
-                tryOrNullAnon { room.readService().markAsRead(ReadService.MarkAsReadParams.READ_RECEIPT) }
+                tryOrNullAnon { room.readService().markAsRead(ReadService.MarkAsReadParams.READ_RECEIPT, mainTimeLineOnly = true) }
             }
         }
         // Inform the SDK that the room is displayed
@@ -831,7 +831,8 @@ class TimelineViewModel @AssistedInject constructor(
                     rmDimber.i{"set RM and RR to $it"}
                     tryOrNullAnon { room.readService().setReadMarker(it) }
                     //if (loadRoomAtFirstUnread()) {
-                        tryOrNullAnon { room.readService().setReadReceipt(it) }
+                        val threadId = initialState.rootThreadEventId ?: ReadService.THREAD_ID_MAIN
+                        tryOrNullAnon { room.readService().setReadReceipt(it, threadId) }
                     //}
                 }
             }
@@ -1208,7 +1209,8 @@ class TimelineViewModel @AssistedInject constructor(
                     }
                     bufferedMostRecentDisplayedEvent.root.eventId?.let { eventId ->
                         session.coroutineScope.launch {
-                            tryOrNullAnon { room.readService().setReadReceipt(eventId) }
+                            val threadId = initialState.rootThreadEventId ?: ReadService.THREAD_ID_MAIN
+                            tryOrNullAnon { room.readService().setReadReceipt(eventId, threadId = threadId) }
                         }
                     }
                 }
@@ -1226,7 +1228,7 @@ class TimelineViewModel @AssistedInject constructor(
         if (room == null) return
         setState { copy(unreadState = UnreadState.HasNoUnread) }
         viewModelScope.launch {
-            tryOrNullAnon(action.forceIfOpenedAnonymously) { room.readService().markAsRead(ReadService.MarkAsReadParams.BOTH) }
+            tryOrNullAnon(action.forceIfOpenedAnonymously) { room.readService().markAsRead(ReadService.MarkAsReadParams.BOTH, mainTimeLineOnly = true) }
         }
     }
 

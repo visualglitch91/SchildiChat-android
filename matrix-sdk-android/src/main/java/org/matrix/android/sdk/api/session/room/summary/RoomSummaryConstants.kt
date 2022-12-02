@@ -33,7 +33,9 @@ object RoomSummaryConstants {
             EventType.ENCRYPTED,
             EventType.STICKER,
             EventType.REACTION,
-    ) + EventType.POLL_START + EventType.STATE_ROOM_BEACON_INFO
+    ) +
+            EventType.POLL_START.values +
+            EventType.STATE_ROOM_BEACON_INFO.values
 
     // SC addition | this is the Element behaviour previous to Element v1.0.7
     val PREVIEWABLE_TYPES_ALL = listOf(
@@ -53,7 +55,9 @@ object RoomSummaryConstants {
                 EventType.STICKER,
                 EventType.REACTION,
                 EventType.STATE_ROOM_CREATE
-    ) + EventType.POLL_START + EventType.STATE_ROOM_BEACON_INFO
+    ) +
+            EventType.POLL_START.values +
+            EventType.STATE_ROOM_BEACON_INFO.values
 
     // SC addition | no reactions in here
     val PREVIEWABLE_ORIGINAL_CONTENT_TYPES = listOf(
@@ -64,5 +68,7 @@ object RoomSummaryConstants {
                 EventType.CALL_ANSWER,
                 EventType.ENCRYPTED,
                 EventType.STICKER
-    ) + EventType.POLL_START + EventType.STATE_ROOM_BEACON_INFO
+    ) +
+            EventType.POLL_START.values +
+            EventType.STATE_ROOM_BEACON_INFO.values
 }

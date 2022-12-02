@@ -46,6 +46,7 @@ import im.vector.app.features.home.room.detail.timeline.helper.MessageInformatio
 import im.vector.app.features.home.room.detail.timeline.helper.MessageItemAttributesFactory
 import im.vector.app.features.home.room.detail.timeline.helper.TimelineMediaSizeProvider
 import im.vector.app.features.home.room.detail.timeline.item.AbsMessageItem
+import im.vector.app.features.home.room.detail.timeline.item.BaseEventItem
 import im.vector.app.features.home.room.detail.timeline.item.MessageAudioItem
 import im.vector.app.features.home.room.detail.timeline.item.MessageAudioItem_
 import im.vector.app.features.home.room.detail.timeline.item.MessageFileItem
@@ -66,6 +67,7 @@ import im.vector.app.features.home.room.detail.timeline.item.RedactedMessageItem
 import im.vector.app.features.home.room.detail.timeline.item.VerificationRequestItem
 import im.vector.app.features.home.room.detail.timeline.item.VerificationRequestItem_
 import im.vector.app.features.home.room.detail.timeline.render.EventTextRenderer
+import im.vector.app.features.home.room.detail.timeline.render.ProcessBodyOfReplyToEventUseCase
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.home.room.detail.timeline.tools.createLinkMovementMethod
 import im.vector.app.features.home.room.detail.timeline.tools.linkify
@@ -112,6 +114,7 @@ import org.matrix.android.sdk.api.session.room.model.message.getCaption
 import org.matrix.android.sdk.api.session.room.model.message.getFileName
 import org.matrix.android.sdk.api.session.room.model.message.getFileUrl
 import org.matrix.android.sdk.api.session.room.model.message.getThumbnailUrl
+import org.matrix.android.sdk.api.session.room.model.relation.ReplyToContent
 import org.matrix.android.sdk.api.settings.LightweightSettingsStorage
 import org.matrix.android.sdk.api.util.MimeTypes
 import timber.log.Timber
@@ -146,6 +149,7 @@ class MessageItemFactory @Inject constructor(
         private val liveLocationShareMessageItemFactory: LiveLocationShareMessageItemFactory,
         private val pollItemViewStateFactory: PollItemViewStateFactory,
         private val voiceBroadcastItemFactory: VoiceBroadcastItemFactory,
+        private val processBodyOfReplyToEventUseCase: ProcessBodyOfReplyToEventUseCase,
 ) {
 
     // TODO inject this properly?
@@ -207,7 +211,7 @@ class MessageItemFactory @Inject constructor(
             is MessageVerificationRequestContent -> buildVerificationRequestMessageItem(messageContent, informationData, highlight, callback, attributes)
             is MessagePollContent -> buildPollItem(messageContent, informationData, highlight, callback, attributes)
             is MessageLocationContent -> buildLocationItem(messageContent, informationData, highlight, callback, attributes)
-            is MessageBeaconInfoContent -> liveLocationShareMessageItemFactory.create(params.event, highlight, attributes)
+            is MessageBeaconInfoContent -> liveLocationShareMessageItemFactory.create(event, highlight, attributes)
             is MessageVoiceBroadcastInfoContent -> voiceBroadcastItemFactory.create(params, messageContent, highlight, attributes)
             else -> buildNotHandledMessageItem(messageContent, informationData, highlight, callback, attributes)
         }
@@ -341,9 +345,11 @@ class MessageItemFactory @Inject constructor(
             highlight: Boolean,
             callback: TimelineEventController.Callback?,
             attributes: AbsMessageItem.Attributes
-    ): MessageVoiceItem? {
+    ): BaseEventItem<*>? {
         // Do not display voice broadcast messages
-        if (params.event.root.asMessageAudioEvent().isVoiceBroadcast()) return null
+        if (params.event.root.asMessageAudioEvent().isVoiceBroadcast()) {
+            return noticeItemFactory.create(params)
+        }
 
         val fileUrl = getAudioFileUrl(messageContent, informationData)
         val playbackControlButtonClickListener = createOnPlaybackButtonClickListener(messageContent, informationData, params)
@@ -466,7 +472,14 @@ class MessageItemFactory @Inject constructor(
             attributes: AbsMessageItem.Attributes
     ): MessageTextItem? {
         // For compatibility reason we should display the body
-        return buildMessageTextItem(messageContent.body, false, informationData, highlight, callback, attributes)
+        return buildMessageTextItem(
+                messageContent.body,
+                false,
+                informationData,
+                highlight,
+                callback,
+                attributes,
+        )
     }
 
     private fun buildImageMessageItem(
@@ -582,7 +595,8 @@ class MessageItemFactory @Inject constructor(
     ): VectorEpoxyModel<*>? {
         val matrixFormattedBody = messageContent.matrixFormattedBody
         return if (matrixFormattedBody != null) {
-            buildFormattedTextItem(matrixFormattedBody, informationData, highlight, callback, attributes)
+            val replyToContent = messageContent.relatesTo?.inReplyTo
+            buildFormattedTextItem(matrixFormattedBody, informationData, highlight, callback, attributes, replyToContent)
         } else {
             buildMessageTextItem(messageContent.body, false, informationData, highlight, callback, attributes)
         }
@@ -594,11 +608,23 @@ class MessageItemFactory @Inject constructor(
             highlight: Boolean,
             callback: TimelineEventController.Callback?,
             attributes: AbsMessageItem.Attributes,
+            replyToContent: ReplyToContent?,
     ): MessageTextItem? {
-        val compressed = htmlCompressor.compress(matrixFormattedBody)
+        val processedBody = replyToContent
+                ?.let { processBodyOfReplyToEventUseCase.execute(roomId, matrixFormattedBody, it) }
+                ?: matrixFormattedBody
+        val compressed = htmlCompressor.compress(processedBody)
         val renderedFormattedBody = htmlRenderer.get().render(compressed, pillsPostProcessor) as Spanned
         val pseudoEmojiBody = htmlRenderer.get().render(customToPseudoEmoji(compressed), pillsPostProcessor) as Spanned
-        return buildMessageTextItem(renderedFormattedBody, true, informationData, highlight, callback, attributes, pseudoEmojiBody)
+        return buildMessageTextItem(
+                renderedFormattedBody,
+                true,
+                informationData,
+                highlight,
+                callback,
+                attributes,
+                pseudoEmojiBody,
+        )
     }
 
     private fun buildMessageTextItem(

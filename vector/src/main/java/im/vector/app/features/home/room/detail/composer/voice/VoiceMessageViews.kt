@@ -150,7 +150,8 @@ class VoiceMessageViews(
 
     fun showRecordingViews() {
         views.voiceMessageMicButton.isVisible = true
-        views.voiceMessageMicButton.setImageResource(R.drawable.ic_voice_mic_recording)
+        views.voiceMessageBackgroundView.isVisible = true
+        views.voiceMessageMicButton.setImageResource(R.drawable.ic_composer_rich_mic_pressed)
         views.voiceMessageMicButton.setAttributeTintedBackground(R.drawable.circle_with_halo, R.attr.colorPrimary)
         /* This is a no-op for SchildiChat
         views.voiceMessageMicButton.updateLayoutParams<ViewGroup.MarginLayoutParams> {
@@ -177,6 +178,7 @@ class VoiceMessageViews(
 
     fun hideRecordingViews(recordingState: RecordingUiState) {
         // We need to animate the lock image first
+        views.voiceMessageBackgroundView.isVisible = false
         if (recordingState !is RecordingUiState.Locked) {
             views.voiceMessageLockImage.isVisible = false
             views.voiceMessageLockImage.animate().translationY(0f).start()
@@ -288,6 +290,7 @@ class VoiceMessageViews(
 
     fun showDraftViews() {
         hideRecordingViews(RecordingUiState.Idle)
+        views.voiceMessageBackgroundView.isVisible = true
         views.voiceMessageMicButton.isVisible = false
         views.voiceMessageSendButton.isVisible = true
         views.voiceMessagePlaybackLayout.isVisible = true
@@ -298,6 +301,7 @@ class VoiceMessageViews(
 
     fun showRecordingLockedViews(recordingState: RecordingUiState) {
         hideRecordingViews(recordingState)
+        views.voiceMessageBackgroundView.isVisible = true
         views.voiceMessagePlaybackLayout.isVisible = true
         views.voiceMessagePlaybackTimerIndicator.isVisible = true
         views.voicePlaybackControlButton.isVisible = false
