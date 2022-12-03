@@ -158,7 +158,8 @@ class MessageComposerViewModel @AssistedInject constructor(
     }
 
     private fun handleEnterRegularMode(action: MessageComposerAction.EnterRegularMode) = setState {
-        copy(sendMode = SendMode.Regular(currentComposerText, action.fromSharing))
+        val newText = if (sendMode is SendMode.Edit) "" else currentComposerText
+        copy(sendMode = SendMode.Regular(newText, action.fromSharing))
     }
 
     private fun handleEnterEditMode(action: MessageComposerAction.EnterEditMode) {
