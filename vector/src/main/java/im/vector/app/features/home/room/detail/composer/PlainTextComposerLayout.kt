@@ -35,7 +35,7 @@ import im.vector.app.core.extensions.getVectorLastMessageContent
 import im.vector.app.core.extensions.setTextIfDifferent
 import im.vector.app.core.extensions.showKeyboard
 import im.vector.app.core.utils.DimensionConverter
-import im.vector.app.databinding.ComposerLayoutBinding
+import im.vector.app.databinding.ComposerLayoutScBinding
 import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.TimelineViewModel
 import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
@@ -71,7 +71,7 @@ class PlainTextComposerLayout @JvmOverloads constructor(
     @Inject lateinit var imageContentRenderer: ImageContentRenderer
     @Inject lateinit var pillsPostProcessorFactory: PillsPostProcessor.Factory
 
-    private val views: ComposerLayoutBinding
+    private val views: ComposerLayoutScBinding
 
     override var callback: Callback? = null
 
@@ -94,8 +94,8 @@ class PlainTextComposerLayout @JvmOverloads constructor(
         get() = views.attachmentButton
 
     init {
-        inflate(context, R.layout.composer_layout, this)
-        views = ComposerLayoutBinding.bind(this)
+        inflate(context, R.layout.composer_layout_sc, this)
+        views = ComposerLayoutScBinding.bind(this)
 
         views.composerEditText.maxLines = MessageComposerView.MAX_LINES_WHEN_COLLAPSED
 
@@ -129,19 +129,22 @@ class PlainTextComposerLayout @JvmOverloads constructor(
         views.relatedMessageGroup.isVisible = false
         transitionComplete?.invoke()
         callback?.onExpandOrCompactChange()
+
+        views.attachmentButton.isVisible = true
     }
 
     private fun expand(transitionComplete: (() -> Unit)? = null) {
         views.relatedMessageGroup.isVisible = true
         transitionComplete?.invoke()
         callback?.onExpandOrCompactChange()
+
+        views.attachmentButton.isVisible = false
     }
 
     override fun setTextIfDifferent(text: CharSequence?): Boolean {
         return views.composerEditText.setTextIfDifferent(text)
     }
 
-    // SC-TODO maybe just some interface instead of timelineViewModel
     override fun renderComposerMode(mode: MessageComposerMode, timelineViewModel: TimelineViewModel?) {
         val specialMode = mode as? MessageComposerMode.Special
         if (specialMode != null) {
@@ -154,10 +157,10 @@ class PlainTextComposerLayout @JvmOverloads constructor(
         views.sendButton.apply {
             if (mode is MessageComposerMode.Edit) {
                 contentDescription = resources.getString(R.string.action_save)
-                setImageResource(R.drawable.ic_composer_rich_text_save)
+                setImageResource(R.drawable.ic_check_on)
             } else {
                 contentDescription = resources.getString(R.string.action_send)
-                setImageResource(R.drawable.ic_rich_composer_send)
+                setImageResource(R.drawable.ic_send)
             }
         }
     }
