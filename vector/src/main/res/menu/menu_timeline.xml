@@ -141,6 +141,27 @@
     </item>
 
     <item
+        android:id="@+id/dev_composer_features"
+        android:title="@string/settings_category_composer"
+        android:visible="false"
+        tools:visible="true"
+        app:showAsAction="never">
+        <menu>
+            <group android:checkableBehavior="all">
+                <item
+                    android:id="@+id/dev_composer_voice_message_button"
+                    android:title="@string/settings_show_voice_message_recorder_ui" />
+                <item
+                    android:id="@+id/dev_composer_emoji_button"
+                    android:title="@string/settings_show_emoji_keyboard" />
+                <item
+                    android:id="@+id/dev_composer_rich"
+                    android:title="@string/labs_enable_rich_text_editor_title" />
+            </group>
+        </menu>
+    </item>
+
+    <item
         android:id="@+id/dev_hidden_events"
         android:title="@string/dev_tools_menu_hidden_events"
         android:visible="false"

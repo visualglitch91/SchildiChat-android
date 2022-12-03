@@ -48,6 +48,7 @@ import androidx.core.view.forEach
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.core.view.postDelayed
 import androidx.core.view.updatePadding
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
@@ -920,6 +921,11 @@ class TimelineFragment :
         menu.findItem(R.id.dev_display_name_changes).isChecked = vectorPreferences.showAvatarDisplayNameChangeMessages()
         menu.findItem(R.id.dev_redacted).isChecked = vectorPreferences.showRedactedMessages()
 
+        // Composer features
+        menu.findItem(R.id.dev_composer_voice_message_button).isChecked = vectorPreferences.useVoiceMessage()
+        menu.findItem(R.id.dev_composer_emoji_button).isChecked = vectorPreferences.showEmojiKeyboard()
+        menu.findItem(R.id.dev_composer_rich).isChecked = vectorPreferences.isRichTextEditorEnabled()
+
         // Bubble style
         ArrayOptionsMenuHelper.createSubmenu(
                 resources,
@@ -1015,36 +1021,39 @@ class TimelineFragment :
                 timelineViewModel.handle(RoomDetailAction.MarkAllAsRead(forceIfOpenedAnonymously = true))
                 true
             }
-            R.id.dev_hidden_events -> {
-                item.toggleExec { shouldShow ->
-                    vectorPreferences.setShouldShowHiddenEvents(shouldShow)
-                    reloadTimeline()
-                    true
-                }
+            R.id.dev_hidden_events -> item.toggleExec { shouldShow ->
+                vectorPreferences.setShouldShowHiddenEvents(shouldShow)
+                reloadTimeline()
                 true
             }
-            R.id.dev_membership_changes -> {
-                item.toggleExec { shouldShow ->
-                    vectorPreferences.setShowJoinLeaveMessages(shouldShow)
-                    reloadTimeline()
-                    true
-                }
+            R.id.dev_membership_changes -> item.toggleExec { shouldShow ->
+                vectorPreferences.setShowJoinLeaveMessages(shouldShow)
+                reloadTimeline()
                 true
             }
-            R.id.dev_display_name_changes -> {
-                item.toggleExec { shouldShow ->
-                    vectorPreferences.setShowAvatarDisplayNameChangeMessages(shouldShow)
-                    reloadTimeline()
-                    true
-                }
+            R.id.dev_display_name_changes -> item.toggleExec { shouldShow ->
+                vectorPreferences.setShowAvatarDisplayNameChangeMessages(shouldShow)
+                reloadTimeline()
                 true
             }
-            R.id.dev_redacted -> {
-                item.toggleExec { shouldShow ->
-                    vectorPreferences.setShowRedactedMessages(shouldShow)
-                    reloadTimeline()
-                    true
-                }
+            R.id.dev_redacted -> item.toggleExec { shouldShow ->
+                vectorPreferences.setShowRedactedMessages(shouldShow)
+                reloadTimeline()
+                true
+            }
+            R.id.dev_composer_voice_message_button -> item.toggleExec { enabled ->
+                vectorPreferences.setVoiceMessageButtonEnabled(enabled)
+                requireActivity().restart()
+                true
+            }
+            R.id.dev_composer_emoji_button -> item.toggleExec { enabled ->
+                vectorPreferences.setEmojiButtonEnabled(enabled)
+                requireActivity().restart()
+                true
+            }
+            R.id.dev_composer_rich -> item.toggleExec { enabled ->
+                vectorPreferences.setRichEditorEnabled(enabled)
+                requireActivity().restart()
                 true
             }
             R.id.menu_timeline_thread_list -> {

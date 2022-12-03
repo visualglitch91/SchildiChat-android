@@ -1241,7 +1241,7 @@ class VectorPreferences @Inject constructor(
                 .putBoolean(SETTINGS_OPEN_CHATS_AT_FIRST_UNREAD, true)
                 .putBoolean(SETTINGS_ALLOW_URL_PREVIEW_IN_ENCRYPTED_ROOM_KEY, true)
                 .putBoolean(SETTINGS_LABS_ALLOW_MARK_UNREAD, true)
-                .putBoolean(SETTINGS_LABS_ENABLE_SWIPE_TO_REPLY, false)
+                //.putBoolean(SETTINGS_LABS_ENABLE_SWIPE_TO_REPLY, false)
                 .putBoolean(SETTINGS_VOICE_MESSAGE, false)
                 .putBoolean(SETTINGS_USE_RAGE_SHAKE_KEY, true)
                 .putBoolean(SETTINGS_AGGREGATE_UNREAD_COUNTS, false)
@@ -1252,6 +1252,11 @@ class VectorPreferences @Inject constructor(
                 .putBoolean(SETTINGS_FOLLOW_SYSTEM_LOCALE, true)
                 .apply()
     }
+
+    // Some more quick settings
+    fun setVoiceMessageButtonEnabled(enabled: Boolean) = defaultPrefs.edit(commit = true) { putBoolean(SETTINGS_VOICE_MESSAGE, enabled) }
+    fun setEmojiButtonEnabled(enabled: Boolean) = defaultPrefs.edit(commit = true) { putBoolean(SETTINGS_SHOW_EMOJI_KEYBOARD, enabled) }
+    fun setRichEditorEnabled(enabled: Boolean) = defaultPrefs.edit(commit = true) { putBoolean(SETTINGS_LABS_RICH_TEXT_EDITOR_KEY, enabled) }
 
     /** Whether the keyboard should disable personalized learning. */
     fun useIncognitoKeyboard(): Boolean {

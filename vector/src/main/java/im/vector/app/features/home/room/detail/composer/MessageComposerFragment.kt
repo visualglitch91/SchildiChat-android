@@ -136,6 +136,10 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
         GlideApp.with(this)
     }
 
+    private val isRichTextEditorEnabled: Boolean by lazy {
+        vectorPreferences.isRichTextEditorEnabled()
+    }
+
     private val isEmojiKeyboardVisible: Boolean
         get() = vectorPreferences.showEmojiKeyboard()
 
@@ -152,7 +156,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
     private val attachmentActionsViewModel: AttachmentTypeSelectorSharedActionViewModel by viewModels()
 
     private val composer: MessageComposerView get() {
-        return if (vectorPreferences.isRichTextEditorEnabled()) {
+        return if (isRichTextEditorEnabled) {
             views.richTextComposerLayout
         } else {
             views.composerLayout
@@ -174,8 +178,8 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
         setupComposer()
         setupEmojiButton()
 
-        views.composerLayout.isGone = vectorPreferences.isRichTextEditorEnabled()
-        views.richTextComposerLayout.isVisible = vectorPreferences.isRichTextEditorEnabled()
+        views.composerLayout.isGone = isRichTextEditorEnabled
+        views.richTextComposerLayout.isVisible = isRichTextEditorEnabled
 
         messageComposerViewModel.observeViewEvents {
             when (it) {
@@ -253,7 +257,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
     override fun onDestroyView() {
         super.onDestroyView()
 
-        if (!vectorPreferences.isRichTextEditorEnabled()) {
+        if (!isRichTextEditorEnabled) {
             autoCompleter.clear()
         }
         messageComposerViewModel.endAllVoiceActions()
@@ -307,7 +311,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
         val composerEditText = composer.editText
         composerEditText.setHint(R.string.room_message_placeholder)
 
-        if (!vectorPreferences.isRichTextEditorEnabled()) {
+        if (!isRichTextEditorEnabled) {
             autoCompleter.setup(composerEditText)
         }
 
@@ -343,7 +347,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
         }
         composer.callback = object : Callback {
             override fun onAddAttachment() {
-                if (vectorPreferences.isRichTextEditorEnabled()) {
+                if (isRichTextEditorEnabled) {
                     AttachmentTypeSelectorBottomSheet.show(childFragmentManager)
                 } else {
                     if (!::attachmentTypeSelector.isInitialized) {

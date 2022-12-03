@@ -942,6 +942,7 @@ class TimelineViewModel @AssistedInject constructor(
                     R.id.dev_bubble_style,
                     R.id.dev_hidden_events,
                     R.id.dev_event_visibilities,
+                    R.id.dev_composer_features,
                     R.id.dev_theming,
                     // SC dev end
                     R.id.dev_tools -> vectorPreferences.developerMode()
