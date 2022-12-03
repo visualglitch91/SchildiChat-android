@@ -1,4 +1,5 @@
 #!/bin/bash
+# note: this requires inkscape to be on the path, for svg -> png conversions
 
 mydir="$(dirname "$(realpath "$0")")"
 
@@ -43,10 +44,20 @@ file="$mydir/ic_launcher_sc.svg"
 export_files
 
 
+
 dpi=48 # 96/2
 file="$mydir/ic_launcher_foreground_sc.svg"
 export_files
 
+
+## As this is just for API > 33, we don't need to export to png mipmaps, we can just directly use the drawable
+# note that the monochrome svgs are also in this directory and could be directly converted to png mipmaps in the same
+# way as ic_launcher_foreground_sc.svg above, but we're sticking with manually imported svg -> xml drawables
+# for now to ensure high fidelity and sidestep issues with reproducibility of icon generation
+monochrome_file_name="ic_launcher_monochrome_sc.xml"
+monochrome_input_file="$mydir/$monochrome_file_name"
+monochrome_output_dir="$mydir/../vector-app/src/main/res/drawable-anydpi-v26"
+cp "$monochrome_input_file" "$monochrome_output_dir/$monochrome_file_name"
 
 inkscape "$mydir/feature_image.svg" --export-filename="$mydir/../fastlane/metadata/android/en-US/images/featureGraphic.png" -C --export-dpi=96
 inkscape "$mydir/store_icon.svg" --export-filename="$mydir/../fastlane/metadata/android/en-US/images/icon.png" -C --export-dpi=96
