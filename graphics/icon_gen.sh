@@ -50,7 +50,10 @@ file="$mydir/ic_launcher_foreground_sc.svg"
 export_files
 
 
-# As this is just for API > 33, we don't need to export to png mipmaps, we can just directly use the drawable
+## As this is just for API > 33, we don't need to export to png mipmaps, we can just directly use the drawable
+# note that the monochrome svgs are also in this directory and could be directly converted to png mipmaps in the same
+# way as ic_launcher_foreground_sc.svg above, but we're sticking with manually imported svg -> xml drawables
+# for now to ensure high fidelity and sidestep issues with reproducibility of icon generation
 monochrome_file_name="ic_launcher_monochrome_sc.xml"
 monochrome_input_file="$mydir/$monochrome_file_name"
 monochrome_output_dir="$mydir/../vector-app/src/main/res/drawable-anydpi-v26"
