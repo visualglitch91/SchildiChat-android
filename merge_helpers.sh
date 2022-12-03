@@ -99,8 +99,8 @@ upstream_previous_tag() {
 downstream_latest_tag() {
     local commit="HEAD"
     while true; do
-        local tag=`git describe --abbrev=0 "$commit" --tags`
-        if [[ "$tag" =~ "sc_v" ]]; then
+        local tag=`git tag --points-at "$commit" | grep "^sc_v" | head -n 1`
+        if [ ! -z "$tag" ]; then
             echo "$tag"
             break
         else
