@@ -18,7 +18,6 @@
 package im.vector.app.features.home.room.detail.timeline.reply
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.text.SpannableString
@@ -33,7 +32,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.text.PrecomputedTextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.TextViewCompat
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import im.vector.app.R
 import im.vector.app.core.extensions.setTextOrHide
 import im.vector.app.core.extensions.tintBackground
@@ -58,6 +56,7 @@ import org.matrix.android.sdk.api.session.room.model.message.getThumbnailUrl
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.getLastMessageContent
 import timber.log.Timber
+import kotlin.math.roundToInt
 
 /**
  * A View to render a replied-to event
@@ -330,6 +329,7 @@ class InReplyToView @JvmOverloads constructor(
     private fun renderFadeOut(informationData: MessageInformationData?) {
         if (informationData != null) {
             views.expandableReplyView.setExpanded(false)
+            val chatBgColor = ThemeUtils.getColor(context, android.R.attr.colorBackground)
             val bgColor = when (val layout = informationData.messageLayout) {
                 is TimelineMessageLayout.ScBubble -> {
                     if (informationData.sentByMe && !layout.singleSidedLayout) {
@@ -350,9 +350,26 @@ class InReplyToView @JvmOverloads constructor(
                     ThemeUtils.getColor(context, R.attr.vctr_system)
                 }
             }
-            views.expandableReplyView.getChildAt(1).tintBackground(bgColor)
+            val fadeView = views.expandableReplyView.getChildAt(1)
+            // In case of transparent bubbles, we need to cheat a bit with the fade effect
+            fadeView.tintBackground(calculateEffectiveColor(bgColor, chatBgColor))
         } else {
             views.expandableReplyView.setExpanded(true)
         }
+    }
+
+    /**
+     * In case of transparent bubbles, we need to calculate the effective color before applying the fade effect...
+     */
+    private fun calculateEffectiveColor(fg: Int, bg: Int): Int {
+        val fgAlpha = Color.alpha(fg)
+        if (fgAlpha == 0xff) {
+            return fg
+        }
+        val opacity = fgAlpha / (0xff).toFloat()
+        val r = (Color.red(bg) * (1 - opacity) + Color.red(fg) * opacity).roundToInt()
+        val g = (Color.green(bg) * (1 - opacity) + Color.green(fg) * opacity).roundToInt()
+        val b = (Color.blue(bg) * (1 - opacity) + Color.blue(fg) * opacity).roundToInt()
+        return Color.rgb(r, g, b)
     }
 }
