@@ -32,15 +32,6 @@
             app:layout_constraintStart_toStartOf="@id/related_message_background"
             app:layout_constraintTop_toTopOf="@id/related_message_background" />
 
-        <View
-            android:id="@+id/related_message_background_bottom_separator"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="?vctr_list_separator"
-            app:layout_constraintBottom_toBottomOf="@id/related_message_background"
-            app:layout_constraintEnd_toEndOf="@id/related_message_background"
-            app:layout_constraintStart_toStartOf="@+id/related_message_background" />
-
         <ImageView
             android:id="@+id/composerRelatedMessageAvatar"
             android:layout_width="40dp"
@@ -138,6 +129,15 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <View
+            android:id="@+id/composer_top_separator"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="?vctr_list_separator"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
 
         <ImageButton
             android:id="@+id/composerEmojiButton"
