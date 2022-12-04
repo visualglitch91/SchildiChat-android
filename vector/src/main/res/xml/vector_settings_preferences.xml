@@ -273,6 +273,12 @@
             app:isPreferenceVisible="@bool/false_not_implemented" />
 
         <im.vector.app.core.preference.VectorSwitchPreference
+            android:key="SETTINGS_ENABLE_MEMBER_NAME_CLICK"
+            android:title="@string/settings_enable_member_name_click"
+            android:summary="@string/settings_enable_member_name_click_summary"
+            android:defaultValue="true" />
+
+        <im.vector.app.core.preference.VectorSwitchPreference
             android:key="SETTINGS_FLOATING_DATE"
             android:title="@string/settings_floating_date"
             android:summary="@string/settings_floating_date_summary"

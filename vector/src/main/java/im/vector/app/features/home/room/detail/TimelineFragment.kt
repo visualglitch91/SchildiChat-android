@@ -1881,7 +1881,9 @@ class TimelineFragment :
     }
 
     override fun onMemberNameClicked(informationData: MessageInformationData) {
-        messageComposerViewModel.handle(MessageComposerAction.InsertUserDisplayName(informationData.senderId))
+        if (vectorPreferences.enableMemberNameClick()) {
+            messageComposerViewModel.handle(MessageComposerAction.InsertUserDisplayName(informationData.senderId))
+        }
     }
 
     override fun onClickOnReactionPill(informationData: MessageInformationData, reaction: String, on: Boolean) {

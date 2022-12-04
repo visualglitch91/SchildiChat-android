@@ -259,6 +259,7 @@ class VectorPreferences @Inject constructor(
         const val SETTINGS_FORCE_ALLOW_BACKGROUND_SYNC = "SETTINGS_FORCE_ALLOW_BACKGROUND_SYNC"
         const val SETTINGS_ROOM_SORT_ORDER_NULL = "SETTINGS_ROOM_SORT_ORDER_NULL"
         const val SETTINGS_ROOM_SORT_ORDER_NON_NULL = "SETTINGS_ROOM_SORT_ORDER_NON_NULL"
+        private const val SETTINGS_ENABLE_MEMBER_NAME_CLICK = "SETTINGS_ENABLE_MEMBER_NAME_CLICK"
 
         private const val DID_ASK_TO_ENABLE_SESSION_PUSH = "DID_ASK_TO_ENABLE_SESSION_PUSH"
 
@@ -1216,13 +1217,21 @@ class VectorPreferences @Inject constructor(
         return defaultPrefs.getBoolean(SETTINGS_SHOW_OPEN_ANONYMOUS, false)
     }
 
+    // SC addition
     fun floatingDate(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_FLOATING_DATE, true)
     }
 
+    // SC addition
     fun spaceBackNavigation(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_SPACE_BACK_NAVIGATION, false)
     }
+
+    // SC addition
+    fun enableMemberNameClick(): Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_ENABLE_MEMBER_NAME_CLICK, true)
+    }
+
 
     /**
      * I likely do more fresh installs of the app than anyone else, so a shortcut to change some of the default settings to
@@ -1250,6 +1259,7 @@ class VectorPreferences @Inject constructor(
                 .putBoolean(SETTINGS_SHOW_OPEN_ANONYMOUS, true)
                 .putBoolean(SETTINGS_FLOATING_DATE, true)
                 .putBoolean(SETTINGS_FOLLOW_SYSTEM_LOCALE, true)
+                .putBoolean(SETTINGS_ENABLE_MEMBER_NAME_CLICK, false)
                 .apply()
     }
 
