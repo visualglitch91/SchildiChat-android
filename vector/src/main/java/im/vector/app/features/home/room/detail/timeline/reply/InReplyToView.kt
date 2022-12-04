@@ -33,7 +33,9 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.text.PrecomputedTextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.TextViewCompat
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import im.vector.app.R
+import im.vector.app.core.extensions.setTextOrHide
 import im.vector.app.core.extensions.tintBackground
 import im.vector.app.databinding.ViewInReplyToBinding
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
@@ -41,10 +43,18 @@ import im.vector.app.features.home.room.detail.timeline.item.BindingOptions
 import im.vector.app.features.home.room.detail.timeline.item.MessageInformationData
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.home.room.detail.timeline.tools.findPillsAndProcess
+import im.vector.app.features.media.ImageContentRenderer
 import im.vector.app.features.themes.ThemeUtils
 import kotlinx.coroutines.CoroutineScope
 import org.matrix.android.sdk.api.extensions.orFalse
+import org.matrix.android.sdk.api.session.crypto.attachments.toElementToDecrypt
+import org.matrix.android.sdk.api.session.room.model.message.MessageImageInfoContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageTextContent
+import org.matrix.android.sdk.api.session.room.model.message.MessageVideoContent
+import org.matrix.android.sdk.api.session.room.model.message.getCaption
+import org.matrix.android.sdk.api.session.room.model.message.getFileName
+import org.matrix.android.sdk.api.session.room.model.message.getFileUrl
+import org.matrix.android.sdk.api.session.room.model.message.getThumbnailUrl
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.getLastMessageContent
 import timber.log.Timber
@@ -68,6 +78,9 @@ class InReplyToView @JvmOverloads constructor(
 
     private var state: PreviewReplyUiState = PreviewReplyUiState.NoReply
 
+    private val maxThumbnailWidth = context.resources.getDimensionPixelSize(R.dimen.reply_thumbnail_max_width)
+    private val maxThumbnailHeight = context.resources.getDimensionPixelSize(R.dimen.reply_thumbnail_height)
+
     /**
      * This methods is responsible for rendering the view according to the newState
      *
@@ -79,7 +92,9 @@ class InReplyToView @JvmOverloads constructor(
                movementMethod: MovementMethod?,
                itemLongClickListener: OnLongClickListener?,
                coroutineScope: CoroutineScope,
-               force: Boolean = false) {
+               generateMissingVideoThumbnails: Boolean,
+               force: Boolean = false
+    ) {
         if (newState == state && !force) {
             return
         }
@@ -90,7 +105,14 @@ class InReplyToView @JvmOverloads constructor(
             PreviewReplyUiState.NoReply -> renderHidden()
             is PreviewReplyUiState.ReplyLoading -> renderLoading()
             is PreviewReplyUiState.Error -> renderError(newState)
-            is PreviewReplyUiState.InReplyTo -> renderReplyTo(newState, retriever, roomInformationData, movementMethod, coroutineScope)
+            is PreviewReplyUiState.InReplyTo -> renderReplyTo(
+                    newState,
+                    retriever,
+                    roomInformationData,
+                    movementMethod,
+                    coroutineScope,
+                    generateMissingVideoThumbnails
+            )
         }
 
         setOnLongClickListener(itemLongClickListener)
@@ -117,6 +139,7 @@ class InReplyToView @JvmOverloads constructor(
     private fun hideViews() {
         views.replyMemberNameView.isVisible = false
         views.replyTextView.isVisible = false
+        views.replyThumbnailView.isVisible = false
         renderFadeOut(null)
     }
 
@@ -154,7 +177,8 @@ class InReplyToView @JvmOverloads constructor(
             retriever: ReplyPreviewRetriever,
             roomInformationData: MessageInformationData,
             movementMethod: MovementMethod?,
-            coroutineScope: CoroutineScope
+            coroutineScope: CoroutineScope,
+            generateMissingVideoThumbnails: Boolean,
     ) {
         hideViews()
         isVisible = true
@@ -169,6 +193,8 @@ class InReplyToView @JvmOverloads constructor(
             renderFadeOut(roomInformationData)
             when (val content = state.event.getLastMessageContent()) {
                 is MessageTextContent -> renderTextContent(content, retriever, movementMethod, coroutineScope)
+                is MessageImageInfoContent -> renderImageThumbnailContent(content, state.event, retriever)
+                is MessageVideoContent -> renderVideoThumbnailContent(content, state.event, retriever, generateMissingVideoThumbnails)
                 else -> renderFallback(state.event, retriever)
             }
         }
@@ -219,6 +245,68 @@ class InReplyToView @JvmOverloads constructor(
         views.replyTextView.movementMethod = movementMethod
         views.replyTextView.setTextWithEmojiSupport(text, bindingOptions)
         markwonPlugins.forEach { plugin -> plugin.afterSetText(views.replyTextView) }
+    }
+
+    private fun renderImageThumbnailContent(
+            content: MessageImageInfoContent,
+            event: TimelineEvent,
+            retriever: ReplyPreviewRetriever,
+    ) {
+        val data = ImageContentRenderer.Data(
+                eventId = event.eventId,
+                filename = content.getFileName(),
+                caption = content.getCaption(),
+                mimeType = content.mimeType,
+                url = content.getFileUrl(),
+                elementToDecrypt = content.encryptedFileInfo?.toElementToDecrypt(),
+                height = content.info?.height,
+                maxHeight = maxThumbnailHeight,
+                width = content.info?.width,
+                maxWidth = maxThumbnailWidth,
+                allowNonMxcUrls = false
+        )
+
+        renderThumbnailContent(data, retriever)
+    }
+
+    private fun renderVideoThumbnailContent(
+            content: MessageVideoContent,
+            event: TimelineEvent,
+            retriever: ReplyPreviewRetriever,
+            generateMissingVideoThumbnails: Boolean,
+    ) {
+        val thumbnailData = ImageContentRenderer.Data(
+                eventId = event.eventId,
+                filename = content.getFileName(),
+                caption = content.getCaption(),
+                mimeType = content.mimeType,
+                url = content.videoInfo?.getThumbnailUrl(),
+                elementToDecrypt = content.videoInfo?.thumbnailFile?.toElementToDecrypt(),
+                height = content.videoInfo?.height,
+                maxHeight = maxThumbnailHeight,
+                width = content.videoInfo?.width,
+                maxWidth = maxThumbnailWidth,
+                allowNonMxcUrls = false,
+                // Video fallback for generating thumbnails
+                downloadFallbackIfThumbnailMissing = generateMissingVideoThumbnails,
+                fallbackUrl = content.getFileUrl(),
+                fallbackElementToDecrypt = content.encryptedFileInfo?.toElementToDecrypt()
+        )
+        renderThumbnailContent(thumbnailData, retriever)
+    }
+
+    private fun renderThumbnailContent(
+            mediaData: ImageContentRenderer.Data,
+            retriever: ReplyPreviewRetriever,
+    ) {
+        views.replyThumbnailView.isVisible = true
+        retriever.imageContentRenderer.render(
+                mediaData,
+                ImageContentRenderer.Mode.THUMBNAIL,
+                views.replyThumbnailView,
+                animate = false
+        )
+        views.replyTextView.setTextOrHide(mediaData.caption)
     }
 
     private fun renderFallback(event: TimelineEvent, retriever: ReplyPreviewRetriever) {

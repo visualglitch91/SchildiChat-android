@@ -19,7 +19,6 @@ package im.vector.app.features.home.room.detail.timeline.reply
 
 import im.vector.app.BuildConfig
 import im.vector.app.features.home.room.detail.timeline.MessageColorProvider
-import im.vector.app.features.home.room.detail.timeline.factory.TimelineItemFactory
 import im.vector.app.features.home.room.detail.timeline.format.DisplayableEventFormatter
 import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
 import im.vector.app.features.home.room.detail.timeline.item.MessageInformationData
@@ -28,6 +27,7 @@ import im.vector.app.features.html.EventHtmlRenderer
 import im.vector.app.features.html.PillsPostProcessor
 import im.vector.app.features.html.SpanUtils
 import im.vector.app.features.html.VectorHtmlCompressor
+import im.vector.app.features.media.ImageContentRenderer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,7 +42,6 @@ import org.matrix.android.sdk.api.session.room.powerlevels.PowerLevelsHelper
 import org.matrix.android.sdk.api.session.room.sender.SenderInfo
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.getLatestEventId
-import org.matrix.android.sdk.api.util.MatrixItem
 import org.matrix.android.sdk.api.util.toMatrixItem
 import timber.log.Timber
 import java.util.UUID
@@ -60,6 +59,7 @@ class ReplyPreviewRetriever(
         val htmlCompressor: VectorHtmlCompressor,
         val htmlRenderer: EventHtmlRenderer,
         val spanUtils: SpanUtils,
+        val imageContentRenderer: ImageContentRenderer,
 ) {
     private data class ReplyPreviewUiState(
             // Id of the latest event in the case of an edited event, or the eventId for an event which has not been edited

@@ -43,4 +43,7 @@
 
     <dimen name="file_icon_size">32dp</dimen>
 
+    <dimen name="reply_thumbnail_height">120dp</dimen>
+    <dimen name="reply_thumbnail_max_width">840dp</dimen>
+
 </resources>

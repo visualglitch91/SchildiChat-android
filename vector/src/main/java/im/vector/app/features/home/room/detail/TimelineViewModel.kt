@@ -70,6 +70,7 @@ import im.vector.app.features.html.SpanUtils
 import im.vector.app.features.html.VectorHtmlCompressor
 import im.vector.app.features.location.live.StopLiveLocationShareUseCase
 import im.vector.app.features.location.live.tracking.LocationSharingServiceConnection
+import im.vector.app.features.media.ImageContentRenderer
 import im.vector.app.features.notifications.NotificationDrawerManager
 import im.vector.app.features.powerlevel.PowerLevelsFlowFactory
 import im.vector.app.features.raw.wellknown.CryptoConfig
@@ -173,6 +174,7 @@ class TimelineViewModel @AssistedInject constructor(
         htmlCompressor: VectorHtmlCompressor,
         htmlRenderer: EventHtmlRenderer,
         spanUtils: SpanUtils,
+        imageContentRenderer: ImageContentRenderer,
 ) : VectorViewModel<RoomDetailViewState, RoomDetailAction, RoomDetailViewEvents>(initialState),
         Timeline.Listener, ChatEffectManager.Delegate, CallProtocolsChecker.Listener, LocationSharingServiceConnection.Callback,
         ReplyPreviewRetriever.PowerLevelProvider, ReplyPreviewRetriever.PreviewReplyRetrieverCallback {
@@ -199,7 +201,8 @@ class TimelineViewModel @AssistedInject constructor(
             messageColorProvider,
             htmlCompressor,
             htmlRenderer,
-            spanUtils
+            spanUtils,
+            imageContentRenderer,
     )
 
     override fun resolveDisplayName(senderInfo: SenderInfo): String = (timeline?.senderWithLiveRoomState(senderInfo) ?: senderInfo).disambiguatedDisplayName
