@@ -187,7 +187,7 @@ class InReplyToView @JvmOverloads constructor(
         val bindingOptions: BindingOptions?
         val text = if (formattedBody != null) {
             val compressed = retriever.htmlCompressor.compress(formattedBody)
-            val renderedFormattedBody = retriever.htmlRenderer.render(compressed, retriever.pillsPostProcessor) as Spanned
+            val renderedFormattedBody = retriever.htmlRenderer.render(compressed, retriever.pillsPostProcessor)
             val renderedBody = retriever.textRenderer.render(renderedFormattedBody)
             bindingOptions = retriever.spanUtils.getBindingOptions(renderedBody)
             // To be re-enabled if we want clickable urls in reply previews, which would conflict with going to the original event on clicking
