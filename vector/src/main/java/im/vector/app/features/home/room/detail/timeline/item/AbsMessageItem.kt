@@ -273,7 +273,7 @@ abstract class AbsMessageItem<H : AbsMessageItem.Holder>(
 
         override fun onStateUpdated(state: PreviewReplyUiState) {
             replyPreviewRetriever?.let {
-                replyView?.render(state, it, attributes.informationData, movementMethod, coroutineScope)
+                replyView?.render(state, it, attributes.informationData, movementMethod, attributes.itemLongClickListener, coroutineScope)
             }
         }
     }

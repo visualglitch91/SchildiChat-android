@@ -77,6 +77,7 @@ class InReplyToView @JvmOverloads constructor(
                retriever: ReplyPreviewRetriever,
                roomInformationData: MessageInformationData,
                movementMethod: MovementMethod?,
+               itemLongClickListener: OnLongClickListener?,
                coroutineScope: CoroutineScope,
                force: Boolean = false) {
         if (newState == state && !force) {
@@ -91,6 +92,10 @@ class InReplyToView @JvmOverloads constructor(
             is PreviewReplyUiState.Error -> renderError(newState)
             is PreviewReplyUiState.InReplyTo -> renderReplyTo(newState, retriever, roomInformationData, movementMethod, coroutineScope)
         }
+
+        setOnLongClickListener(itemLongClickListener)
+        // Somehow this one needs it additionally?
+        views.replyTextView.setOnLongClickListener(itemLongClickListener)
     }
 
     override fun onClick(v: View?) {
