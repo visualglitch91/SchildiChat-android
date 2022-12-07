@@ -35,7 +35,6 @@ import org.matrix.android.sdk.api.util.MatrixJsonParser
 import org.unifiedpush.android.connector.UnifiedPush
 import timber.log.Timber
 import java.net.URL
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 class UnifiedPushHelper @Inject constructor(
@@ -48,20 +47,12 @@ class UnifiedPushHelper @Inject constructor(
         private val fcmHelper: FcmHelper,
 ) {
 
-    private val isRegistering = AtomicBoolean(false)
-
     // Called when the home activity starts
     // or when notifications are enabled
     fun register(
             activity: FragmentActivity,
             onDoneRunnable: Runnable? = null,
     ) {
-        if (!isRegistering.compareAndSet(false, true)) {
-            // There's already a register() in progress, possibly because user hasn't reacted to the dialog yet
-            Timber.i("Skipping register() call with runnable $onDoneRunnable, still in register call")
-            onDoneRunnable?.run()
-            return
-        }
         registerInternal(
                 activity,
                 onDoneRunnable = onDoneRunnable
@@ -99,7 +90,6 @@ class UnifiedPushHelper @Inject constructor(
                 UnifiedPush.saveDistributor(context, context.packageName)
                 UnifiedPush.registerApp(context)
                 onDoneRunnable?.run()
-                isRegistering.set(false)
                 return@launch
             }
             if (force) {
@@ -110,7 +100,6 @@ class UnifiedPushHelper @Inject constructor(
             if (!force && UnifiedPush.getDistributor(context).isNotEmpty()) {
                 UnifiedPush.registerApp(context)
                 onDoneRunnable?.run()
-                isRegistering.set(false)
                 return@launch
             }
 
@@ -120,7 +109,6 @@ class UnifiedPushHelper @Inject constructor(
                 UnifiedPush.saveDistributor(context, distributors.first())
                 UnifiedPush.registerApp(context)
                 onDoneRunnable?.run()
-                isRegistering.set(false)
             } else {
                 openDistributorDialogInternal(
                         activity = activity,
@@ -164,7 +152,6 @@ class UnifiedPushHelper @Inject constructor(
                         Timber.i("Saving distributor: $distributor")
                         UnifiedPush.registerApp(context)
                         onDoneRunnable?.run()
-                        isRegistering.set(false)
                     }
                 }
                 .setOnCancelListener {
@@ -172,7 +159,6 @@ class UnifiedPushHelper @Inject constructor(
                     UnifiedPush.saveDistributor(context, context.packageName)
                     UnifiedPush.registerApp(context)
                     onDoneRunnable?.run()
-                    isRegistering.set(false)
                 }
                 .setCancelable(true)
                 .show()
@@ -214,7 +200,6 @@ class UnifiedPushHelper @Inject constructor(
         if (UnifiedPush.getDistributor(context) == context.packageName) {
             unifiedPushStore.storePushGateway(stringProvider.getString(R.string.pusher_http_url))
             onDoneRunnable?.run()
-            isRegistering.set(false)
             return
         }
         // else, unifiedpush, and pushkey is an endpoint
@@ -231,7 +216,6 @@ class UnifiedPushHelper @Inject constructor(
                             Timber.d("Using custom gateway")
                             unifiedPushStore.storePushGateway(custom)
                             onDoneRunnable?.run()
-                            isRegistering.set(false)
                             return
                         }
                     }
