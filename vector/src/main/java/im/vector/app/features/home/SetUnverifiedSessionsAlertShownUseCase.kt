@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package im.vector.app.test.fakes
+package im.vector.app.features.home
 
-import im.vector.app.features.settings.devices.v2.notification.TogglePushNotificationUseCase
-import io.mockk.coJustRun
-import io.mockk.coVerify
-import io.mockk.mockk
+import im.vector.app.core.time.Clock
+import im.vector.app.features.settings.VectorPreferences
+import javax.inject.Inject
 
-class FakeTogglePushNotificationUseCase {
+class SetUnverifiedSessionsAlertShownUseCase @Inject constructor(
+        private val vectorPreferences: VectorPreferences,
+        private val clock: Clock,
+) {
 
-    val instance = mockk<TogglePushNotificationUseCase> {
-        coJustRun { execute(any(), any()) }
-    }
-
-    fun verifyExecute(deviceId: String, enabled: Boolean) {
-        coVerify { instance.execute(deviceId, enabled) }
+    fun execute(deviceIds: List<String>) {
+        val epochMillis = clock.epochMillis()
+        deviceIds.forEach {
+            vectorPreferences.setUnverifiedSessionsAlertLastShownMillis(it, epochMillis)
+        }
     }
 }

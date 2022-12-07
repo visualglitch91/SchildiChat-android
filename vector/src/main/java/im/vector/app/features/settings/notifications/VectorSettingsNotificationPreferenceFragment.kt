@@ -24,6 +24,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
@@ -31,6 +32,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.map
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
+import com.airbnb.mvrx.fragmentViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
 import im.vector.app.core.di.ActiveSessionHolder
@@ -39,6 +41,7 @@ import im.vector.app.core.preference.VectorEditTextPreference
 import im.vector.app.core.preference.VectorPreference
 import im.vector.app.core.preference.VectorPreferenceCategory
 import im.vector.app.core.preference.VectorSwitchPreference
+import im.vector.app.core.pushers.EnsureFcmTokenIsRetrievedUseCase
 import im.vector.app.core.pushers.FcmHelper
 import im.vector.app.core.pushers.PushersManager
 import im.vector.app.core.pushers.UnifiedPushHelper
@@ -82,13 +85,14 @@ class VectorSettingsNotificationPreferenceFragment :
     @Inject lateinit var guardServiceStarter: GuardServiceStarter
     @Inject lateinit var vectorFeatures: VectorFeatures
     @Inject lateinit var notificationPermissionManager: NotificationPermissionManager
-    @Inject lateinit var disableNotificationsForCurrentSessionUseCase: DisableNotificationsForCurrentSessionUseCase
-    @Inject lateinit var enableNotificationsForCurrentSessionUseCase: EnableNotificationsForCurrentSessionUseCase
+    @Inject lateinit var ensureFcmTokenIsRetrievedUseCase: EnsureFcmTokenIsRetrievedUseCase
 
     override var titleRes: Int = R.string.settings_notifications
     override val preferenceXmlRes = R.xml.vector_settings_notifications
 
     private var interactionListener: VectorSettingsFragmentInteractionListener? = null
+
+    private val viewModel: VectorSettingsNotificationPreferenceViewModel by fragmentViewModel()
 
     private val notificationStartForActivityResult = registerStartForActivityResult { _ ->
         // No op
@@ -104,6 +108,22 @@ class VectorSettingsNotificationPreferenceFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         analyticsScreenName = MobileScreen.ScreenName.SettingsNotifications
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        observeViewEvents()
+    }
+
+    private fun observeViewEvents() {
+        viewModel.observeViewEvents {
+            when (it) {
+                VectorSettingsNotificationPreferenceViewEvent.NotificationsForDeviceEnabled -> onNotificationsForDeviceEnabled()
+                VectorSettingsNotificationPreferenceViewEvent.NotificationsForDeviceDisabled -> onNotificationsForDeviceDisabled()
+                is VectorSettingsNotificationPreferenceViewEvent.AskUserForPushDistributor -> askUserToSelectPushDistributor()
+                VectorSettingsNotificationPreferenceViewEvent.NotificationMethodChanged -> onNotificationMethodChanged()
+            }
+        }
     }
 
     override fun bindPref() {
@@ -123,23 +143,15 @@ class VectorSettingsNotificationPreferenceFragment :
         }
 
         findPreference<SwitchPreference>(VectorPreferences.SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY)
-                ?.setTransactionalSwitchChangeListener(lifecycleScope) { isChecked ->
-                    if (isChecked) {
-                        enableNotificationsForCurrentSessionUseCase.execute(requireActivity())
-
-                        findPreference<VectorPreference>(VectorPreferences.SETTINGS_NOTIFICATION_METHOD_KEY)
-                                ?.summary = unifiedPushHelper.getCurrentDistributorName()
-
-                        notificationPermissionManager.eventuallyRequestPermission(
-                                requireActivity(),
-                                postPermissionLauncher,
-                                showRationale = false,
-                                ignorePreference = true
-                        )
+                ?.setOnPreferenceChangeListener { _, isChecked ->
+                    val action = if (isChecked as Boolean) {
+                        VectorSettingsNotificationPreferenceViewAction.EnableNotificationsForDevice(pushDistributor = "")
                     } else {
-                        disableNotificationsForCurrentSessionUseCase.execute()
-                        notificationPermissionManager.eventuallyRevokePermission(requireActivity())
+                        VectorSettingsNotificationPreferenceViewAction.DisableNotificationsForDevice
                     }
+                    viewModel.handle(action)
+                    // preference will be updated on ViewEvent reception
+                    false
                 }
 
         // SC addition
@@ -200,18 +212,7 @@ class VectorSettingsNotificationPreferenceFragment :
             if (vectorFeatures.allowExternalUnifiedPushDistributors()) {
                 it.summary = unifiedPushHelper.getCurrentDistributorName()
                 it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                    unifiedPushHelper.forceRegister(requireActivity(), pushersManager) {
-                        if (unifiedPushHelper.isEmbeddedDistributor()) {
-                            fcmHelper.ensureFcmTokenIsRetrieved(
-                                    requireActivity(),
-                                    pushersManager,
-                                    vectorPreferences.areNotificationEnabledForDevice()
-                            )
-                        }
-                        it.summary = unifiedPushHelper.getCurrentDistributorName()
-                        session.pushersService().refreshPushers()
-                        refreshBackgroundSyncPrefs()
-                    }
+                    askUserToSelectPushDistributor(withUnregister = true)
                     true
                 }
             } else {
@@ -223,6 +224,42 @@ class VectorSettingsNotificationPreferenceFragment :
         refreshBackgroundSyncPrefs()
 
         handleSystemPreference()
+    }
+
+    private fun onNotificationsForDeviceEnabled() {
+        findPreference<SwitchPreference>(VectorPreferences.SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY)
+                ?.isChecked = true
+        findPreference<VectorPreference>(VectorPreferences.SETTINGS_NOTIFICATION_METHOD_KEY)
+                ?.summary = unifiedPushHelper.getCurrentDistributorName()
+
+        notificationPermissionManager.eventuallyRequestPermission(
+                requireActivity(),
+                postPermissionLauncher,
+                showRationale = false,
+                ignorePreference = true
+        )
+    }
+
+    private fun onNotificationsForDeviceDisabled() {
+        findPreference<SwitchPreference>(VectorPreferences.SETTINGS_ENABLE_THIS_DEVICE_PREFERENCE_KEY)
+                ?.isChecked = false
+        notificationPermissionManager.eventuallyRevokePermission(requireActivity())
+    }
+
+    private fun askUserToSelectPushDistributor(withUnregister: Boolean = false) {
+        unifiedPushHelper.showSelectDistributorDialog(requireContext()) { selection ->
+            if (withUnregister) {
+                viewModel.handle(VectorSettingsNotificationPreferenceViewAction.RegisterPushDistributor(selection))
+            } else {
+                viewModel.handle(VectorSettingsNotificationPreferenceViewAction.EnableNotificationsForDevice(selection))
+            }
+        }
+    }
+
+    private fun onNotificationMethodChanged() {
+        findPreference<VectorPreference>(VectorPreferences.SETTINGS_NOTIFICATION_METHOD_KEY)?.summary = unifiedPushHelper.getCurrentDistributorName()
+        session.pushersService().refreshPushers()
+        refreshBackgroundSyncPrefs()
     }
 
     private fun bindEmailNotifications() {

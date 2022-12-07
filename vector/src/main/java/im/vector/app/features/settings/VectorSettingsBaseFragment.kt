@@ -29,6 +29,8 @@ import im.vector.app.R
 import im.vector.app.core.error.ErrorFormatter
 import im.vector.app.core.extensions.singletonEntryPoint
 import im.vector.app.core.platform.VectorBaseActivity
+import im.vector.app.core.platform.VectorViewEvents
+import im.vector.app.core.platform.VectorViewModel
 import im.vector.app.core.utils.toast
 import im.vector.app.features.analytics.AnalyticsTracker
 import im.vector.app.features.analytics.plan.MobileScreen
@@ -60,6 +62,19 @@ abstract class VectorSettingsBaseFragment : ScPreferenceFragment(), MavericksVie
     // members
     protected lateinit var session: Session
     protected lateinit var errorFormatter: ErrorFormatter
+
+    /* ==========================================================================================
+     * ViewEvents
+     * ========================================================================================== */
+
+    protected fun <T : VectorViewEvents> VectorViewModel<*, *, T>.observeViewEvents(observer: (T) -> Unit) {
+        viewEvents
+                .stream()
+                .onEach {
+                    observer(it)
+                }
+                .launchIn(viewLifecycleOwner.lifecycleScope)
+    }
 
     /* ==========================================================================================
      * Views
@@ -149,7 +164,7 @@ abstract class VectorSettingsBaseFragment : ScPreferenceFragment(), MavericksVie
         }
     }
 
-    protected fun displayErrorDialog(throwable: Throwable) {
+    protected fun displayErrorDialog(throwable: Throwable?) {
         displayErrorDialog(errorFormatter.toHumanReadable(throwable))
     }
 
