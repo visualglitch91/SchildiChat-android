@@ -50,7 +50,7 @@
             android:scrollbars="none"
             app:expanded="false"
             app:allowExpand="false"
-            app:maxHeight="64dp">
+            app:maxHeight="@dimen/reply_text_max_height">
             <!-- Layout gravity left: fixes long display name pills moving text out:
                 https://github.com/SchildiChat/SchildiChat-android/issues/66
                 Interestingly, this not only fixes it for LTR texts for RTL locales,
@@ -69,7 +69,7 @@
                 tools:ignore="RtlHardcoded" />
             <View
                 android:layout_width="match_parent"
-                android:layout_height="32dp"
+                android:layout_height="@dimen/reply_fade_out_height"
                 android:background="@drawable/bg_expandable_edge_shadow"
                 android:layout_gravity="bottom" />
         </com.ruesga.rview.widget.ExpandableViewLayout>
