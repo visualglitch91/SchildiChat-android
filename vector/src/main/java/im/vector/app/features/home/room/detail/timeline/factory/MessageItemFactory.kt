@@ -602,6 +602,7 @@ class MessageItemFactory @Inject constructor(
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun buildFormattedTextItem(
             matrixFormattedBody: String,
             informationData: MessageInformationData,
@@ -610,10 +611,12 @@ class MessageItemFactory @Inject constructor(
             attributes: AbsMessageItem.Attributes,
             replyToContent: ReplyToContent?,
     ): MessageTextItem? {
-        val processedBody = replyToContent
+        /*
+        val processedBody = matrixFormattedBodyreplyToContent
                 ?.let { processBodyOfReplyToEventUseCase.execute(roomId, matrixFormattedBody, it) }
                 ?: matrixFormattedBody
-        val compressed = htmlCompressor.compress(processedBody)
+         */
+        val compressed = htmlCompressor.compress(matrixFormattedBody)
         val renderedFormattedBody = htmlRenderer.get().render(compressed, pillsPostProcessor) as Spanned
         val pseudoEmojiBody = htmlRenderer.get().render(customToPseudoEmoji(compressed), pillsPostProcessor) as Spanned
         return buildMessageTextItem(

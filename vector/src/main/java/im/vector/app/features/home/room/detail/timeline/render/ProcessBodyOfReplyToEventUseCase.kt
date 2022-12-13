@@ -42,6 +42,7 @@ class ProcessBodyOfReplyToEventUseCase @Inject constructor(
         private val stringProvider: StringProvider,
 ) {
 
+    @Deprecated("SchildiChat doesn't need this, we have rich replies!")
     fun execute(roomId: String, matrixFormattedBody: String, replyToContent: ReplyToContent): String {
         val repliedToEvent = replyToContent.eventId?.let { getEvent(it, roomId) }
         val breakingLineIndex = matrixFormattedBody.indexOf(BREAKING_LINE)
