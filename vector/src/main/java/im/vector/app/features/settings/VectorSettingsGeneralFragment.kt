@@ -218,7 +218,11 @@ class VectorSettingsGeneralFragment :
         setContactsPreferences()
 
         // clear cache
-        findPreference<VectorPreference>(VectorPreferences.SETTINGS_CLEAR_CACHE_PREFERENCE_KEY)!!.let {
+        listOf(
+                findPreference<VectorPreference>(VectorPreferences.SETTINGS_CLEAR_CACHE_PREFERENCE_KEY),
+                findPreference<VectorPreference>(VectorPreferences.SETTINGS_INIT_SYNC_PREFERENCE_KEY)
+        ).forEach {
+            it ?: return@forEach
             /*
             TODO
             MXSession.getApplicationSizeCaches(activity, object : SimpleApiCallback<Long>() {

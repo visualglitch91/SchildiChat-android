@@ -27,6 +27,8 @@ import im.vector.app.core.utils.FirstThrottler
 import im.vector.app.core.utils.copyToClipboard
 import im.vector.app.core.utils.openAppSettingsPage
 import im.vector.app.core.utils.openUrlInChromeCustomTab
+import im.vector.app.features.MainActivity
+import im.vector.app.features.MainActivityArgs
 import im.vector.app.features.analytics.plan.MobileScreen
 import im.vector.app.features.version.VersionProvider
 import org.matrix.android.sdk.api.Matrix
@@ -97,6 +99,20 @@ class VectorSettingsHelpAboutFragment :
         // olm version
         findPreference<VectorPreference>(VectorPreferences.SETTINGS_OLM_VERSION_PREFERENCE_KEY)!!
                 .summary = session.cryptoService().getCryptoVersion(requireContext(), false)
+
+        // clear cache
+        listOf(
+                findPreference<VectorPreference>(VectorPreferences.SETTINGS_CLEAR_CACHE_PREFERENCE_KEY),
+                findPreference<VectorPreference>(VectorPreferences.SETTINGS_INIT_SYNC_PREFERENCE_KEY)
+        ).forEach {
+            it ?: return@forEach
+            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                displayLoadingView()
+                MainActivity.restartApp(requireActivity(), MainActivityArgs(clearCache = true))
+                false
+            }
+
+        }
     }
 
     companion object {
