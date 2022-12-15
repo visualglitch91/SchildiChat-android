@@ -45,7 +45,7 @@ class ReadReceiptsItemFactory @Inject constructor(
         }
         val readReceiptsData = readReceipts
                 .map {
-                    ReadReceiptData(it.roomMember.userId, it.roomMember.avatarUrl, it.roomMember.displayName, it.originServerTs)
+                    ReadReceiptData(it.roomMember.userId, it.roomMember.avatarUrl, it.roomMember.displayName, it.originServerTs, it.threadId)
                 }
                 .sortedByDescending { it.timestamp }
         val threadReadReceiptsSupported = session.homeServerCapabilitiesService().getHomeServerCapabilities().canUseThreadReadReceiptsAndNotifications

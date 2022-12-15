@@ -16,6 +16,7 @@
 
 package org.matrix.android.sdk.internal.database.helper
 
+import de.spiritcroc.matrixsdk.util.DbgUtil
 import de.spiritcroc.matrixsdk.util.Dimber
 import io.realm.Realm
 import io.realm.kotlin.createObject
@@ -125,6 +126,8 @@ internal fun computeIsUnique(
     }
 }
 
+val rrDimber = Dimber("ReadReceipts", DbgUtil.DBG_READ_RECEIPTS)
+
 private fun handleReadReceipts(realm: Realm, roomId: String, eventEntity: EventEntity, senderId: String): ReadReceiptsSummaryEntity {
     val readReceiptsSummaryEntity = ReadReceiptsSummaryEntity.where(realm, eventEntity.eventId).findFirst()
             ?: realm.createObject<ReadReceiptsSummaryEntity>(eventEntity.eventId).apply {
@@ -137,10 +140,13 @@ private fun handleReadReceipts(realm: Realm, roomId: String, eventEntity: EventE
         // If the synced RR is older, update
         if (timestampOfEvent > readReceiptOfSender.originServerTs) {
             val previousReceiptsSummary = ReadReceiptsSummaryEntity.where(realm, eventId = readReceiptOfSender.eventId).findFirst()
+            rrDimber.i{"Handle outdated chunk RR $roomId / $senderId thread ${eventEntity.rootThreadEventId}: event ${readReceiptOfSender.eventId} -> ${eventEntity.eventId}"}
             readReceiptOfSender.eventId = eventEntity.eventId
             readReceiptOfSender.originServerTs = timestampOfEvent
             previousReceiptsSummary?.readReceipts?.remove(readReceiptOfSender)
             readReceiptsSummaryEntity.readReceipts.add(readReceiptOfSender)
+        } else {
+            rrDimber.i{"Handled chunk RR $roomId / $senderId thread ${eventEntity.rootThreadEventId}: keep ${readReceiptOfSender.eventId} (not ${eventEntity.eventId})"}
         }
     }
     return readReceiptsSummaryEntity

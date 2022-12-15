@@ -88,7 +88,8 @@ data class ReadReceiptData(
         val userId: String,
         val avatarUrl: String?,
         val displayName: String?,
-        val timestamp: Long
+        val timestamp: Long,
+        val threadId: String?,
 ) : Parcelable
 
 @Parcelize

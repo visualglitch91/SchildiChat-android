@@ -17,6 +17,7 @@
 package im.vector.app.features.home.room.detail.readreceipts
 
 import com.airbnb.epoxy.TypedEpoxyController
+import de.spiritcroc.matrixsdk.util.DbgUtil
 import im.vector.app.core.date.DateFormatKind
 import im.vector.app.core.date.VectorDateFormatter
 import im.vector.app.features.home.AvatarRenderer
@@ -43,6 +44,7 @@ class DisplayReadReceiptsController @Inject constructor(
             DisplayReadReceiptItem_()
                     .id(readReceiptData.userId)
                     .matrixItem(readReceiptData.toMatrixItem())
+                    .debugInfo(readReceiptData.threadId.toString().takeIf { DbgUtil.isDbgEnabled(DbgUtil.DBG_READ_RECEIPTS) })
                     .avatarRenderer(avatarRender)
                     .timestamp(timestamp)
                     .userClicked { listener?.didSelectUser(readReceiptData.userId) }

@@ -16,6 +16,8 @@
 
 package org.matrix.android.sdk.internal.database.mapper
 
+import de.spiritcroc.matrixsdk.util.DbgUtil
+import de.spiritcroc.matrixsdk.util.Dimber
 import io.realm.Realm
 import io.realm.RealmList
 import org.matrix.android.sdk.api.session.room.model.ReadReceipt
@@ -29,6 +31,8 @@ import javax.inject.Inject
 internal class ReadReceiptsSummaryMapper @Inject constructor(
         private val realmSessionProvider: RealmSessionProvider
 ) {
+
+    val rrDimber = Dimber("ReadReceipts", DbgUtil.DBG_READ_RECEIPTS)
 
     fun map(readReceiptsSummaryEntity: ReadReceiptsSummaryEntity?): List<ReadReceipt> {
         if (readReceiptsSummaryEntity == null) {
@@ -48,6 +52,7 @@ internal class ReadReceiptsSummaryMapper @Inject constructor(
     private fun map(readReceipts: RealmList<ReadReceiptEntity>, realm: Realm): List<ReadReceipt> {
         return readReceipts
                 .mapNotNull {
+                    rrDimber.i{"Map ${it.eventId} receipt ${it.userId} thread ${it.threadId}"}
                     val roomMember = RoomMemberSummaryEntity.where(realm, roomId = it.roomId, userId = it.userId).findFirst()
                             ?: return@mapNotNull null
                     ReadReceipt(roomMember.asDomain(), it.originServerTs.toLong(), it.threadId)

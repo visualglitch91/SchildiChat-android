@@ -8,6 +8,7 @@ import timber.log.Timber
 object DbgUtil {
     const val DBG_READ_MARKER = "DBG_READ_MARKER"
     const val DBG_SHOW_READ_TRACKING = "DBG_SHOW_READ_TRACKING"
+    const val DBG_READ_RECEIPTS = "DBG_READ_RECEIPTS"
     const val DBG_TIMELINE_CHUNKS = "DBG_TIMELINE_CHUNKS"
     const val DBG_SHOW_DISPLAY_INDEX = "DBG_SHOW_DISPLAY_INDEX"
     const val DBG_VIEW_PAGER = "DBG_VIEW_PAGER"
@@ -18,6 +19,7 @@ object DbgUtil {
     val ALL_PREFS = arrayOf(
             DBG_READ_MARKER,
             DBG_SHOW_READ_TRACKING,
+            DBG_READ_RECEIPTS,
             DBG_TIMELINE_CHUNKS,
             DBG_SHOW_DISPLAY_INDEX,
             DBG_VIEW_PAGER,

@@ -16,6 +16,8 @@
 
 package org.matrix.android.sdk.internal.session.sync.handler.room
 
+import de.spiritcroc.matrixsdk.util.DbgUtil
+import de.spiritcroc.matrixsdk.util.Dimber
 import io.realm.Realm
 import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.internal.database.model.ReadReceiptEntity
@@ -42,6 +44,8 @@ private const val THREAD_ID_KEY = "thread_id"
 internal class ReadReceiptHandler @Inject constructor(
         private val roomSyncEphemeralTemporaryStore: RoomSyncEphemeralTemporaryStore
 ) {
+
+    val rrDimber = Dimber("ReadReceipts", DbgUtil.DBG_READ_RECEIPTS)
 
     companion object {
 
@@ -107,6 +111,7 @@ internal class ReadReceiptHandler @Inject constructor(
                 val ts = paramsDict[TIMESTAMP_KEY] as? Double ?: 0.0
                 val threadId = paramsDict[THREAD_ID_KEY] as String?
                 val receiptEntity = ReadReceiptEntity.createUnmanaged(roomId, eventId, userId, threadId, ts)
+                rrDimber.i{"Handle initial sync RR $roomId / $userId thread $threadId: event $eventId"}
                 readReceiptsSummary.readReceipts.add(receiptEntity)
             }
             readReceiptSummaries.add(readReceiptsSummary)
@@ -144,12 +149,15 @@ internal class ReadReceiptHandler @Inject constructor(
                 val receiptEntity = ReadReceiptEntity.getOrCreate(realm, roomId, userId, threadId)
                 // ensure new ts is superior to the previous one
                 if (ts > receiptEntity.originServerTs) {
+                    rrDimber.i{"Handle outdated sync RR $roomId / $userId thread $threadId: event ${receiptEntity.eventId} -> $eventId"}
                     ReadReceiptsSummaryEntity.where(realm, receiptEntity.eventId).findFirst()?.also {
                         it.readReceipts.remove(receiptEntity)
                     }
                     receiptEntity.eventId = eventId
                     receiptEntity.originServerTs = ts
                     readReceiptsSummary.readReceipts.add(receiptEntity)
+                } else {
+                    rrDimber.i{"Handle keep sync RR $roomId / $userId thread $threadId: event ${receiptEntity.eventId} (not $eventId)"}
                 }
             }
         }

@@ -26,6 +26,7 @@ import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.VectorEpoxyHolder
 import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.core.epoxy.onClick
+import im.vector.app.core.extensions.setTextOrHide
 import im.vector.app.features.displayname.getBestName
 import im.vector.app.features.home.AvatarRenderer
 import org.matrix.android.sdk.api.util.MatrixItem
@@ -37,11 +38,13 @@ abstract class DisplayReadReceiptItem : VectorEpoxyModel<DisplayReadReceiptItem.
     @EpoxyAttribute var timestamp: String? = null
     @EpoxyAttribute lateinit var avatarRenderer: AvatarRenderer
     @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash) var userClicked: ClickListener? = null
+    @EpoxyAttribute var debugInfo: String? = null
 
     override fun bind(holder: Holder) {
         super.bind(holder)
         avatarRenderer.render(matrixItem, holder.avatarView)
         holder.displayNameView.text = matrixItem.getBestName()
+        holder.debugView.setTextOrHide(debugInfo)
         timestamp?.let {
             holder.timestampView.text = it
             holder.timestampView.isVisible = true
@@ -54,6 +57,7 @@ abstract class DisplayReadReceiptItem : VectorEpoxyModel<DisplayReadReceiptItem.
     class Holder : VectorEpoxyHolder() {
         val avatarView by bind<ImageView>(R.id.readReceiptAvatar)
         val displayNameView by bind<TextView>(R.id.readReceiptName)
+        val debugView by bind<TextView>(R.id.readReceiptDebugAdd)
         val timestampView by bind<TextView>(R.id.readReceiptDate)
     }
 }

@@ -162,6 +162,7 @@
     <string name="settings_sc_dbg_timeline_chunks">Timeline consistency debugging</string>
     <string name="settings_sc_dbg_show_display_index">Show displayIndex in timeline</string>
     <string name="settings_sc_dbg_show_read_tracking">Show read tracking</string>
+    <string name="settings_sc_dbg_read_receipts">Read receipt debugging</string>
     <string name="settings_sc_dbg_view_pager">ViewPager debugging</string>
     <string name="settings_sc_dbg_view_pager_visuals">Show ViewPager debugging information</string>
 

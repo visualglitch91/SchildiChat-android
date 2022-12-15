@@ -20,6 +20,7 @@ class VectorSettingsScDebuggingFragment @Inject constructor(
             DbgPref(DbgUtil.DBG_SHOW_DISPLAY_INDEX, R.string.settings_sc_dbg_show_display_index),
             DbgPref(DbgUtil.DBG_READ_MARKER, R.string.settings_sc_dbg_read_marker),
             DbgPref(DbgUtil.DBG_SHOW_READ_TRACKING, R.string.settings_sc_dbg_show_read_tracking),
+            DbgPref(DbgUtil.DBG_READ_RECEIPTS, R.string.settings_sc_dbg_read_receipts),
             DbgPref(DbgUtil.DBG_VIEW_PAGER, R.string.settings_sc_dbg_view_pager),
             DbgPref(DbgUtil.DBG_VIEW_PAGER_VISUALS, R.string.settings_sc_dbg_view_pager_visuals),
     )
