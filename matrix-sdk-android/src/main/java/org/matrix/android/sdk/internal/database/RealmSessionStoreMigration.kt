@@ -69,6 +69,7 @@ import org.matrix.android.sdk.internal.database.migration.MigrateSessionTo042
 import org.matrix.android.sdk.internal.database.migration.MigrateSessionTo043
 import org.matrix.android.sdk.internal.database.migration.MigrateSessionTo044
 import org.matrix.android.sdk.internal.database.migration.MigrateSessionTo045
+import org.matrix.android.sdk.internal.database.migration.MigrateSessionTo046
 import org.matrix.android.sdk.internal.util.Normalizer
 import org.matrix.android.sdk.internal.util.database.MatrixRealmMigration
 import timber.log.Timber
@@ -92,7 +93,7 @@ internal class RealmSessionStoreMigration @Inject constructor(
         private val scSchemaVersion = 7L
         private val scSchemaVersionOffset = (1L shl 12)
 
-        val schemaVersion = 45L +
+        val schemaVersion = 46L +
                 scSchemaVersion * scSchemaVersionOffset
     }
 
@@ -154,6 +155,7 @@ internal class RealmSessionStoreMigration @Inject constructor(
         if (oldVersion < 43) MigrateSessionTo043(realm).perform()
         if (oldVersion < 44) MigrateSessionTo044(realm).perform()
         if (oldVersion < 45) MigrateSessionTo045(realm).perform()
+        if (oldVersion < 46) MigrateSessionTo046(realm).perform()
 
         if (oldScVersion <= 0) MigrateScSessionTo001(realm).perform()
         if (oldScVersion <= 1) MigrateScSessionTo002(realm).perform()

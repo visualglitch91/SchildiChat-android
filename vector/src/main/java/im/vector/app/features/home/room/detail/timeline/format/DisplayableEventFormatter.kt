@@ -22,9 +22,15 @@ import im.vector.app.R
 import im.vector.app.core.date.DateFormatKind
 import im.vector.app.core.date.VectorDateFormatter
 import im.vector.app.core.extensions.getVectorLastMessageContent
+import im.vector.app.core.extensions.orEmpty
 import im.vector.app.core.resources.ColorProvider
+import im.vector.app.core.resources.DrawableProvider
 import im.vector.app.core.resources.StringProvider
 import im.vector.app.features.html.EventHtmlRenderer
+import im.vector.app.features.voicebroadcast.VoiceBroadcastConstants
+import im.vector.app.features.voicebroadcast.isLive
+import im.vector.app.features.voicebroadcast.model.asVoiceBroadcastEvent
+import me.gujun.android.span.image
 import me.gujun.android.span.span
 import org.commonmark.node.Document
 import org.matrix.android.sdk.api.session.events.model.Event
@@ -44,6 +50,7 @@ import javax.inject.Inject
 class DisplayableEventFormatter @Inject constructor(
         private val stringProvider: StringProvider,
         private val colorProvider: ColorProvider,
+        private val drawableProvider: DrawableProvider,
         private val dateFormatter: VectorDateFormatter,
         private val emojiSpanify: EmojiSpanify,
         private val noticeEventFormatter: NoticeEventFormatter,
@@ -143,6 +150,9 @@ class DisplayableEventFormatter @Inject constructor(
             }
             in EventType.STATE_ROOM_BEACON_INFO.values -> {
                 simpleFormat(senderName, stringProvider.getString(R.string.sent_live_location), appendAuthor)
+            }
+            VoiceBroadcastConstants.STATE_ROOM_VOICE_BROADCAST_INFO -> {
+                formatVoiceBroadcastEvent(timelineEvent.root, isDm, senderName)
             }
             else -> {
                 span {
@@ -263,6 +273,22 @@ class DisplayableEventFormatter @Inject constructor(
                     .append(body)
         } else {
             "\u2068$body"
+        }
+    }
+
+    private fun formatVoiceBroadcastEvent(event: Event, isDm: Boolean, senderName: String): CharSequence {
+        return if (event.asVoiceBroadcastEvent()?.isLive == true) {
+            span {
+                drawableProvider.getDrawable(R.drawable.ic_voice_broadcast, colorProvider.getColor(R.color.palette_vermilion))?.let {
+                    image(it)
+                    +" "
+                }
+                span(stringProvider.getString(R.string.voice_broadcast_live_broadcast)) {
+                    textColor = colorProvider.getColor(R.color.palette_vermilion)
+                }
+            }
+        } else {
+            noticeEventFormatter.format(event, senderName, isDm).orEmpty()
         }
     }
 }

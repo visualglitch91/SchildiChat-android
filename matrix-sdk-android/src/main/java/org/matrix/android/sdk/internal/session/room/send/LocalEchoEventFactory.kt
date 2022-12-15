@@ -182,7 +182,7 @@ internal class LocalEchoEventFactory @Inject constructor(
                 originServerTs = dummyOriginServerTs(),
                 senderId = userId,
                 eventId = localId,
-                type = EventType.POLL_START.stable,
+                type = EventType.POLL_START.unstable,
                 content = newContent.toContent().plus(additionalContent.orEmpty())
         )
     }
@@ -207,7 +207,7 @@ internal class LocalEchoEventFactory @Inject constructor(
                 originServerTs = dummyOriginServerTs(),
                 senderId = userId,
                 eventId = localId,
-                type = EventType.POLL_RESPONSE.stable,
+                type = EventType.POLL_RESPONSE.unstable,
                 content = content.toContent().plus(additionalContent.orEmpty()),
                 unsignedData = UnsignedData(age = null, transactionId = localId)
         )
@@ -227,7 +227,7 @@ internal class LocalEchoEventFactory @Inject constructor(
                 originServerTs = dummyOriginServerTs(),
                 senderId = userId,
                 eventId = localId,
-                type = EventType.POLL_START.stable,
+                type = EventType.POLL_START.unstable,
                 content = content.toContent().plus(additionalContent.orEmpty()),
                 unsignedData = UnsignedData(age = null, transactionId = localId)
         )
@@ -250,7 +250,7 @@ internal class LocalEchoEventFactory @Inject constructor(
                 originServerTs = dummyOriginServerTs(),
                 senderId = userId,
                 eventId = localId,
-                type = EventType.POLL_END.stable,
+                type = EventType.POLL_END.unstable,
                 content = content.toContent().plus(additionalContent.orEmpty()),
                 unsignedData = UnsignedData(age = null, transactionId = localId)
         )
@@ -301,7 +301,7 @@ internal class LocalEchoEventFactory @Inject constructor(
                 originServerTs = dummyOriginServerTs(),
                 senderId = userId,
                 eventId = localId,
-                type = EventType.BEACON_LOCATION_DATA.stable,
+                type = EventType.BEACON_LOCATION_DATA.unstable,
                 content = content.toContent().plus(additionalContent.orEmpty()),
                 unsignedData = UnsignedData(age = null, transactionId = localId)
         )

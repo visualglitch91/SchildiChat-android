@@ -27,6 +27,7 @@ import im.vector.app.core.preference.VectorPreference
 import im.vector.app.core.preference.VectorPreferenceCategory
 import im.vector.app.core.preference.VectorSwitchPreference
 import im.vector.app.features.analytics.plan.MobileScreen
+import im.vector.app.features.home.NightlyProxy
 import im.vector.app.features.rageshake.RageShake
 import javax.inject.Inject
 
@@ -38,6 +39,8 @@ class VectorSettingsAdvancedSettingsFragment :
 
     override var titleRes = R.string.settings_advanced_settings
     override val preferenceXmlRes = R.xml.vector_settings_advanced_settings
+
+    @Inject lateinit var nightlyProxy: NightlyProxy
 
     private var rageshake: RageShake? = null
 
@@ -62,6 +65,11 @@ class VectorSettingsAdvancedSettingsFragment :
     }
 
     override fun bindPref() {
+        setupRageShakeSection()
+        setupNightlySection()
+    }
+
+    private fun setupRageShakeSection() {
         val isRageShakeAvailable = RageShake.isAvailable(requireContext())
 
         if (isRageShakeAvailable) {
@@ -100,6 +108,14 @@ class VectorSettingsAdvancedSettingsFragment :
                     }
                     .setNegativeButton(R.string.action_cancel) { _, _ -> /* Just close dialog */ }
                     .show()
+            true
+        }
+    }
+
+    private fun setupNightlySection() {
+        findPreference<VectorPreferenceCategory>("SETTINGS_NIGHTLY_BUILD_PREFERENCE_KEY")?.isVisible = nightlyProxy.isNightlyBuild()
+        findPreference<VectorPreference>("SETTINGS_NIGHTLY_BUILD_UPDATE_PREFERENCE_KEY")?.setOnPreferenceClickListener {
+            nightlyProxy.updateApplication()
             true
         }
     }

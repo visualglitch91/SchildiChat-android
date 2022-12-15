@@ -166,6 +166,7 @@ class VectorSettingsLabsFragment :
      */
     private fun onThreadsPreferenceClicked() {
         // We should migrate threads only if threads are disabled
+        vectorPreferences.setThreadFlagChangedManually()
         vectorPreferences.setShouldMigrateThreads(!vectorPreferences.areThreadMessagesEnabled())
         lightweightSettingsStorage.setThreadMessagesEnabled(vectorPreferences.areThreadMessagesEnabled())
         displayLoadingView()

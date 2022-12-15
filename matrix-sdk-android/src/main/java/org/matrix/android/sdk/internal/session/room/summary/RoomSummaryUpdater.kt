@@ -84,14 +84,15 @@ internal class RoomSummaryUpdater @Inject constructor(
         private val crossSigningService: DefaultCrossSigningService,
         private val roomAccountDataDataSource: RoomAccountDataDataSource,
         private val homeServerCapabilitiesService: HomeServerCapabilitiesService,
+        private val roomSummaryEventsHelper: RoomSummaryEventsHelper,
 ) {
 
     fun refreshLatestPreviewContent(realm: Realm, roomId: String, attemptDecrypt: Boolean = true) {
         val roomSummaryEntity = RoomSummaryEntity.getOrNull(realm, roomId)
         if (roomSummaryEntity != null) {
-            //roomSummaryEntity.latestPreviewableEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScAll(realm, roomId)?.first
-            //roomSummaryEntity.latestPreviewableOriginalContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId)?.first
-            //val latestPreviewableOriginalContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScOriginalContent(realm, roomId)?.first
+            //roomSummaryEntity.latestPreviewableEvent = roomSummaryEventsHelper.getLatestPreviewableEventScAll(realm, roomId)?.first
+            //roomSummaryEntity.latestPreviewableOriginalContentEvent = roomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId)?.first
+            //val latestPreviewableOriginalContentEvent = roomSummaryEventsHelper.getLatestPreviewableEventScOriginalContent(realm, roomId)?.first
             //attemptToDecryptLatestPreviewables(latestPreviewableEvent, latestPreviewableContentEvent, latestPreviewableOriginalContentEvent)
             refreshLatestPreviewContent(roomSummaryEntity, realm, roomId, attemptDecrypt)
         }
@@ -105,9 +106,9 @@ internal class RoomSummaryUpdater @Inject constructor(
     }
 
     private fun refreshLatestPreviewContent(roomSummaryEntity: RoomSummaryEntity, realm: Realm, roomId: String, attemptDecrypt: Boolean = true) {
-        val latestPreviewableEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScAll(realm, roomId)
-        val latestPreviewableContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId)
-        val latestPreviewableOriginalContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScOriginalContent(realm, roomId)
+        val latestPreviewableEvent = roomSummaryEventsHelper.getLatestPreviewableEventScAll(realm, roomId)
+        val latestPreviewableContentEvent = roomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId)
+        val latestPreviewableOriginalContentEvent = roomSummaryEventsHelper.getLatestPreviewableEventScOriginalContent(realm, roomId)
 
         roomSummaryEntity.latestPreviewableEvent = latestPreviewableEvent.previewable()
         roomSummaryEntity.latestPreviewableContentEvent = latestPreviewableContentEvent.previewable()
@@ -307,9 +308,9 @@ internal class RoomSummaryUpdater @Inject constructor(
         val roomSummaryEntity = RoomSummaryEntity.getOrCreate(realm, roomId)
         roomSummaryEntity.updateHasFailedSending()
         refreshLatestPreviewContent(realm, roomId, attemptDecrypt = false)
-        //roomSummaryEntity.latestPreviewableEvent = RoomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId).previewable()
-        //roomSummaryEntity.latestPreviewableContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId).previewable()
-        //roomSummaryEntity.latestPreviewableOriginalContentEvent = RoomSummaryEventsHelper.getLatestPreviewableEventScOriginalContent(realm, roomId).previewable()
+        //roomSummaryEntity.latestPreviewableEvent = roomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId).previewable()
+        //roomSummaryEntity.latestPreviewableContentEvent = roomSummaryEventsHelper.getLatestPreviewableEvent(realm, roomId).previewable()
+        //roomSummaryEntity.latestPreviewableOriginalContentEvent = roomSummaryEventsHelper.getLatestPreviewableEventScOriginalContent(realm, roomId).previewable()
     }
 
     /**
