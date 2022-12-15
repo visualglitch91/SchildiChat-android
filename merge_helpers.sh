@@ -73,8 +73,7 @@ upstream_common_base() {
         #    commit="$merged_main"
         #else
             >&2 echo "ERROR: don't know how to compare main and develop upstream branches"
-            commit="$merged_develop"
-            #exit 1
+            exit 1
         #fi
     fi
     echo "$commit"
