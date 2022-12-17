@@ -79,6 +79,8 @@ internal class ThreadsAwarenessHandler @Inject constructor(
      * @param syncResponse the sync response
      */
     suspend fun fetchRootThreadEventsIfNeeded(syncResponse: SyncResponse) {
+        // SC: this makes only sense for fallback replies
+        if (true) return
         val handlingStrategy = syncResponse.rooms?.join?.let {
             RoomSyncHandler.HandlingStrategy.JOINED(it)
         }
@@ -98,6 +100,8 @@ internal class ThreadsAwarenessHandler @Inject constructor(
      * @param eventList a list with the events to examine
      */
     suspend fun fetchRootThreadEventsIfNeeded(eventList: List<Event>) {
+        // SC: this makes only sense for fallback replies
+        if (true) return
         if (eventList.isNullOrEmpty()) return
 
         val threadsToFetch = emptyMap<String, String>().toMutableMap()
@@ -120,6 +124,8 @@ internal class ThreadsAwarenessHandler @Inject constructor(
      * Fetch multiple unique events using the fetchEvent function.
      */
     private suspend fun fetchThreadsEvents(threadsToFetch: Map<String, String>) {
+        // SC: this makes only sense for fallback replies
+        if (true) return
         val eventEntityList = threadsToFetch.mapNotNull { (eventId, roomId) ->
             fetchEvent(eventId, roomId)?.let {
                 it.toEntity(roomId, SendState.SYNCED, it.ageLocalTs ?: clock.epochMillis())
@@ -164,6 +170,8 @@ internal class ThreadsAwarenessHandler @Inject constructor(
             event: Event?,
             eventEntity: EventEntity? = null
     ): String? {
+        // SC: this makes only sense for fallback replies
+        if (true) return null
         event ?: return null
         roomId ?: return null
         if (lightweightSettingsStorage.areThreadMessagesEnabled() && !isReplyEvent(event)) return null
@@ -222,6 +230,8 @@ internal class ThreadsAwarenessHandler @Inject constructor(
             eventEntity: EventEntity?,
             event: Event
     ): String? {
+        // SC: this makes only sense for fallback replies
+        if (true) return null
         if (!isThreadEvent(event) && cacheEventRootId.contains(eventEntity?.eventId)) {
             eventEntity?.let {
                 val eventBody = event.getDecryptedTextSummary() ?: return null
@@ -251,6 +261,8 @@ internal class ThreadsAwarenessHandler @Inject constructor(
             isFromCache: Boolean,
             threadRelation: RelationDefaultContent?
     ): String? {
+        // SC: this makes only sense for fallback replies
+        if (true) return null
         event.eventId ?: return null
         val rootThreadEventId = if (isFromCache) event.eventId else event.getRootThreadEventId() ?: return null
         eventThatRelatesTo(realm, event.eventId, rootThreadEventId)?.forEach { eventEntityFound ->
@@ -281,6 +293,8 @@ internal class ThreadsAwarenessHandler @Inject constructor(
             eventPayload: MutableMap<String, Any>,
             messageTextContent: Content
     ): String? {
+        // SC: this makes only sense for fallback replies
+        if (true) return null
         eventPayload["content"] = messageTextContent
 
         if (event.isEncrypted()) {
@@ -317,6 +331,8 @@ internal class ThreadsAwarenessHandler @Inject constructor(
             eventToInjectBody: String,
             threadRelation: RelationDefaultContent?
     ): Content? {
+        // SC: this makes only sense for fallback replies
+        if (true) return null
         val eventToInjectId = eventToInject.eventId ?: return null
         val eventIdToInjectSenderId = eventToInject.senderId.orEmpty()
         val permalink = permalinkFactory.createPermalink(roomId, eventToInjectId, false)
@@ -348,6 +364,8 @@ internal class ThreadsAwarenessHandler @Inject constructor(
             eventPayload: MutableMap<String, Any>,
             threadRelation: RelationDefaultContent?
     ): String? {
+        // SC: this makes only sense for fallback replies
+        if (true) return null
         val replyFormatted = LocalEchoEventFactory.QUOTE_PATTERN.format(
                 "In reply to a thread",
                 eventBody
