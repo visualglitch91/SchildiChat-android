@@ -159,4 +159,9 @@
     <string name="in_reply_to_loading">Memuat pesan yang dibalas…</string>
     <string name="in_reply_to_error">Gagal memuat pesan yang dibalas</string>
     <string name="custom_emotes_account_data">Emoji sendiri</string>
+    <string name="settings_enable_member_name_click">Nama yang dapat diklik</string>
+    <string name="settings_sc_dbg_read_receipts">Pengawakutuan laporan dibaca</string>
+    <string name="settings_initial_sync">Penyinkronan awal</string>
+    <string name="settings_enable_member_name_click_summary">Klik pada nama pengguna untuk menyebutkannya</string>
+    <string name="settings_initial_sync_summary">Abaikan data lokal dan muat ulang dari server</string>
 </resources>
