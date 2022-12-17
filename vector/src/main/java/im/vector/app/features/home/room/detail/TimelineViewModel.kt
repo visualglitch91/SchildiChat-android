@@ -191,6 +191,7 @@ class TimelineViewModel @AssistedInject constructor(
     // Same lifecycle than the ViewModel (survive to screen rotation)
     val previewUrlRetriever = PreviewUrlRetriever(session, viewModelScope, buildMeta)
     val replyPreviewRetriever = ReplyPreviewRetriever(
+            vectorPreferences,
             initialState.roomId,
             session,
             viewModelScope,

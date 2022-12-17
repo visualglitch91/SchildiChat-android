@@ -28,6 +28,7 @@ import im.vector.app.features.html.PillsPostProcessor
 import im.vector.app.features.html.SpanUtils
 import im.vector.app.features.html.VectorHtmlCompressor
 import im.vector.app.features.media.ImageContentRenderer
+import im.vector.app.features.settings.VectorPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -47,6 +48,7 @@ import timber.log.Timber
 import java.util.UUID
 
 class ReplyPreviewRetriever(
+        vectorPreferences: VectorPreferences,
         private val roomId: String,
         private val session: Session,
         private val coroutineScope: CoroutineScope,
@@ -95,6 +97,8 @@ class ReplyPreviewRetriever(
     // eventToRetrieveId-specific locking
     private val retrieveEventLocks = mutableMapOf<String, Any>()
 
+    private val threadsEnabled = vectorPreferences.areThreadMessagesEnabled()
+
     fun invalidateEventsFromSnapshot(snapshot: List<TimelineEvent>) {
         val snapshotEvents = snapshot.associateBy { it.eventId }
         synchronized(data) {
@@ -125,7 +129,7 @@ class ReplyPreviewRetriever(
             val current = data[eventId]
 
             val relationContent = event.root.getRelationContent()
-            val repliedToEventId = relationContent?.inReplyTo?.eventId?.takeIf { relationContent.isFallingBack != true }
+            val repliedToEventId = relationContent?.inReplyTo?.eventId?.takeIf { relationContent.isFallingBack != true || !threadsEnabled }
             if (current == null || repliedToEventId != current.latestRepliedToEventId) {
                 // We have not rendered this yet, or the replied-to event has updated
                 if (repliedToEventId?.isNotEmpty().orFalse()) {
