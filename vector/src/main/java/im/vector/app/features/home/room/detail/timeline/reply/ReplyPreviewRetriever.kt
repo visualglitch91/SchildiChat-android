@@ -124,7 +124,8 @@ class ReplyPreviewRetriever(
         synchronized(data) {
             val current = data[eventId]
 
-            val repliedToEventId = event.root.getRelationContent()?.inReplyTo?.eventId
+            val relationContent = event.root.getRelationContent()
+            val repliedToEventId = relationContent?.inReplyTo?.eventId?.takeIf { relationContent.isFallingBack != true }
             if (current == null || repliedToEventId != current.latestRepliedToEventId) {
                 // We have not rendered this yet, or the replied-to event has updated
                 if (repliedToEventId?.isNotEmpty().orFalse()) {
