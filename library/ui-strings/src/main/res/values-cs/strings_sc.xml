@@ -163,4 +163,7 @@
     <string name="in_reply_to_error">Nepodařilo se načíst zprávu, na kterou bylo odpovězeno</string>
     <string name="settings_enable_member_name_click_summary">Kliknutím na uživatelské jméno jej zmíníte</string>
     <string name="settings_enable_member_name_click">Klikatelná jména</string>
+    <string name="settings_initial_sync_summary">Zahodit místní data a znovu načíst ze serveru</string>
+    <string name="settings_sc_dbg_read_receipts">Ladění potvrzení o přečtení</string>
+    <string name="settings_initial_sync">Počáteční synchronizace</string>
 </resources>
