@@ -1,1 +1,1 @@
-Gruppen-Messenger – verschlüsselte Kommunikation, Gruppen und Videoanrufe
+Sicherer Messenger für Matrix mit gewohnter Nutzeroberfläche
