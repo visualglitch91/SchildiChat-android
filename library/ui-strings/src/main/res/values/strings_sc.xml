@@ -212,6 +212,6 @@
     <string name="settings_enable_member_name_click_summary">Click on a username to mention them</string>
 
     <string name="settings_initial_sync">Initial sync</string>
-    <string name="settings_initial_sync_summary">Discard local data and reload from server</string>
+    <string name="settings_initial_sync_summary">Clear cache and reload from server</string>
 
 </resources>
