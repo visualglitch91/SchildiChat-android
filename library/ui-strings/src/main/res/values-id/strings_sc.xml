@@ -163,5 +163,5 @@
     <string name="settings_sc_dbg_read_receipts">Pengawakutuan laporan dibaca</string>
     <string name="settings_initial_sync">Penyinkronan awal</string>
     <string name="settings_enable_member_name_click_summary">Klik pada nama pengguna untuk menyebutkannya</string>
-    <string name="settings_initial_sync_summary">Abaikan data lokal dan muat ulang dari server</string>
+    <string name="settings_initial_sync_summary">Hapus tembolok dan muat ulang dari server</string>
 </resources>
