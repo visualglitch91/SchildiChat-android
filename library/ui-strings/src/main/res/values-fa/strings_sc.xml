@@ -12,7 +12,7 @@
     <string name="settings_simplified_mode">حالت آسان</string>
     <string name="settings_simplified_mode_summary">قابلیت‌های حرفه‌ای مانند فهرست اتاق‌های عمومی و تنظیمات رمزنگاری چت را پنهان کن</string>
     <string name="prompt_simplified_mode_title">انتخاب رابط کاربری</string>
-    <string name="prompt_simplified_mode_text">می‌توانید بعدا این را در تنظیمات تغییر دهید</string>
+    <string name="prompt_simplified_mode_text">می‌توانید بعداً این را در تنظیمات تغییر دهید.</string>
     <string name="prompt_simplified_mode_on">آسان</string>
     <string name="prompt_simplified_mode_off">کامل</string>
     <string name="settings_light_theme">ظاهر روشن</string>
@@ -30,7 +30,7 @@
     <string name="bubble_style_start">یک طرف</string>
     <string name="bubble_style_both">دو طرفه</string>
     <string name="bubble_style_element">عنصر</string>
-    <string name="bubble_time_location">برچسب زمان موقعیت مکانی</string>
+    <string name="bubble_time_location">مکان برچسب زمان</string>
     <string name="bubble_time_location_top">بالا</string>
     <string name="bubble_time_location_bottom">پایین</string>
     <string name="bubble_appearance">ظاهر حباب</string>
