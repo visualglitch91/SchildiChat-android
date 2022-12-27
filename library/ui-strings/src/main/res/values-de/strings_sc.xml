@@ -150,4 +150,8 @@
     <string name="custom_emotes_other_room">Emojis von %1$s</string>
     <string name="settings_follow_system_locale">Systemsprache verwenden</string>
     <string name="settings_follow_system_locale_summary">Beim Ändern der Systemsprache auch die Appsprache ändern</string>
+    <string name="custom_emotes_account_data">Eigene Emojis</string>
+    <string name="home_layout_preferences_sort_unread">Ungelesen</string>
+    <string name="in_reply_to_loading">Lade Nachricht…</string>
+    <string name="in_reply_to_error">Beantwortete Nachricht konnte nicht geladen werden</string>
 </resources>
