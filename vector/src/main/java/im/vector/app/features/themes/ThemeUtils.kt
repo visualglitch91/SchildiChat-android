@@ -258,20 +258,7 @@ object ThemeUtils {
         currentLightThemeAccent.set(aLightAccent)
         currentDarkThemeAccent.set(aDarkAccent)
         val aTheme = if (useDarkTheme(context)) aDarkTheme else aLightTheme
-        context.setTheme(
-                when (aTheme) {
-                    //SYSTEM_THEME_VALUE -> if (isSystemDarkTheme(context.resources)) R.style.Theme_Vector_Dark else R.style.Theme_Vector_Light
-                    THEME_LIGHT_VALUE -> R.style.Theme_Vector_Light
-                    THEME_DARK_VALUE -> R.style.Theme_Vector_Dark
-                    THEME_BLACK_VALUE -> R.style.Theme_Vector_Black
-                    THEME_SC_LIGHT_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC_Light, aLightAccent)
-                    THEME_SC_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC, aDarkAccent)
-                    THEME_SC_DARK_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC_Dark, aDarkAccent)
-                    THEME_SC_COLORED_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC_Colored, aDarkAccent)
-                    THEME_SC_DARK_COLORED_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC_Dark_Colored, aDarkAccent)
-                    else -> getAccentedThemeRes(R.style.AppTheme_SC_Light, aLightAccent)
-                }
-        )
+        context.setTheme(themeToRes(context, aTheme, aLightAccent, aDarkAccent))
 
         // Clear the cache
         mColorByAttr.clear()
@@ -342,6 +329,10 @@ object ThemeUtils {
         setApplicationTheme(context, getApplicationLightTheme(context), getApplicationDarkTheme(context),
                 getApplicationLightThemeAccent(context), themeAccent)
     }
+
+    @StyleRes
+    fun getApplicationThemeRes(context: Context) =
+            themeToRes(context, getCurrentActiveTheme(context), currentLightThemeAccent.get(), currentDarkThemeAccent.get())
 
     /**
      * Set the activity theme according to the selected one. Default is Light, so if this is the current
@@ -587,4 +578,19 @@ object ThemeUtils {
         }
     }
 
+    @StyleRes
+    @Suppress("UNUSED_PARAMETER")
+    private fun themeToRes(context: Context, theme: String, lightAccent: String, darkAccent: String): Int =
+            when (theme) {
+                //SYSTEM_THEME_VALUE -> if (isSystemDarkTheme(context.resources)) R.style.Theme_Vector_Dark else R.style.Theme_Vector_Light
+                THEME_LIGHT_VALUE -> R.style.Theme_Vector_Light
+                THEME_DARK_VALUE -> R.style.Theme_Vector_Dark
+                THEME_BLACK_VALUE -> R.style.Theme_Vector_Black
+                THEME_SC_LIGHT_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC_Light, lightAccent)
+                THEME_SC_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC, darkAccent)
+                THEME_SC_DARK_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC_Dark, darkAccent)
+                THEME_SC_COLORED_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC_Colored, darkAccent)
+                THEME_SC_DARK_COLORED_VALUE -> getAccentedThemeRes(R.style.AppTheme_SC_Dark_Colored, darkAccent)
+                else -> getAccentedThemeRes(R.style.AppTheme_SC_Light, lightAccent)
+            }
 }

@@ -447,6 +447,7 @@ class TimelineFragment :
                 RoomDetailViewEvents.RoomReplacementStarted -> handleRoomReplacement()
                 is RoomDetailViewEvents.ScDbgReadTracking -> handleScDbgReadTracking(it)
                 RoomDetailViewEvents.OpenElementCallWidget -> handleOpenElementCallWidget()
+                RoomDetailViewEvents.DisplayPromptToStopVoiceBroadcast -> displayPromptToStopVoiceBroadcast()
                 RoomDetailViewEvents.JumpToBottom -> doJumpToBottom()
                 is RoomDetailViewEvents.SetInitialForceScroll -> setInitialForceScrollEnabled(it.enabled, stickToBottom = it.stickToBottom)
             }
@@ -2342,6 +2343,20 @@ class TimelineFragment :
                 ?.find { it.type == WidgetType.ElementCall }
                 ?.also { widget ->
                     navigator.openRoomWidget(requireContext(), state.roomId, widget)
+                }
+    }
+
+    private fun displayPromptToStopVoiceBroadcast() {
+        ConfirmationDialogBuilder
+                .show(
+                        activity = requireActivity(),
+                        askForReason = false,
+                        confirmationRes = R.string.stop_voice_broadcast_content,
+                        positiveRes = R.string.action_stop,
+                        reasonHintRes = 0,
+                        titleRes = R.string.stop_voice_broadcast_dialog_title
+                ) {
+                    timelineViewModel.handle(RoomDetailAction.VoiceBroadcastAction.Recording.StopConfirmed)
                 }
     }
 
