@@ -189,9 +189,9 @@ class MessageInformationDataFactory @Inject constructor(
     }
 
     private fun getSenderId(event: TimelineEvent) = if (event.isEncrypted()) {
-        event.root.toValidDecryptedEvent()?.let {
+        event.root.senderId ?: event.root.toValidDecryptedEvent()?.let {
             session.cryptoService().deviceWithIdentityKey(it.cryptoSenderKey, it.algorithm)?.userId
-        } ?: event.root.senderId.orEmpty()
+        }.orEmpty()
     } else {
         event.root.senderId.orEmpty()
     }
