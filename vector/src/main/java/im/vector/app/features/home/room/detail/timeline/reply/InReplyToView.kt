@@ -46,8 +46,8 @@ import im.vector.app.features.themes.ThemeUtils
 import kotlinx.coroutines.CoroutineScope
 import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.session.crypto.attachments.toElementToDecrypt
+import org.matrix.android.sdk.api.session.room.model.message.MessageContentWithFormattedBody
 import org.matrix.android.sdk.api.session.room.model.message.MessageImageInfoContent
-import org.matrix.android.sdk.api.session.room.model.message.MessageTextContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageVideoContent
 import org.matrix.android.sdk.api.session.room.model.message.getCaption
 import org.matrix.android.sdk.api.session.room.model.message.getFileName
@@ -191,7 +191,7 @@ class InReplyToView @JvmOverloads constructor(
         } else {
             renderFadeOut(roomInformationData)
             when (val content = state.event.getLastMessageContent()) {
-                is MessageTextContent -> renderTextContent(content, retriever, movementMethod, coroutineScope)
+                is MessageContentWithFormattedBody -> renderTextContent(content, retriever, movementMethod, coroutineScope)
                 is MessageImageInfoContent -> renderImageThumbnailContent(content, state.event, retriever)
                 is MessageVideoContent -> renderVideoThumbnailContent(content, state.event, retriever, generateMissingVideoThumbnails)
                 else -> renderFallback(state.event, retriever)
@@ -205,7 +205,7 @@ class InReplyToView @JvmOverloads constructor(
     }
 
     private fun renderTextContent(
-            content: MessageTextContent,
+            content: MessageContentWithFormattedBody,
             retriever: ReplyPreviewRetriever,
             movementMethod: MovementMethod?,
             coroutineScope: CoroutineScope
