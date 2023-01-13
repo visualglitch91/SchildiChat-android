@@ -47,7 +47,12 @@ import org.matrix.android.sdk.internal.database.query.findAllIncludingEvents
 import org.matrix.android.sdk.internal.database.query.findLastForwardChunkOfThread
 import org.matrix.android.sdk.internal.database.query.where
 import org.matrix.android.sdk.internal.session.room.relation.threads.FetchThreadTimelineTask
+import org.matrix.android.sdk.internal.session.room.send.LocalEchoEventFactory
 import org.matrix.android.sdk.internal.session.room.state.StateEventDataSource
+import org.matrix.android.sdk.internal.session.room.timeline.decorator.TimelineEventDecorator
+import org.matrix.android.sdk.internal.session.room.timeline.decorator.TimelineEventDecoratorChain
+import org.matrix.android.sdk.internal.session.room.timeline.decorator.UiEchoDecorator
+import org.matrix.android.sdk.internal.session.room.timeline.decorator.UpdatedReplyDecorator
 import org.matrix.android.sdk.internal.session.sync.handler.room.ThreadsAwarenessHandler
 import org.matrix.android.sdk.internal.util.time.Clock
 import timber.log.Timber
@@ -118,6 +123,7 @@ internal class LoadTimelineStrategy constructor(
             val onNewTimelineEvents: (List<String>) -> Unit,
             val stateEventDataSource: StateEventDataSource,
             val matrixCoroutineDispatchers: MatrixCoroutineDispatchers,
+            val localEchoEventFactory: LocalEchoEventFactory
     )
 
     private var getContextLatch: CompletableDeferred<Unit>? = null
@@ -372,6 +378,19 @@ internal class LoadTimelineStrategy constructor(
     }
 
     private fun RealmResults<ChunkEntity>.createTimelineChunk(): TimelineChunk? {
+        fun createTimelineEventDecorator(): TimelineEventDecorator {
+            val decorators = listOf(
+                    UiEchoDecorator(uiEchoManager),
+                    UpdatedReplyDecorator(
+                            realm = dependencies.realm,
+                            roomId = roomId,
+                            localEchoEventFactory = dependencies.localEchoEventFactory,
+                            timelineEventMapper = dependencies.timelineEventMapper
+                    )
+            )
+            return TimelineEventDecoratorChain(decorators)
+        }
+
         return firstOrNull()?.let {
             if (ENABLE_TIMELINE_EMPTY_CHUNK_CLEANUP) {
                 // Before creating timeline chunks, make sure there are no empty chunks linking themselves, causing a stuck timeline
@@ -398,6 +417,9 @@ internal class LoadTimelineStrategy constructor(
                     initialEventId = mode.originEventId(),
                     onBuiltEvents = dependencies.onEventsUpdated,
                     onEventsDeleted = dependencies.onEventsDeleted,
+                    realm = dependencies.realm,
+                    localEchoEventFactory = dependencies.localEchoEventFactory,
+                    decorator = createTimelineEventDecorator()
             )
         }
     }
