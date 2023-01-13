@@ -52,7 +52,6 @@ import org.matrix.android.sdk.internal.session.room.state.StateEventDataSource
 import org.matrix.android.sdk.internal.session.room.timeline.decorator.TimelineEventDecorator
 import org.matrix.android.sdk.internal.session.room.timeline.decorator.TimelineEventDecoratorChain
 import org.matrix.android.sdk.internal.session.room.timeline.decorator.UiEchoDecorator
-import org.matrix.android.sdk.internal.session.room.timeline.decorator.UpdatedReplyDecorator
 import org.matrix.android.sdk.internal.session.sync.handler.room.ThreadsAwarenessHandler
 import org.matrix.android.sdk.internal.util.time.Clock
 import timber.log.Timber
@@ -381,12 +380,14 @@ internal class LoadTimelineStrategy constructor(
         fun createTimelineEventDecorator(): TimelineEventDecorator {
             val decorators = listOf(
                     UiEchoDecorator(uiEchoManager),
+                    /* // SC: this is upstream reply fallback stuff
                     UpdatedReplyDecorator(
                             realm = dependencies.realm,
                             roomId = roomId,
                             localEchoEventFactory = dependencies.localEchoEventFactory,
                             timelineEventMapper = dependencies.timelineEventMapper
                     )
+                    */
             )
             return TimelineEventDecoratorChain(decorators)
         }

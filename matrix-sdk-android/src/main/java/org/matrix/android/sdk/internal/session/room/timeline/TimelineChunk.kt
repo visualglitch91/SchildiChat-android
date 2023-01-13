@@ -93,7 +93,8 @@ internal class TimelineChunk(
     The key holds the eventId of the repliedTo event.
     The value holds a set of eventIds of all events replying to this event.
      */
-    private val repliedEventsMap = HashMap<String, MutableSet<String>>()
+    // SC: this is upstream reply fallback stuff
+    //private val repliedEventsMap = HashMap<String, MutableSet<String>>()
 
     private val chunkObjectListener = RealmObjectChangeListener<ChunkEntity> { _, changeSet ->
         if (changeSet == null) return@RealmObjectChangeListener
@@ -450,13 +451,13 @@ internal class TimelineChunk(
         fun processTimelineEvent(timelineEvent: TimelineEvent) {
             if (timelineEvent.root.type == EventType.STATE_ROOM_CREATE) {
                 isLastBackward.set(true)
-            } else if (timelineEvent.root.isReply()) {
+            } /*else if (timelineEvent.root.isReply()) { // SC: this is upstream reply fallback stuff
                 val relatesEventId = timelineEvent.getRelationContent()?.inReplyTo?.eventId
                 if (relatesEventId != null) {
                     val relatedEvents = repliedEventsMap.getOrPut(relatesEventId) { mutableSetOf() }
                     relatedEvents.add(timelineEvent.eventId)
                 }
-            }
+            }*/
             val transactionId = timelineEvent.root.unsignedData?.transactionId
             uiEchoManager?.onSyncedEvent(transactionId)
         }
@@ -575,11 +576,15 @@ internal class TimelineChunk(
         for (range in modifications) {
             for (modificationIndex in (range.startIndex until range.startIndex + range.length)) {
                 val updatedEntity = results[modificationIndex] ?: continue
+                // SC: this is upstream reply fallback stuff
+                /*
                 val updatedEventId = updatedEntity.eventId
                 val repliesOfUpdatedEvent = repliedEventsMap.getOrElse(updatedEventId) { emptySet() }.mapNotNull { eventId ->
                     results.where().equalTo(TimelineEventEntityFields.EVENT_ID, eventId).findFirst()
                 }
                 repliesOfUpdatedEvent.plus(updatedEntity).forEach { entityToRebuild ->
+                */
+                listOf(updatedEntity).forEach { entityToRebuild ->
                     val builtEventIndex = builtEventsIndexes[entityToRebuild.eventId] ?: return@forEach
                     try {
                         builtEvents[builtEventIndex] = entityToRebuild.buildAndDecryptIfNeeded()
