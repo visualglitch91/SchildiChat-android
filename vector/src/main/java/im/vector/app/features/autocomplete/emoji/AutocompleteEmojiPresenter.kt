@@ -119,6 +119,10 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
                 val globalPacks = session.accountDataService().getUserAccountDataEvent(UserAccountDataTypes.TYPE_EMOTE_ROOMS)
                 var packsAdded = 0
                 (globalPacks?.content?.get("rooms") as? Map<*, *>)?.forEach { pack ->
+                    // If entry is empty, it has been disabled as global pack (after being enabled before).
+                    if ((pack.value as? Map<*, *>).isNullOrEmpty()) {
+                        return@forEach
+                    }
                     if (packsAdded >= AutocompleteEmojiController.MAX_CUSTOM_OTHER_ROOMS) {
                         return@forEach
                     }
