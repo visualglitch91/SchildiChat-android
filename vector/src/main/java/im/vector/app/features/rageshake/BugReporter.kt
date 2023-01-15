@@ -323,6 +323,14 @@ class BugReporter @Inject constructor(
                     builder.addFormDataPart("enabledDebugSettings", enabledDebugSettings.joinToString())
                             .addFormDataPart("reportTime", reportTime)
                             .addFormDataPart("packageName", buildMeta.applicationId)
+                    // Device characteristics
+                    context.resources.displayMetrics.apply {
+                        builder.addFormDataPart("device_density", density.toString())
+                                .addFormDataPart("device_width_px", widthPixels.toString())
+                                .addFormDataPart("device_height_px", heightPixels.toString())
+                                .addFormDataPart("device_width_dp", (widthPixels/density).toString())
+                                .addFormDataPart("device_height_dp", (heightPixels/density).toString())
+                    }
 
                     // add the gzipped files
                     for (file in gzippedFiles) {
