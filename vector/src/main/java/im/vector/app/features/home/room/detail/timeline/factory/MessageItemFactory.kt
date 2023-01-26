@@ -95,11 +95,13 @@ import org.matrix.android.sdk.api.session.events.model.content.EncryptedEventCon
 import org.matrix.android.sdk.api.session.events.model.isThread
 import org.matrix.android.sdk.api.session.events.model.toContent
 import org.matrix.android.sdk.api.session.events.model.toModel
+import org.matrix.android.sdk.api.session.room.getTimelineEvent
 import org.matrix.android.sdk.api.session.room.model.message.MessageAudioContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageBeaconInfoContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageContentWithFormattedBody
 import org.matrix.android.sdk.api.session.room.model.message.MessageEmoteContent
+import org.matrix.android.sdk.api.session.room.model.message.MessageEndPollContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageFileContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageImageInfoContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageLocationContent
@@ -115,6 +117,7 @@ import org.matrix.android.sdk.api.session.room.model.message.getFileName
 import org.matrix.android.sdk.api.session.room.model.message.getFileUrl
 import org.matrix.android.sdk.api.session.room.model.message.getThumbnailUrl
 import org.matrix.android.sdk.api.session.room.model.relation.ReplyToContent
+import org.matrix.android.sdk.api.session.room.timeline.getRelationContent
 import org.matrix.android.sdk.api.settings.LightweightSettingsStorage
 import org.matrix.android.sdk.api.util.MimeTypes
 import timber.log.Timber
@@ -209,7 +212,8 @@ class MessageItemFactory @Inject constructor(
             is MessageFileContent -> buildFileMessageItem(messageContent, highlight, callback, attributes)
             is MessageAudioContent -> buildAudioContent(params, messageContent, informationData, highlight, callback, attributes)
             is MessageVerificationRequestContent -> buildVerificationRequestMessageItem(messageContent, informationData, highlight, callback, attributes)
-            is MessagePollContent -> buildPollItem(messageContent, informationData, highlight, callback, attributes)
+            is MessagePollContent -> buildPollItem(messageContent, informationData, highlight, callback, attributes, isEnded = false)
+            is MessageEndPollContent -> buildEndedPollItem(event.getRelationContent()?.eventId, informationData, highlight, callback, attributes)
             is MessageLocationContent -> buildLocationItem(messageContent, informationData, highlight, callback, attributes)
             is MessageBeaconInfoContent -> liveLocationShareMessageItemFactory.create(event, highlight, attributes)
             is MessageVoiceBroadcastInfoContent -> voiceBroadcastItemFactory.create(params, messageContent, highlight, attributes)
@@ -256,6 +260,7 @@ class MessageItemFactory @Inject constructor(
             highlight: Boolean,
             callback: TimelineEventController.Callback?,
             attributes: AbsMessageItem.Attributes,
+            isEnded: Boolean,
     ): PollItem {
         val pollViewState = pollItemViewStateFactory.create(pollContent, informationData)
 
@@ -267,12 +272,36 @@ class MessageItemFactory @Inject constructor(
                 .votesStatus(pollViewState.votesStatus)
                 .optionViewStates(pollViewState.optionViewStates.orEmpty())
                 .edited(informationData.hasBeenEdited)
+                .ended(isEnded)
                 .highlighted(highlight)
                 .leftGuideline(avatarSizeProvider.leftGuideline)
                 .callback(callback)
                 .movementMethod(createLinkMovementMethod(callback))
                 .replyPreviewRetriever(callback?.getReplyPreviewRetriever())
                 .inReplyToClickCallback(callback)
+    }
+
+    private fun buildEndedPollItem(
+            pollStartEventId: String?,
+            informationData: MessageInformationData,
+            highlight: Boolean,
+            callback: TimelineEventController.Callback?,
+            attributes: AbsMessageItem.Attributes,
+    ): PollItem? {
+        pollStartEventId ?: return null.also {
+            Timber.e("### buildEndedPollItem. Cannot render poll end event because poll start event id is null")
+        }
+        val pollStartEvent = session.roomService().getRoom(roomId)?.getTimelineEvent(pollStartEventId)
+        val pollContent = pollStartEvent?.root?.getClearContent()?.toModel<MessagePollContent>() ?: return null
+
+        return buildPollItem(
+                pollContent,
+                informationData,
+                highlight,
+                callback,
+                attributes,
+                isEnded = true
+        )
     }
 
     private fun createPollQuestion(
