@@ -3,7 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <im.vector.app.core.preference.VectorPreference
-        android:summary="@string/settings_sc_debugging_summary" />
+    <im.vector.app.core.preference.VectorPreferenceCategory
+        android:key="SC_DEBUGGING_CATEGORY_LOGS"
+        android:title="@string/settings_sc_debugging_category_logs" />
+
+    <im.vector.app.core.preference.VectorPreferenceCategory
+        android:key="SC_DEBUGGING_CATEGORY_VISUALS"
+        android:title="@string/settings_sc_debugging_category_visuals" />
 
 </androidx.preference.PreferenceScreen>
