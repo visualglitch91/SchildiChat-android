@@ -164,4 +164,6 @@
     <string name="settings_initial_sync">Penyinkronan awal</string>
     <string name="settings_enable_member_name_click_summary">Klik pada nama pengguna untuk menyebutkannya</string>
     <string name="settings_initial_sync_summary">Hapus tembolok dan muat ulang dari server</string>
+    <string name="settings_sc_debugging_category_visuals">Info pengawakutuan visual</string>
+    <string name="settings_sc_debugging_category_logs">Catatan tambahan</string>
 </resources>
