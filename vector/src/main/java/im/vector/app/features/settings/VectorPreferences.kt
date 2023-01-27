@@ -252,6 +252,7 @@ class VectorPreferences @Inject constructor(
         private const val SETTINGS_JUMP_TO_BOTTOM_ON_SEND = "SETTINGS_JUMP_TO_BOTTOM_ON_SEND"
         private const val SETTINGS_SPACE_MEMBERS_IN_SPACE_ROOMS = "SETTINGS_SPACE_MEMBERS_IN_SPACE_ROOMS"
         private const val SETTINGS_ENABLE_SPACE_PAGER = "SETTINGS_ENABLE_SPACE_PAGER"
+        private const val SETTINGS_SPACE_PAGER_BAR_PREFER_SPACE = "SETTINGS_SPACE_PAGER_BAR_PREFER_SPACE"
         private const val SETTINGS_NOTIF_ONLY_ALERT_ONCE = "SETTINGS_NOTIF_ONLY_ALERT_ONCE"
         private const val SETTINGS_HIDE_CALL_BUTTONS = "SETTINGS_HIDE_CALL_BUTTONS"
         private const val SETTINGS_READ_RECEIPT_FOLLOWS_READ_MARKER = "SETTINGS_READ_RECEIPT_FOLLOWS_READ_MARKER"
@@ -1224,6 +1225,11 @@ class VectorPreferences @Inject constructor(
     }
 
     // SC addition
+    fun preferSpecificSpacePagerSpace(): Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_SPACE_PAGER_BAR_PREFER_SPACE, false)
+    }
+
+    // SC addition
     fun onlyAlertOnce(): Boolean {
         return defaultPrefs.getBoolean(SETTINGS_NOTIF_ONLY_ALERT_ONCE, false)
     }
@@ -1292,6 +1298,7 @@ class VectorPreferences @Inject constructor(
                 .putBoolean(SETTINGS_FOLLOW_SYSTEM_LOCALE, true)
                 .putBoolean(SETTINGS_ENABLE_MEMBER_NAME_CLICK, false)
                 .putBoolean(SETTINGS_CLEAR_HIGHLIGHT_ON_SCROLL, true)
+                .putBoolean(SETTINGS_SPACE_PAGER_BAR_PREFER_SPACE, true)
                 .apply()
     }
 
