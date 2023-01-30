@@ -166,4 +166,6 @@
     <string name="settings_initial_sync_summary">Vymazat mezipaměť a znovu načíst ze serveru</string>
     <string name="settings_sc_dbg_read_receipts">Ladění potvrzení o přečtení</string>
     <string name="settings_initial_sync">Počáteční synchronizace</string>
+    <string name="settings_sc_debugging_category_logs">Další protokoly</string>
+    <string name="settings_sc_debugging_category_visuals">Vizuální ladicí informace</string>
 </resources>
