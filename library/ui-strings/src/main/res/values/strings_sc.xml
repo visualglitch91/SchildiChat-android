@@ -216,4 +216,13 @@
     <string name="settings_initial_sync">Initial sync</string>
     <string name="settings_initial_sync_summary">Clear cache and reload from server</string>
 
+    <!-- Note to translators: the translation MUST contain the string "${app_name_sc_stable}", which will be replaced by the application name -->
+    <string name="use_other_session_content_description_sc">Use the latest ${app_name_sc_stable} on your other devices, ${app_name_sc_stable} Web, ${app_name_sc_stable} Desktop, ${app_name_sc_stable} for Android, or another cross-signing capable Matrix client</string>
+    <!-- Note to translators: the translation MUST contain the string "${app_name}", which will be replaced by the application name -->
+    <string name="app_desktop_web_sc">${app_name_sc_stable} Web\n${app_name_sc_stable} Desktop</string>
+    <!-- Note to translators: the translation MUST contain the string "${app_name_sc_stable}", which will be replaced by the application name -->
+    <string name="app_ios_android_sc">${app_name_sc_stable} Android</string>
+    <!-- Note to translators: the translation MUST contain the string "${app_name_sc_stable}", which will be replaced by the application name -->
+    <string name="use_latest_app_sc">Use the latest ${app_name_sc_stable} on your other devices:</string>
+
 </resources>
