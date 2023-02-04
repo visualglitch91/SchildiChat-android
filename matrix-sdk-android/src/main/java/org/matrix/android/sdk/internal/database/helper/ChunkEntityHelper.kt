@@ -23,6 +23,7 @@ import io.realm.kotlin.createObject
 import org.matrix.android.sdk.api.session.events.model.content.EncryptedEventContent
 import org.matrix.android.sdk.api.session.events.model.toModel
 import org.matrix.android.sdk.api.session.room.model.RoomMemberContent
+import org.matrix.android.sdk.api.session.room.read.ReadService.Companion.THREAD_ID_MAIN
 import org.matrix.android.sdk.internal.crypto.model.SessionInfo
 import org.matrix.android.sdk.internal.database.mapper.asDomain
 import org.matrix.android.sdk.internal.database.model.ChunkEntity
@@ -136,17 +137,21 @@ private fun handleReadReceipts(realm: Realm, roomId: String, eventEntity: EventE
     val originServerTs = eventEntity.originServerTs
     if (originServerTs != null) {
         val timestampOfEvent = originServerTs.toDouble()
-        val readReceiptOfSender = ReadReceiptEntity.getOrCreate(realm, roomId = roomId, userId = senderId, threadId = eventEntity.rootThreadEventId)
-        // If the synced RR is older, update
-        if (timestampOfEvent > readReceiptOfSender.originServerTs) {
-            val previousReceiptsSummary = ReadReceiptsSummaryEntity.where(realm, eventId = readReceiptOfSender.eventId).findFirst()
-            rrDimber.i{"Handle outdated chunk RR $roomId / $senderId thread ${eventEntity.rootThreadEventId}: event ${readReceiptOfSender.eventId} -> ${eventEntity.eventId}"}
-            readReceiptOfSender.eventId = eventEntity.eventId
-            readReceiptOfSender.originServerTs = timestampOfEvent
-            previousReceiptsSummary?.readReceipts?.remove(readReceiptOfSender)
-            readReceiptsSummaryEntity.readReceipts.add(readReceiptOfSender)
-        } else {
-            rrDimber.i{"Handled chunk RR $roomId / $senderId thread ${eventEntity.rootThreadEventId}: keep ${readReceiptOfSender.eventId} (not ${eventEntity.eventId})"}
+        // null receipts also update the main receipt
+        val receiptDestination = eventEntity.rootThreadEventId ?: THREAD_ID_MAIN
+        setOf(receiptDestination, eventEntity.rootThreadEventId).distinct().forEach { rootThreadEventId ->
+            val readReceiptOfSender = ReadReceiptEntity.getOrCreate(realm, roomId = roomId, userId = senderId, threadId = rootThreadEventId)
+            // If the synced RR is older, update
+            if (timestampOfEvent > readReceiptOfSender.originServerTs) {
+                val previousReceiptsSummary = ReadReceiptsSummaryEntity.where(realm, eventId = readReceiptOfSender.eventId).findFirst()
+                rrDimber.i { "Handle outdated chunk RR $roomId / $senderId thread $rootThreadEventId(${eventEntity.rootThreadEventId}): event ${readReceiptOfSender.eventId} -> ${eventEntity.eventId}" }
+                readReceiptOfSender.eventId = eventEntity.eventId
+                readReceiptOfSender.originServerTs = timestampOfEvent
+                previousReceiptsSummary?.readReceipts?.remove(readReceiptOfSender)
+                readReceiptsSummaryEntity.readReceipts.add(readReceiptOfSender)
+            } else {
+                rrDimber.i { "Handled chunk RR $roomId / $senderId thread $rootThreadEventId(${eventEntity.rootThreadEventId}): keep ${readReceiptOfSender.eventId} (not ${eventEntity.eventId})" }
+            }
         }
     }
     return readReceiptsSummaryEntity

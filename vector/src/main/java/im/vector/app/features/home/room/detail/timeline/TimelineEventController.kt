@@ -628,7 +628,7 @@ class TimelineEventController @Inject constructor(
         return if (partialState.isFromThreadTimeline()) {
             this.threadId == partialState.rootThreadEventId
         } else {
-            this.threadId == null || this.threadId == ReadService.THREAD_ID_MAIN
+            this.threadId == ReadService.THREAD_ID_MAIN
         }
     }
 
