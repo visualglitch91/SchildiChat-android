@@ -1,4 +1,4 @@
-[![Translation status](https://weblate.bubu1.eu/widgets/schildichat/-/schildichat-android/svg-badge.svg)](https://weblate.bubu1.eu/projects/schildichat/schildichat-android/)
+[![Translation status](https://weblate.spiritcroc.de/widgets/schildichat/-/schildichat-android/svg-badge.svg)](https://weblate.spiritcroc.de/projects/schildichat/schildichat-android/)
 [![SchildiChat-Android Matrix room #schildichat-android:matrix.org](https://img.shields.io/matrix/schildichat-android:matrix.org.svg?label=%23schildichat-android:matrix.org&logo=matrix&server_fqdn=matrix.org)](https://matrix.to/#/#schildichat-android:matrix.org)
 
 # SchildiChat for Android
@@ -22,7 +22,7 @@ Information about available app variants can be found [on our website](https://s
 
 ## Translations
 
-If you want to translate SchildiChat, visit its weblate [here](https://weblate.bubu1.eu/projects/schildichat/schildichat-android/).
+If you want to translate SchildiChat, visit its weblate [here](https://translate.schildi.chat/projects/schildichat/schildichat-android/).
 For translations that concern upstream Element code, visit their weblate [here](https://translate.element.io/engage/element-android/).
 
 ## Screenshots
