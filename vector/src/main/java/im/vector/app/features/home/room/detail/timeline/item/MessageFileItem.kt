@@ -30,7 +30,7 @@ import com.airbnb.epoxy.EpoxyModelClass
 import im.vector.app.R
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.extensions.setTextOrHide
-import im.vector.app.core.ui.views.FooteredTextView
+import im.vector.app.core.ui.views.AbstractFooteredTextView
 import im.vector.app.features.home.room.detail.timeline.helper.ContentDownloadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.helper.ContentUploadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
@@ -154,7 +154,7 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
         val fileImageWrapper by bind<ViewGroup>(R.id.messageFileImageView)
         val fileDownloadProgress by bind<ProgressBar>(R.id.messageFileProgressbar)
         val filenameView by bind<TextView>(R.id.messageFilenameView)
-        val captionView by bind<FooteredTextView>(R.id.messageCaptionView)
+        val captionView by bind<AbstractFooteredTextView>(R.id.messageCaptionView)
     }
 
     companion object {

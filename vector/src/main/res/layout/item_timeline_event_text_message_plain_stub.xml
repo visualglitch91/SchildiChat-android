@@ -6,7 +6,8 @@
     but it also makes it align better for RTL texts in RTL locales - at least
     until the user pill is touched...
 -->
-<im.vector.app.core.ui.views.FooteredTextView android:id="@+id/messageTextView"
+<im.vector.app.core.ui.views.FooteredTextView
+    android:id="@+id/messageTextView"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/Widget.Vector.TextView.Body"

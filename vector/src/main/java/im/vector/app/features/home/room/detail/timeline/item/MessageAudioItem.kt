@@ -31,7 +31,7 @@ import im.vector.app.R
 import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.extensions.setTextOrHide
-import im.vector.app.core.ui.views.FooteredTextView
+import im.vector.app.core.ui.views.AbstractFooteredTextView
 import im.vector.app.core.utils.TextUtils
 import im.vector.app.features.home.room.detail.timeline.helper.AudioMessagePlaybackTracker
 import im.vector.app.features.home.room.detail.timeline.helper.ContentDownloadStateTrackerBinder
@@ -224,7 +224,7 @@ abstract class MessageAudioItem : AbsMessageItem<MessageAudioItem.Holder>() {
         val audioPlaybackTime by bind<TextView>(R.id.audioPlaybackTime)
         val progressLayout by bind<ViewGroup>(R.id.messageFileUploadProgressLayout)
         val fileSize by bind<TextView>(R.id.fileSize)
-        val captionView by bind<FooteredTextView>(R.id.messageCaptionView)
+        val captionView by bind<AbstractFooteredTextView>(R.id.messageCaptionView)
         val audioPlaybackDuration by bind<TextView>(R.id.audioPlaybackDuration)
         val audioSeekBar by bind<SeekBar>(R.id.audioSeekBar)
     }

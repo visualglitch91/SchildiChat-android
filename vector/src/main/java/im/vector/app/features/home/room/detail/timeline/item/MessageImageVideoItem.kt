@@ -34,17 +34,15 @@ import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.extensions.setTextOrHide
 import im.vector.app.core.files.LocalFilesHelper
 import im.vector.app.core.glide.GlideApp
-import im.vector.app.core.ui.views.FooteredTextView
+import im.vector.app.core.ui.views.AbstractFooteredTextView
 import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.features.home.room.detail.timeline.helper.ContentUploadStateTrackerBinder
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.home.room.detail.timeline.style.granularRoundedCorners
 import im.vector.app.features.home.room.detail.timeline.view.ScMessageBubbleWrapView
 import im.vector.app.features.media.ImageContentRenderer
-import im.vector.app.features.themes.defaultScBubbleAppearance
 import kotlin.math.round
 import org.matrix.android.sdk.api.session.room.model.message.MessageType
-import org.matrix.android.sdk.api.util.MimeTypes
 
 @EpoxyModelClass
 abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Holder>() {
@@ -255,7 +253,7 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
     class Holder : AbsMessageItem.Holder(STUB_ID) {
         val progressLayout by bind<ViewGroup>(R.id.messageMediaUploadProgressLayout)
         val imageView by bind<ImageView>(R.id.messageThumbnailView)
-        val captionView by bind<FooteredTextView>(R.id.messageCaptionView)
+        val captionView by bind<AbstractFooteredTextView>(R.id.messageCaptionView)
         val playContentView by bind<ImageView>(R.id.messageMediaPlayView)
         val mediaContentView by bind<ViewGroup>(R.id.messageContentMedia)
     }

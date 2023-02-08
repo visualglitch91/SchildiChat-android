@@ -6,7 +6,8 @@
     but it also makes it align better for RTL texts in RTL locales - at least
     until the user pill is touched...
 -->
-<io.element.android.wysiwyg.EditorStyledTextView xmlns:android="http://schemas.android.com/apk/res/android"
+<io.element.android.wysiwyg.EditorStyledTextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/messageTextView"
     style="@style/Widget.Vector.TextView.Body"

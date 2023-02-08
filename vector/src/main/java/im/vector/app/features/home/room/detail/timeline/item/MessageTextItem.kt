@@ -17,23 +17,18 @@
 package im.vector.app.features.home.room.detail.timeline.item
 
 import android.text.Spanned
-import android.text.method.MovementMethod
 import android.view.ViewStub
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.PrecomputedTextCompat
-import androidx.core.view.isVisible
 import androidx.core.widget.TextViewCompat
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
 import im.vector.app.R
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.core.epoxy.onLongClickIgnoringLinks
-import im.vector.app.core.ui.views.FooteredTextView
+import im.vector.app.core.ui.views.AbstractFooteredTextView
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
-import im.vector.app.features.home.room.detail.timeline.reply.InReplyToView
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
-import im.vector.app.features.home.room.detail.timeline.reply.PreviewReplyUiState
-import im.vector.app.features.home.room.detail.timeline.reply.ReplyPreviewRetriever
 import im.vector.app.features.home.room.detail.timeline.tools.findPillsAndProcess
 import im.vector.app.features.home.room.detail.timeline.url.AbstractPreviewUrlView
 import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlRetriever
@@ -105,7 +100,7 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
         holder.previewUrlView.delegate = previewUrlCallback
         holder.previewUrlView.renderMessageLayout(attributes.informationData.messageLayout)
 
-        val messageView: FooteredTextView = holder.messageView(useRichTextEditorStyle) //if (useRichTextEditorStyle) holder.richMessageView else holder.plainMessageView
+        val messageView: AbstractFooteredTextView = holder.messageView(useRichTextEditorStyle) //if (useRichTextEditorStyle) holder.richMessageView else holder.plainMessageView
         if (useBigFont) {
             messageView.textSize = 44F
         } else {
@@ -155,10 +150,10 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
         lateinit var previewUrlView: AbstractPreviewUrlView // set to either previewUrlViewElement or previewUrlViewSc by layout
         private val richMessageStub by bind<ViewStub>(R.id.richMessageTextViewStub)
         private val plainMessageStub by bind<ViewStub>(R.id.plainMessageTextViewStub)
-        val richMessageView: FooteredTextView by lazy {
+        val richMessageView: AbstractFooteredTextView by lazy {
             richMessageStub.inflate().findViewById(R.id.messageTextView)
         }
-        val plainMessageView: FooteredTextView by lazy {
+        val plainMessageView: AbstractFooteredTextView by lazy {
             plainMessageStub.inflate().findViewById(R.id.messageTextView)
         }
         fun messageView(useRichTextEditorStyle: Boolean) = if (useRichTextEditorStyle) richMessageView else plainMessageView
