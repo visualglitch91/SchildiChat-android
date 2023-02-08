@@ -25,8 +25,6 @@ import im.vector.app.R
 import im.vector.app.core.epoxy.VectorEpoxyHolder
 import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.core.epoxy.onClick
-import im.vector.app.core.time.DefaultClock
-import im.vector.app.features.settings.VectorPreferences
 
 @EpoxyModelClass
 abstract class FilteredRoomFooterItem : VectorEpoxyModel<FilteredRoomFooterItem.Holder>(R.layout.item_room_filter_footer) {

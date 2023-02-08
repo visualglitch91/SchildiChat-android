@@ -70,5 +70,6 @@ object RoomSummaryConstants {
                 EventType.STICKER
     ) +
             EventType.POLL_START.values +
+            EventType.POLL_END.values +
             EventType.STATE_ROOM_BEACON_INFO.values
 }

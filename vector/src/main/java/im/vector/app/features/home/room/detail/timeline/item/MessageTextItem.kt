@@ -18,6 +18,7 @@ package im.vector.app.features.home.room.detail.timeline.item
 
 import android.text.Spanned
 import android.text.method.MovementMethod
+import android.view.ViewStub
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.PrecomputedTextCompat
 import androidx.core.view.isVisible
@@ -76,6 +77,9 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
     @EpoxyAttribute(EpoxyAttribute.Option.DoNotHash)
     var markwonPlugins: (List<MarkwonPlugin>)? = null
 
+    @EpoxyAttribute
+    var useRichTextEditorStyle: Boolean = false
+
     private val previewUrlViewUpdater = PreviewUrlViewUpdater()
 
     // Remember footer measures for URL updates
@@ -101,28 +105,29 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
         holder.previewUrlView.delegate = previewUrlCallback
         holder.previewUrlView.renderMessageLayout(attributes.informationData.messageLayout)
 
+        val messageView: FooteredTextView = holder.messageView(useRichTextEditorStyle) //if (useRichTextEditorStyle) holder.richMessageView else holder.plainMessageView
         if (useBigFont) {
-            holder.messageView.textSize = 44F
+            messageView.textSize = 44F
         } else {
-            holder.messageView.textSize = 14F
+            messageView.textSize = 14F
         }
         if (searchForPills) {
             message?.charSequence?.findPillsAndProcess(coroutineScope) {
                 // mmm.. not sure this is so safe in regards to cell reuse
-                it.bind(holder.messageView)
+                it.bind(messageView)
             }
         }
 
         message?.charSequence.let { charSequence ->
-            markwonPlugins?.forEach { plugin -> plugin.beforeSetText(holder.messageView, charSequence as Spanned) }
+            markwonPlugins?.forEach { plugin -> plugin.beforeSetText(messageView, charSequence as Spanned) }
         }
         super.bind(holder)
-        holder.messageView.movementMethod = movementMethod
-        renderSendState(holder.messageView, holder.messageView)
-        holder.messageView.onClick(attributes.itemClickListener)
-        holder.messageView.onLongClickIgnoringLinks(attributes.itemLongClickListener)
-        holder.messageView.setTextWithEmojiSupport(message?.charSequence, bindingOptions)
-        markwonPlugins?.forEach { plugin -> plugin.afterSetText(holder.messageView) }
+        messageView.movementMethod = movementMethod
+        renderSendState(messageView, messageView)
+        messageView.onClick(attributes.itemClickListener)
+        messageView.onLongClickIgnoringLinks(attributes.itemLongClickListener)
+        messageView.setTextWithEmojiSupport(message?.charSequence, bindingOptions)
+        markwonPlugins?.forEach { plugin -> plugin.afterSetText(messageView) }
     }
 
     private fun AppCompatTextView.setTextWithEmojiSupport(message: CharSequence?, bindingOptions: BindingOptions?) {
@@ -145,10 +150,18 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
     override fun getViewStubId() = STUB_ID
 
     class Holder : AbsMessageItem.Holder(STUB_ID) {
-        val messageView by bind<FooteredTextView>(R.id.messageTextView)
         val previewUrlViewElement by bind<PreviewUrlView>(R.id.messageUrlPreviewElement)
         val previewUrlViewSc by bind<PreviewUrlViewSc>(R.id.messageUrlPreviewSc)
         lateinit var previewUrlView: AbstractPreviewUrlView // set to either previewUrlViewElement or previewUrlViewSc by layout
+        private val richMessageStub by bind<ViewStub>(R.id.richMessageTextViewStub)
+        private val plainMessageStub by bind<ViewStub>(R.id.plainMessageTextViewStub)
+        val richMessageView: FooteredTextView by lazy {
+            richMessageStub.inflate().findViewById(R.id.messageTextView)
+        }
+        val plainMessageView: FooteredTextView by lazy {
+            plainMessageStub.inflate().findViewById(R.id.messageTextView)
+        }
+        fun messageView(useRichTextEditorStyle: Boolean) = if (useRichTextEditorStyle) richMessageView else plainMessageView
     }
 
     inner class PreviewUrlViewUpdater : PreviewUrlRetriever.PreviewUrlRetrieverListener {
@@ -164,18 +177,20 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
             }
             previewUrlView?.render(state, safeImageContentRenderer)
 
+            val messageView = holder?.messageView(useRichTextEditorStyle)
+
             ///* // disabled for now: just set all in reserveFooterSpace to ensure space in all scenarios
             // Currently, all states except data imply hidden preview
             if (state is PreviewUrlUiState.Data) {
                 // Don't reserve footer space in message view, but preview view
-                holder?.messageView?.footerWidth = 0
-                holder?.messageView?.footerHeight = 0
+                messageView?.footerWidth = 0
+                messageView?.footerHeight = 0
             } else {
-                holder?.messageView?.footerWidth = footerWidth
-                holder?.messageView?.footerHeight = footerHeight
+                messageView?.footerWidth = footerWidth
+                messageView?.footerHeight = footerHeight
             }
-            //holder?.messageView?.invalidate()
-            holder?.messageView?.requestLayout()
+            //messageView?.invalidate()
+            messageView?.requestLayout()
             //*/
         }
     }
@@ -198,8 +213,9 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
         // if we don't want to change this afterwards
         // This might be a race condition, but the UI-isssue if evaluated wrongly is negligible
         if (!holder.previewUrlView.isVisible) {
-            holder.messageView.footerWidth = width
-            holder.messageView.footerHeight = height
+            val messageView = holder.messageView(useRichTextEditorStyle)
+            messageView.footerWidth = width
+            messageView.footerHeight = height
         } // else: will be handled in onStateUpdated
         holder.previewUrlViewSc.footerWidth = height
         holder.previewUrlViewSc.footerHeight = height

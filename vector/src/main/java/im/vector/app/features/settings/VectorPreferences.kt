@@ -31,7 +31,6 @@ import im.vector.app.R
 import im.vector.app.core.di.DefaultPreferences
 import im.vector.app.core.resources.BuildMeta
 import im.vector.app.core.resources.StringProvider
-import im.vector.app.core.time.Clock
 import im.vector.app.features.VectorFeatures
 import im.vector.app.features.disclaimer.SHARED_PREF_KEY
 import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
@@ -39,6 +38,7 @@ import im.vector.app.features.home.ShortcutsHandler
 import im.vector.app.features.homeserver.ServerUrlsRepository
 import im.vector.app.features.themes.BubbleThemeUtils
 import im.vector.app.features.themes.ThemeUtils
+import im.vector.lib.core.utils.timer.Clock
 import org.matrix.android.sdk.api.extensions.tryOrNull
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import timber.log.Timber

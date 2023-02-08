@@ -31,6 +31,8 @@ import android.graphics.Bitmap
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.widget.TextView
 import androidx.core.text.toSpannable
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
@@ -44,6 +46,7 @@ import im.vector.app.core.resources.ColorProvider
 import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.themes.ThemeUtils
+import io.element.android.wysiwyg.spans.InlineCodeSpan
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonPlugin
@@ -76,8 +79,8 @@ class EventHtmlRenderer @Inject constructor(
         private val htmlConfigure: MatrixHtmlPluginConfigure,
         private val context: Context,
         private val dimensionConverter: DimensionConverter,
+        private val vectorPreferences: VectorPreferences,
         private val activeSessionHolder: ActiveSessionHolder,
-        private val vectorPreferences: VectorPreferences
 ) {
 
     companion object {
@@ -168,101 +171,157 @@ class EventHtmlRenderer @Inject constructor(
         }
     }
 
-    private fun buildMarkwon() = Markwon.builder(context)
-            .usePlugins(listOf(
-                    HtmlPlugin.create(htmlConfigure),
-                    object: AbstractMarkwonPlugin() {
-                        override fun configureTheme(builder: MarkwonTheme.Builder) {
-                            super.configureTheme(builder)
-                            builder.codeBlockBackgroundColor(codeBlockBackground)
-                                    .codeBackgroundColor(codeBlockBackground)
-                                    .blockQuoteColor(quoteBarColor)
-                                    .blockQuoteWidth(dimensionConverter.dpToPx(2))
-                                    .blockMargin(dimensionConverter.dpToPx(8))
-                        }
-                    },
-                    object: AbstractMarkwonPlugin() { // Remove fallback mx-replies
-                        override fun processMarkdown(markdown: String): String {
-                            return extractUsefulTextFromHtmlReply(markdown)
-                        }
-                    },
-                    object : AbstractMarkwonPlugin() { // Overwrite height for data-mx-emoticon, to ensure emoji-like height
-                        override fun processMarkdown(markdown: String): String {
-                            return markdown
-                                    .replace(Regex("""<img\s+([^>]*)data-mx-emoticon([^>]*)>""")) { matchResult ->
-                                        """<img height="1.2em" """ + matchResult.groupValues[1].removeHeightWidthAttrs() +
-                                                " data-mx-emoticon" + matchResult.groupValues[2].removeHeightWidthAttrs() + ">"
-                                    }
-                                    // Note: doesn't scale previously set mx-emoticon height, since "1.2em" is no integer
-                                    // (which strictly shouldn't be allowed, but we're hacking our way around the library already either way)
-                                    .scaleImageHeightAndWidth()
-                        }
-                    },
-                    DetailsTagPostProcessor(this),
-                    GlideImagesPlugin.create(object: GlideImagesPlugin.GlideStore {
-                        override fun load(drawable: AsyncDrawable): RequestBuilder<Drawable> {
-                            val url = drawable.destination
-                            if (url.isMxcUrl()) {
-                                val contentUrlResolver = activeSessionHolder.getActiveSession().contentUrlResolver()
-                                val imageUrl = contentUrlResolver.resolveFullSize(url)
-                                // Set max size to avoid crashes for huge pictures, and also ensure sane measures while showing on screen
-                                return Glide.with(context).load(imageUrl).transform(MaxSizeTransform(1000, 500))
-                            }
-                            // We don't want to support other url schemes here, so just return a request for null
-                            return Glide.with(context).load(null as String?)
-                        }
-
-                        override fun cancel(target: Target<*>) {
-                            Glide.with(context).clear(target)
-                        }
-                    })
-            ))
-            .apply {
-                if (vectorPreferences.latexMathsIsEnabled()) {
-                    // If latex maths is enabled in app preferences, refomat it so Markwon recognises it
-                    // It needs to be in this specific format: https://noties.io/Markwon/docs/v4/ext-latex
-                    usePlugin(object : AbstractMarkwonPlugin() {
-                        override fun processMarkdown(markdown: String): String {
-                            return markdown
-                                    .replace(Regex("""<span\s+data-mx-maths="([^"]*)">.*?</span>""")) { matchResult ->
-                                        "$$" + matchResult.groupValues[1] + "$$"
-                                    }
-                                    .replace(Regex("""<div\s+data-mx-maths="([^"]*)">.*?</div>""")) { matchResult ->
-                                        "\n$$\n" + matchResult.groupValues[1] + "\n$$\n"
-                                    }
-                        }
-                    })
-                    .usePlugin(JLatexMathPlugin.create(44F) { builder ->
-                        builder.inlinesEnabled(true)
-                        builder.theme().inlinePadding(JLatexMathTheme.Padding.symmetric(24, 8))
-                    })
-                }
+    private val glidePlugin = GlideImagesPlugin.create(object : GlideImagesPlugin.GlideStore {
+        override fun load(drawable: AsyncDrawable): RequestBuilder<Drawable> {
+            val url = drawable.destination
+            if (url.isMxcUrl()) {
+                val contentUrlResolver = activeSessionHolder.getActiveSession().contentUrlResolver()
+                val imageUrl = contentUrlResolver.resolveFullSize(url)
+                // Set max size to avoid crashes for huge pictures, and also ensure sane measures while showing on screen
+                return Glide.with(context).load(imageUrl).transform(MaxSizeTransform(1000, 500))
             }
-            .usePlugin(
-                MarkwonInlineParserPlugin.create(
+            // We don't want to support other url schemes here, so just return a request for null
+            return Glide.with(context).load(null as String?)
+        }
+
+        override fun cancel(target: Target<*>) {
+            Glide.with(context).clear(target)
+        }
+    })
+
+    private val latexPlugins = listOf(
+            object : AbstractMarkwonPlugin() {
+                override fun processMarkdown(markdown: String): String {
+                    return markdown
+                            .replace(Regex("""<span\s+data-mx-maths="([^"]*)">.*?</span>""")) { matchResult ->
+                                "$$" + matchResult.groupValues[1] + "$$"
+                            }
+                            .replace(Regex("""<div\s+data-mx-maths="([^"]*)">.*?</div>""")) { matchResult ->
+                                "\n$$\n" + matchResult.groupValues[1] + "\n$$\n"
+                            }
+                }
+            },
+            JLatexMathPlugin.create(44F) { builder ->
+                builder.inlinesEnabled(true)
+                builder.theme().inlinePadding(JLatexMathTheme.Padding.symmetric(24, 8))
+            }
+    )
+
+    private val markwonInlineParserPlugin =
+            MarkwonInlineParserPlugin.create(
                     /* Configuring the Markwon inline formatting processor.
                      * Default settings are all Markdown features. Turn those off, only using the
                      * inline HTML processor and HTML entities processor.
                      */
                     MarkwonInlineParser.factoryBuilderNoDefaults()
-                        .addInlineProcessor(HtmlInlineProcessor()) // use inline HTML processor
-                        .addInlineProcessor(EntityInlineProcessor()) // use HTML entities processor
-                )
+                            .addInlineProcessor(HtmlInlineProcessor()) // use inline HTML processor
+                            .addInlineProcessor(EntityInlineProcessor()) // use HTML entities processor
             )
-            .usePlugin(object : AbstractMarkwonPlugin() {
-                override fun configureSpansFactory(builder: MarkwonSpansFactory.Builder) {
-                    builder.setFactory(
-                            Emphasis::class.java
-                    ) { _, _ -> CustomTypefaceSpan(Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)) }
-                }
 
-                override fun configureParser(builder: Parser.Builder) {
-                    /* Configuring the Markwon block formatting processor.
-                     * Default settings are all Markdown blocks. Turn those off.
-                     */
-                    builder.enabledBlockTypes(kotlin.collections.emptySet())
+    private val italicPlugin = object : AbstractMarkwonPlugin() {
+        override fun configureSpansFactory(builder: MarkwonSpansFactory.Builder) {
+            builder.setFactory(
+                    Emphasis::class.java
+            ) { _, _ -> CustomTypefaceSpan(Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)) }
+        }
+
+        override fun configureParser(builder: Parser.Builder) {
+            /* Configuring the Markwon block formatting processor.
+             * Default settings are all Markdown blocks. Turn those off.
+             */
+            builder.enabledBlockTypes(emptySet())
+        }
+    }
+
+    private val cleanUpIntermediateCodePlugin = object : AbstractMarkwonPlugin() {
+        override fun afterSetText(textView: TextView) {
+            super.afterSetText(textView)
+
+            // Remove any intermediate spans
+            val text = textView.text.toSpannable()
+            text.getSpans(0, text.length, IntermediateCodeSpan::class.java)
+                    .forEach { span ->
+                        text.removeSpan(span)
+                    }
+        }
+    }
+
+    /**
+     * Workaround for https://github.com/noties/Markwon/issues/423
+     */
+    private val removeLeadingNewlineForInlineCode = object : AbstractMarkwonPlugin() {
+        override fun afterSetText(textView: TextView) {
+            super.afterSetText(textView)
+
+            val text = SpannableStringBuilder(textView.text.toSpannable())
+            val inlineCodeSpans = text.getSpans(0, textView.length(), InlineCodeSpan::class.java).toList()
+            val legacyInlineCodeSpans = text.getSpans(0, textView.length(), HtmlCodeSpan::class.java).filter { !it.isBlock }
+            val spans = inlineCodeSpans + legacyInlineCodeSpans
+
+            if (spans.isEmpty()) return
+
+            spans.forEach { span ->
+                val start = text.getSpanStart(span)
+                if (text[start] == '\n') {
+                    text.replace(start, start + 1, "")
                 }
-            })
+            }
+
+            textView.text = text
+        }
+    }
+
+    private val themePlugin = object: AbstractMarkwonPlugin() {
+        override fun configureTheme(builder: MarkwonTheme.Builder) {
+            super.configureTheme(builder)
+            builder.codeBlockBackgroundColor(codeBlockBackground)
+                    .codeBackgroundColor(codeBlockBackground)
+                    .blockQuoteColor(quoteBarColor)
+                    .blockQuoteWidth(dimensionConverter.dpToPx(2))
+                    .blockMargin(dimensionConverter.dpToPx(8))
+        }
+    }
+
+    private val removeMxReplyFallbackPlugin = object: AbstractMarkwonPlugin() {
+        override fun processMarkdown(markdown: String): String {
+            return extractUsefulTextFromHtmlReply(markdown)
+        }
+    }
+
+    // Overwrite height for data-mx-emoticon, to ensure emoji-like height
+    private val adjustEmoticonHeight = object : AbstractMarkwonPlugin() {
+        override fun processMarkdown(markdown: String): String {
+            return markdown
+                    .replace(Regex("""<img\s+([^>]*)data-mx-emoticon([^>]*)>""")) { matchResult ->
+                        """<img height="1.2em" """ + matchResult.groupValues[1].removeHeightWidthAttrs() +
+                                " data-mx-emoticon" + matchResult.groupValues[2].removeHeightWidthAttrs() + ">"
+                    }
+                    // Note: doesn't scale previously set mx-emoticon height, since "1.2em" is no integer
+                    // (which strictly shouldn't be allowed, but we're hacking our way around the library already either way)
+                    .scaleImageHeightAndWidth()
+        }
+    }
+
+
+    private fun buildMarkwon() = Markwon.builder(context)
+            .usePlugin(HtmlRootTagPlugin())
+            .usePlugin(HtmlPlugin.create(htmlConfigure))
+            .usePlugin(themePlugin)
+            .usePlugin(removeMxReplyFallbackPlugin)
+            .usePlugin(adjustEmoticonHeight)
+            .usePlugin(removeLeadingNewlineForInlineCode)
+            .usePlugin(DetailsTagPostProcessor(this))
+            .usePlugin(glidePlugin)
+            .apply {
+                if (vectorPreferences.latexMathsIsEnabled()) {
+                    // If latex maths is enabled in app preferences, refomat it so Markwon recognises it
+                    // It needs to be in this specific format: https://noties.io/Markwon/docs/v4/ext-latex
+                    latexPlugins.forEach(::usePlugin)
+                }
+            }
+            .usePlugin(markwonInlineParserPlugin)
+            .usePlugin(italicPlugin)
+            .usePlugin(cleanUpIntermediateCodePlugin)
             .textSetter(PrecomputedFutureTextSetterCompat.create())
             .build()
 
@@ -331,7 +390,11 @@ class EventHtmlRenderer @Inject constructor(
     }
 }
 
-class MatrixHtmlPluginConfigure @Inject constructor(private val colorProvider: ColorProvider, private val resources: Resources) : HtmlPlugin.HtmlConfigure {
+class MatrixHtmlPluginConfigure @Inject constructor(
+        private val colorProvider: ColorProvider,
+        private val resources: Resources,
+        private val vectorPreferences: VectorPreferences,
+) : HtmlPlugin.HtmlConfigure {
 
     override fun configureHtml(plugin: HtmlPlugin) {
         plugin
@@ -341,6 +404,7 @@ class MatrixHtmlPluginConfigure @Inject constructor(private val colorProvider: C
                 .addHandler(ParagraphHandler(DimensionConverter(resources)))
                 // Note: only for fallback replies, which we should have removed by now
                 .addHandler(MxReplyTagHandler())
+                .addHandler(CodePostProcessorTagHandler(vectorPreferences))
                 .addHandler(CodePreTagHandler())
                 .addHandler(CodeTagHandler())
                 .addHandler(SpanHandler(colorProvider))
