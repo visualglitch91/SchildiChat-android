@@ -26,6 +26,13 @@ interface AbstractFooteredTextView {
 
     val footerState: FooterState
 
+    var footerHeight: Int
+        get() = footerState.footerHeight
+        set(value) { footerState.footerHeight = value }
+    var footerWidth: Int
+        get() = footerState.footerWidth
+        set(value) { footerState.footerWidth = value }
+
     class FooterState {
         var footerHeight: Int = 0
         var footerWidth: Int = 0

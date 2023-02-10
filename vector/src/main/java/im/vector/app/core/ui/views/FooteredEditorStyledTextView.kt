@@ -9,8 +9,9 @@ import io.element.android.wysiwyg.EditorStyledTextView
 class FooteredEditorStyledTextView @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0
-): EditorStyledTextView(context, attrs, defStyleAttr), AbstractFooteredTextView {
+        // Note: Upstream EditorStyledTextView only does required initialization in (context, attrs) variant
+        //defStyleAttr: Int = 0
+): EditorStyledTextView(context, attrs/*, defStyleAttr*/), AbstractFooteredTextView {
 
     override val footerState: AbstractFooteredTextView.FooterState = AbstractFooteredTextView.FooterState()
     override fun getAppCompatTextView(): AppCompatTextView = this
@@ -24,7 +25,7 @@ class FooteredEditorStyledTextView @JvmOverloads constructor(
         setMeasuredDimension(updatedMeasures.first, updatedMeasures.second)
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         updateFooterOnPreDraw(canvas)
 
         super.onDraw(canvas)

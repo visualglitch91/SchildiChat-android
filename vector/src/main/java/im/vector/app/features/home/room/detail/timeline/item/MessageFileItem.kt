@@ -24,6 +24,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.DrawableRes
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.isVisible
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
@@ -140,8 +141,10 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
     }
 
     override fun reserveFooterSpace(holder: Holder, width: Int, height: Int) {
-        holder.captionView.footerWidth = width
-        holder.captionView.footerHeight = height
+        (holder.captionView as? AbstractFooteredTextView)?.apply {
+            footerWidth = width
+            footerHeight = height
+        }
     }
 
     override fun getViewStubId() = STUB_ID
@@ -154,7 +157,7 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
         val fileImageWrapper by bind<ViewGroup>(R.id.messageFileImageView)
         val fileDownloadProgress by bind<ProgressBar>(R.id.messageFileProgressbar)
         val filenameView by bind<TextView>(R.id.messageFilenameView)
-        val captionView by bind<AbstractFooteredTextView>(R.id.messageCaptionView)
+        val captionView by bind<TextView>(R.id.messageCaptionView)
     }
 
     companion object {

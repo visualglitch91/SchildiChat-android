@@ -100,7 +100,7 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
         holder.previewUrlView.delegate = previewUrlCallback
         holder.previewUrlView.renderMessageLayout(attributes.informationData.messageLayout)
 
-        val messageView: AbstractFooteredTextView = holder.messageView(useRichTextEditorStyle) //if (useRichTextEditorStyle) holder.richMessageView else holder.plainMessageView
+        val messageView: AppCompatTextView = holder.messageView(useRichTextEditorStyle) //if (useRichTextEditorStyle) holder.richMessageView else holder.plainMessageView
         if (useBigFont) {
             messageView.textSize = 44F
         } else {
@@ -150,10 +150,10 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
         lateinit var previewUrlView: AbstractPreviewUrlView // set to either previewUrlViewElement or previewUrlViewSc by layout
         private val richMessageStub by bind<ViewStub>(R.id.richMessageTextViewStub)
         private val plainMessageStub by bind<ViewStub>(R.id.plainMessageTextViewStub)
-        val richMessageView: AbstractFooteredTextView by lazy {
+        val richMessageView: AppCompatTextView by lazy {
             richMessageStub.inflate().findViewById(R.id.messageTextView)
         }
-        val plainMessageView: AbstractFooteredTextView by lazy {
+        val plainMessageView: AppCompatTextView by lazy {
             plainMessageStub.inflate().findViewById(R.id.messageTextView)
         }
         fun messageView(useRichTextEditorStyle: Boolean) = if (useRichTextEditorStyle) richMessageView else plainMessageView
@@ -176,13 +176,15 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
 
             ///* // disabled for now: just set all in reserveFooterSpace to ensure space in all scenarios
             // Currently, all states except data imply hidden preview
-            if (state is PreviewUrlUiState.Data) {
-                // Don't reserve footer space in message view, but preview view
-                messageView?.footerWidth = 0
-                messageView?.footerHeight = 0
-            } else {
-                messageView?.footerWidth = footerWidth
-                messageView?.footerHeight = footerHeight
+            (messageView as? AbstractFooteredTextView)?.apply {
+                if (state is PreviewUrlUiState.Data) {
+                    // Don't reserve footer space in message view, but preview view
+                    footerWidth = 0
+                    footerHeight = 0
+                } else {
+                    footerWidth = footerWidth
+                    footerHeight = footerHeight
+                }
             }
             //messageView?.invalidate()
             messageView?.requestLayout()
@@ -209,8 +211,10 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
         // This might be a race condition, but the UI-isssue if evaluated wrongly is negligible
         if (!holder.previewUrlView.isVisible) {
             val messageView = holder.messageView(useRichTextEditorStyle)
-            messageView.footerWidth = width
-            messageView.footerHeight = height
+            (messageView as? AbstractFooteredTextView)?.apply {
+                footerWidth = width
+                footerHeight = height
+            }
         } // else: will be handled in onStateUpdated
         holder.previewUrlViewSc.footerWidth = height
         holder.previewUrlViewSc.footerHeight = height

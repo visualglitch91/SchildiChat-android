@@ -210,8 +210,10 @@ abstract class MessageAudioItem : AbsMessageItem<MessageAudioItem.Holder>() {
     }
 
     override fun reserveFooterSpace(holder: Holder, width: Int, height: Int) {
-        holder.captionView.footerWidth = width
-        holder.captionView.footerHeight = height
+        (holder.captionView as? AbstractFooteredTextView)?.apply {
+            footerWidth = width
+            footerHeight = height
+        }
     }
 
     override fun getViewStubId() = STUB_ID
@@ -224,7 +226,7 @@ abstract class MessageAudioItem : AbsMessageItem<MessageAudioItem.Holder>() {
         val audioPlaybackTime by bind<TextView>(R.id.audioPlaybackTime)
         val progressLayout by bind<ViewGroup>(R.id.messageFileUploadProgressLayout)
         val fileSize by bind<TextView>(R.id.fileSize)
-        val captionView by bind<AbstractFooteredTextView>(R.id.messageCaptionView)
+        val captionView by bind<TextView>(R.id.messageCaptionView)
         val audioPlaybackDuration by bind<TextView>(R.id.audioPlaybackDuration)
         val audioSeekBar by bind<SeekBar>(R.id.audioSeekBar)
     }

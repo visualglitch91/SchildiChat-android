@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
@@ -222,8 +223,10 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
     }
 
     override fun reserveFooterSpace(holder: Holder, width: Int, height: Int) {
-        holder.captionView.footerWidth = width
-        holder.captionView.footerHeight = height
+        (holder.captionView as? AbstractFooteredTextView)?.apply {
+            footerWidth = width
+            footerHeight = height
+        }
     }
 
     override fun applyScBubbleStyle(messageLayout: TimelineMessageLayout.ScBubble, holder: Holder) {
@@ -253,7 +256,7 @@ abstract class MessageImageVideoItem : AbsMessageItem<MessageImageVideoItem.Hold
     class Holder : AbsMessageItem.Holder(STUB_ID) {
         val progressLayout by bind<ViewGroup>(R.id.messageMediaUploadProgressLayout)
         val imageView by bind<ImageView>(R.id.messageThumbnailView)
-        val captionView by bind<AbstractFooteredTextView>(R.id.messageCaptionView)
+        val captionView by bind<TextView>(R.id.messageCaptionView)
         val playContentView by bind<ImageView>(R.id.messageMediaPlayView)
         val mediaContentView by bind<ViewGroup>(R.id.messageContentMedia)
     }
