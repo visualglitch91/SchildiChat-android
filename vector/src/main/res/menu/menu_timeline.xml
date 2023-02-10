@@ -185,6 +185,9 @@
                 <item
                     android:id="@+id/dev_redacted"
                     android:title="@string/dev_tools_menu_redacted" />
+                <item
+                    android:id="@+id/dev_duplicated_read_receipts"
+                    android:title="@string/settings_sc_dbg_show_duplicate_read_receipts" />
             </group>
         </menu>
     </item>

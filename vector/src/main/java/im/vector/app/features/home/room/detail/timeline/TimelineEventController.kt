@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.epoxy.EpoxyController
 import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.VisibilityState
+import de.spiritcroc.matrixsdk.util.DbgUtil
 import im.vector.app.core.date.DateFormatKind
 import im.vector.app.core.date.VectorDateFormatter
 import im.vector.app.core.epoxy.LoadingItem_
@@ -59,7 +60,6 @@ import im.vector.app.features.home.room.detail.timeline.item.MessageInformationD
 import im.vector.app.features.home.room.detail.timeline.item.ReactionsSummaryEvents
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptData
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptsItem
-import im.vector.app.features.home.room.detail.timeline.item.TypingItem_
 import im.vector.app.features.home.room.detail.timeline.reply.ReplyPreviewRetriever
 import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlRetriever
 import im.vector.app.features.media.AttachmentData
@@ -627,8 +627,10 @@ class TimelineEventController @Inject constructor(
     private fun ReadReceipt.isVisibleInThisThread(): Boolean {
         return if (partialState.isFromThreadTimeline()) {
             this.threadId == partialState.rootThreadEventId
+        } else if (DbgUtil.isDbgEnabled(DbgUtil.DBG_SHOW_DUPLICATE_READ_RECEIPTS)) {
+            this.threadId in listOf(null, ReadService.THREAD_ID_MAIN, ReadService.THREAD_ID_MAIN_OR_NULL)
         } else {
-            this.threadId == ReadService.THREAD_ID_MAIN
+            this.threadId == ReadService.THREAD_ID_MAIN_OR_NULL
         }
     }
 

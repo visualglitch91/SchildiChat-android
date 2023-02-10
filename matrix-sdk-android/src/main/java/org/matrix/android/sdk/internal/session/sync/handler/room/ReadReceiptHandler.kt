@@ -19,8 +19,11 @@ package org.matrix.android.sdk.internal.session.sync.handler.room
 import de.spiritcroc.matrixsdk.util.DbgUtil
 import de.spiritcroc.matrixsdk.util.Dimber
 import io.realm.Realm
+import org.matrix.android.sdk.api.extensions.orTrue
 import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.room.read.ReadService
+import org.matrix.android.sdk.api.session.room.read.ReadService.Companion.THREAD_ID_MAIN
+import org.matrix.android.sdk.api.session.room.read.ReadService.Companion.THREAD_ID_MAIN_OR_NULL
 import org.matrix.android.sdk.internal.database.model.ReadReceiptEntity
 import org.matrix.android.sdk.internal.database.model.ReadReceiptsSummaryEntity
 import org.matrix.android.sdk.internal.database.query.createUnmanaged
@@ -104,6 +107,9 @@ internal class ReadReceiptHandler @Inject constructor(
 
     private fun initialSyncStrategy(realm: Realm, roomId: String, content: ReadReceiptContent) {
         val readReceiptSummaries = ArrayList<ReadReceiptsSummaryEntity>()
+        // SC: fight duplicate read markers
+        val summariesByEventId = HashMap<String, ReadReceiptsSummaryEntity>()
+        val mainReceiptByUserId = HashMap<String, ReadReceiptEntity>()
         for ((eventId, receiptDict) in content) {
             val userIdsDict = receiptDict[READ_KEY] ?: continue
             val readReceiptsSummary = ReadReceiptsSummaryEntity(eventId = eventId, roomId = roomId)
@@ -114,8 +120,16 @@ internal class ReadReceiptHandler @Inject constructor(
                 val receiptEntity = ReadReceiptEntity.createUnmanaged(roomId, eventId, userId, threadId, ts)
                 rrDimber.i{"Handle initial sync RR $roomId / $userId thread $threadId: event $eventId"}
                 readReceiptsSummary.readReceipts.add(receiptEntity)
+                // SC: fight duplicate read markers, by unifying main|null into the same marker
+                if (threadId in listOf(null, THREAD_ID_MAIN) && mainReceiptByUserId[userId]?.originServerTs?.let { it < ts }.orTrue()) {
+                    mainReceiptByUserId[userId] = ReadReceiptEntity.createUnmanaged(roomId, eventId, userId, THREAD_ID_MAIN_OR_NULL, ts)
+                }
             }
             readReceiptSummaries.add(readReceiptsSummary)
+            summariesByEventId[eventId] = readReceiptsSummary
+        }
+        mainReceiptByUserId.forEach {
+            summariesByEventId[it.value.eventId]?.readReceipts?.add(it.value)
         }
         realm.insertOrUpdate(readReceiptSummaries)
     }
@@ -147,8 +161,14 @@ internal class ReadReceiptHandler @Inject constructor(
             for ((userId, paramsDict) in userIdsDict) {
                 val ts = paramsDict[TIMESTAMP_KEY] as? Double ?: 0.0
                 val syncedThreadId = paramsDict[THREAD_ID_KEY] as String?
-                val receiptDestination = syncedThreadId ?: ReadService.THREAD_ID_MAIN
-                setOf(receiptDestination, syncedThreadId).distinct().forEach { threadId ->
+
+                // SC: fight duplicate read receipts in main timeline
+                val receiptDestinations = if (syncedThreadId in listOf(null, ReadService.THREAD_ID_MAIN)) {
+                    setOf(syncedThreadId, ReadService.THREAD_ID_MAIN_OR_NULL)
+                } else {
+                    setOf(syncedThreadId)
+                }
+                receiptDestinations.forEach { threadId ->
                     val receiptEntity = ReadReceiptEntity.getOrCreate(realm, roomId, userId, threadId)
                     // ensure new ts is superior to the previous one
                     if (ts > receiptEntity.originServerTs) {

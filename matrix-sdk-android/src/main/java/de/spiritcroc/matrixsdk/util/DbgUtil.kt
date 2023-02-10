@@ -13,6 +13,7 @@ object DbgUtil {
     const val DBG_SHOW_DISPLAY_INDEX = "DBG_SHOW_DISPLAY_INDEX"
     const val DBG_VIEW_PAGER = "DBG_VIEW_PAGER"
     const val DBG_VIEW_PAGER_VISUALS = "DBG_VIEW_PAGER_VISUALS"
+    const val DBG_SHOW_DUPLICATE_READ_RECEIPTS = "DBG_SHOW_DUPLICATE_READ_RECEIPTS"
 
     private val prefs = HashMap<String, Boolean>()
 
@@ -24,6 +25,7 @@ object DbgUtil {
             DBG_SHOW_DISPLAY_INDEX,
             DBG_VIEW_PAGER,
             DBG_VIEW_PAGER_VISUALS,
+            DBG_SHOW_DUPLICATE_READ_RECEIPTS,
     )
 
     fun load(context: Context) {

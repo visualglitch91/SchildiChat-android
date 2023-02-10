@@ -921,6 +921,7 @@ class TimelineFragment :
         menu.findItem(R.id.dev_membership_changes).isChecked = vectorPreferences.showJoinLeaveMessages()
         menu.findItem(R.id.dev_display_name_changes).isChecked = vectorPreferences.showAvatarDisplayNameChangeMessages()
         menu.findItem(R.id.dev_redacted).isChecked = vectorPreferences.showRedactedMessages()
+        menu.findItem(R.id.dev_duplicated_read_receipts).isChecked = DbgUtil.isDbgEnabled(DbgUtil.DBG_SHOW_DUPLICATE_READ_RECEIPTS)
 
         // Composer features
         menu.findItem(R.id.dev_composer_voice_message_button).isChecked = vectorPreferences.useVoiceMessage()
@@ -1039,6 +1040,11 @@ class TimelineFragment :
             }
             R.id.dev_redacted -> item.toggleExec { shouldShow ->
                 vectorPreferences.setShowRedactedMessages(shouldShow)
+                reloadTimeline()
+                true
+            }
+            R.id.dev_duplicated_read_receipts -> item.toggleExec { shouldShow ->
+                DbgUtil.onPreferenceChanged(requireContext(), DbgUtil.DBG_SHOW_DUPLICATE_READ_RECEIPTS, shouldShow)
                 reloadTimeline()
                 true
             }

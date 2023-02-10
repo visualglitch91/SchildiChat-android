@@ -31,6 +31,7 @@ class VectorSettingsScDebuggingFragment @Inject constructor(
             DbgPref(DbgUtil.DBG_SHOW_DISPLAY_INDEX, R.string.settings_sc_dbg_show_display_index),
             DbgPref(DbgUtil.DBG_SHOW_READ_TRACKING, R.string.settings_sc_dbg_show_read_tracking),
             DbgPref(DbgUtil.DBG_VIEW_PAGER_VISUALS, R.string.settings_sc_dbg_view_pager_visuals),
+            DbgPref(DbgUtil.DBG_SHOW_DUPLICATE_READ_RECEIPTS, R.string.settings_sc_dbg_show_duplicate_read_receipts),
     )
     val dbgPrefs = dbgLoggingPrefs + dbgVisualsPrefs
 

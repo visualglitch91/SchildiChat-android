@@ -24,6 +24,7 @@ import org.matrix.android.sdk.api.session.events.model.content.EncryptedEventCon
 import org.matrix.android.sdk.api.session.events.model.toModel
 import org.matrix.android.sdk.api.session.room.model.RoomMemberContent
 import org.matrix.android.sdk.api.session.room.read.ReadService.Companion.THREAD_ID_MAIN
+import org.matrix.android.sdk.api.session.room.read.ReadService.Companion.THREAD_ID_MAIN_OR_NULL
 import org.matrix.android.sdk.internal.crypto.model.SessionInfo
 import org.matrix.android.sdk.internal.database.mapper.asDomain
 import org.matrix.android.sdk.internal.database.model.ChunkEntity
@@ -137,9 +138,13 @@ private fun handleReadReceipts(realm: Realm, roomId: String, eventEntity: EventE
     val originServerTs = eventEntity.originServerTs
     if (originServerTs != null) {
         val timestampOfEvent = originServerTs.toDouble()
-        // null receipts also update the main receipt
-        val receiptDestination = eventEntity.rootThreadEventId ?: THREAD_ID_MAIN
-        setOf(receiptDestination, eventEntity.rootThreadEventId).distinct().forEach { rootThreadEventId ->
+        // SC: fight duplicate read receipts in main timeline
+        val receiptDestinations = if (eventEntity.rootThreadEventId in listOf(null, THREAD_ID_MAIN)) {
+            setOf(eventEntity.rootThreadEventId, THREAD_ID_MAIN_OR_NULL)
+        } else {
+            setOf(eventEntity.rootThreadEventId)
+        }
+        receiptDestinations.forEach { rootThreadEventId ->
             val readReceiptOfSender = ReadReceiptEntity.getOrCreate(realm, roomId = roomId, userId = senderId, threadId = rootThreadEventId)
             // If the synced RR is older, update
             if (timestampOfEvent > readReceiptOfSender.originServerTs) {

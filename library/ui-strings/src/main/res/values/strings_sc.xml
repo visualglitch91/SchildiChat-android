@@ -167,6 +167,7 @@
     <string name="settings_sc_dbg_read_receipts">Read receipt debugging</string>
     <string name="settings_sc_dbg_view_pager">ViewPager debugging</string>
     <string name="settings_sc_dbg_view_pager_visuals">Show ViewPager debugging information</string>
+    <string name="settings_sc_dbg_show_duplicate_read_receipts">Duplicate read receipts</string>
 
     <!-- SC labs -->
     <string name="settings_upstream_labs">Element features</string>

@@ -89,5 +89,7 @@ interface ReadService {
 
     companion object {
         const val THREAD_ID_MAIN = "main"
+        // Artificial read marker, updated whenever someone sets the main or null one
+        const val THREAD_ID_MAIN_OR_NULL = "main_or_null"
     }
 }
