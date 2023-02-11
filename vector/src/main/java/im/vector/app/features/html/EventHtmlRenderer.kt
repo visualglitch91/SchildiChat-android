@@ -304,10 +304,10 @@ class EventHtmlRenderer @Inject constructor(
 
 
     private fun buildMarkwon() = Markwon.builder(context)
+            .usePlugin(removeMxReplyFallbackPlugin)
             .usePlugin(HtmlRootTagPlugin())
             .usePlugin(HtmlPlugin.create(htmlConfigure))
             .usePlugin(themePlugin)
-            .usePlugin(removeMxReplyFallbackPlugin)
             .usePlugin(adjustEmoticonHeight)
             .usePlugin(removeLeadingNewlineForInlineCode)
             .usePlugin(DetailsTagPostProcessor(this))
