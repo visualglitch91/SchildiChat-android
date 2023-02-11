@@ -171,4 +171,5 @@
     <string name="app_ios_android_sc">${app_name_sc_stable} Android</string>
     <string name="use_latest_app_sc">Gunakan ${app_name_sc_stable} yang terkini di perangkat Anda yang lain:</string>
     <string name="use_other_session_content_description_sc">Gunakan ${app_name_sc_stable} yang terkini di perangkat Anda yang lain, ${app_name_sc_stable} Web, ${app_name_sc_stable} Desktop, ${app_name_sc_stable} for Android, atau klien Matrix yang dapat menandatangani secara silang</string>
+    <string name="settings_sc_dbg_show_duplicate_read_receipts">Gandakan laporan dibaca</string>
 </resources>
