@@ -49,7 +49,7 @@ class GetLatestPreviewableEventUseCase @Inject constructor(
                     ?: getLiveVoiceBroadcastEvent(room)
                     ?: getDefaultLatestEvent(room, roomSummary)
         } else {
-            roomSummary.latestPreviewableEvent
+            roomSummary.scLatestPreviewableEvent()
         }
     }
 
