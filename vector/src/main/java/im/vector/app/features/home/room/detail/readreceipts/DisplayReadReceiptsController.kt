@@ -44,7 +44,7 @@ class DisplayReadReceiptsController @Inject constructor(
             DisplayReadReceiptItem_()
                     .id(readReceiptData.userId)
                     .matrixItem(readReceiptData.toMatrixItem())
-                    .debugInfo(readReceiptData.threadId.toString().takeIf { DbgUtil.isDbgEnabled(DbgUtil.DBG_READ_RECEIPTS) })
+                    .debugInfo(readReceiptData.threadId.toString().takeIf { DbgUtil.isDbgEnabled(DbgUtil.DBG_SHOW_DUPLICATE_READ_RECEIPTS) })
                     .avatarRenderer(avatarRender)
                     .timestamp(timestamp)
                     .userClicked { listener?.didSelectUser(readReceiptData.userId) }
