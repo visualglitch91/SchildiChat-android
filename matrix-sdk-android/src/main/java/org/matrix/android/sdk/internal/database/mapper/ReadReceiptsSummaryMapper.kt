@@ -32,7 +32,7 @@ internal class ReadReceiptsSummaryMapper @Inject constructor(
         private val realmSessionProvider: RealmSessionProvider
 ) {
 
-    val rrDimber = Dimber("ReadReceipts", DbgUtil.DBG_READ_RECEIPTS)
+    private val rrDimber = Dimber("ReadReceipts", DbgUtil.DBG_READ_RECEIPTS)
 
     fun map(readReceiptsSummaryEntity: ReadReceiptsSummaryEntity?): List<ReadReceipt> {
         if (readReceiptsSummaryEntity == null) {
@@ -52,7 +52,7 @@ internal class ReadReceiptsSummaryMapper @Inject constructor(
     private fun map(readReceipts: RealmList<ReadReceiptEntity>, realm: Realm): List<ReadReceipt> {
         return readReceipts
                 .mapNotNull {
-                    rrDimber.i{"Map ${it.eventId} receipt ${it.userId} thread ${it.threadId}"}
+                    rrDimber.i{"Map ${it.roomId} / ${it.userId} thread ${it.threadId}: event ${it.eventId}"}
                     val roomMember = RoomMemberSummaryEntity.where(realm, roomId = it.roomId, userId = it.userId).findFirst()
                             ?: return@mapNotNull null
                     ReadReceipt(roomMember.asDomain(), it.originServerTs.toLong(), it.threadId)

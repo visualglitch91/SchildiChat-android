@@ -49,7 +49,7 @@ internal class ReadReceiptHandler @Inject constructor(
         private val roomSyncEphemeralTemporaryStore: RoomSyncEphemeralTemporaryStore
 ) {
 
-    val rrDimber = Dimber("ReadReceipts", DbgUtil.DBG_READ_RECEIPTS)
+    private val rrDimber = Dimber("ReadReceipts", DbgUtil.DBG_READ_RECEIPTS)
 
     companion object {
 
@@ -129,6 +129,7 @@ internal class ReadReceiptHandler @Inject constructor(
             summariesByEventId[eventId] = readReceiptsSummary
         }
         mainReceiptByUserId.forEach {
+            rrDimber.i{"Handle initial sync RR $roomId / ${it.value.userId} thread ${it.value.threadId}: event ${it.value.eventId}"}
             summariesByEventId[it.value.eventId]?.readReceipts?.add(it.value)
         }
         realm.insertOrUpdate(readReceiptSummaries)

@@ -128,7 +128,7 @@ internal fun computeIsUnique(
     }
 }
 
-val rrDimber = Dimber("ReadReceipts", DbgUtil.DBG_READ_RECEIPTS)
+private val rrDimber = Dimber("ReadReceipts", DbgUtil.DBG_READ_RECEIPTS)
 
 private fun handleReadReceipts(realm: Realm, roomId: String, eventEntity: EventEntity, senderId: String): ReadReceiptsSummaryEntity {
     val readReceiptsSummaryEntity = ReadReceiptsSummaryEntity.where(realm, eventEntity.eventId).findFirst()
