@@ -1,1 +1,1 @@
-Secure messenger for Matrix with a traditional instant messaging experience
+Feature-rich messenger for Matrix based on Element with some extras and tweaks
