@@ -149,6 +149,7 @@ ext.libs = [
                 'glideImageLoader'       : "com.github.piasy:GlideImageLoader:$bigImageViewer",
                 'progressPieIndicator'   : "com.github.piasy:ProgressPieIndicator:$bigImageViewer",
                 'glideImageViewFactory'  : "com.github.piasy:GlideImageViewFactory:$bigImageViewer",
+                'glideWebpDecoder'       : "com.github.zjupure:webpdecoder:2.3.$glide",
                 'flowBinding'            : "io.github.reactivecircus.flowbinding:flowbinding-android:$flowBinding",
                 'flowBindingAppcompat'   : "io.github.reactivecircus.flowbinding:flowbinding-appcompat:$flowBinding",
                 'flowBindingMaterial'    : "io.github.reactivecircus.flowbinding:flowbinding-material:$flowBinding"

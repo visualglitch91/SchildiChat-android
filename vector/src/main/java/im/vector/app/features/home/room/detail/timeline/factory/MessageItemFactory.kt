@@ -538,10 +538,13 @@ class MessageItemFactory @Inject constructor(
                 allowNonMxcUrls = informationData.sendState.isSending()
         )
 
-        val playable = messageContent.mimeType == MimeTypes.Gif
+        // The webp library doesn't allow us to not animate images.
+        // Furthermore, its corner transformations are wrong when not using the animated case for rendering.
+        val forcePlay = messageContent.mimeType == MimeTypes.Webp
+        val playable = messageContent.mimeType == MimeTypes.Gif || forcePlay
 
         return MessageImageVideoItem_()
-                .attributes(attributes)
+                .attributes(attributes.takeUnless { forcePlay && !it.autoplayAnimatedImages } ?: attributes.copy(autoplayAnimatedImages = true))
                 .leftGuideline(avatarSizeProvider.leftGuideline)
                 .imageContentRenderer(imageContentRenderer)
                 .contentUploadStateTrackerBinder(contentUploadStateTrackerBinder)
@@ -552,14 +555,16 @@ class MessageItemFactory @Inject constructor(
                 .inReplyToClickCallback(callback)
                 .mediaData(data)
                 .apply {
-                    if (messageContent.msgType == MessageType.MSGTYPE_STICKER_LOCAL) {
+                    val inMemory = if (messageContent.msgType == MessageType.MSGTYPE_STICKER_LOCAL) {
                         mode(ImageContentRenderer.Mode.STICKER)
-                        clickListener { view ->
-                            callback?.onImageMessageClicked(messageContent, data, view, listOf(data))
-                        }
+                        listOf(data)
                     } else {
+                        emptyList()
+                    }
+                    // Big image viewer doesn't support webp
+                    if (messageContent.mimeType != MimeTypes.Webp) {
                         clickListener { view ->
-                            callback?.onImageMessageClicked(messageContent, data, view, emptyList())
+                            callback?.onImageMessageClicked(messageContent, data, view, inMemory)
                         }
                     }
                 }.apply {

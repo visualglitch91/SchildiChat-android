@@ -82,6 +82,7 @@ ext.groups = [
                         'com.github.piasy',
                         'com.github.shyiko.klob',
                         'com.github.rubensousa',
+                        'com.github.zjupure',
                         'com.google',
                         'com.google.android',
                         'com.google.api.grpc',

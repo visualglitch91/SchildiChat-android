@@ -218,6 +218,7 @@ dependencies {
     implementation libs.github.bigImageViewer
     implementation libs.github.glideImageLoader
     implementation libs.github.glideImageViewFactory
+    implementation libs.github.glideWebpDecoder
 
     // implementation 'com.github.MikeOrtiz:TouchImageView:3.0.2'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
