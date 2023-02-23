@@ -31,6 +31,7 @@ If applicable, add screenshots to help explain your problem.
  - App version: [Look it up in Settings / Help & About. Click "Version" there to copy it. "Latest version" is not a valid version!]
  - Store: [e.g. F-Droid, Google Play, SpiritCroc's F-Droid]
  - Homeserver: [e.g. matrix.org]
+ - Related labs settings: [Have you enabled any settings in labs (which ones), and does the issue still exist when disabling these?]
 
 **Upstream relevance**
  - Does this issue exist in Element Android?
