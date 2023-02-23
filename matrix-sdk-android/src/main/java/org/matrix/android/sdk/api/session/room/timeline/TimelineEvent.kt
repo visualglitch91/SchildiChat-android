@@ -161,7 +161,7 @@ fun TimelineEvent.getLastMessageContent(): MessageContent? {
 
 fun TimelineEvent.getLastEditNewContent(): Content? {
     val lastContent = annotations?.editSummary?.latestEdit?.getClearContent()?.toModel<MessageContent>()?.newContent
-    return if (isReply()) {
+    return if (isReply() && false) { // SC: we have rich replies
         val previousFormattedBody = root.getClearContent().toModel<MessageTextContent>()?.formattedBody
         if (previousFormattedBody?.isNotEmpty() == true) {
             val lastMessageContent = lastContent.toModel<MessageTextContent>()
