@@ -249,7 +249,7 @@ internal class LoadTimelineStrategy constructor(
                 getContextLatch?.await()
                 getContextLatch = null
             } catch (failure: Throwable) {
-                if (failure is Failure.ServerError && failure.error.code in listOf(MatrixError.M_NOT_FOUND, MatrixError.M_FORBIDDEN)) {
+                if (failure is Failure.ServerError && failure.error.code in listOf(MatrixError.M_NOT_FOUND, MatrixError.M_FORBIDDEN, MatrixError.M_UNKNOWN)) {
                     // This failure is likely permanent, so handle in DefaultTimeline to restart without eventId
                     throw failure
                 }
