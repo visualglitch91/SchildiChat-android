@@ -154,4 +154,17 @@
     <string name="home_layout_preferences_sort_unread">Ungelesen</string>
     <string name="in_reply_to_loading">Lade Nachricht…</string>
     <string name="in_reply_to_error">Beantwortete Nachricht konnte nicht geladen werden</string>
+    <string name="settings_sc_debugging_category_logs">Zusätzliche Protokolle</string>
+    <string name="settings_sc_debugging_category_visuals">Visuelle Debugging-Informationen</string>
+    <string name="settings_enable_member_name_click">Anklickbare Namen</string>
+    <string name="settings_enable_member_name_click_summary">Auf einen Benutzernamen klicken, um ihn zu erwähnen</string>
+    <string name="settings_initial_sync_summary">Zwischenspeicher löschen und neu laden</string>
+    <string name="labs_enable_new_app_layout_summary_sc">Elements neues, vereinfachtes Layout mit optionalen Reitern</string>
+    <string name="dev_tools_menu_new_layout">Neues Layout</string>
+    <string name="app_ios_android_sc">${app_name_sc_stable} Android</string>
+    <string name="app_desktop_web_sc">${app_name_sc_stable} Web
+\n${app_name_sc_stable} Desktop</string>
+    <string name="use_latest_app_sc">Benutze die neueste Version von ${app_name_sc_stable} auf deinen anderen Geräten:</string>
+    <string name="settings_initial_sync">Initiale Synchronisierung</string>
+    <string name="use_other_session_content_description_sc">Benutze die neueste Version von ${app_name_sc_stable} auf deinen anderen Geräten, ${app_name_sc_stable} Web, ${app_name_sc_stable} Desktop, ${app_name_sc_stable} für Android, oder einen anderen Cross-Signing fähigen Matrix Client</string>
 </resources>
