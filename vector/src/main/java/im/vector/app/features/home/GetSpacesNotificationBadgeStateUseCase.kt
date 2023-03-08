@@ -61,6 +61,8 @@ class GetSpacesNotificationBadgeStateUseCase @Inject constructor(
             UnreadCounterBadgeView.State.Count(
                     count = spacesNotificationCount.notificationCount,
                     highlighted = spacesNotificationCount.isHighlight || hasPendingSpaceInvites,
+                    unread = spacesNotificationCount.unreadCount,
+                    markedUnread = false,
             )
         }
     }

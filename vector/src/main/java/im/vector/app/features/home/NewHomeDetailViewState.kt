@@ -20,5 +20,5 @@ import com.airbnb.mvrx.MavericksState
 import im.vector.app.features.home.room.list.UnreadCounterBadgeView
 
 data class NewHomeDetailViewState(
-        val spacesNotificationCounterBadgeState: UnreadCounterBadgeView.State = UnreadCounterBadgeView.State.Count(count = 0, highlighted = false),
+        val spacesNotificationCounterBadgeState: UnreadCounterBadgeView.State = UnreadCounterBadgeView.State.Count(count = 0, highlighted = false, unread = 0, markedUnread = false),
 ) : MavericksState
