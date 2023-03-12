@@ -24,6 +24,7 @@ import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.room.read.ReadService
 import org.matrix.android.sdk.api.session.room.read.ReadService.Companion.THREAD_ID_MAIN
 import org.matrix.android.sdk.api.session.room.read.ReadService.Companion.THREAD_ID_MAIN_OR_NULL
+import org.matrix.android.sdk.internal.database.model.EventEntity
 import org.matrix.android.sdk.internal.database.model.ReadReceiptEntity
 import org.matrix.android.sdk.internal.database.model.ReadReceiptsSummaryEntity
 import org.matrix.android.sdk.internal.database.query.createUnmanaged
@@ -164,15 +165,22 @@ internal class ReadReceiptHandler @Inject constructor(
                 val syncedThreadId = paramsDict[THREAD_ID_KEY] as String?
 
                 // SC: fight duplicate read receipts in main timeline
-                val receiptDestinations = if (syncedThreadId in listOf(null, ReadService.THREAD_ID_MAIN)) {
-                    setOf(syncedThreadId, ReadService.THREAD_ID_MAIN_OR_NULL)
+                val receiptDestinations = if (syncedThreadId in listOf(null, THREAD_ID_MAIN)) {
+                    setOf(syncedThreadId, THREAD_ID_MAIN_OR_NULL)
                 } else {
                     setOf(syncedThreadId)
                 }
                 receiptDestinations.forEach { threadId ->
                     val receiptEntity = ReadReceiptEntity.getOrCreate(realm, roomId, userId, threadId)
+                    val shouldSkipMon = if (threadId == THREAD_ID_MAIN_OR_NULL) {
+                        val oldEventTs = EventEntity.where(realm, roomId, receiptEntity.eventId).findFirst()?.originServerTs
+                        val newEventTs = EventEntity.where(realm, roomId, eventId).findFirst()?.originServerTs
+                        oldEventTs != null && newEventTs != null && oldEventTs > newEventTs
+                    } else {
+                        false
+                    }
                     // ensure new ts is superior to the previous one
-                    if (ts > receiptEntity.originServerTs) {
+                    if (ts > receiptEntity.originServerTs && !shouldSkipMon) {
                         rrDimber.i { "Handle outdated sync RR $roomId / $userId thread $threadId($syncedThreadId): event ${receiptEntity.eventId} -> $eventId" }
                         ReadReceiptsSummaryEntity.where(realm, receiptEntity.eventId).findFirst()?.also {
                             it.readReceipts.remove(receiptEntity)
@@ -181,7 +189,7 @@ internal class ReadReceiptHandler @Inject constructor(
                         receiptEntity.originServerTs = ts
                         readReceiptsSummary.readReceipts.add(receiptEntity)
                     } else {
-                        rrDimber.i { "Handle keep sync RR $roomId / $userId thread $threadId($syncedThreadId): event ${receiptEntity.eventId} (not $eventId)" }
+                        rrDimber.i { "Handle keep sync RR $roomId / $userId thread $threadId($syncedThreadId): event ${receiptEntity.eventId} (not $eventId) || $shouldSkipMon" }
                     }
                 }
             }

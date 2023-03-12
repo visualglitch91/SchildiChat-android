@@ -146,8 +146,16 @@ private fun handleReadReceipts(realm: Realm, roomId: String, eventEntity: EventE
         }
         receiptDestinations.forEach { rootThreadEventId ->
             val readReceiptOfSender = ReadReceiptEntity.getOrCreate(realm, roomId = roomId, userId = senderId, threadId = rootThreadEventId)
+            val shouldSkipMon = if (rootThreadEventId == THREAD_ID_MAIN_OR_NULL) {
+                val previousReceiptsSummary = ReadReceiptsSummaryEntity.where(realm, eventId = readReceiptOfSender.eventId).findFirst()
+                val oldEventTs = previousReceiptsSummary?.let { EventEntity.where(realm, roomId, it.eventId).findFirst()?.originServerTs }
+                val newEventTs = EventEntity.where(realm, roomId, eventEntity.eventId).findFirst()?.originServerTs
+                oldEventTs != null && newEventTs != null && oldEventTs > newEventTs
+            } else {
+                false
+            }
             // If the synced RR is older, update
-            if (timestampOfEvent > readReceiptOfSender.originServerTs) {
+            if (timestampOfEvent > readReceiptOfSender.originServerTs && !shouldSkipMon) {
                 val previousReceiptsSummary = ReadReceiptsSummaryEntity.where(realm, eventId = readReceiptOfSender.eventId).findFirst()
                 rrDimber.i { "Handle outdated chunk RR $roomId / $senderId thread $rootThreadEventId(${eventEntity.rootThreadEventId}): event ${readReceiptOfSender.eventId} -> ${eventEntity.eventId}" }
                 readReceiptOfSender.eventId = eventEntity.eventId
@@ -155,7 +163,7 @@ private fun handleReadReceipts(realm: Realm, roomId: String, eventEntity: EventE
                 previousReceiptsSummary?.readReceipts?.remove(readReceiptOfSender)
                 readReceiptsSummaryEntity.readReceipts.add(readReceiptOfSender)
             } else {
-                rrDimber.i { "Handled chunk RR $roomId / $senderId thread $rootThreadEventId(${eventEntity.rootThreadEventId}): keep ${readReceiptOfSender.eventId} (not ${eventEntity.eventId})" }
+                rrDimber.i { "Handled chunk RR $roomId / $senderId thread $rootThreadEventId(${eventEntity.rootThreadEventId}): keep ${readReceiptOfSender.eventId} (not ${eventEntity.eventId}) || $shouldSkipMon" }
             }
         }
     }
