@@ -57,7 +57,7 @@
     <string name="element_black_theme">Element чёрная</string>
     <string name="settings_user_colors_in_default">Пользовательские цвета в групповых чатах</string>
     <string name="user_colors_uniform">Одинаковый</string>
-    <string name="user_colors_from_pl">В зависимости от уровня заряда</string>
+    <string name="user_colors_from_pl">В зависимости от уровня прав</string>
     <string name="user_colors_from_id">На основе Matrix ID</string>
     <string name="settings_advanced_theme_settings">Расширенные настройки темы</string>
     <string name="settings_user_colors">Пользовательские цвета</string>
@@ -173,4 +173,5 @@
     <string name="dev_tools_menu_display_name_changes">События аккаунта</string>
     <string name="dev_tools_menu_redacted">Отредактированные сообщения</string>
     <string name="settings_initial_sync_summary">Очистить кэш и перезагрузить данные из сервера</string>
+    <string name="custom_emotes_named_other_room">\"%1$s\" из %2$s</string>
 </resources>
