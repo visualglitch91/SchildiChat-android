@@ -59,6 +59,9 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
+    private val expandedSections = HashSet<Pair<String, String?>>()
+    private var lastQuery: CharSequence? = null
+
     init {
         controller.listener = this
     }
@@ -66,6 +69,7 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
     fun clear() {
         coroutineScope.coroutineContext.cancelChildren()
         controller.listener = null
+        expandedSections.clear()
     }
 
     @AssistedFactory
@@ -81,7 +85,24 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
         dispatchClick(t)
     }
 
+    override fun onLoadMoreClick(item: AutocompleteEmojiDataItem.Expand) {
+        expandedSections.add(Pair(item.loadMoreKey, item.loadMoreKeySecondary))
+        //Timber.d("Load more emojis for ${item.loadMoreKey}/${item.loadMoreKeySecondary} ${expandedSections.contains(Pair(item.loadMoreKey, item.loadMoreKeySecondary))}")
+        onQuery(lastQuery)
+    }
+
+    override fun maxShowSizeOverride(): Int? {
+        if (expandedSections.isNotEmpty()) {
+            return AutocompleteEmojiController.MAX_EXPAND
+        }
+        return null
+    }
+
     override fun onQuery(query: CharSequence?) {
+        if (query?.isNotEmpty() != true && lastQuery?.isEmpty() != true) {
+            expandedSections.clear()
+        }
+        lastQuery = query
         coroutineScope.launch {
             // Plain emojis
             val data = if (query.isNullOrBlank()) {
@@ -93,30 +114,37 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
 
             // Custom emotes: This room's emotes
             val currentRoomEmotes = room.getAllEmojiItems(query)
-            val emoteData = currentRoomEmotes.toAutocompleteItems().let {
+            val allEmoteData = currentRoomEmotes.toAutocompleteItems().let {
                 if (it.isNotEmpty()) {
                     listOf(AutocompleteEmojiDataItem.Header(roomId, context.getString(R.string.custom_emotes_this_room))) + it
                 } else {
                     emptyList()
                 }
-            }.limit(AutocompleteEmojiController.CUSTOM_THIS_ROOM_MAX).toMutableList()
+            }
+            val emoteData = allEmoteData.maybeLimit(AutocompleteEmojiController.CUSTOM_THIS_ROOM_MAX, roomId, null).toMutableList()
             val emoteUrls = HashSet<String>()
             emoteUrls.addAll(currentRoomEmotes.map { it.mxcUrl })
+            if (allEmoteData.size > emoteData.size) {
+                emoteData += listOf(AutocompleteEmojiDataItem.Expand(roomId, null, allEmoteData.size - emoteData.size))
+            }
             // Global emotes (only while searching)
             if (!query.isNullOrBlank()) {
                 // Account emotes
-                val userPack = session.accountDataService().getUserAccountDataEvent(UserAccountDataTypes.TYPE_USER_EMOTES)?.content
+                val allUserPack = session.accountDataService().getUserAccountDataEvent(UserAccountDataTypes.TYPE_USER_EMOTES)?.content
                         ?.toModel<RoomEmoteContent>().getEmojiItems(query)
-                        .limit(AutocompleteEmojiController.CUSTOM_ACCOUNT_MAX)
+                val userPack = allUserPack.maybeLimit(AutocompleteEmojiController.CUSTOM_ACCOUNT_MAX, AutocompleteEmojiController.ACCOUNT_DATA_EMOTE_ID, null)
                 if (userPack.isNotEmpty()) {
                     emoteUrls.addAll(userPack.map { it.mxcUrl })
                     emoteData += listOf(
                             AutocompleteEmojiDataItem.Header(
-                                    "de.spiritcroc.riotx.ACCOUNT_EMOJI_HEADER",
+                                    AutocompleteEmojiController.ACCOUNT_DATA_EMOTE_ID,
                                     context.getString(R.string.custom_emotes_account_data)
                             )
                     )
                     emoteData += userPack.toAutocompleteItems()
+                    if (allUserPack.size > userPack.size) {
+                        emoteData += listOf(AutocompleteEmojiDataItem.Expand(AutocompleteEmojiController.ACCOUNT_DATA_EMOTE_ID, null, allUserPack.size - userPack.size))
+                    }
                 }
                 // Global emotes from rooms
                 val globalPacks = session.accountDataService().getUserAccountDataEvent(UserAccountDataTypes.TYPE_EMOTE_ROOMS)
@@ -138,9 +166,10 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
                             val emojiItems = packRoom.getEmojiItems(query, QueryStringValue.Equals(packId))
                             val packName = emojiItems.first
                             // Filter out duplicate emotes with the exact same mxc url
-                            val packImages = emojiItems.second.filter {
+                            val allPackImages = emojiItems.second.filter {
                                 it.mxcUrl !in emoteUrls
-                            }.limit(AutocompleteEmojiController.CUSTOM_OTHER_ROOM_MAX)
+                            }
+                            val packImages = allPackImages.maybeLimit(AutocompleteEmojiController.CUSTOM_OTHER_ROOM_MAX, packRoomId, packId)
                             // Add header + emotes
                             if (packImages.isNotEmpty()) {
                                 packsAdded++
@@ -165,6 +194,9 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
                                         )
                                 )
                                 emoteData += packImages.toAutocompleteItems()
+                                if (allPackImages.size > packImages.size) {
+                                    emoteData += listOf(AutocompleteEmojiDataItem.Expand(packRoomId, packId, allPackImages.size - packImages.size))
+                                }
                             }
                         }
                     }
@@ -177,6 +209,19 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
                 emptyList()
             }
             controller.setData(emoteData + dataHeader + data)
+        }
+    }
+
+    /**
+     * Don't limit if only one more would be required, such that showing a "load more" button would be a waste
+     */
+    private fun <T>List<T>.maybeLimit(limit: Int, loadMoreKey: String, loadMoreKeySecondary: String?): List<T> {
+        return if (size > limit + 1 && !expandedSections.contains(Pair(loadMoreKey, loadMoreKeySecondary))) {
+            //Timber.d("maybeLimit $loadMoreKey/$loadMoreKeySecondary true ${expandedSections.contains(Pair(loadMoreKey, loadMoreKeySecondary))}")
+            limit(limit)
+        } else {
+            //Timber.d("maybeLimit $loadMoreKey/$loadMoreKeySecondary false")
+            this
         }
     }
 

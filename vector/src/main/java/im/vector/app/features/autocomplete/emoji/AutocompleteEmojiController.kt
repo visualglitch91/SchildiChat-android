@@ -23,7 +23,6 @@ import im.vector.app.EmojiCompatFontProvider
 import im.vector.app.features.autocomplete.AutocompleteClickListener
 import im.vector.app.features.autocomplete.autocompleteHeaderItem
 import im.vector.app.features.autocomplete.member.AutocompleteEmojiDataItem
-import im.vector.app.features.autocomplete.member.AutocompleteMemberItem
 import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.reactions.data.EmojiItem
 import org.matrix.android.sdk.api.session.Session
@@ -49,16 +48,18 @@ class AutocompleteEmojiController @Inject constructor(
         if (data.isNullOrEmpty()) {
             return
         }
+        val max = listener?.maxShowSizeOverride() ?: MAX
         data
-                .take(MAX)
+                .take(max)
                 .forEach { item ->
                     when (item) {
                         is AutocompleteEmojiDataItem.Header -> buildHeaderItem(item)
                         is AutocompleteEmojiDataItem.Emoji  -> buildEmojiItem(item.emojiItem)
+                        is AutocompleteEmojiDataItem.Expand -> buildExpandItem(item)
                     }
                 }
 
-        if (data.size > MAX) {
+        if (data.size > max) {
             autocompleteMoreResultItem {
                 id("more_result")
             }
@@ -89,6 +90,15 @@ class AutocompleteEmojiController @Inject constructor(
         }
     }
 
+    private fun buildExpandItem(item: AutocompleteEmojiDataItem.Expand) {
+        val host = this
+        autocompleteExpandItem {
+            id(item.loadMoreKey + "/" + item.loadMoreKeySecondary)
+            count(item.count)
+            onClickListener { host.listener?.onLoadMoreClick(item) }
+        }
+    }
+
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         fontProvider.addListener(fontProviderListener)
@@ -103,12 +113,16 @@ class AutocompleteEmojiController @Inject constructor(
         // Count of emojis for the current room's image pack
         const val CUSTOM_THIS_ROOM_MAX = 10
         // Count of emojis per other image pack
-        const val CUSTOM_OTHER_ROOM_MAX = 3
+        const val CUSTOM_OTHER_ROOM_MAX = 5
         // Count of emojis for global account data
         const val CUSTOM_ACCOUNT_MAX = 5
         // Count of other image packs
-        const val MAX_CUSTOM_OTHER_ROOMS = 3
+        const val MAX_CUSTOM_OTHER_ROOMS = 15
         // Total max
         const val MAX = 50
+        // Total max after expanding a section
+        const val MAX_EXPAND = 10000
+        // Internal ID
+        const val ACCOUNT_DATA_EMOTE_ID = "de.spiritcroc.riotx.ACCOUNT_DATA_EMOTES"
     }
 }

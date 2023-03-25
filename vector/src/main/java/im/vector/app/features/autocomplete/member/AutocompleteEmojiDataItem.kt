@@ -21,4 +21,5 @@ import im.vector.app.features.reactions.data.EmojiItem
 sealed class AutocompleteEmojiDataItem {
     data class Header(val id: String, val title: String) : AutocompleteEmojiDataItem()
     data class Emoji(val emojiItem: EmojiItem) : AutocompleteEmojiDataItem()
+    data class Expand(val loadMoreKey: String, val loadMoreKeySecondary: String?, val count: Int?) : AutocompleteEmojiDataItem()
 }
