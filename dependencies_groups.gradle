@@ -39,13 +39,6 @@ ext.groups = [
                         'com.google.testing.platform',
                 ]
         ],
-        snapshot: [
-                regex: [
-                ],
-                group: [
-                        'com.vanniktech',
-                ]
-        ],
         mavenCentral: [
                 regex: [
                 ],
@@ -130,7 +123,7 @@ ext.groups = [
                         'com.sun.xml.bind.mvn',
                         'com.sun.xml.fastinfoset',
                         'com.thoughtworks.qdox',
-                        // 'com.vanniktech',
+                        'com.vanniktech',
                         'commons-cli',
                         'commons-codec',
                         'commons-io',
