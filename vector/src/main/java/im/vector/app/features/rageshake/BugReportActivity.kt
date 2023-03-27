@@ -53,7 +53,8 @@ class BugReportActivity :
                 .allowBack()
         setupViews()
 
-        views.bugReportButtonContactMe.isVisible = !isInternalBuild()
+        // Don't allow toggling this for internal builds... internal testers are well-known and may always be contacted!
+        views.bugReportButtonContactMe.isEnabled = !isInternalBuild()
 
         if (bugReporter.screenshot != null) {
             views.bugReportScreenshotPreview.setImageBitmap(bugReporter.screenshot)
@@ -182,7 +183,7 @@ class BugReportActivity :
                 views.bugReportButtonIncludeScreenshot.isChecked,
                 views.bugReportEditText.text.toString(),
                 state.serverVersion,
-                views.bugReportButtonContactMe.isChecked && views.bugReportButtonContactMe.isVisible,
+                views.bugReportButtonContactMe.isChecked && views.bugReportButtonContactMe.isVisible && views.bugReportButtonContactMe.isEnabled,
                 null,
                 object : BugReporter.IMXBugReportListener {
                     override fun onUploadFailed(reason: String?) {
