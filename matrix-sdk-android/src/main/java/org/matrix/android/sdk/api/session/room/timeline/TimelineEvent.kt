@@ -27,6 +27,7 @@ import org.matrix.android.sdk.api.session.events.model.isEdition
 import org.matrix.android.sdk.api.session.events.model.isLiveLocation
 import org.matrix.android.sdk.api.session.events.model.isPoll
 import org.matrix.android.sdk.api.session.events.model.isReply
+import org.matrix.android.sdk.api.session.events.model.isReplyRenderedInThread
 import org.matrix.android.sdk.api.session.events.model.isSticker
 import org.matrix.android.sdk.api.session.events.model.toContent
 import org.matrix.android.sdk.api.session.events.model.toModel
@@ -204,6 +205,10 @@ private fun TimelineEvent.getLastPollEditNewContent(): Content? {
  */
 fun TimelineEvent.isReply(): Boolean {
     return root.isReply()
+}
+
+fun TimelineEvent.isReplyRenderedInThread(): Boolean {
+    return root.isReplyRenderedInThread()
 }
 
 fun TimelineEvent.isEdition(): Boolean {

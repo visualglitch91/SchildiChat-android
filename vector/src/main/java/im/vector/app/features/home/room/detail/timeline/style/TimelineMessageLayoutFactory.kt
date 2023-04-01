@@ -26,6 +26,7 @@ import im.vector.app.features.home.room.detail.timeline.factory.TimelineItemFact
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.themes.BubbleThemeUtils
 import im.vector.app.features.voicebroadcast.VoiceBroadcastConstants.STATE_ROOM_VOICE_BROADCAST_INFO
+import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.events.model.EventType
 import org.matrix.android.sdk.api.session.room.model.message.MessageContent
@@ -39,6 +40,7 @@ import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.getLastMessageContent
 import org.matrix.android.sdk.api.session.room.timeline.isEdition
 import org.matrix.android.sdk.api.session.room.timeline.isReply
+import org.matrix.android.sdk.api.session.room.timeline.isReplyRenderedInThread
 import org.matrix.android.sdk.api.session.room.timeline.isRootThread
 import javax.inject.Inject
 
@@ -129,7 +131,7 @@ class TimelineMessageLayoutFactory @Inject constructor(
                     val messageContent = event.getLastMessageContent()
                     val isBubble = event.shouldBuildBubbleLayout()
                     val singleSidedLayout = bubbleThemeUtils.getBubbleStyle() == BubbleThemeUtils.BUBBLE_STYLE_START
-                    val pseudoBubble = messageContent.isPseudoBubble(event)
+                    val pseudoBubble = messageContent.isPseudoBubble(event, params = params)
                     val showTimestamp = showInformation || !singleSidedLayout || vectorPreferences.alwaysShowTimeStamps()
                     return TimelineMessageLayout.ScBubble(
                             showAvatar = showInformation,
@@ -217,10 +219,11 @@ class TimelineMessageLayoutFactory @Inject constructor(
         }
     }
 
-    private fun MessageContent?.isPseudoBubble(event: TimelineEvent, ignoreReply: Boolean = false): Boolean {
+    private fun MessageContent?.isPseudoBubble(event: TimelineEvent, ignoreReply: Boolean = false, params: TimelineItemFactoryParams? = null): Boolean {
         if (this == null) return false
         if (event.root.isRedacted()) return false
-        if  (!ignoreReply && event.isReply()) return false
+        val isReply = if (params?.isFromThreadTimeline().orFalse()) event.isReplyRenderedInThread() else event.isReply()
+        if  (!ignoreReply && isReply) return false
         if (this is MessageWithAttachmentContent && !getCaption().isNullOrBlank()) return false
         return this.msgType in MSG_TYPES_WITH_PSEUDO_BUBBLE_LAYOUT
     }
