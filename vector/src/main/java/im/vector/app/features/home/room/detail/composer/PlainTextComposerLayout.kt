@@ -24,7 +24,6 @@ import android.util.AttributeSet
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.core.text.toSpannable
 import androidx.core.view.isVisible
@@ -54,6 +53,7 @@ import org.matrix.android.sdk.api.session.room.model.message.MessageTextContent
 import org.matrix.android.sdk.api.util.ContentUtils.extractUsefulTextFromHtmlReply
 import org.matrix.android.sdk.api.util.MatrixItem
 import org.matrix.android.sdk.api.util.toMatrixItem
+import org.matrix.android.sdk.internal.session.room.send.pills.asSticker
 import javax.inject.Inject
 
 /**
@@ -76,6 +76,7 @@ class PlainTextComposerLayout @JvmOverloads constructor(
     private val views: ComposerLayoutScBinding
 
     override var callback: Callback? = null
+    private var modeSupportsSendAsSticker: Boolean = false
 
     override val text: Editable?
         get() = views.composerEditText.text
@@ -110,6 +111,7 @@ class PlainTextComposerLayout @JvmOverloads constructor(
 
             override fun onTextChanged(text: CharSequence) {
                 callback?.onTextChanged(text)
+                updateSendStickerVisibility()
             }
         }
         views.composerRelatedMessageCloseButton.setOnClickListener {
@@ -122,6 +124,11 @@ class PlainTextComposerLayout @JvmOverloads constructor(
             callback?.onSendMessage(textMessage)
         }
 
+        views.sendStickerButton.setOnClickListener {
+            val sticker = text?.asSticker() ?: return@setOnClickListener
+            callback?.onSendSticker(sticker)
+        }
+
         views.attachmentButton.setOnClickListener {
             callback?.onAddAttachment()
         }
@@ -129,6 +136,7 @@ class PlainTextComposerLayout @JvmOverloads constructor(
 
     private fun collapse(transitionComplete: (() -> Unit)? = null) {
         views.relatedMessageGroup.isVisible = false
+        updateSendStickerVisibility()
         transitionComplete?.invoke()
         callback?.onExpandOrCompactChange()
 
@@ -137,14 +145,25 @@ class PlainTextComposerLayout @JvmOverloads constructor(
 
     private fun expand(transitionComplete: (() -> Unit)? = null) {
         views.relatedMessageGroup.isVisible = true
+        updateSendStickerVisibility()
         transitionComplete?.invoke()
         callback?.onExpandOrCompactChange()
 
         views.attachmentButton.isVisible = false
     }
 
+    private fun updateSendStickerVisibility() {
+        val canSendAsSticker = modeSupportsSendAsSticker && views.composerEditText.text?.asSticker() != null
+        views.sendStickerButtonDecor.isVisible  = canSendAsSticker
+        views.sendStickerButton.isVisible = canSendAsSticker
+    }
+
     override fun setTextIfDifferent(text: CharSequence?): Boolean {
         return views.composerEditText.setTextIfDifferent(text)
+    }
+
+    override fun onAutoCompleteCustomEmote() {
+        updateSendStickerVisibility()
     }
 
     override fun renderComposerMode(mode: MessageComposerMode, timelineViewModel: TimelineViewModel?) {
@@ -152,6 +171,7 @@ class PlainTextComposerLayout @JvmOverloads constructor(
         if (specialMode != null) {
             renderSpecialMode(specialMode, timelineViewModel)
         } else if (mode is MessageComposerMode.Normal) {
+            modeSupportsSendAsSticker = true
             collapse()
             editText.setTextIfDifferent(mode.content)
         }
@@ -181,6 +201,7 @@ class PlainTextComposerLayout @JvmOverloads constructor(
     )
 
     private fun renderSpecialMode(specialMode: MessageComposerMode.Special, timelineViewModel: TimelineViewModel?) {
+        modeSupportsSendAsSticker = specialMode is MessageComposerMode.Reply
         val event = specialMode.event
         val defaultContent = specialMode.defaultContent
 

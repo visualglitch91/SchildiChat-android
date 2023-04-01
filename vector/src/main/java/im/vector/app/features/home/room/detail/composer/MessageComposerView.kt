@@ -19,9 +19,11 @@ package im.vector.app.features.home.room.detail.composer
 import android.text.Editable
 import android.widget.EditText
 import android.widget.ImageButton
+import im.vector.app.features.home.room.detail.AutoCompleter
 import im.vector.app.features.home.room.detail.TimelineViewModel
+import org.matrix.android.sdk.api.util.MatrixItem
 
-interface MessageComposerView {
+interface MessageComposerView : AutoCompleter.Callback {
 
     companion object {
         const val MAX_LINES_WHEN_COLLAPSED = 10
@@ -43,6 +45,7 @@ interface MessageComposerView {
 interface Callback : ComposerEditText.Callback {
     fun onCloseRelatedMessage()
     fun onSendMessage(text: CharSequence)
+    fun onSendSticker(sticker: MatrixItem.EmoteItem)
     fun onAddAttachment()
     fun onExpandOrCompactChange()
     fun onFullScreenModeChanged()

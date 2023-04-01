@@ -103,6 +103,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.session.content.ContentAttachmentData
+import org.matrix.android.sdk.api.session.events.model.RelationType
+import org.matrix.android.sdk.api.session.events.model.isThread
+import org.matrix.android.sdk.api.session.room.model.message.MessageStickerContent
+import org.matrix.android.sdk.api.session.room.model.relation.RelationDefaultContent
+import org.matrix.android.sdk.api.session.room.model.relation.ReplyToContent
 import org.matrix.android.sdk.api.util.MatrixItem
 import org.matrix.android.sdk.internal.session.room.send.pills.requiresFormattedMessage
 import reactivecircus.flowbinding.android.view.focusChanges
@@ -334,7 +339,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
         composerEditText.setHint(R.string.room_message_placeholder)
 
         if (!isRichTextEditorEnabled) {
-            autoCompleter.setup(composerEditText)
+            autoCompleter.setup(composerEditText, composer)
         }
 
         observerUserTyping()
@@ -399,6 +404,40 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
 
                 if (state.isFullScreen) {
                     messageComposerViewModel.handle(MessageComposerAction.SetFullScreen(false))
+                }
+            }
+
+            override fun onSendSticker(sticker: MatrixItem.EmoteItem) = withState(messageComposerViewModel) { state ->
+                val image = sticker.emoteImage
+                val sendMode = state.sendMode
+                val relatesTo = if (sendMode is SendMode.Reply) {
+                    state.rootThreadEventId?.let {
+                        RelationDefaultContent(
+                                type = RelationType.THREAD,
+                                eventId = it,
+                                isFallingBack = false, // sendMode is reply, this reply is intentional and not a thread fallback
+                                inReplyTo = ReplyToContent(eventId = sendMode.timelineEvent.eventId)
+                        )
+                    } ?: RelationDefaultContent(null, null, ReplyToContent(eventId = sendMode.timelineEvent.eventId))
+                } else {
+                    null
+                }
+                val stickerContent = MessageStickerContent(
+                        body = image.body ?: sticker.displayName ?: sticker.id,
+                        info = image.info,
+                        url = image.url,
+                        relatesTo = relatesTo,
+                )
+                timelineViewModel.handle(RoomDetailAction.SendSticker(stickerContent))
+
+                if (state.isFullScreen) {
+                    messageComposerViewModel.handle(MessageComposerAction.SetFullScreen(false))
+                }
+
+                messageComposerViewModel.handle(MessageComposerAction.PopDraft)
+                emojiPopup.dismiss()
+                if (vectorPreferences.jumpToBottomOnSend()) {
+                    timelineViewModel.handle(RoomDetailAction.JumpToBottom)
                 }
             }
 

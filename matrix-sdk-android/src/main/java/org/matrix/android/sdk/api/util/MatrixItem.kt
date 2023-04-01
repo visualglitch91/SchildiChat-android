@@ -18,6 +18,7 @@ package org.matrix.android.sdk.api.util
 
 import org.matrix.android.sdk.BuildConfig
 import org.matrix.android.sdk.api.extensions.tryOrNull
+import org.matrix.android.sdk.api.session.room.model.EmoteImage
 import org.matrix.android.sdk.api.session.room.model.RoomMemberSummary
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import org.matrix.android.sdk.api.session.room.model.RoomType
@@ -114,7 +115,9 @@ sealed class MatrixItem(
 
     data class EmoteItem(override val id: String,
                          override val displayName: String? = null,
-                         override val avatarUrl: String? = null) :
+                         val emoteImage: EmoteImage,
+                         override val avatarUrl: String? = emoteImage.url,
+    ) :
             MatrixItem(id, displayName, avatarUrl) {
         override fun updateAvatar(newAvatar: String?) = copy(avatarUrl = newAvatar)
     }

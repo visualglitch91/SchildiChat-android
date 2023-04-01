@@ -227,4 +227,6 @@
     <!-- Note to translators: the translation MUST contain the string "${app_name_sc_stable}", which will be replaced by the application name -->
     <string name="use_latest_app_sc">Use the latest ${app_name_sc_stable} on your other devices:</string>
 
+    <string name="action_send_as_sticker">Send as sticker</string>
+
 </resources>

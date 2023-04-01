@@ -182,11 +182,38 @@
             android:src="@drawable/ic_attachment"
             app:tint="?android:textColorHint"
             app:layout_constraintBottom_toBottomOf="@id/sendButton"
-            app:layout_constraintEnd_toStartOf="@id/sendButton"
+            app:layout_constraintEnd_toStartOf="@id/sendStickerButton"
             app:layout_constraintStart_toEndOf="@id/composerEditText"
             app:layout_constraintTop_toTopOf="@id/sendButton"
             app:layout_goneMarginBottom="57dp"
             tools:ignore="MissingPrefix" />
+
+        <ImageButton
+            android:id="@+id/sendStickerButton"
+            android:layout_width="48dp"
+            android:layout_height="@dimen/composer_min_height"
+            android:contentDescription="@string/action_send_as_sticker"
+            android:scaleType="center"
+            android:src="@drawable/ic_send"
+            android:background="?android:attr/selectableItemBackground"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@id/sendButton"
+            app:layout_constraintStart_toEndOf="@id/attachmentButton"
+            app:layout_constraintTop_toTopOf="@id/sendButton"
+            app:layout_constraintBottom_toBottomOf="@id/sendButton"
+            tools:ignore="MissingPrefix"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/sendStickerButtonDecor"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_attachment_sticker"
+            android:visibility="gone"
+            app:tint="?colorAccent"
+            app:layout_constraintBottom_toBottomOf="@id/sendStickerButton"
+            app:layout_constraintEnd_toEndOf="@id/sendStickerButton"
+            tools:visibility="visible" />
 
         <ImageButton
             android:id="@+id/sendButton"
@@ -199,7 +226,7 @@
             android:background="?android:attr/selectableItemBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/attachmentButton"
+            app:layout_constraintStart_toEndOf="@id/sendStickerButton"
             tools:ignore="MissingPrefix"
             tools:visibility="visible" />
 

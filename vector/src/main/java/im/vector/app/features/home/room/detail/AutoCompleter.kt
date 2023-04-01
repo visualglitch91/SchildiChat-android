@@ -67,11 +67,16 @@ class AutoCompleter @AssistedInject constructor(
         fun create(roomId: String, isInThreadTimeline: Boolean): AutoCompleter
     }
 
+    interface Callback {
+        fun onAutoCompleteCustomEmote() {}
+    }
+
     private val autocompleteCommandPresenter: AutocompleteCommandPresenter by lazy {
         autocompleteCommandPresenterFactory.create(isInThreadTimeline)
     }
 
     private var editText: EditText? = null
+    private var callback: Callback? = null
 
     fun enterSpecialMode() {
         commandAutocompletePolicy.enabled = false
@@ -83,8 +88,9 @@ class AutoCompleter @AssistedInject constructor(
 
     private lateinit var glideRequests: GlideRequests
 
-    fun setup(editText: EditText) {
+    fun setup(editText: EditText, callback: Callback? = null) {
         this.editText = editText
+        this.callback = callback
         glideRequests = GlideApp.with(editText)
         val backgroundDrawable = ColorDrawable(ThemeUtils.getColor(editText.context, android.R.attr.colorBackground))
         setupCommands(backgroundDrawable, editText)
@@ -95,6 +101,7 @@ class AutoCompleter @AssistedInject constructor(
 
     fun clear() {
         this.editText = null
+        this.callback = null
         autocompleteEmojiPresenter.clear()
         autocompleteRoomPresenter.clear()
         autocompleteCommandPresenter.clear()
@@ -194,13 +201,13 @@ class AutoCompleter @AssistedInject constructor(
 
                         // Replace the word by its completion
                         editable.delete(startIndex, endIndex)
-                        if (item.mxcUrl.isNotEmpty()) {
+                        if (item.emoteImage != null) {
                             // Add emote html
                             val emote = ":${item.name}:"
                             editable.insert(startIndex, emote)
 
                             // Add span to make it look nice
-                            val matrixItem = MatrixItem.EmoteItem(item.mxcUrl, item.name, item.mxcUrl)
+                            val matrixItem = MatrixItem.EmoteItem(item.emoteImage.url, item.name, item.emoteImage)
                             val span = PillImageSpan(
                                     glideRequests,
                                     avatarRenderer,
@@ -210,6 +217,7 @@ class AutoCompleter @AssistedInject constructor(
                             span.bind(editText)
 
                             editable.setSpan(span, startIndex, startIndex + emote.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                            callback?.onAutoCompleteCustomEmote()
                         } else {
                             editable.insert(startIndex, item.emoji)
                         }

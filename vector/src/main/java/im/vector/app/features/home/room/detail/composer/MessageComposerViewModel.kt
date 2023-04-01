@@ -144,6 +144,7 @@ class MessageComposerViewModel @AssistedInject constructor(
             is MessageComposerAction.SetFullScreen -> handleSetFullScreen(action)
             // SC
             MessageComposerAction.ClearFocus -> _viewEvents.post(MessageComposerViewEvents.ClearFocus)
+            MessageComposerAction.PopDraft -> popDraft(room)
         }
     }
 

@@ -253,7 +253,7 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
                 }.filter {
                     query == null || it.key.contains(query, true)
                 }.map {
-                    EmojiItem(it.key, "", mxcUrl = it.value.url)
+                    EmojiItem(it.key, "", emoteImage = it.value)
                 }.sortedBy { it.name }.distinctBy { it.mxcUrl }
     }
 

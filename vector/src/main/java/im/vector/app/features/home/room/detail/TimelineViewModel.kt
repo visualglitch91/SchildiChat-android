@@ -676,13 +676,19 @@ class TimelineViewModel @AssistedInject constructor(
     private fun handleSendSticker(action: RoomDetailAction.SendSticker) {
         if (room == null) return
         val content = initialState.rootThreadEventId?.let {
-            action.stickerContent.copy(
-                    relatesTo = RelationDefaultContent(
-                            type = RelationType.THREAD,
-                            isFallingBack = true,
-                            eventId = it
-                    )
-            )
+            // Some sticker action might already have set this correctly, and maybe also done a real reply
+            val actionRelatesTo = action.stickerContent.relatesTo
+            if (actionRelatesTo?.type != RelationType.THREAD || actionRelatesTo.eventId != it) {
+                action.stickerContent.copy(
+                        relatesTo = RelationDefaultContent(
+                                type = RelationType.THREAD,
+                                isFallingBack = true,
+                                eventId = it
+                        )
+                )
+            } else {
+                action.stickerContent
+            }
         } ?: action.stickerContent
 
         room.sendService().sendEvent(EventType.STICKER, content.toContent())

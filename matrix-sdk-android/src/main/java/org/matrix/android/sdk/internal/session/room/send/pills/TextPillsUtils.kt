@@ -16,7 +16,9 @@
 package org.matrix.android.sdk.internal.session.room.send.pills
 
 import android.text.SpannableString
+import org.matrix.android.sdk.api.extensions.orTrue
 import org.matrix.android.sdk.api.session.permalinks.PermalinkService
+import org.matrix.android.sdk.api.session.room.model.RoomEmoteContent.Companion.USAGE_STICKER
 import org.matrix.android.sdk.api.session.room.send.MatrixItemSpan
 import org.matrix.android.sdk.api.util.MatrixItem
 import org.matrix.android.sdk.internal.session.displayname.DisplayNameResolver
@@ -129,4 +131,24 @@ fun CharSequence.requiresFormattedMessage(): Boolean {
             ?.filter { it.span.matrixItem is MatrixItem.EmoteItem }
             ?: return false
     return pills.isNotEmpty()
+}
+
+fun CharSequence.asSticker(): MatrixItem.EmoteItem? {
+    val spannableString = SpannableString.valueOf(this)
+    val emotes = spannableString
+            ?.getSpans(0, length, MatrixItemSpan::class.java)
+            ?.map { MentionLinkSpec(it, spannableString.getSpanStart(it), spannableString.getSpanEnd(it)) }
+            ?.filter { it.span.matrixItem is MatrixItem.EmoteItem }
+    if (emotes?.size == 1) {
+        val emote = emotes[0]
+        if (emote.start != 0 || emote.end != length) {
+            return null
+        }
+        val emoteItem = emote.span.matrixItem as MatrixItem.EmoteItem
+        val emoteImage = emoteItem.emoteImage
+        if (emoteImage.usage?.contains(USAGE_STICKER).orTrue()) {
+            return emoteItem
+        }
+    }
+    return null
 }

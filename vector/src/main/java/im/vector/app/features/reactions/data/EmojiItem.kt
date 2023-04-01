@@ -18,6 +18,7 @@ package im.vector.app.features.reactions.data
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import org.matrix.android.sdk.api.session.room.model.EmoteImage
 
 /**
  * Example:
@@ -42,10 +43,12 @@ data class EmojiItem(
         @Json(name = "a") val name: String,
         @Json(name = "b") val unicode: String,
         @Json(name = "j") val keywords: List<String> = emptyList(),
-        val mxcUrl: String = ""
+        val emoteImage: EmoteImage? = null,
 ) {
     // Cannot be private...
     var cache: String? = null
+
+    val mxcUrl: String = emoteImage?.url ?: ""
 
     val emoji: String
         get() {

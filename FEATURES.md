@@ -30,7 +30,7 @@ Here you can find some extra features and changes compared to Element Android (w
 - Setting to not alert for new messages if there's still an old notification for that room
 - Setting to hide start call buttons from the room's toolbar
 - Render inline images / custom emojis in the timeline
-- Allow sending custom emotes, if they have been set up with another compatible client ([MSC2545](https://github.com/matrix-org/matrix-spec-proposals/pull/2545))
+- Allow sending custom emotes (and partly stickers), if they have been set up with another compatible client ([MSC2545](https://github.com/matrix-org/matrix-spec-proposals/pull/2545))
 - Render image reactions
 - Send freeform reactions
 - Render media captions ([MSC2530](https://github.com/matrix-org/matrix-spec-proposals/pull/2530))
