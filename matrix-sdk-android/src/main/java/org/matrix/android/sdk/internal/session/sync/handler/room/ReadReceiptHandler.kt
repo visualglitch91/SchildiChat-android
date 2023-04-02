@@ -173,18 +173,26 @@ internal class ReadReceiptHandler @Inject constructor(
                 receiptDestinations.forEach { threadId ->
                     val receiptEntity = ReadReceiptEntity.getOrCreate(realm, roomId, userId, threadId)
                     val shouldForceMon: Boolean
-                    val shouldSkipMon = if (threadId == THREAD_ID_MAIN_OR_NULL) {
+                    val shouldSkipMon: Boolean
+                    if (threadId == THREAD_ID_MAIN_OR_NULL) {
                         val oldEventTs = EventEntity.where(realm, roomId, receiptEntity.eventId).findFirst()?.originServerTs
-                        val newEventTs = EventEntity.where(realm, roomId, eventId).findFirst()?.originServerTs
-                        shouldForceMon = oldEventTs != null && newEventTs != null && oldEventTs < newEventTs
-                        oldEventTs != null && newEventTs != null && oldEventTs > newEventTs
+                        val newEvent = EventEntity.where(realm, roomId, eventId).findFirst()
+                        val newEventTs = newEvent?.originServerTs
+                        // Avoid setting MAIN_OR_NULL to an event which only exists in the combined null-timeline, but not in the actual main-timeline
+                        if (syncedThreadId != THREAD_ID_MAIN && newEvent?.rootThreadEventId != null) {
+                            shouldForceMon = false
+                            shouldSkipMon = true
+                        } else {
+                            shouldForceMon = oldEventTs != null && newEventTs != null && oldEventTs < newEventTs
+                            shouldSkipMon = oldEventTs != null && newEventTs != null && oldEventTs > newEventTs
+                        }
                     } else {
                         shouldForceMon = false
-                        false
+                        shouldSkipMon = false
                     }
                     // ensure new ts is superior to the previous one
                     if (shouldForceMon || (ts > receiptEntity.originServerTs && !shouldSkipMon)) {
-                        rrDimber.i { "Handle outdated sync RR $roomId / $userId thread $threadId($syncedThreadId): event ${receiptEntity.eventId} -> $eventId" }
+                        rrDimber.i { "Handle outdated sync RR $roomId / $userId thread $threadId($syncedThreadId): event ${receiptEntity.eventId} -> $eventId || force $shouldForceMon legacy ${ts > receiptEntity.originServerTs}" }
                         ReadReceiptsSummaryEntity.where(realm, receiptEntity.eventId).findFirst()?.also {
                             it.readReceipts.remove(receiptEntity)
                         }

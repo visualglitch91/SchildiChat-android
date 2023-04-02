@@ -147,20 +147,28 @@ private fun handleReadReceipts(realm: Realm, roomId: String, eventEntity: EventE
         receiptDestinations.forEach { rootThreadEventId ->
             val readReceiptOfSender = ReadReceiptEntity.getOrCreate(realm, roomId = roomId, userId = senderId, threadId = rootThreadEventId)
             val shouldForceMon: Boolean
-            val shouldSkipMon = if (rootThreadEventId == THREAD_ID_MAIN_OR_NULL) {
+            val shouldSkipMon: Boolean
+            if (rootThreadEventId == THREAD_ID_MAIN_OR_NULL) {
                 val previousReceiptsSummary = ReadReceiptsSummaryEntity.where(realm, eventId = readReceiptOfSender.eventId).findFirst()
                 val oldEventTs = previousReceiptsSummary?.let { EventEntity.where(realm, roomId, it.eventId).findFirst()?.originServerTs }
-                val newEventTs = EventEntity.where(realm, roomId, eventEntity.eventId).findFirst()?.originServerTs
-                shouldForceMon = oldEventTs != null && newEventTs != null && oldEventTs < newEventTs
-                oldEventTs != null && newEventTs != null && oldEventTs > newEventTs
+                val newEvent = EventEntity.where(realm, roomId, eventEntity.eventId).findFirst()
+                val newEventTs = newEvent?.originServerTs
+                // Avoid setting MAIN_OR_NULL to an event which only exists in the combined null-timeline, but not in the actual main-timeline
+                if (eventEntity.rootThreadEventId != THREAD_ID_MAIN && newEvent?.rootThreadEventId != null) {
+                    shouldForceMon = false
+                    shouldSkipMon = true
+                } else {
+                    shouldForceMon = oldEventTs != null && newEventTs != null && oldEventTs < newEventTs
+                    shouldSkipMon = oldEventTs != null && newEventTs != null && oldEventTs > newEventTs
+                }
             } else {
                 shouldForceMon = false
-                false
+                shouldSkipMon = false
             }
             // If the synced RR is older, update
             if (shouldForceMon || (timestampOfEvent > readReceiptOfSender.originServerTs && !shouldSkipMon)) {
                 val previousReceiptsSummary = ReadReceiptsSummaryEntity.where(realm, eventId = readReceiptOfSender.eventId).findFirst()
-                rrDimber.i { "Handle outdated chunk RR $roomId / $senderId thread $rootThreadEventId(${eventEntity.rootThreadEventId}): event ${readReceiptOfSender.eventId} -> ${eventEntity.eventId}" }
+                rrDimber.i { "Handle outdated chunk RR $roomId / $senderId thread $rootThreadEventId(${eventEntity.rootThreadEventId}): event ${readReceiptOfSender.eventId} -> ${eventEntity.eventId} || force $shouldForceMon legacy ${timestampOfEvent > readReceiptOfSender.originServerTs}" }
                 readReceiptOfSender.eventId = eventEntity.eventId
                 readReceiptOfSender.originServerTs = timestampOfEvent
                 previousReceiptsSummary?.readReceipts?.remove(readReceiptOfSender)
