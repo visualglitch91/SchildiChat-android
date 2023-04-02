@@ -172,15 +172,18 @@ internal class ReadReceiptHandler @Inject constructor(
                 }
                 receiptDestinations.forEach { threadId ->
                     val receiptEntity = ReadReceiptEntity.getOrCreate(realm, roomId, userId, threadId)
+                    val shouldForceMon: Boolean
                     val shouldSkipMon = if (threadId == THREAD_ID_MAIN_OR_NULL) {
                         val oldEventTs = EventEntity.where(realm, roomId, receiptEntity.eventId).findFirst()?.originServerTs
                         val newEventTs = EventEntity.where(realm, roomId, eventId).findFirst()?.originServerTs
+                        shouldForceMon = oldEventTs != null && newEventTs != null && oldEventTs < newEventTs
                         oldEventTs != null && newEventTs != null && oldEventTs > newEventTs
                     } else {
+                        shouldForceMon = false
                         false
                     }
                     // ensure new ts is superior to the previous one
-                    if (ts > receiptEntity.originServerTs && !shouldSkipMon) {
+                    if (shouldForceMon || (ts > receiptEntity.originServerTs && !shouldSkipMon)) {
                         rrDimber.i { "Handle outdated sync RR $roomId / $userId thread $threadId($syncedThreadId): event ${receiptEntity.eventId} -> $eventId" }
                         ReadReceiptsSummaryEntity.where(realm, receiptEntity.eventId).findFirst()?.also {
                             it.readReceipts.remove(receiptEntity)
