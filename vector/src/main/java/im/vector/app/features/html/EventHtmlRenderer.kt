@@ -277,6 +277,9 @@ class EventHtmlRenderer @Inject constructor(
 
             spans.forEach { span ->
                 val start = text.getSpanStart(span)
+                if (start < 0) {
+                    return@forEach
+                }
                 if (text[start] == '\n') {
                     text.replace(start, start + 1, "")
                 }
