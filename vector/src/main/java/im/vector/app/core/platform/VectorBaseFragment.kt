@@ -291,17 +291,6 @@ abstract class VectorBaseFragment<VB : ViewBinding> : Fragment(), MavericksView 
         }
     }
 
-    // SC-TODO: this is the pre-v1.5.18 implementation of observeViewEvents, to fix custom widgets. Revert me once upstream implements a fix.
-    protected fun <T : VectorViewEvents> VectorViewModel<*, *, T>.oldObserveViewEvents(observer: (T) -> Unit) {
-        val tag = this@VectorBaseFragment::class.simpleName.toString()
-        viewEvents
-                .stream(tag)
-                .onEach {
-                    observer(it)
-                }
-                .launchIn(viewLifecycleOwner.lifecycleScope)
-    }
-
     /* ==========================================================================================
      * Views
      * ========================================================================================== */

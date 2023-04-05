@@ -92,7 +92,7 @@ class WidgetFragment :
         if (fragmentArgs.kind.isAdmin()) {
             viewModel.getPostAPIMediator().setWebView(views.widgetWebView)
         }
-        viewModel.oldObserveViewEvents {
+        viewModel.observeViewEvents {
             Timber.v("Observed view events: $it")
             when (it) {
                 is WidgetViewEvents.DisplayTerms -> displayTerms(it)
