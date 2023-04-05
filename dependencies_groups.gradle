@@ -39,6 +39,12 @@ ext.groups = [
                         'com.google.testing.platform',
                 ]
         ],
+        snapshot: [
+                regex: [
+                ],
+                group: [
+                ]
+        ],
         mavenCentral: [
                 regex: [
                 ],
