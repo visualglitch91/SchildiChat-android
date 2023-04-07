@@ -110,8 +110,12 @@ class AutocompleteEmojiController @Inject constructor(
     }
 
     companion object {
+        // Count of standard emoji matches - WARN: do not set to 8 or less, or epoxy/recycler will sometimes crash with some class casts,
+        // e.g. when repeatedly typing `:turt`, then deleting back to `:`?!?
+        // What makes 8 magic? Probably that no-search proposals also returns 8 results? But wtf?
+        const val STANDARD_EMOJI_MAX = 9
         // Count of emojis for the current room's image pack
-        const val CUSTOM_THIS_ROOM_MAX = 10
+        const val CUSTOM_THIS_ROOM_MAX = 8
         // Count of emojis per other image pack
         const val CUSTOM_OTHER_ROOM_MAX = 5
         // Count of emojis for global account data
@@ -122,7 +126,8 @@ class AutocompleteEmojiController @Inject constructor(
         const val MAX = 50
         // Total max after expanding a section
         const val MAX_EXPAND = 10000
-        // Internal ID
+        // Internal IDs
         const val ACCOUNT_DATA_EMOTE_ID = "de.spiritcroc.riotx.ACCOUNT_DATA_EMOTES"
+        const val STANDARD_EMOJI_ID = "de.spiritcroc.riotx.STANDARD_EMOJI"
     }
 }

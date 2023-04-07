@@ -105,12 +105,19 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
         lastQuery = query
         coroutineScope.launch {
             // Plain emojis
+            val fullStandardEmojis: List<EmojiItem>
             val data = if (query.isNullOrBlank()) {
                 // Return common emojis
-                emojiDataSource.getQuickReactions()
+                fullStandardEmojis = emojiDataSource.getQuickReactions()
+                fullStandardEmojis
             } else {
-                emojiDataSource.filterWith(query.toString())
-            }.toAutocompleteItems()
+                fullStandardEmojis = emojiDataSource.filterWith(query.toString())
+                fullStandardEmojis.maybeLimit(AutocompleteEmojiController.STANDARD_EMOJI_MAX, AutocompleteEmojiController.STANDARD_EMOJI_ID, null)
+            }.toAutocompleteItems().toMutableList()
+
+            if (fullStandardEmojis.size > data.size) {
+                 data += listOf(AutocompleteEmojiDataItem.Expand(AutocompleteEmojiController.STANDARD_EMOJI_ID, null, fullStandardEmojis.size - data.size))
+            }
 
             // Custom emotes: This room's emotes
             val currentRoomEmotes = room.getAllEmojiItems(query)
@@ -203,12 +210,7 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
                 }
             }
 
-            val dataHeader = if (data.isNotEmpty() && emoteData.isNotEmpty()) {
-                listOf(AutocompleteEmojiDataItem.Header("de.spiritcroc.riotx.STANDARD_EMOJI_HEADER", context.getString(R.string.standard_emojis)))
-            } else {
-                emptyList()
-            }
-            controller.setData(emoteData + dataHeader + data)
+            controller.setData(data + emoteData)
         }
     }
 
