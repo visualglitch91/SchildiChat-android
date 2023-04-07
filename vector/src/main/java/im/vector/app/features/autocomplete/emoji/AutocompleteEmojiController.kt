@@ -68,7 +68,7 @@ class AutocompleteEmojiController @Inject constructor(
 
     private fun buildHeaderItem(header: AutocompleteEmojiDataItem.Header) {
         autocompleteHeaderItem {
-            id(header.id)
+            id("h/${header.id}")
             title(header.title)
         }
     }
@@ -76,7 +76,7 @@ class AutocompleteEmojiController @Inject constructor(
     private fun buildEmojiItem(emojiItem: EmojiItem) {
         val host = this
         autocompleteEmojiItem {
-            id(emojiItem.name)
+            id("e/${emojiItem.name}/${emojiItem.mxcUrl}")
             emojiItem(emojiItem)
             // For caching reasons, we use the AvatarRenderer's thumbnail size here
             emoteUrl(
@@ -93,7 +93,7 @@ class AutocompleteEmojiController @Inject constructor(
     private fun buildExpandItem(item: AutocompleteEmojiDataItem.Expand) {
         val host = this
         autocompleteExpandItem {
-            id(item.loadMoreKey + "/" + item.loadMoreKeySecondary)
+            id("x/${item.loadMoreKey}/${item.loadMoreKeySecondary}")
             count(item.count)
             onClickListener { host.listener?.onLoadMoreClick(item) }
         }
