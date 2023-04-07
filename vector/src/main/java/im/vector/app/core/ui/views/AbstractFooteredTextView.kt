@@ -15,6 +15,7 @@ import im.vector.app.features.html.HtmlCodeSpan
 import io.noties.markwon.core.spans.EmphasisSpan
 import kotlin.math.ceil
 import kotlin.math.max
+import kotlin.math.min
 
 /**
  * TextView that reserves space at the bottom for overlaying it with a footer, e.g. in a FrameLayout or RelativeLayout
@@ -73,7 +74,7 @@ interface AbstractFooteredTextView {
         val looksLikeRtl = layout.isRtlCharAt(lastVisibleCharacter)
          */
 
-        // Get required width for all lines
+        // Get required width for all lines (not using measuredWidth so wrap_content doesn't go match_parent if long lines enforced some line breaks)
         var maxLineWidth = 0f
         for (i in 0 until layout.lineCount) {
             // For some reasons, the getLineWidth is not working too well with RTL lines when rendering replies.
@@ -87,6 +88,9 @@ interface AbstractFooteredTextView {
                 max(layout.getLineWidth(i), maxLineWidth)
             }
         }
+        // Huge PillImageSpans might want to reserve more horizontal space with above approach than what is available,
+        // so ensure we don't give them more then super would, such that their auto-ellipsize feature works properly.
+        maxLineWidth = min(maxLineWidth, measuredWidth.toFloat())
 
         // Fix wrap_content in multi-line texts by using maxLineWidth instead of measuredWidth here
         // (compare WrapWidthTextView.kt)
