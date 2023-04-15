@@ -40,6 +40,7 @@ import org.matrix.android.sdk.api.session.events.model.toModel
 import org.matrix.android.sdk.api.session.room.model.message.MessageAudioContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageContent
 import org.matrix.android.sdk.api.session.room.model.message.MessagePollContent
+import org.matrix.android.sdk.api.session.room.model.message.MessageStickerContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageTextContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageType
 import org.matrix.android.sdk.api.session.room.model.message.MessageWithAttachmentContent
@@ -130,7 +131,8 @@ class DisplayableEventFormatter @Inject constructor(
                 } ?: span { }
             }
             EventType.STICKER -> {
-                simpleFormat(senderName, stringProvider.getString(R.string.send_a_sticker), appendAuthor)
+                simpleFormat(senderName, timelineEvent.root.getClearContent().toModel<MessageStickerContent>()?.body?.takeIf { it.isNotEmpty() }
+                        ?: stringProvider.getString(R.string.send_a_sticker), appendAuthor)
             }
             EventType.REACTION -> {
                 timelineEvent.root.getClearContent().toModel<ReactionContent>()?.relatesTo?.let {
@@ -245,7 +247,7 @@ class DisplayableEventFormatter @Inject constructor(
                 } ?: span { }
             }
             EventType.STICKER -> {
-                stringProvider.getString(R.string.send_a_sticker)
+                event.getClearContent().toModel<MessageStickerContent>()?.body?.takeIf { it.isNotEmpty() } ?: stringProvider.getString(R.string.send_a_sticker)
             }
             EventType.REACTION -> {
                 event.getClearContent().toModel<ReactionContent>()?.relatesTo?.let {
