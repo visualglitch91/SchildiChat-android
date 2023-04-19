@@ -288,7 +288,7 @@ class DisplayableEventFormatter @Inject constructor(
                     .append(body)
         } else {
             "\u2068$body"
-        }
+        }.removeSuffix("\n")
     }
 
     private fun formatVoiceBroadcastEvent(event: Event, isDm: Boolean, senderName: String): CharSequence {
