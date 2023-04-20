@@ -16,6 +16,8 @@
 
 package im.vector.app.features.settings
 
+import android.os.Bundle
+import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -78,6 +80,11 @@ class VectorSettingsPinFragment :
         useBiometricPref.isChecked = isPinCodeChecked && biometricHelper.isSystemAuthEnabledAndValid
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        refreshPinCodeStatus()
+    }
+
     override fun onResume() {
         super.onResume()
 
@@ -85,8 +92,6 @@ class VectorSettingsPinFragment :
     }
 
     override fun bindPref() {
-        refreshPinCodeStatus()
-
         usePinCodePref.setOnPreferenceChangeListener { _, value ->
             val isChecked = (value as? Boolean).orFalse()
             updateBiometricPrefState(isPinCodeChecked = isChecked)
