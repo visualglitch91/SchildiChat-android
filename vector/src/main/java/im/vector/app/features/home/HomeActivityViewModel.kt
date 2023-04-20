@@ -184,6 +184,7 @@ class HomeActivityViewModel @AssistedInject constructor(
         if (analyticsConfig.isEnabled) {
             analyticsStore.didAskUserConsentFlow
                     .onEach { didAskUser ->
+                        Timber.v("DidAskUserConsent: $didAskUser")
                         if (!didAskUser) {
                             _viewEvents.post(HomeActivityViewEvents.ShowAnalyticsOptIn)
                         } else {

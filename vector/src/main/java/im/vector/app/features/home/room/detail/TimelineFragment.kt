@@ -152,7 +152,6 @@ import im.vector.app.features.home.room.detail.composer.MessageComposerViewModel
 import im.vector.app.features.home.room.detail.composer.boolean
 import im.vector.app.features.home.room.detail.composer.voice.VoiceRecorderFragment
 import im.vector.app.features.home.room.detail.error.RoomNotFound
-import im.vector.app.features.home.room.detail.readreceipts.DisplayReadReceiptsBottomSheet
 import im.vector.app.features.home.room.detail.timeline.TimelineEventController
 import im.vector.app.features.home.room.detail.timeline.action.EventSharedAction
 import im.vector.app.features.home.room.detail.timeline.action.MessageActionsBottomSheet
@@ -172,6 +171,7 @@ import im.vector.app.features.home.room.detail.timeline.item.MessageVoiceItem
 import im.vector.app.features.home.room.detail.timeline.item.ReadReceiptData
 import im.vector.app.features.home.room.detail.timeline.item.TimelineReadMarkerItem
 import im.vector.app.features.home.room.detail.timeline.reactions.ViewReactionsBottomSheet
+import im.vector.app.features.home.room.detail.timeline.readreceipts.DisplayReadReceiptsBottomSheet
 import im.vector.app.features.home.room.detail.timeline.reply.ReplyPreviewRetriever
 import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlRetriever
 import im.vector.app.features.home.room.detail.upgrade.MigrateRoomBottomSheet

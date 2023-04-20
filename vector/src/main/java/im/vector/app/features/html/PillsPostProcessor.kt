@@ -22,11 +22,13 @@ import android.text.Spanned
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import im.vector.app.R
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.glide.GlideApp
 import im.vector.app.features.home.AvatarRenderer
 import io.noties.markwon.core.spans.LinkSpan
 import io.noties.markwon.image.AsyncDrawableSpan
+import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.session.getRoomSummary
 import org.matrix.android.sdk.api.session.getUser
 import org.matrix.android.sdk.api.session.permalinks.PermalinkData
@@ -106,12 +108,18 @@ class PillsPostProcessor @AssistedInject constructor(
             PillImageSpan(GlideApp.with(context), avatarRenderer, context, matrixItem)
 
     private fun LinkSpan.createPillSpan(): PillImageSpan? {
-        val matrixItem = when (val permalinkData = PermalinkParser.parse(url)) {
-            is PermalinkData.UserLink -> permalinkData.toMatrixItem()
-            is PermalinkData.RoomLink -> permalinkData.toMatrixItem()
-            else -> null
-        } ?: return null
-        return createPillImageSpan(matrixItem)
+        val supportedHosts = context.resources.getStringArray(R.array.permalink_supported_hosts)
+        val isPermalinkSupported = sessionHolder.getSafeActiveSession()?.permalinkService()?.isPermalinkSupported(supportedHosts, url).orFalse()
+        if (isPermalinkSupported) {
+            val matrixItem = when (val permalinkData = PermalinkParser.parse(url)) {
+                is PermalinkData.UserLink -> permalinkData.toMatrixItem()
+                is PermalinkData.RoomLink -> permalinkData.toMatrixItem()
+                else -> null
+            } ?: return null
+            return createPillImageSpan(matrixItem)
+        } else {
+            return null
+        }
     }
 
     private fun PermalinkData.UserLink.toMatrixItem(): MatrixItem? =
