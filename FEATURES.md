@@ -7,7 +7,6 @@ Here you can find some extra features and changes compared to Element Android (w
 - SchildiChat light, dark and black themes with multiple choices for accent colors
 - Possibility to color usernames by power level, allowing for different settings depending on whether it's a public chat, a group chat or a direct chat
 - Possibility to select themes for both light and dark system mode individually
-- [UnifiedPush](https://unifiedpush.org/) support
 - "Easy mode" which disables public room functionality
 - Floating date
 - Setting for room previews: show all events, hide membership changes, hide membership changes and reactions (individual settings for direct chats and groups)
