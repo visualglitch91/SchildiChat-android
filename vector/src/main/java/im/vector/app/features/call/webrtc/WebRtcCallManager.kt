@@ -21,6 +21,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import im.vector.app.ActiveSessionDataSource
 import im.vector.app.core.pushers.UnifiedPushHelper
+import im.vector.app.core.resources.StringProvider
 import im.vector.app.core.services.CallAndroidService
 import im.vector.app.features.analytics.AnalyticsTracker
 import im.vector.app.features.analytics.plan.CallEnded
@@ -32,6 +33,7 @@ import im.vector.app.features.call.lookup.CallUserMapper
 import im.vector.app.features.call.utils.EglUtils
 import im.vector.app.features.call.vectorCallService
 import im.vector.app.features.session.coroutineScope
+import im.vector.app.features.settings.VectorPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.matrix.android.sdk.api.extensions.orFalse
@@ -74,6 +76,8 @@ class WebRtcCallManager @Inject constructor(
         private val analyticsTracker: AnalyticsTracker,
         private val unifiedPushHelper: UnifiedPushHelper,
         private val voipConfig: VoipConfig,
+        private var vectorPreferences: VectorPreferences,
+        private val stringProvider: StringProvider,
 ) : CallListener,
         DefaultLifecycleObserver {
 
@@ -336,7 +340,9 @@ class WebRtcCallManager @Inject constructor(
                 },
                 sessionProvider = { currentSession },
                 onCallBecomeActive = this::onCallActive,
-                onCallEnded = this::onCallEnded
+                onCallEnded = this::onCallEnded,
+                vectorPreferences = vectorPreferences,
+                stringProvider = stringProvider
         )
         advertisedCalls.add(mxCall.callId)
         callsByCallId[mxCall.callId] = webRtcCall
