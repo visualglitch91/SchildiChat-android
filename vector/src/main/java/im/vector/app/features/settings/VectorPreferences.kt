@@ -263,6 +263,7 @@ class VectorPreferences @Inject constructor(
         const val SETTINGS_ROOM_SORT_ORDER_NULL = "SETTINGS_ROOM_SORT_ORDER_NULL"
         const val SETTINGS_ROOM_SORT_ORDER_NON_NULL = "SETTINGS_ROOM_SORT_ORDER_NON_NULL"
         private const val SETTINGS_ENABLE_MEMBER_NAME_CLICK = "SETTINGS_ENABLE_MEMBER_NAME_CLICK"
+        private const val SETTINGS_CLEAR_HIGHLIGHT_ON_SCROLL = "SETTINGS_CLEAR_HIGHLIGHT_ON_SCROLL"
 
         private const val DID_ASK_TO_ENABLE_SESSION_PUSH = "DID_ASK_TO_ENABLE_SESSION_PUSH"
 
@@ -1258,6 +1259,11 @@ class VectorPreferences @Inject constructor(
         return defaultPrefs.getBoolean(SETTINGS_ENABLE_MEMBER_NAME_CLICK, true)
     }
 
+    // SC addition
+    fun clearHighlightOnScroll(): Boolean {
+        return defaultPrefs.getBoolean(SETTINGS_CLEAR_HIGHLIGHT_ON_SCROLL, false)
+    }
+
 
     /**
      * I likely do more fresh installs of the app than anyone else, so a shortcut to change some of the default settings to
@@ -1286,6 +1292,7 @@ class VectorPreferences @Inject constructor(
                 .putBoolean(SETTINGS_FLOATING_DATE, true)
                 .putBoolean(SETTINGS_FOLLOW_SYSTEM_LOCALE, true)
                 .putBoolean(SETTINGS_ENABLE_MEMBER_NAME_CLICK, false)
+                .putBoolean(SETTINGS_CLEAR_HIGHLIGHT_ON_SCROLL, true)
                 .apply()
     }
 

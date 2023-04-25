@@ -1153,6 +1153,12 @@ class TimelineViewModel @AssistedInject constructor(
         _viewEvents.post(RoomDetailViewEvents.NavigateToEvent(targetEventId, action.isFirstUnreadEvent))
     }
 
+    fun clearHighlight() = withState { state ->
+        if (state.highlightedEventId != null) {
+            setState { copy(highlightedEventId = null) }
+        }
+    }
+
     private fun handleResendEvent(action: RoomDetailAction.ResendMessage) {
         if (room == null) return
         val targetEventId = action.eventId

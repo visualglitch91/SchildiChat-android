@@ -39,6 +39,12 @@
 
         <im.vector.app.core.preference.VectorSwitchPreference
             android:defaultValue="false"
+            android:key="SETTINGS_CLEAR_HIGHLIGHT_ON_SCROLL"
+            android:title="@string/settings_clear_highlight_on_scroll"
+            android:summary="@string/settings_clear_highlight_on_scroll_summary" />
+
+        <im.vector.app.core.preference.VectorSwitchPreference
+            android:defaultValue="false"
             android:key="SETTINGS_ALLOW_URL_PREVIEW_IN_ENCRYPTED_ROOM_KEY"
             android:title="@string/url_previews_in_encrypted_rooms"
             android:summary="@string/url_previews_in_encrypted_rooms_summary" />

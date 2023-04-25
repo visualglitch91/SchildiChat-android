@@ -229,6 +229,9 @@
 
     <string name="action_send_as_sticker">Send as sticker</string>
 
+    <string name="settings_clear_highlight_on_scroll">Clear highlight on scroll</string>
+    <string name="settings_clear_highlight_on_scroll_summary">Remove highlight from messages when you scroll</string>
+
     <!-- SC-TMP, until merged upstream: https://github.com/vector-im/element-android/pull/5781 -->
     <string name="settings_call_ringtone_use_default_stun_title">Allow fallback call assist server</string>
     <string name="settings_call_ringtone_use_default_stun_summary">Will use %s as assist when your homeserver does not offer one (your IP address will be seen by the stun server during a call

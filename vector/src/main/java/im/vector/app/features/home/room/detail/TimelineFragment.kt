@@ -323,6 +323,8 @@ class TimelineFragment :
 
     private val lazyLoadedViews = RoomDetailLazyLoadedViews()
 
+    private val clearHighlightOnScroll by lazy { vectorPreferences.clearHighlightOnScroll() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         analyticsScreenName = MobileScreen.ScreenName.Room
@@ -1335,6 +1337,9 @@ class TimelineFragment :
                     // If we do not clear the focus manually, it will keep it forever?
                     // We want to listen to new focus events to re-enable the stickToBottom though.
                     messageComposerViewModel.handle(MessageComposerAction.ClearFocus)
+                    if (clearHighlightOnScroll) {
+                        timelineViewModel.clearHighlight()
+                    }
                 }
                 super.onScrolled(recyclerView, dx, dy)
             }
