@@ -76,7 +76,7 @@ internal class TextPillsUtils @Inject constructor(
                 if (urlSpan.matrixItem is MatrixItem.EmoteItem) {
                     // Note we use the same template for both HTML and MARKDOWN conversion. We do this since markdown inline images are not mighty enough
                     // for custom emotes (i.e., that would drop the data-mx-emoticon tag, which we want to keep). But we can use inline html in markdown.
-                    val imgHtml = "<img data-mx-emoticon height=\"18\" src=\"${urlSpan.matrixItem.avatarUrl}\" title=\":${urlSpan.matrixItem.displayName}:\" alt=\":${urlSpan.matrixItem.displayName}:\">"
+                    val imgHtml = "<img data-mx-emoticon height=\"32\" src=\"${urlSpan.matrixItem.avatarUrl}\" title=\":${urlSpan.matrixItem.displayName}:\" alt=\":${urlSpan.matrixItem.displayName}:\">"
                     append(imgHtml)
                 } else {
                     append(String.format(template, urlSpan.matrixItem.id, displayNameResolver.getBestName(urlSpan.matrixItem)))
