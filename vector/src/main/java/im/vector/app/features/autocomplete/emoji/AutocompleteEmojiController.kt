@@ -67,7 +67,7 @@ class AutocompleteEmojiController @Inject constructor(
     }
 
     private fun buildHeaderItem(header: AutocompleteEmojiDataItem.Header) {
-        autocompleteHeaderItem {
+        autocompleteEmojiHeaderItem {
             id("h/${header.id}")
             title(header.title)
         }
@@ -110,9 +110,7 @@ class AutocompleteEmojiController @Inject constructor(
     }
 
     companion object {
-        // Count of standard emoji matches - WARN: do not set to 8 or less, or epoxy/recycler will sometimes crash with some class casts,
-        // e.g. when repeatedly typing `:turt`, then deleting back to `:`?!?
-        // What makes 8 magic? Probably that no-search proposals also returns 8 results? But wtf?
+        // Count of standard emoji matches
         const val STANDARD_EMOJI_MAX = 9
         // Count of emojis for the current room's image pack
         const val CUSTOM_THIS_ROOM_MAX = 8

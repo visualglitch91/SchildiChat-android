@@ -51,6 +51,8 @@ abstract class AutocompleteEmojiItem : VectorEpoxyModel<AutocompleteEmojiItem.Ho
 
     override fun bind(holder: Holder) {
         super.bind(holder)
+        holder.titleView.isVisible = false
+        holder.emojiNameText.isVisible = true
         if (emoteUrl?.isNotEmpty().orFalse()) {
             holder.emojiText.isVisible = false
             holder.emoteImage.isVisible = true
@@ -75,5 +77,6 @@ abstract class AutocompleteEmojiItem : VectorEpoxyModel<AutocompleteEmojiItem.Ho
         val emoteImage by bind<ImageView>(R.id.itemAutocompleteEmote)
         val emojiNameText by bind<TextView>(R.id.itemAutocompleteEmojiName)
         val emojiKeywordText by bind<TextView>(R.id.itemAutocompleteEmojiSubname)
+        val titleView by bind<TextView>(R.id.headerItemAutocompleteTitle)
     }
 }
