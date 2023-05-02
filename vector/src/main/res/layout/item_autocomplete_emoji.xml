@@ -20,6 +20,7 @@
         android:layout_gravity="center_vertical"
         android:maxLines="1"
         android:textColor="?vctr_content_secondary"
+        android:textSize="@dimen/text_size_body"
         android:ellipsize="end"
         android:visibility="gone"
         tools:text="@string/custom_emotes_this_room" />

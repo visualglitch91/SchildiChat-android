@@ -111,7 +111,7 @@ class AutocompleteEmojiController @Inject constructor(
 
     companion object {
         // Count of standard emoji matches
-        const val STANDARD_EMOJI_MAX = 9
+        const val STANDARD_EMOJI_MAX = 7
         // Count of emojis for the current room's image pack
         const val CUSTOM_THIS_ROOM_MAX = 8
         // Count of emojis per other image pack
