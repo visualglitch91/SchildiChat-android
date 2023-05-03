@@ -99,12 +99,17 @@ class RoomGroupMessageCreator @Inject constructor(
             when {
                 event.isSmartReplyError() -> addMessage(stringProvider.getString(R.string.notification_inline_reply_failed), event.timestamp, senderPerson)
                 else -> {
-                    val message = NotificationCompat.MessagingStyle.Message(event.body, event.timestamp, senderPerson).also { message ->
+                    val body = event.filename.takeIf { event.imageUri != null } ?: event.body
+                    val message = NotificationCompat.MessagingStyle.Message(body, event.timestamp, senderPerson).also { message ->
                         event.imageUri?.let {
                             message.setData("image/", it)
                         }
                     }
                     addMessage(message)
+                    if (event.imageUri != null && !event.caption.isNullOrEmpty()) {
+                        val captionMessage = NotificationCompat.MessagingStyle.Message(event.caption, event.timestamp, senderPerson)
+                        addMessage(captionMessage)
+                    }
                 }
             }
         }

@@ -154,6 +154,8 @@ class NotificationBroadcastReceiver : BroadcastReceiver() {
                         ?: context?.getString(R.string.notification_sender_me),
                 senderId = session.myUserId,
                 body = message,
+                caption = null,
+                filename = null,
                 imageUriString = null,
                 roomId = room.roomId,
                 threadId = threadId,

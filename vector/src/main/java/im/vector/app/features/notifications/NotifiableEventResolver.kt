@@ -44,9 +44,12 @@ import org.matrix.android.sdk.api.session.room.getTimelineEvent
 import org.matrix.android.sdk.api.session.room.model.Membership
 import org.matrix.android.sdk.api.session.room.model.RoomMemberContent
 import org.matrix.android.sdk.api.session.room.model.message.MessageWithAttachmentContent
+import org.matrix.android.sdk.api.session.room.model.message.getCaption
+import org.matrix.android.sdk.api.session.room.model.message.getFileName
 import org.matrix.android.sdk.api.session.room.sender.SenderInfo
 import org.matrix.android.sdk.api.session.room.timeline.TimelineEvent
 import org.matrix.android.sdk.api.session.room.timeline.getEditedEventId
+import org.matrix.android.sdk.api.session.room.timeline.getLastMessageContent
 import org.matrix.android.sdk.api.util.toMatrixItem
 import timber.log.Timber
 import java.util.UUID
@@ -130,6 +133,9 @@ class NotifiableEventResolver @Inject constructor(
         }
     }
 
+    fun TimelineEvent.getCaption(): String? = (getLastMessageContent() as? MessageWithAttachmentContent)?.getCaption()
+    fun TimelineEvent.getFilename(): String? = (getLastMessageContent() as? MessageWithAttachmentContent)?.getFileName()
+
     private suspend fun resolveMessageEvent(event: TimelineEvent, session: Session, canBeReplaced: Boolean, isNoisy: Boolean): NotifiableMessageEvent? {
         // The event only contains an eventId, and roomId (type is m.room.*) , we need to get the displayable content (names, avatar, text, etc...)
         val room = session.getRoom(event.root.roomId!! /*roomID cannot be null*/)
@@ -150,6 +156,8 @@ class NotifiableEventResolver @Inject constructor(
                     senderName = senderDisplayName,
                     senderId = event.root.senderId,
                     body = body.toString(),
+                    caption = event.getCaption(),
+                    filename = event.getFilename(),
                     imageUriString = event.fetchImageIfPresent(session)?.toString(),
                     roomId = event.root.roomId!!,
                     threadId = event.root.getRootThreadEventId(),
@@ -174,6 +182,8 @@ class NotifiableEventResolver @Inject constructor(
                             senderName = senderDisplayName,
                             senderId = event.root.senderId,
                             body = body,
+                            caption = event.getCaption(),
+                            filename = event.getFilename(),
                             imageUriString = event.fetchImageIfPresent(session)?.toString(),
                             roomId = event.root.roomId!!,
                             threadId = event.root.getRootThreadEventId(),

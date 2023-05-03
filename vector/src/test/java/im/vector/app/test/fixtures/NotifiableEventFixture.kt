@@ -73,6 +73,8 @@ fun aNotifiableMessageEvent(
         senderName = "sender-name",
         senderId = "sending-id",
         body = "message-body",
+        caption = "caption",
+        filename = "filename",
         roomId = roomId,
         threadId = threadId,
         roomName = "room-name",
