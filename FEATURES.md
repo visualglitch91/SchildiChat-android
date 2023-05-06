@@ -35,6 +35,7 @@ Here you can find some extra features and changes compared to Element Android (w
 - Render media captions ([MSC2530](https://github.com/matrix-org/matrix-spec-proposals/pull/2530))
 - Escape @room in the reply fallback to avoid unintentional room pings when replying
 - Render sticker body in room/thread preview
+
 - Branding (name, app icon, links)
 - Show a toast instead of a snackbar after copying text, in order to not block the input area right after copying
 - Change some default settings (e.g., hide deleted messages by default)
@@ -48,7 +49,7 @@ Here you can find some extra features and changes compared to Element Android (w
 - Emoji-only messages with increased size: also for messages that have spaces between emojis
 - Also fallback to other user's avatar for 2-person-rooms not marked as DM
 - Pass theme to stickerpicker (tested with maunium-stickerpicker)
-- Allow using the matrix.org TURN server as a fallback (until this feature is [merged](https://github.com/vector-im/element-android/pull/5781) into Element)
+- Allow using the matrix.org TURN server as a fallback (until this feature is [merged](https://github.com/vector-im/element-android/pull/5781) into Element), contributed by [CicadaCinema](https://github.com/CicadaCinema)
 - ...
 - Sometimes bug fixes for issues in Element, when found during internal testing
 - Sometimes additional bugs ;)
