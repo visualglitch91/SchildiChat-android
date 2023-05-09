@@ -30,7 +30,7 @@ Here you can find some extra features and changes compared to Element Android (w
 - Setting to hide start call buttons from the room's toolbar
 - Render inline images / custom emojis in the timeline
 - Allow sending custom emotes (and partly stickers), if they have been set up with another compatible client ([MSC2545](https://github.com/matrix-org/matrix-spec-proposals/pull/2545))
-- Render image reactions
+- Render image reactions ([MSC3746](https://github.com/matrix-org/matrix-spec-proposals/pull/3746))
 - Send freeform reactions
 - Render media captions ([MSC2530](https://github.com/matrix-org/matrix-spec-proposals/pull/2530))
 - Escape @room in the reply fallback to avoid unintentional room pings when replying
