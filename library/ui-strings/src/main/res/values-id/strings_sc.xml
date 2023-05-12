@@ -174,4 +174,8 @@
     <string name="settings_sc_dbg_show_duplicate_read_receipts">Gandakan laporan dibaca</string>
     <string name="custom_emotes_named_other_room">\"%1$s\" dari %2$s</string>
     <string name="action_send_as_sticker">Kirim sebagai stiker</string>
+    <string name="settings_clear_highlight_on_scroll_summary">Hapus sorotan dari pesan ketika Anda menggulir</string>
+    <string name="settings_call_ringtone_use_default_stun_summary">Akan menggunakan %s sebagai pembantu ketika homeserver Anda tidak menawarkan (alamat IP Anda akan terlihat oleh server STUN selama panggilan berlangsung)</string>
+    <string name="settings_clear_highlight_on_scroll">Hapus sorotan saat menggulir</string>
+    <string name="settings_call_ringtone_use_default_stun_title">Perbolehkan server panggilan bantuan cadangan</string>
 </resources>
