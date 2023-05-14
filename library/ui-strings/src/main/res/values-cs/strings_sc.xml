@@ -176,4 +176,8 @@
     <string name="settings_sc_dbg_show_duplicate_read_receipts">Duplicitní potvrzení o přečtení</string>
     <string name="custom_emotes_named_other_room">\"%1$s\" z %2$s</string>
     <string name="action_send_as_sticker">Poslat jako nálepku</string>
+    <string name="settings_call_ringtone_use_default_stun_summary">Použije %s jako asistenta, pokud ho váš domovský server nenabízí (vaši IP adresu uvidí stun server během volání )</string>
+    <string name="settings_clear_highlight_on_scroll">Jasné zvýraznění při posouvání</string>
+    <string name="settings_clear_highlight_on_scroll_summary">Odstranit zvýraznění zpráv při posouvání</string>
+    <string name="settings_call_ringtone_use_default_stun_title">Povolit asistenční server pro zpětné volání</string>
 </resources>
