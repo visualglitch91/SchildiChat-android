@@ -55,8 +55,10 @@ class DefaultLiveLocationShareStatusItem : LiveLocationShareStatusItem {
             width = mapWidth
             height = mapHeight
         }
+        // Yes, usually one would do this using drawable-v24... which glide seems to ignore?
+        val resource = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) R.drawable.bg_no_location_map_themed else R.drawable.bg_no_location_map
         GlideApp.with(mapImageView)
-                .load(ContextCompat.getDrawable(mapImageView.context, R.drawable.bg_no_location_map_themed))
+                .load(ContextCompat.getDrawable(mapImageView.context, resource))
                 .transform(MultiTransformation(CenterCrop(), mapCornerTransformation))
                 .into(mapImageView)
     }
