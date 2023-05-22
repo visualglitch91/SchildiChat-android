@@ -128,7 +128,7 @@ class RoomMemberListViewModel @AssistedInject constructor(
         }
     }
 
-    private fun getUserTrustLevel(userId: String, devices: List<CryptoDeviceInfo>): UserVerificationLevel {
+    private suspend fun getUserTrustLevel(userId: String, devices: List<CryptoDeviceInfo>): UserVerificationLevel {
         val allDeviceTrusted = devices.fold(devices.isNotEmpty()) { prev, next ->
             prev && next.trustLevel?.isCrossSigningVerified().orFalse()
         }

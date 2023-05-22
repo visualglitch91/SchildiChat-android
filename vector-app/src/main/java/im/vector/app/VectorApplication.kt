@@ -27,6 +27,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.StrictMode
+import android.util.Log
 import android.view.Gravity
 import androidx.core.provider.FontRequest
 import androidx.core.provider.FontsContractCompat
@@ -57,7 +58,6 @@ import im.vector.app.core.resources.BuildMeta
 import im.vector.app.features.analytics.VectorAnalytics
 import im.vector.app.features.call.webrtc.WebRtcCallManager
 import im.vector.app.features.configuration.VectorConfiguration
-import im.vector.app.features.disclaimer.DisclaimerDialog
 import im.vector.app.features.invite.InvitesAcceptor
 import im.vector.app.features.lifecycle.VectorActivityLifecycleCallbacks
 import im.vector.app.features.notifications.NotificationDrawerManager
@@ -74,7 +74,6 @@ import im.vector.application.R
 import org.jitsi.meet.sdk.log.JitsiMeetDefaultLogHandler
 import org.matrix.android.sdk.api.Matrix
 import org.matrix.android.sdk.api.auth.AuthenticationService
-import org.matrix.android.sdk.api.legacy.LegacySessionImporter
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -89,7 +88,6 @@ class VectorApplication :
         WorkConfiguration.Provider {
 
     lateinit var appContext: Context
-    @Inject lateinit var legacySessionImporter: LegacySessionImporter
     @Inject lateinit var authenticationService: AuthenticationService
     @Inject lateinit var vectorConfiguration: VectorConfiguration
     @Inject lateinit var emojiCompatFontProvider: EmojiCompatFontProvider
@@ -114,7 +112,6 @@ class VectorApplication :
     @Inject lateinit var buildMeta: BuildMeta
     @Inject lateinit var leakDetector: LeakDetector
     @Inject lateinit var vectorLocale: VectorLocale
-    @Inject lateinit var disclaimerDialog: DisclaimerDialog
 
     // font thread handler
     private var fontThreadHandler: Handler? = null
@@ -177,20 +174,16 @@ class VectorApplication :
 
         notificationUtils.createNotificationChannels()
 
-        // It can takes time, but do we care?
-        val sessionImported = legacySessionImporter.process()
-        if (!sessionImported) {
-            // Do not display the name change popup
-            disclaimerDialog.doNotShowDisclaimerDialog()
-        }
-
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 Timber.i("App entered foreground")
                 fcmHelper.onEnterForeground(activeSessionHolder)
-                activeSessionHolder.getSafeActiveSession()?.also {
-                    it.syncService().stopAnyBackgroundSync()
+                activeSessionHolder.getSafeActiveSessionAsync {
+                    it?.syncService()?.stopAnyBackgroundSync()
                 }
+//                activeSessionHolder.getSafeActiveSession()?.also {
+//                    it.syncService().stopAnyBackgroundSync()
+//                }
             }
 
             override fun onPause(owner: LifecycleOwner) {
@@ -253,6 +246,7 @@ class VectorApplication :
     override fun getWorkManagerConfiguration(): WorkConfiguration {
         return WorkConfiguration.Builder()
                 .setWorkerFactory(matrix.getWorkerFactory())
+                .setMinimumLoggingLevel(Log.DEBUG)
                 .setExecutor(Executors.newCachedThreadPool())
                 .build()
     }

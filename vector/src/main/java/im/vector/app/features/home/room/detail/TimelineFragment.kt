@@ -51,9 +51,8 @@ import androidx.core.view.isVisible
 import androidx.core.view.postDelayed
 import androidx.core.view.updatePadding
 import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.withResumed
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
@@ -142,7 +141,7 @@ import im.vector.app.features.call.conference.ConferenceEventObserver
 import im.vector.app.features.call.conference.JitsiCallViewModel
 import im.vector.app.features.call.webrtc.WebRtcCallManager
 import im.vector.app.features.crypto.keysbackup.restore.KeysBackupRestoreActivity
-import im.vector.app.features.crypto.verification.VerificationBottomSheet
+import im.vector.app.features.crypto.verification.user.UserVerificationBottomSheet
 import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.arguments.TimelineArgs
 import im.vector.app.features.home.room.detail.composer.CanSendStatus
@@ -1393,29 +1392,31 @@ class TimelineFragment :
     private fun updateJumpToReadMarkerViewVisibility() {
         if (isThreadTimeLine()) return
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                val state = timelineViewModel.awaitState()
-                val showJumpToUnreadBanner = when (state.unreadState) {
-                    UnreadState.Unknown,
-                    UnreadState.HasNoUnread -> false
-                    is UnreadState.ReadMarkerNotLoaded -> true
-                    is UnreadState.HasUnread -> {
-                        if (state.canShowJumpToReadMarker) {
-                            val lastVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
-                            val positionOfReadMarker = withContext(Dispatchers.Default) {
-                                timelineEventController.getPositionOfReadMarker()
-                            }
-                            if (positionOfReadMarker == null) {
-                                false
+            withResumed {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val state = timelineViewModel.awaitState()
+                    val showJumpToUnreadBanner = when (state.unreadState) {
+                        UnreadState.Unknown,
+                        UnreadState.HasNoUnread -> false
+                        is UnreadState.ReadMarkerNotLoaded -> true
+                        is UnreadState.HasUnread -> {
+                            if (state.canShowJumpToReadMarker) {
+                                val lastVisibleItem = layoutManager.findLastCompletelyVisibleItemPosition()
+                                val positionOfReadMarker = withContext(Dispatchers.Default) {
+                                    timelineEventController.getPositionOfReadMarker()
+                                }
+                                if (positionOfReadMarker == null) {
+                                    false
+                                } else {
+                                    positionOfReadMarker > lastVisibleItem
+                                }
                             } else {
-                                positionOfReadMarker > lastVisibleItem
+                                false
                             }
-                        } else {
-                            false
                         }
                     }
+                    views.jumpToReadMarkerView.isVisible = showJumpToUnreadBanner
                 }
-                views.jumpToReadMarkerView.isVisible = showJumpToUnreadBanner
             }
         }
     }
@@ -1662,24 +1663,23 @@ class TimelineFragment :
                 }
             }
             is RoomDetailAction.RequestVerification -> {
-                Timber.v("## SAS RequestVerification action")
-                VerificationBottomSheet.withArgs(
+                Timber.v("## SAS RequestVerification action $data")
+                UserVerificationBottomSheet.verifyUser(
                         timelineArgs.roomId,
                         data.userId
                 ).show(parentFragmentManager, "REQ")
             }
             is RoomDetailAction.AcceptVerificationRequest -> {
-                Timber.v("## SAS AcceptVerificationRequest action")
-                VerificationBottomSheet.withArgs(
-                        timelineArgs.roomId,
+                Timber.v("## SAS AcceptVerificationRequest action $data")
+                UserVerificationBottomSheet.verifyUser(
                         data.otherUserId,
                         data.transactionId
                 ).show(parentFragmentManager, "REQ")
             }
             is RoomDetailAction.ResumeVerification -> {
                 val otherUserId = data.otherUserId ?: return
-                VerificationBottomSheet.withArgs(
-                        roomId = timelineArgs.roomId,
+                UserVerificationBottomSheet.verifyUser(
+//                        roomId = timelineArgs.roomId,
                         otherUserId = otherUserId,
                         transactionId = data.transactionId,
                 ).show(parentFragmentManager, "REQ")
@@ -1942,14 +1942,16 @@ class TimelineFragment :
 
     override fun onRoomCreateLinkClicked(url: String) {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                permalinkHandler
-                        .launch(requireActivity(), url, object : NavigationInterceptor {
-                            override fun navToRoom(roomId: String?, eventId: String?, deepLink: Uri?, rootThreadEventId: String?): Boolean {
-                                requireActivity().finish()
-                                return false
-                            }
-                        })
+            withResumed {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    permalinkHandler
+                            .launch(requireActivity(), url, object : NavigationInterceptor {
+                                override fun navToRoom(roomId: String?, eventId: String?, deepLink: Uri?, rootThreadEventId: String?): Boolean {
+                                    requireActivity().finish()
+                                    return false
+                                }
+                            })
+                }
             }
         }
     }

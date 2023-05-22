@@ -247,6 +247,9 @@ class BugReporter @Inject constructor(
                 activeSessionHolder.getSafeActiveSession()
                         ?.takeIf { !mIsCancelled && withKeyRequestHistory }
                         ?.cryptoService()
+                        ?.takeIf {
+                            it.supportKeyRequestInspection()
+                        }
                         ?.getGossipingEvents()
                         ?.let { GossipingEventsSerializer().serialize(it) }
                         ?.toByteArray()
@@ -266,7 +269,7 @@ class BugReporter @Inject constructor(
 
                 activeSessionHolder.getSafeActiveSession()?.let { session ->
                     userId = session.myUserId
-                    deviceId = session.sessionParams.deviceId ?: "undefined"
+                    deviceId = session.sessionParams.deviceId
                     olmVersion = session.cryptoService().getCryptoVersion(context, true)
                 }
 
