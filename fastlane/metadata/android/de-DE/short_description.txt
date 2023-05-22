@@ -1,1 +1,1 @@
-Element-basierter Messenger für Matrix
+Gruppen-Messenger – verschlüsselte Kommunikation, Gruppen und Videoanrufe
