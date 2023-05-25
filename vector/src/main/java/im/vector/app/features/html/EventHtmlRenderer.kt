@@ -49,7 +49,7 @@ import im.vector.app.core.resources.ColorProvider
 import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.themes.ThemeUtils
-import io.element.android.wysiwyg.spans.InlineCodeSpan
+import io.element.android.wysiwyg.view.spans.InlineCodeSpan
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonPlugin
