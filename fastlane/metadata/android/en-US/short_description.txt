@@ -1,1 +1,1 @@
-Feature-rich messenger for Matrix based on Element with some extras and tweaks
+Group messenger - encrypted messaging, group chat and video calls
