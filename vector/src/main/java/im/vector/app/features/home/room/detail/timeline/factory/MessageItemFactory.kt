@@ -561,6 +561,8 @@ class MessageItemFactory @Inject constructor(
         // Furthermore, its corner transformations are wrong when not using the animated case for rendering.
         val forcePlay = messageContent.mimeType == MimeTypes.Webp
         val playable = messageContent.mimeType == MimeTypes.Gif || forcePlay
+        // don't show play button because detecting animated webp isn't possible via mimetype
+        val playableIfAutoplay = playable || messageContent.mimeType == MimeTypes.Webp
 
         return MessageImageVideoItem_()
                 .attributes(attributes.takeUnless { forcePlay && !it.autoplayAnimatedImages } ?: attributes.copy(autoplayAnimatedImages = true))
@@ -587,7 +589,7 @@ class MessageItemFactory @Inject constructor(
                         }
                     }
                 }.apply {
-                    if (playable && vectorPreferences.autoplayAnimatedImages()) {
+                    if (playableIfAutoplay && vectorPreferences.autoplayAnimatedImages()) {
                         mode(ImageContentRenderer.Mode.ANIMATED_THUMBNAIL)
                     }
                 }

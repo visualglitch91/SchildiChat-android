@@ -184,12 +184,12 @@ class ImageContentRenderer @Inject constructor(
         request = if (animate && mode == Mode.ANIMATED_THUMBNAIL) {
             // Glide seems to already do some dp to px calculation for animated gifs?
             val animatedCornerTransformation = RoundedCorners(cornerRoundnessDp)
-            request.transform(animatedCornerTransformation)
+            request.optionalTransform(animatedCornerTransformation)
                     .transform(WebpDrawable::class.java, WebpDrawableTransformation(animatedCornerTransformation))
             //request.apply(RequestOptions.bitmapTransform(RoundedCorners(3)))
         } else {
             request.dontAnimate()
-                    .transform(cornerTransformation)
+                    .optionalTransform(cornerTransformation)
         }
         request
                 .into(imageView)
@@ -223,7 +223,7 @@ class ImageContentRenderer @Inject constructor(
         }
 
         req
-                .fitCenter()
+                .optionalFitCenter()
                 .into(target)
     }
 
@@ -267,7 +267,7 @@ class ImageContentRenderer @Inject constructor(
                 return false
             }
         })
-                .fitCenter()
+                .optionalFitCenter()
                 .into(imageView)
     }
 
