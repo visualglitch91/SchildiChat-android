@@ -867,6 +867,9 @@ class TimelineViewModel @AssistedInject constructor(
         return room?.membershipService()?.getRoomMember(userId)
     }
 
+    fun getRoom(roomId: String): RoomSummary? =
+        session.roomService().getRoomSummary(roomId)
+
     private fun handleComposerFocusChange(action: RoomDetailAction.ComposerFocusChange) {
         if (action.focused) {
             // Prioritize staying scrolled at the bottom compared to keeping the unread messages line at the fixed position
