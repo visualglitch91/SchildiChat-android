@@ -198,10 +198,10 @@ class AutoCompleter @AssistedInject constructor(
     }
 
     private fun setupEmojis(backgroundDrawable: Drawable, editText: EditText) {
+        autocompleteEmojiPresenter = autocompleteEmojiPresenterFactory.create(roomId)
+
         // Rich text editor is not yet supported
         if (editText is EditorEditText) return
-
-        autocompleteEmojiPresenter = autocompleteEmojiPresenterFactory.create(roomId)
 
         autocompletes += Autocomplete.on<EmojiItem>(editText)
                 .with(CharPolicy(TRIGGER_AUTO_COMPLETE_EMOJIS, false))
