@@ -485,7 +485,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
 
         autoCompleters[editText] =
                 autoCompleterFactory.create(roomId, isThreadTimeLine())
-                        .also { it.setup(editText) }
+                        .also { it.setup(editText, composer) }
     }
 
     private fun sendTextMessage(text: CharSequence, formattedText: String? = null) {
