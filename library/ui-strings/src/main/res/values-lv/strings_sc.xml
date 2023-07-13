@@ -12,7 +12,7 @@
     <string name="login_server_other_text_sc">Jānorāda servera adrese, lai pieteiktos vai reģistrētos</string>
     <string name="settings_show_open_anonymous_summary">Rādīt iespēju atvērt istabu bez automātiskas atzīmēšanas kā lasītu</string>
     <string name="settings_home_overview">Pārskats</string>
-    <string name="settings_single_overview_summary">Rādīt gan tiešās ziņas, gan istabas vienā lapā</string>
+    <string name="settings_single_overview_summary">Vienā lapā rādīt gan tiešās ziņas, gan istabas</string>
     <string name="settings_room_unread_kind_group">Grupu tērzēšanas priekšskatījuma saturs</string>
     <string name="settings_room_unread_kind_default">Rādīt visus notikumus</string>
     <string name="settings_room_unread_kind_content">Paslēpt dalībnieku izmaiņas</string>
