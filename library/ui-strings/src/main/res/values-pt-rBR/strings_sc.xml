@@ -114,4 +114,9 @@
     <string name="dev_tools_menu_new_layout">Novo layout</string>
     <string name="home_layout_preferences_sort_unread">Não lido</string>
     <string name="settings_labs_timeline">Linha do tempo</string>
+    <string name="bubble_appearance">Aparência da bolha</string>
+    <string name="bubble_rounded_corners">Cantos</string>
+    <string name="bubble_rounded_corners_r1">Redondo</string>
+    <string name="bubble_rounded_corners_r2">Extra redondo</string>
+    <string name="bubble_style_element">Element</string>
 </resources>
