@@ -264,7 +264,7 @@ class RoomProfileController @Inject constructor(
             buildProfileAction(
                     id = "banned_list",
                     title = stringProvider.getString(R.string.room_settings_banned_users_title),
-                    icon = R.drawable.ic_settings_root_labs,
+                    icon = R.drawable.ic_room_profile_banned_users,
                     action = { callback?.onBannedMemberListClicked() }
             )
         }
