@@ -23,6 +23,8 @@ fi
 if [ "$1" = "test" ]; then
     release_type="test"
     previousTestVersionCode="$2"
+    # Remove last digit for internal version codes without split ABI
+    previousTestVersionCode=`echo "$previousTestVersionCode" | sed 's|[0-9]$||'`
 else
     release_type="normal"
 fi
@@ -91,8 +93,9 @@ if [ "$release_type" = "test" ]; then
 else
     versionCode=$((previousVersionCode + 10))
     # Ensure the new version code is higher than the one of the last test version
+    # Note that `versionCode` from build.gradle is before multiplying with 10 for split ABI, so here we remove the last digit
     if [ -f "$HOME/fdroid/sm/data/metadata/de.spiritcroc.riotx.x.yml" ]; then
-        lastTestVersionCode="$(cat "$HOME/fdroid/sm/data/metadata/de.spiritcroc.riotx.x.yml"|grep versionCode|tail -n 1|sed 's|.*: ||')"
+        lastTestVersionCode="$(cat "$HOME/fdroid/sm/data/metadata/de.spiritcroc.riotx.x.yml"|grep versionCode|tail -n 1|sed 's|.*: ||;s|[0-9]$||')"
     else
         read -p "Enter versionCode of last test version: " lastTestVersionCode
     fi
@@ -111,7 +114,8 @@ fi
 new_tag="sc_v$version"
 
 if ((preview)); then
-    echo "versionCode $versionCode"
+    # Append 0 for universal apk
+    echo "versionCode ${versionCode}0"
     echo "versionName $version"
     exit 0
 fi
