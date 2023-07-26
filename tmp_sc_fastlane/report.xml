@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+    
+    
+      
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000274732">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="1: clean bundleGplayRustCryptoRelease" time="519.458573017">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="2: upload_to_play_store" time="152.165701084">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>
