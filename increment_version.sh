@@ -113,9 +113,11 @@ fi
 
 new_tag="sc_v$version"
 
+  # Append 0 for universal apk
+universalVersionCode="${versionCode}0"
+
 if ((preview)); then
-    # Append 0 for universal apk
-    echo "versionCode ${versionCode}0"
+    echo "versionCode ${universalVersionCode}"
     echo "versionName $version"
     exit 0
 fi
@@ -151,12 +153,13 @@ git_changelog() {
         | grep -v "weblate/sc" \
         | grep -v "\\[.*merge.*\\]" \
         | grep -v "Disable Android Auto supports" \
+        | grep -v "Switch to alternative Schil" \
         | grep -v "\\[gplay-release\\]" \
         || echo "No significant changes since the last stable release"
 }
 
 changelog_dir=fastlane/metadata/android/en-US/changelogs
-changelog_file="$changelog_dir/$versionCode.txt"
+changelog_file="$changelog_dir/$universalVersionCode.txt"
 mkdir -p "$changelog_dir"
 if [ "$release_type" = "test" ]; then
     git_changelog > "$changelog_file"
@@ -189,7 +192,7 @@ done
 
 git add -A
 if [ "$release_type" = "test" ]; then
-    git commit -m "Test version $versionCode"
+    git commit -m "Test version $universalVersionCode"
 else
     git commit -m "Increment version"
     git tag "$new_tag"
