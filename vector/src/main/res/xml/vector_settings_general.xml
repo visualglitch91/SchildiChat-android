@@ -64,6 +64,11 @@
             android:persistent="false"
             android:summary="@string/settings_integrations_summary" />
 
+        <im.vector.app.core.preference.VectorPreference
+            android:focusable="false"
+            android:persistent="false"
+            android:summary="@string/settings_integrations_scalar_warning" />
+
         <im.vector.app.core.preference.VectorSwitchPreference
             android:key="SETTINGS_ALLOW_INTEGRATIONS_KEY"
             android:persistent="false"
