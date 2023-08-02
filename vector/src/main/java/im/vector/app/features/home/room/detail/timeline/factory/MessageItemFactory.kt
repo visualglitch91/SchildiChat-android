@@ -679,8 +679,9 @@ class MessageItemFactory @Inject constructor(
                 ?: matrixFormattedBody
          */
         val compressed = htmlCompressor.compress(matrixFormattedBody)
-        val renderedFormattedBody = htmlRenderer.get().render(compressed, pillsPostProcessor) as Spanned
-        val pseudoEmojiBody = htmlRenderer.get().render(customToPseudoEmoji(compressed), pillsPostProcessor) as Spanned
+        val renderedFormattedBody = htmlRenderer.get().render(compressed, pillsPostProcessor) as? Spanned ?: compressed
+        val pseudoEmojiCompressed = customToPseudoEmoji(compressed)
+        val pseudoEmojiBody = htmlRenderer.get().render(pseudoEmojiCompressed, pillsPostProcessor) as? Spanned ?: pseudoEmojiCompressed
         return buildMessageTextItem(
                 renderedFormattedBody,
                 true,
