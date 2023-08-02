@@ -190,7 +190,7 @@ abstract class MessageAudioItem : AbsMessageItem<MessageAudioItem.Holder>() {
 
     private fun getPlaybackTimeContentDescription(context: Context, time: Int): String {
         val formattedPlaybackTime = formatPlaybackTime(time)
-        val (minutes, seconds) = formattedPlaybackTime.split(":").map { it.toIntOrNull() ?: 0 }
+        val (minutes, seconds) = formattedPlaybackTime.split(":").map { it.toIntOrNull() ?: 0 }.let { if (it.size > 1) it else listOf(0) + it }
         return context.getString(R.string.a11y_audio_playback_duration, minutes, seconds)
     }
 
