@@ -305,7 +305,14 @@ class AutoCompleter @AssistedInject constructor(
             endIndex = editable.length
         }
          */
-        val endIndex = editText.selectionEnd
+        var endIndex = editText.selectionEnd
+        if (endIndex == -1) {
+            endIndex = editable.length
+        } else if (endIndex < startIndex) {
+            val tmp = startIndex
+            startIndex = endIndex
+            endIndex = tmp
+        }
 
         // Replace the word by its completion
         val displayName = matrixItem.getBestName()
