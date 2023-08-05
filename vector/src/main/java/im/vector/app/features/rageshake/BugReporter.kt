@@ -24,6 +24,7 @@ import android.os.Build
 import android.view.View
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
+import com.google.common.base.Strings.isNullOrEmpty
 import com.squareup.moshi.Types
 import de.spiritcroc.matrixsdk.util.DbgUtil
 import im.vector.app.BuildConfig
@@ -317,15 +318,15 @@ class BugReporter @Inject constructor(
                     // UnifiedPush
                     // Only include the UP endpoint base url to exclude private user tokens in the path or parameters
                     val reportTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss ZZZ", Locale.US).format(Date())
-                    builder.addFormDataPart("unifiedpush_endpoint", unifiedPushHelper.getPrivacyFriendlyUpEndpoint().toString())
+                    builder.addFormDataPart("unifiedpush_endpoint", unifiedPushHelper.getPrivacyFriendlyUpEndpoint().ensureNonEmpty())
                             .addFormDataPart("unifiedpush_distributor_name", unifiedPushHelper.getCurrentDistributorName())
                             .addFormDataPart("unifiedpush_is_embedded_distributor", unifiedPushHelper.isEmbeddedDistributor().toString())
 
                     // More Schildi-specific fields
                     val enabledDebugSettings = DbgUtil.ALL_PREFS.filter { DbgUtil.isDbgEnabled(it) }
-                    builder.addFormDataPart("enabledDebugSettings", enabledDebugSettings.joinToString())
-                            .addFormDataPart("experimentalSettingsEnabled", vectorPreferences.getEnabledExperimentalSettings().joinToString())
-                            .addFormDataPart("experimentalSettingsDisabled", vectorPreferences.getDisabledExperimentalSettings().joinToString())
+                    builder.addFormDataPart("enabledDebugSettings", enabledDebugSettings.joinToString().ensureNonEmpty())
+                            .addFormDataPart("experimentalSettingsEnabled", vectorPreferences.getEnabledExperimentalSettings().joinToString().ensureNonEmpty())
+                            .addFormDataPart("experimentalSettingsDisabled", vectorPreferences.getDisabledExperimentalSettings().joinToString().ensureNonEmpty())
                             .addFormDataPart("reportTime", reportTime)
                             .addFormDataPart("packageName", buildMeta.applicationId)
                     // Device characteristics
@@ -809,5 +810,14 @@ class BugReporter @Inject constructor(
         }
 
         return null
+    }
+}
+
+fun String?.ensureNonEmpty(fallback: String = "∅"): String {
+    return if (isNullOrEmpty()) {
+        // GitHub markdown format doesn't like empty code blocks
+        fallback
+    } else {
+        this
     }
 }
