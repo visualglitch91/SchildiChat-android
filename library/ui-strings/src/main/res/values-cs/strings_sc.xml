@@ -68,7 +68,7 @@
     <string name="settings_sc_accent_disclaimer">Tato nastavení barev platí pouze pro barevné režimy SC, nikoli pro Element.</string>
     <string name="settings_open_chats_at_first_unread_summary">Otevřít chaty na první nepřečtené zprávě místo na konci.</string>
     <string name="settings_open_chats_at_first_unread">Otevřít na první nepřečtené zprávě</string>
-    <string name="sc_accent_cyan">Tyrkysová</string>
+    <string name="sc_accent_cyan">Azurová</string>
     <string name="sc_accent_gold">Zlatá</string>
     <string name="sc_accent_lime">Limetková</string>
     <string name="sc_accent_orange">Oranžová</string>
@@ -180,4 +180,5 @@
     <string name="settings_clear_highlight_on_scroll">Vymazat zvýraznění při posouvání</string>
     <string name="settings_clear_highlight_on_scroll_summary">Odstranit zvýraznění zpráv při posouvání</string>
     <string name="settings_call_ringtone_use_default_stun_title">Povolit asistenční server pro zpětné volání</string>
+    <string name="settings_integrations_scalar_warning">⚠️ Toto nastavení ve výchozím stavu (pokud není přepsáno v konfiguraci vašeho domovského serveru) umožňuje přístup ke \"scalaru\", integračnímu manažeru Elementu, který je bohužel proprietární, tj. jeho zdrojový kód není otevřený a nemůže být kontrolován veřejností ani vývojáři SchildiChatu.</string>
 </resources>
