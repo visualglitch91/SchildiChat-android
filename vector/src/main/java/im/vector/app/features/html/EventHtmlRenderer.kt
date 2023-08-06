@@ -381,7 +381,7 @@ class EventHtmlRenderer @Inject constructor(
             val parsed = markwon.parse(text)
             renderAndProcess(parsed, postProcessors)
         } catch (failure: Throwable) {
-            Timber.v("Fail to render $text to html")
+            Timber.v(failure, "Fail to render $text to html")
             text
         }
     }
@@ -394,7 +394,7 @@ class EventHtmlRenderer @Inject constructor(
         return try {
             renderAndProcess(node, postProcessors)
         } catch (failure: Throwable) {
-            Timber.v("Fail to render $node to html")
+            Timber.v(failure, "Fail to render $node to html")
             return null
         }
     }
