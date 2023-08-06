@@ -23,8 +23,6 @@ fi
 if [ "$1" = "test" ]; then
     release_type="test"
     previousTestVersionCode="$2"
-    # Remove last digit for internal version codes without split ABI
-    previousTestVersionCode=`echo "$previousTestVersionCode" | sed 's|[0-9]$||'`
 else
     release_type="normal"
 fi
@@ -93,9 +91,8 @@ if [ "$release_type" = "test" ]; then
 else
     versionCode=$((previousVersionCode + 10))
     # Ensure the new version code is higher than the one of the last test version
-    # Note that `versionCode` from build.gradle is before multiplying with 10 for split ABI, so here we remove the last digit
     if [ -f "$HOME/fdroid/sm/data/metadata/de.spiritcroc.riotx.x.yml" ]; then
-        lastTestVersionCode="$(cat "$HOME/fdroid/sm/data/metadata/de.spiritcroc.riotx.x.yml"|grep versionCode|tail -n 1|sed 's|.*: ||;s|[0-9]$||')"
+        lastTestVersionCode="$(cat "$HOME/fdroid/sm/data/metadata/de.spiritcroc.riotx.x.yml"|grep versionCode|tail -n 1|sed 's|.*: ||')"
     else
         read -p "Enter versionCode of last test version: " lastTestVersionCode
     fi
@@ -113,11 +110,8 @@ fi
 
 new_tag="sc_v$version"
 
-  # Append 0 for universal apk
-universalVersionCode="${versionCode}0"
-
 if ((preview)); then
-    echo "versionCode ${universalVersionCode}"
+    echo "versionCode $versionCode"
     echo "versionName $version"
     exit 0
 fi
@@ -159,7 +153,7 @@ git_changelog() {
 }
 
 changelog_dir=fastlane/metadata/android/en-US/changelogs
-changelog_file="$changelog_dir/$universalVersionCode.txt"
+changelog_file="$changelog_dir/$versionCode.txt"
 mkdir -p "$changelog_dir"
 if [ "$release_type" = "test" ]; then
     git_changelog > "$changelog_file"
@@ -192,7 +186,7 @@ done
 
 git add -A
 if [ "$release_type" = "test" ]; then
-    git commit -m "Test version $universalVersionCode"
+    git commit -m "Test version $versionCode"
 else
     git commit -m "Increment version"
     git tag "$new_tag"

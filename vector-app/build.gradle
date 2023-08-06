@@ -156,7 +156,7 @@ android {
         renderscriptTargetApi 24
         renderscriptSupportModeEnabled true
 
-        versionCode 4010120
+        versionCode 40101200
         versionName "1.6.5.sc70"
 
         // Generate a random app task affinity
@@ -196,7 +196,9 @@ android {
 
         applicationVariants.all { variant ->
             // assign different version code for each output
-            def baseVariantVersion = variant.versionCode * 10
+            // SC: Comparet do upstream, we do not multiply by ten,
+            // compare https://gitlab.com/fdroid/fdroiddata/-/commit/3a615a9b85960cf2a165e78436870290a8f3d9e5#note_1502091143
+            def baseVariantVersion = variant.versionCode
             variant.outputs.each { output ->
                 def baseAbiVersionCode = project.ext.abiVersionCodes.get(output.getFilter(OutputFile.ABI))
                 // Known limitation: it does not modify the value in the BuildConfig.java generated file
