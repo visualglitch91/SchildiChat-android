@@ -178,4 +178,5 @@
     <string name="settings_call_ringtone_use_default_stun_summary">Akan menggunakan %s sebagai pembantu ketika homeserver Anda tidak menawarkan (alamat IP Anda akan terlihat oleh server STUN selama panggilan berlangsung)</string>
     <string name="settings_clear_highlight_on_scroll">Hapus sorotan saat menggulir</string>
     <string name="settings_call_ringtone_use_default_stun_title">Perbolehkan server panggilan bantuan cadangan</string>
+    <string name="settings_integrations_scalar_warning">⚠️ Pengaturan ini mengaktifkan akses ke \"scalar\" (kecuali jika ditimpa oleh konfigurasi homeserver Anda), yaitu pengelola integrasi Element yang sayangnya bersifat tertutup, kode sumbernya tidak bersumber terbuka dan tidak dapat diperiksa oleh umum atau para pengembang SchildiChat.</string>
 </resources>
