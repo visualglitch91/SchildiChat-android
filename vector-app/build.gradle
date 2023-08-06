@@ -39,7 +39,7 @@ ext.versionMinor = 6
 // is the value for the next regular release.
 ext.versionPatch = 5
 
-ext.scVersion = 70
+ext.scVersion = 71
 
 static def getGitTimestamp() {
     def cmd = 'git show -s --format=%ct'
@@ -156,8 +156,8 @@ android {
         renderscriptTargetApi 24
         renderscriptSupportModeEnabled true
 
-        versionCode 40101200
-        versionName "1.6.5.sc70"
+        versionCode 40101210
+        versionName "1.6.5.sc71"
 
         // Generate a random app task affinity
         manifestPlaceholders = [appTaskAffinitySuffix: "H_${gitRevision()}"]
@@ -319,14 +319,14 @@ android {
             }
 
             dimension "store"
-            versionName "1.6.5.sc70"
+            versionName "1.6.5.sc71"
             buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"G\""
             buildConfigField "String", "FLAVOR_DESCRIPTION", "\"GooglePlay\""
         }
 
         fdroid {
             dimension "store"
-            versionName "1.6.5.sc70"
+            versionName "1.6.5.sc71"
             buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"F\""
             buildConfigField "String", "FLAVOR_DESCRIPTION", "\"FDroid\""
             isDefault = true
@@ -334,7 +334,7 @@ android {
 
         kotlinCrypto {
             dimension "crypto"
-            // versionName "1.6.5.sc70"
+            // versionName "1.6.5.sc71"
             buildConfigField "String", "CRYPTO_FLAVOR_DESCRIPTION", "\"olm-crypto\""
 //            buildConfigField "String", "FLAVOR_DESCRIPTION", "\"KotlinCrypto\""
         }
@@ -345,7 +345,7 @@ android {
             // versionNameSuffix "-R"
             // resValue "string", "app_name", "ER"
 
-//            // versionName "1.6.5.sc70"
+//            // versionName "1.6.5.sc71"
             buildConfigField "String", "CRYPTO_FLAVOR_DESCRIPTION", "\"rust-crypto\""
 //            buildConfigField "String", "FLAVOR_DESCRIPTION", "\"RustCrypto\""
         }
