@@ -196,7 +196,7 @@ android {
 
         applicationVariants.all { variant ->
             // assign different version code for each output
-            // SC: Comparet do upstream, we do not multiply by ten,
+            // SC: Compared do upstream, we do not multiply by ten,
             // compare https://gitlab.com/fdroid/fdroiddata/-/commit/3a615a9b85960cf2a165e78436870290a8f3d9e5#note_1502091143
             def baseVariantVersion = variant.versionCode
             variant.outputs.each { output ->
