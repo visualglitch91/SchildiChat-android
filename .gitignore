@@ -35,3 +35,5 @@ Cargo.lock
 
 # For manual dependency to rust crypto sdk
 library/rustCrypto/matrix-rust-sdk-crypto.aar
+
+vector-app/gplayRustCrypto/

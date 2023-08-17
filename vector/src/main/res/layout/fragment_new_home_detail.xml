@@ -46,7 +46,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
-            app:layout_constraintTop_toBottomOf="@id/syncStateView">
+            app:layout_constraintTop_toBottomOf="@id/syncStateView"
+            app:expanded="false">
 
             <com.google.android.material.appbar.CollapsingToolbarLayout
                 style="?attr/collapsingToolbarLayoutMediumStyle"
@@ -111,8 +112,8 @@
         android:src="@drawable/ic_spaces"
         android:visibility="gone"
         app:backgroundTint="?attr/vctr_toolbar_background"
-        app:fabSize="mini"
-        app:layout_constraintBottom_toTopOf="@id/newLayoutCreateChatButton"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/newLayoutCreateChatButton"
         app:layout_constraintStart_toStartOf="@id/newLayoutCreateChatButton"
         app:tint="?attr/colorPrimary"
@@ -148,7 +149,10 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
+        android:alpha="0"
         android:contentDescription="@string/a11y_create_message"
+        android:scaleX="0"
+        android:scaleY="0"
         android:src="@drawable/ic_new_chat"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"

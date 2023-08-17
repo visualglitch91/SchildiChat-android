@@ -31,6 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:overScrollMode="always"
+            android:nestedScrollingEnabled="false"
             tools:itemCount="5"
             tools:listitem="@layout/item_room" />
 

@@ -59,5 +59,6 @@ monochrome_input_file="$mydir/$monochrome_file_name"
 monochrome_output_dir="$mydir/../vector-app/src/main/res/drawable-anydpi-v26"
 cp "$monochrome_input_file" "$monochrome_output_dir/$monochrome_file_name"
 
-inkscape "$mydir/feature_image.svg" --export-filename="$mydir/../fastlane/metadata/android/en-US/images/featureGraphic.png" -C --export-dpi=96
+# inkscape "$mydir/feature_image.svg" --export-filename="$mydir/../fastlane/metadata/android/en-US/images/featureGraphic.png" -C --export-dpi=96
+cp "$mydir/featureGraphic.png" "$mydir/../fastlane/metadata/android/en-US/images/featureGraphic.png"
 inkscape "$mydir/store_icon.svg" --export-filename="$mydir/../fastlane/metadata/android/en-US/images/icon.png" -C --export-dpi=96

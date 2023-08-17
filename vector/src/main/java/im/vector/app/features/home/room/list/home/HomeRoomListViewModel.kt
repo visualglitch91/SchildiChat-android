@@ -227,14 +227,14 @@ class HomeRoomListViewModel @AssistedInject constructor(
                     HomeRoomFilter.UNREADS
             )
             if (hasFavourite) {
-                filtersData.add(
-                        HomeRoomFilter.FAVOURITES
-                )
+                // filtersData.add(
+                //         HomeRoomFilter.FAVOURITES
+                // )
             }
             if (hasDm) {
-                filtersData.add(
-                        HomeRoomFilter.PEOPlE
-                )
+                // filtersData.add(
+                //         HomeRoomFilter.PEOPlE
+                // )
             }
             Optional.from(filtersData)
         }
