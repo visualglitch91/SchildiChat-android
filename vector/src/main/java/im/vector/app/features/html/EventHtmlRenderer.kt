@@ -45,6 +45,7 @@ import com.bumptech.glide.load.resource.bitmap.TransformationUtils
 import com.bumptech.glide.request.target.Target
 import im.vector.app.R
 import im.vector.app.core.di.ActiveSessionHolder
+import im.vector.app.core.resources.BuildMeta
 import im.vector.app.core.resources.ColorProvider
 import im.vector.app.core.utils.DimensionConverter
 import im.vector.app.features.settings.VectorPreferences
@@ -86,6 +87,7 @@ class EventHtmlRenderer @Inject constructor(
         private val dimensionConverter: DimensionConverter,
         private val vectorPreferences: VectorPreferences,
         private val activeSessionHolder: ActiveSessionHolder,
+        private val buildMeta: BuildMeta,
 ) {
 
     companion object {
@@ -381,8 +383,17 @@ class EventHtmlRenderer @Inject constructor(
             val parsed = markwon.parse(text)
             renderAndProcess(parsed, postProcessors)
         } catch (failure: Throwable) {
-            Timber.v(failure, "Fail to render $text to html")
+            Timber.v(failure, "Fail to render text ${text.redactIfNotDebug()} to html")
             text
+        }
+    }
+
+    // Do not leak message content
+    fun String.redactIfNotDebug(): String {
+        return if (buildMeta.isInternalBuild) {
+            this
+        } else {
+            "(REDACTED)"
         }
     }
 
@@ -394,7 +405,7 @@ class EventHtmlRenderer @Inject constructor(
         return try {
             renderAndProcess(node, postProcessors)
         } catch (failure: Throwable) {
-            Timber.v(failure, "Fail to render $node to html")
+            Timber.v(failure, "Fail to render node ${node.toString().redactIfNotDebug()} to html")
             return null
         }
     }

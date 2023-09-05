@@ -16,6 +16,8 @@
 
 package im.vector.app.core.resources
 
+import im.vector.app.BuildConfig
+
 data class BuildMeta(
         val isDebug: Boolean,
         val applicationId: String,
@@ -26,4 +28,6 @@ data class BuildMeta(
         val gitBranchName: String,
         val flavorDescription: String,
         val flavorShortDescription: String,
-)
+) {
+    val isInternalBuild: Boolean = BuildConfig.DEBUG || gitBranchName == "sm_fdroid"
+}

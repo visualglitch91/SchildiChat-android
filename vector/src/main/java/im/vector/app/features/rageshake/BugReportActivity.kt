@@ -54,7 +54,7 @@ class BugReportActivity :
         setupViews()
 
         // Don't allow toggling this for internal builds... internal testers are well-known and may always be contacted!
-        views.bugReportButtonContactMe.isEnabled = !isInternalBuild()
+        views.bugReportButtonContactMe.isEnabled = !buildMeta.isInternalBuild
 
         if (bugReporter.screenshot != null) {
             views.bugReportScreenshotPreview.setImageBitmap(bugReporter.screenshot)
@@ -136,10 +136,8 @@ class BugReportActivity :
         }
     }
 
-    private fun isInternalBuild(): Boolean = BuildConfig.DEBUG || buildMeta.gitBranchName == "sm_fdroid"
-
     private fun minBugReportLength(): Int {
-        return if (isInternalBuild()) {
+        return if (buildMeta.isInternalBuild) {
             2
         } else {
             10
