@@ -21,6 +21,7 @@ import android.text.style.ClickableSpan
 import android.text.style.URLSpan
 import android.widget.TextView
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
+import timber.log.Timber
 
 class EvenBetterLinkMovementMethod(private val onLinkClickListener: OnLinkClickListener? = null) : BetterLinkMovementMethod() {
 
@@ -48,6 +49,14 @@ class EvenBetterLinkMovementMethod(private val onLinkClickListener: OnLinkClickL
         } catch (e: StringIndexOutOfBoundsException) {
             // Let Android handle this long click as a short-click.
             clickableSpan.onClick(textView)
+        }
+    }
+
+    override fun dispatchUrlLongClick(textView: TextView?, clickableSpan: ClickableSpan?) {
+        try {
+            super.dispatchUrlLongClick(textView, clickableSpan)
+        } catch (e: StringIndexOutOfBoundsException) {
+            Timber.w("BetterLinkMovement dispatchUrlLongClick StringIndexOutOfBoundsException $e")
         }
     }
 }
