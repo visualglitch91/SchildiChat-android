@@ -24,14 +24,13 @@ import android.widget.ImageView
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
-import com.bumptech.glide.integration.webp.decoder.WebpDrawable
-import com.bumptech.glide.integration.webp.decoder.WebpDrawableTransformation
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.target.Target
 import im.vector.app.R
@@ -183,10 +182,7 @@ class ImageContentRenderer @Inject constructor(
                 })
         request = if (animate && mode == Mode.ANIMATED_THUMBNAIL) {
             // Glide seems to already do some dp to px calculation for animated gifs?
-            val animatedCornerTransformation = RoundedCorners(cornerRoundnessDp)
-            request.optionalTransform(animatedCornerTransformation)
-                    .transform(WebpDrawable::class.java, WebpDrawableTransformation(animatedCornerTransformation))
-            //request.apply(RequestOptions.bitmapTransform(RoundedCorners(3)))
+            request.optionalTransform(RoundedCorners(cornerRoundnessDp))
         } else {
             request.dontAnimate()
                     .optionalTransform(cornerTransformation)
