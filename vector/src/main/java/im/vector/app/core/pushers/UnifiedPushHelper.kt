@@ -27,11 +27,13 @@ import im.vector.app.core.utils.getApplicationLabel
 import im.vector.app.features.settings.VectorPreferences
 import org.matrix.android.sdk.api.Matrix
 import org.matrix.android.sdk.api.cache.CacheStrategy
+import org.matrix.android.sdk.api.failure.Failure
 import org.matrix.android.sdk.api.util.MatrixJsonParser
 import org.unifiedpush.android.connector.UnifiedPush
 import timber.log.Timber
 import java.net.URL
 import javax.inject.Inject
+import javax.net.ssl.SSLHandshakeException
 
 class UnifiedPushHelper @Inject constructor(
         private val context: Context,
@@ -106,7 +108,11 @@ class UnifiedPushHelper @Inject constructor(
         // else, unifiedpush, and pushkey is an endpoint
         val gateway = stringProvider.getString(R.string.default_push_gateway_http_url)
         val parsed = URL(endpoint)
-        val port = if (parsed.port != -1) { ":${parsed.port}" } else { "" }
+        val port = if (parsed.port != -1) {
+            ":${parsed.port}"
+        } else {
+            ""
+        }
         val custom = "${parsed.protocol}://${parsed.host}${port}/_matrix/push/v1/notify"
         Timber.i("Testing $custom")
         try {
@@ -122,7 +128,13 @@ class UnifiedPushHelper @Inject constructor(
                         }
                     }
         } catch (e: Throwable) {
-            Timber.d(e, "Cannot try custom gateway")
+            Timber.e(e, "Cannot try custom gateway")
+            if (e is Failure.NetworkConnection && e.ioException is SSLHandshakeException) {
+                Timber.w(e, "SSLHandshakeException, ignore this error")
+                unifiedPushStore.storePushGateway(custom)
+                onDoneRunnable?.run()
+                return
+            }
         }
         unifiedPushStore.storePushGateway(gateway)
         onDoneRunnable?.run()

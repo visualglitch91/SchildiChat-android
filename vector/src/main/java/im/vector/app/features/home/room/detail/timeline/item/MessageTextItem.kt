@@ -20,6 +20,7 @@ import android.text.Spanned
 import android.view.ViewStub
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.PrecomputedTextCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.TextViewCompat
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyModelClass
@@ -99,8 +100,13 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
         }
         holder.previewUrlView.delegate = previewUrlCallback
         holder.previewUrlView.renderMessageLayout(attributes.informationData.messageLayout)
-
-        val messageView: AppCompatTextView = holder.messageView(useRichTextEditorStyle) //if (useRichTextEditorStyle) holder.richMessageView else holder.plainMessageView
+        if (useRichTextEditorStyle) {
+            holder.plainMessageView?.isVisible = false
+        } else {
+            holder.richMessageView?.isVisible = false
+        }
+        val messageView: AppCompatTextView = holder.messageView(useRichTextEditorStyle)
+        messageView.isVisible = true
         if (useBigFont) {
             messageView.textSize = 44F
         } else {
@@ -150,13 +156,23 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
         lateinit var previewUrlView: AbstractPreviewUrlView // set to either previewUrlViewElement or previewUrlViewSc by layout
         private val richMessageStub by bind<ViewStub>(R.id.richMessageTextViewStub)
         private val plainMessageStub by bind<ViewStub>(R.id.plainMessageTextViewStub)
-        val richMessageView: AppCompatTextView by lazy {
-            richMessageStub.inflate().findViewById(R.id.messageTextView)
+        var richMessageView: AppCompatTextView? = null
+            private set
+        var plainMessageView: AppCompatTextView? = null
+            private set
+
+        fun requireRichMessageView(): AppCompatTextView {
+            val view = richMessageView ?: richMessageStub.inflate().findViewById(R.id.messageTextView)
+            richMessageView = view
+            return view
         }
-        val plainMessageView: AppCompatTextView by lazy {
-            plainMessageStub.inflate().findViewById(R.id.messageTextView)
+
+        fun requirePlainMessageView(): AppCompatTextView {
+            val view = plainMessageView ?: plainMessageStub.inflate().findViewById(R.id.messageTextView)
+            plainMessageView = view
+            return view
         }
-        fun messageView(useRichTextEditorStyle: Boolean) = if (useRichTextEditorStyle) richMessageView else plainMessageView
+        fun messageView(useRichTextEditorStyle: Boolean) = if (useRichTextEditorStyle) requireRichMessageView() else requirePlainMessageView()
     }
 
     inner class PreviewUrlViewUpdater : PreviewUrlRetriever.PreviewUrlRetrieverListener {

@@ -37,7 +37,7 @@ ext.versionMinor = 6
 // Note: even values are reserved for regular release, odd values for hotfix release.
 // When creating a hotfix, you should decrease the value, since the current value
 // is the value for the next regular release.
-ext.versionPatch = 6
+ext.versionPatch = 8
 
 ext.scVersion = 73
 
@@ -69,10 +69,8 @@ def getVersionCode() {
 
 def getNightlyUniversalApkPath() {
     def taskNames = gradle.getStartParameter().taskNames.toString()
-    if(taskNames.contains("RustCryptoNightly")) {
-        return "vector-app/build/outputs/apk/gplayRustCrypto/nightly/vector-gplay-rustCrypto-universal-nightly.apk"
-    } else if (taskNames.contains("KotlinCryptoNightly")) {
-        return "vector-app/build/outputs/apk/gplayKotlinCrypto/nightly/vector-gplay-kotlinCrypto-universal-nightly.apk"
+    if(taskNames.contains("Nightly")) {
+        return "vector-app/build/outputs/apk/gplay/nightly/vector-gplay-universal-nightly.apk"
     } else {
         return ""
     }
@@ -309,7 +307,7 @@ android {
         }
     }
 
-    flavorDimensions "store", "crypto"
+    flavorDimensions = ["store"]
 
     productFlavors {
         gplay {
@@ -332,23 +330,6 @@ android {
             isDefault = true
         }
 
-        kotlinCrypto {
-            dimension "crypto"
-            // versionName "1.6.6.sc73"
-            buildConfigField "String", "CRYPTO_FLAVOR_DESCRIPTION", "\"olm-crypto\""
-//            buildConfigField "String", "FLAVOR_DESCRIPTION", "\"KotlinCrypto\""
-        }
-        rustCrypto {
-            dimension "crypto"
-            isDefault = true
-            // applicationIdSuffix ".corroded"
-            // versionNameSuffix "-R"
-            // resValue "string", "app_name", "ER"
-
-//            // versionName "1.6.6.sc73"
-            buildConfigField "String", "CRYPTO_FLAVOR_DESCRIPTION", "\"rust-crypto\""
-//            buildConfigField "String", "FLAVOR_DESCRIPTION", "\"RustCrypto\""
-        }
     }
 
     variantFilter { variant ->
