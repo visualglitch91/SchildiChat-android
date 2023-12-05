@@ -121,7 +121,7 @@
     <string name="bubble_time_location_bottom">Fundo</string>
     <string name="dev_tools_menu_event_visibilities">Eventaj videblecoj</string>
     <string name="sc_accent_lava">Lafa</string>
-    <string name="bubble_style">Mesaĝaj vezikoj</string>
+    <string name="bubble_style">Mesaĝaj bobeloj</string>
     <string name="settings_jump_to_bottom_on_send_summary">Aŭtomate rulumu malsupren kiam vi sendas mesaĝon</string>
     <string name="settings_integrations_scalar_warning">⚠️ Ĉi tiu agordo defaŭlte (krom se anstataŭita de la agordo de via hejmservilo) ebligas aliron al «skala», la integriga administranto de Element, kiu bedaŭrinde estas proprieta, t.e. ĝia fontkodo ne estas malfermita kaj ne povas esti kontrolita de la publiko aŭ la programistoj de SchildiChat.</string>
     <string name="user_colors_uniform">Unuforma</string>
