@@ -29,7 +29,7 @@ platform :android do
   desc "Deploy a new version to Google Play"
   lane :deploy do
     gradle(
-        task: "clean bundleGplayRustCryptoRelease",
+        task: "clean bundleGplayRelease",
         properties: {
             "android.injected.signing.store.file": keystore,
             "android.injected.signing.store.password": keystore_pass,
@@ -45,7 +45,7 @@ platform :android do
   desc "Deploy a beta to Google Play"
   lane :deploy_beta do
     gradle(
-        task: "clean bundleGplayRustCryptoRelease",
+        task: "clean bundleGplayRelease",
         properties: {
             "android.injected.signing.store.file": keystore,
             "android.injected.signing.store.password": keystore_pass,
