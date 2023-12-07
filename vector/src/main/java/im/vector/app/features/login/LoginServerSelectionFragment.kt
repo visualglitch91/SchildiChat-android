@@ -20,11 +20,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import dagger.hilt.android.AndroidEntryPoint
 import im.vector.app.R
+import im.vector.app.core.resources.BuildMeta
 import im.vector.app.core.utils.openUrlInChromeCustomTab
 import im.vector.app.databinding.FragmentLoginServerSelectionBinding
 import me.gujun.android.span.span
+import javax.inject.Inject
 
 /**
  * In this screen, the user will choose between matrix.org, modular or other type of homeserver.
@@ -32,6 +35,8 @@ import me.gujun.android.span.span
 @AndroidEntryPoint
 class LoginServerSelectionFragment :
         AbstractLoginFragment<FragmentLoginServerSelectionBinding>() {
+
+    @Inject lateinit var buildMeta: BuildMeta
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentLoginServerSelectionBinding {
         return FragmentLoginServerSelectionBinding.inflate(inflater, container, false)
@@ -47,6 +52,7 @@ class LoginServerSelectionFragment :
     private fun initViews() {
         views.loginServerChoiceEmsLearnMore.debouncedClicks { learnMore() }
         views.loginServerChoiceMatrixOrg.debouncedClicks { selectMatrixOrg() }
+        views.loginServerChoiceMatrixOrg.isVisible = !buildMeta.isPlayStoreBuild
         views.loginServerChoiceEms.debouncedClicks { selectEMS() }
         views.loginServerChoiceOther.debouncedClicks { selectOther() }
         views.loginServerIKnowMyIdSubmit.debouncedClicks { loginWithMatrixId() }
