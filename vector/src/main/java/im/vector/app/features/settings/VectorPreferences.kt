@@ -1105,7 +1105,7 @@ class VectorPreferences @Inject constructor(
 
     // SC addition
     private fun roomUnreadKind(key: String): Int {
-        val default = RoomSummary.UNREAD_KIND_CONTENT
+        val default = RoomSummary.UNREAD_KIND_ORIGINAL_CONTENT
         val kind = defaultPrefs.getString(key, default.toString())
         return try {
             Integer.parseInt(kind!!)
