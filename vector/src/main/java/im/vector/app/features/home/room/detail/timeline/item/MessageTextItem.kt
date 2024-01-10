@@ -39,6 +39,7 @@ import im.vector.app.features.home.room.detail.timeline.url.PreviewUrlViewSc
 import im.vector.app.features.home.room.detail.timeline.view.ScMessageBubbleWrapView
 import im.vector.app.features.media.ImageContentRenderer
 import im.vector.lib.core.utils.epoxy.charsequence.EpoxyCharSequence
+import io.element.android.wysiwyg.EditorStyledTextView
 import io.noties.markwon.MarkwonPlugin
 import org.matrix.android.sdk.api.extensions.orFalse
 
@@ -156,13 +157,19 @@ abstract class MessageTextItem : AbsMessageItem<MessageTextItem.Holder>() {
         lateinit var previewUrlView: AbstractPreviewUrlView // set to either previewUrlViewElement or previewUrlViewSc by layout
         private val richMessageStub by bind<ViewStub>(R.id.richMessageTextViewStub)
         private val plainMessageStub by bind<ViewStub>(R.id.plainMessageTextViewStub)
-        var richMessageView: AppCompatTextView? = null
+        var richMessageView: EditorStyledTextView? = null
             private set
         var plainMessageView: AppCompatTextView? = null
             private set
 
         fun requireRichMessageView(): AppCompatTextView {
-            val view = richMessageView ?: richMessageStub.inflate().findViewById(R.id.messageTextView)
+            val view = richMessageView ?: richMessageStub.inflate().findViewById<EditorStyledTextView>(R.id.messageTextView).also {
+                // Required to ensure that `inlineCodeBgHelper` and `codeBlockBgHelper` are initialized
+                it.updateStyle(
+                        styleConfig = it.styleConfig,
+                        mentionDisplayHandler = null,
+                )
+            }
             richMessageView = view
             return view
         }
