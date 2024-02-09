@@ -173,4 +173,5 @@
     <string name="settings_integrations_scalar_warning">⚠️ Diese Standard-Einstellung (wenn nicht durch die Konfiguration deines Homeservers überschrieben) aktiviert den Zugriff auf „scalar“, den Integrationsmanager von Element, der bedauerlicherweise proprietär ist, d. h. sein Quellcode ist nicht frei zugänglich und kann nicht von der Öffentlichkeit oder SchildiChat-Entwicklern überprüft werden.</string>
     <string name="settings_sc_dbg_view_pager_visuals">Zeige ViewPager Debugging Informationen</string>
     <string name="settings_space_pager_prefer_space_1">Unteren Root Space bevorzugen</string>
+    <string name="action_send_as_sticker">Als Sticker senden</string>
 </resources>
