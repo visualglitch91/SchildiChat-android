@@ -179,4 +179,6 @@
     <string name="settings_unimportant_counter_badge_summary_v2">チャットの概要にミュート済のメッセージの数を表示</string>
     <string name="settings_aggregate_unread_counts_summary">スペースとルームのカテゴリー内の個々のメッセージの代わりに、未読のチャット数を数えるかどうかについての設定</string>
     <string name="settings_clear_highlight_on_scroll">スクロール時に強調を消去</string>
+    <string name="settings_space_pager_prefer_space_1">より低いルートスペースを優先</string>
+    <string name="settings_space_pager_prefer_space_1_summary">ルートスペースの一覧の最上部に移動したスペースを、一番下にあるスペースバーに表示することを優先</string>
 </resources>
