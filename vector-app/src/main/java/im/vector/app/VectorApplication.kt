@@ -55,6 +55,7 @@ import im.vector.app.core.debug.LeakDetector
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.pushers.FcmHelper
 import im.vector.app.core.resources.BuildMeta
+import im.vector.app.features.analytics.DecryptionFailureTracker
 import im.vector.app.features.analytics.VectorAnalytics
 import im.vector.app.features.call.webrtc.WebRtcCallManager
 import im.vector.app.features.configuration.VectorConfiguration
@@ -104,6 +105,7 @@ class VectorApplication :
     @Inject lateinit var callManager: WebRtcCallManager
     @Inject lateinit var invitesAcceptor: InvitesAcceptor
     @Inject lateinit var autoRageShaker: AutoRageShaker
+    @Inject lateinit var decryptionFailureTracker: DecryptionFailureTracker
     @Inject lateinit var vectorFileLogger: VectorFileLogger
     @Inject lateinit var vectorAnalytics: VectorAnalytics
     @Inject lateinit var flipperProxy: FlipperProxy
@@ -134,6 +136,7 @@ class VectorApplication :
         vectorAnalytics.init()
         invitesAcceptor.initialize()
         autoRageShaker.initialize()
+        decryptionFailureTracker.start()
         vectorUncaughtExceptionHandler.activate()
 
         // SC SDK helper initialization

@@ -43,6 +43,7 @@ class RoomMemberProfileController @Inject constructor(
 
     interface Callback {
         fun onIgnoreClicked()
+        fun onReportClicked()
         fun onTapVerify()
         fun onShowDeviceList()
         fun onShowDeviceListNoCrossSigning()
@@ -233,7 +234,7 @@ class RoomMemberProfileController @Inject constructor(
                         title = stringProvider.getString(R.string.room_participants_action_invite),
                         destructive = false,
                         editable = false,
-                        divider = ignoreActionTitle != null,
+                        divider = true,
                         action = { callback?.onInviteClicked() }
                 )
             }
@@ -243,10 +244,18 @@ class RoomMemberProfileController @Inject constructor(
                         title = ignoreActionTitle,
                         destructive = true,
                         editable = false,
-                        divider = false,
+                        divider = true,
                         action = { callback?.onIgnoreClicked() }
                 )
             }
+            buildProfileAction(
+                    id = "report",
+                    title = stringProvider.getString(R.string.message_report_user),
+                    destructive = true,
+                    editable = false,
+                    divider = false,
+                    action = { callback?.onReportClicked() }
+            )
         }
     }
 
@@ -322,9 +331,9 @@ class RoomMemberProfileController @Inject constructor(
     private fun RoomMemberProfileViewState.buildIgnoreActionTitle(): String? {
         val isIgnored = isIgnored() ?: return null
         return if (isIgnored) {
-            stringProvider.getString(R.string.unignore)
+            stringProvider.getString(R.string.room_participants_action_unignore_title)
         } else {
-            stringProvider.getString(R.string.action_ignore)
+            stringProvider.getString(R.string.room_participants_action_ignore_title)
         }
     }
 }
