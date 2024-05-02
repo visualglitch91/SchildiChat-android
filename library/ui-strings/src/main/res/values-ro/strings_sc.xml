@@ -94,4 +94,14 @@
     <string name="settings_unimportant_counter_badge_v2">Numără mesajele dezactivate</string>
     <string name="settings_unimportant_counter_badge_summary_v2">Afișarea numărului de mesaje dezactivate în prezentarea generală a chat-ului</string>
     <string name="settings_aggregate_unread_counts">Numărați chat-urile în loc de mesaje</string>
+    <string name="bubble_style_element">Element</string>
+    <string name="bubble_appearance">Aspectul bulelor</string>
+    <string name="bubble_rounded_corners">Colțuri</string>
+    <string name="bubble_rounded_corners_r1">Rotund</string>
+    <string name="bubble_rounded_corners_r2">Mai rotund</string>
+    <string name="bubble_tail">Coada bulelor</string>
+    <string name="bubble_tail_summary">Adaugă coada bulei pentru primul mesaj al unui expeditor</string>
+    <string name="bubble_rounded_corners_default">Implicit</string>
+    <string name="settings_aggregate_unread_counts_summary">Dacă să fie numărate conversațiile necitite în loc de mesajele individuale în spații și categoriile de mesaje</string>
+    <string name="room_list_quick_actions_open_at_bottom">Deschide la mesajele recente</string>
 </resources>
