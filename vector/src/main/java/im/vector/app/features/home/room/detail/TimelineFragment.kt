@@ -450,8 +450,11 @@ class TimelineFragment :
                 is RoomDetailViewEvents.ScDbgReadTracking -> handleScDbgReadTracking(it)
                 RoomDetailViewEvents.OpenElementCallWidget -> handleOpenElementCallWidget()
                 RoomDetailViewEvents.DisplayPromptToStopVoiceBroadcast -> displayPromptToStopVoiceBroadcast()
+                // SC
                 RoomDetailViewEvents.JumpToBottom -> doJumpToBottom()
                 is RoomDetailViewEvents.SetInitialForceScroll -> setInitialForceScrollEnabled(it.enabled, stickToBottom = it.stickToBottom)
+                // SC end
+                is RoomDetailViewEvents.RevokeFilePermission -> revokeFilePermission(it)
             }
         }
 
@@ -1881,14 +1884,14 @@ class TimelineFragment :
 
     private fun handleCancelSend(action: EventSharedAction.Cancel) {
         if (action.force) {
-            timelineViewModel.handle(RoomDetailAction.CancelSend(action.eventId, true))
+            timelineViewModel.handle(RoomDetailAction.CancelSend(action.event, true))
         } else {
             MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.dialog_title_confirmation)
                     .setMessage(getString(R.string.event_status_cancel_sending_dialog_message))
                     .setNegativeButton(R.string.no, null)
                     .setPositiveButton(R.string.yes) { _, _ ->
-                        timelineViewModel.handle(RoomDetailAction.CancelSend(action.eventId, false))
+                        timelineViewModel.handle(RoomDetailAction.CancelSend(action.event, false))
                     }
                     .show()
         }
@@ -2400,6 +2403,21 @@ class TimelineFragment :
                 ) {
                     timelineViewModel.handle(RoomDetailAction.VoiceBroadcastAction.Recording.StopConfirmed)
                 }
+    }
+
+    private fun revokeFilePermission(revokeFilePermission: RoomDetailViewEvents.RevokeFilePermission) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            requireContext().revokeUriPermission(
+                    requireContext().applicationContext.packageName,
+                    revokeFilePermission.uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        } else {
+            requireContext().revokeUriPermission(
+                    revokeFilePermission.uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        }
     }
 
     override fun onTapToReturnToCall() {
