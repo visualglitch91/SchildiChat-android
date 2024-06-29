@@ -57,6 +57,7 @@ import im.vector.app.core.pushers.FcmHelper
 import im.vector.app.core.resources.BuildMeta
 import im.vector.app.features.analytics.DecryptionFailureTracker
 import im.vector.app.features.analytics.VectorAnalytics
+import im.vector.app.features.analytics.plan.SuperProperties
 import im.vector.app.features.call.webrtc.WebRtcCallManager
 import im.vector.app.features.configuration.VectorConfiguration
 import im.vector.app.features.invite.InvitesAcceptor
@@ -134,6 +135,13 @@ class VectorApplication :
         appContext = this
         flipperProxy.init(matrix)
         vectorAnalytics.init()
+        vectorAnalytics.updateSuperProperties(
+                SuperProperties(
+                        appPlatform = SuperProperties.AppPlatform.EA,
+                        cryptoSDK = SuperProperties.CryptoSDK.Rust,
+                        cryptoSDKVersion = Matrix.getCryptoVersion(longFormat = false)
+                )
+        )
         invitesAcceptor.initialize()
         autoRageShaker.initialize()
         decryptionFailureTracker.start()
