@@ -29,7 +29,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.preference.PreferenceViewHolder
 import androidx.preference.SwitchPreference
-import im.vector.app.R
 import im.vector.app.features.themes.ThemeUtils
 
 /**
@@ -69,7 +68,7 @@ class VectorSwitchPreference : SwitchPreference {
         val itemView = holder.itemView
         if (isHighlighted) {
             val colorFrom = Color.TRANSPARENT
-            val colorTo = ThemeUtils.getColor(itemView.context, R.attr.colorControlHighlight)
+            val colorTo = ThemeUtils.getColor(itemView.context, com.google.android.material.R.attr.colorControlHighlight)
             currentHighlightAnimator = ValueAnimator.ofObject(ArgbEvaluator(), colorFrom, colorTo).apply {
                 duration = 250 // milliseconds
                 addUpdateListener { animator ->

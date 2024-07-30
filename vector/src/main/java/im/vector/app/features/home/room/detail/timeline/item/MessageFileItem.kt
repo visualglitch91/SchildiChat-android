@@ -99,7 +99,7 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
                 || attributes.informationData.messageLayout is TimelineMessageLayout.ScBubble) {
             Color.TRANSPARENT
         } else {
-            ThemeUtils.getColor(holder.view.context, R.attr.sc_message_bg_incoming)
+            ThemeUtils.getColor(holder.view.context, im.vector.lib.ui.styles.R.attr.sc_message_bg_incoming)
         }
         holder.mainLayout.backgroundTintList = ColorStateList.valueOf(backgroundTint)
         holder.filenameView.onClick(attributes.itemClickListener)

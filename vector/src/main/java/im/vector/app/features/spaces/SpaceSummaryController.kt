@@ -17,13 +17,12 @@
 package im.vector.app.features.spaces
 
 import com.airbnb.epoxy.EpoxyController
-import im.vector.app.R
 import im.vector.app.core.resources.StringProvider
 import im.vector.app.features.grouplist.homeSpaceSummaryItem
 import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.list.UnreadCounterBadgeView
 import im.vector.app.features.settings.VectorPreferences
-import im.vector.lib.core.utils.epoxy.charsequence.toEpoxyCharSequence
+import im.vector.lib.strings.CommonStrings
 import org.matrix.android.sdk.api.extensions.orFalse
 import org.matrix.android.sdk.api.session.room.model.Membership
 import org.matrix.android.sdk.api.session.room.model.RoomSummary
@@ -82,7 +81,7 @@ class SpaceSummaryController @Inject constructor(
                         matrixItem(roomSummary.toMatrixItem())
                         countState(UnreadCounterBadgeView.State.Count(1, true, 0, false))
                         selected(false)
-                        description(host.stringProvider.getString(R.string.you_are_invited))
+                        description(host.stringProvider.getString(CommonStrings.you_are_invited))
                         canDrag(false)
                         listener { host.callback?.onSpaceInviteSelected(roomSummary) }
                     }

@@ -45,6 +45,8 @@ import im.vector.app.features.home.room.detail.timeline.view.infoInBubbles
 import im.vector.app.features.home.room.detail.timeline.view.scRenderMessageLayout
 import im.vector.app.features.reactions.widget.ReactionButton
 import im.vector.app.features.themes.ThemeUtils
+import im.vector.lib.strings.CommonPlurals
+import im.vector.lib.strings.CommonStrings
 import org.matrix.android.sdk.api.session.room.send.SendState
 import kotlin.math.ceil
 
@@ -119,13 +121,13 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder>(@LayoutRes layo
             if (reactions.count() > MAX_REACTIONS_TO_SHOW) {
                 val showReactionsTextView = createReactionTextView(holder)
                 if (reactionsSummary.showAll) {
-                    showReactionsTextView.setText(R.string.message_reaction_show_less)
+                    showReactionsTextView.setText(CommonStrings.message_reaction_show_less)
                     showReactionsTextView.onClick {
                         baseAttributes.reactionsSummaryEvents?.onShowLessClicked?.invoke()
                     }
                 } else {
                     val moreCount = reactions.count() - MAX_REACTIONS_TO_SHOW
-                    showReactionsTextView.text = holder.view.resources.getQuantityString(R.plurals.message_reaction_show_more, moreCount, moreCount)
+                    showReactionsTextView.text = holder.view.resources.getQuantityString(CommonPlurals.message_reaction_show_more, moreCount, moreCount)
                     showReactionsTextView.onClick {
                         baseAttributes.reactionsSummaryEvents?.onShowMoreClicked?.invoke()
                     }
@@ -144,11 +146,11 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder>(@LayoutRes layo
     }
 
     private fun createReactionTextView(holder: H): TextView {
-        return TextView(ContextThemeWrapper(holder.view.context, R.style.TimelineReactionView)).apply {
+        return TextView(ContextThemeWrapper(holder.view.context, im.vector.lib.ui.styles.R.style.TimelineReactionView)).apply {
             background = getDrawable(context, R.drawable.reaction_rounded_rect_shape_off)
-            TextViewCompat.setTextAppearance(this, R.style.TextAppearance_Vector_Micro)
+            TextViewCompat.setTextAppearance(this, im.vector.lib.ui.styles.R.style.TextAppearance_Vector_Micro)
             setTypeface(typeface, Typeface.BOLD)
-            setTextColor(ThemeUtils.getColor(context, R.attr.vctr_content_secondary))
+            setTextColor(ThemeUtils.getColor(context, im.vector.lib.ui.styles.R.attr.vctr_content_secondary))
         }
     }
 

@@ -25,6 +25,7 @@ import im.vector.app.R
 import im.vector.app.core.epoxy.VectorEpoxyHolder
 import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.core.epoxy.onClick
+import im.vector.lib.strings.CommonStrings
 
 @EpoxyModelClass
 abstract class FilteredRoomFooterItem : VectorEpoxyModel<FilteredRoomFooterItem.Holder>(R.layout.item_room_filter_footer) {
@@ -49,7 +50,7 @@ abstract class FilteredRoomFooterItem : VectorEpoxyModel<FilteredRoomFooterItem.
         holder.openRoomDirectory.visibility = if (simplifiedMode) View.GONE else View.VISIBLE
 
         holder.openRoomDirectory.setText(
-                if (inSpace) R.string.space_explore_activity_title else R.string.room_filtering_footer_open_room_directory
+                if (inSpace) CommonStrings.space_explore_activity_title else CommonStrings.room_filtering_footer_open_room_directory
         )
 
         // The explore space screen will have a shortcut to create

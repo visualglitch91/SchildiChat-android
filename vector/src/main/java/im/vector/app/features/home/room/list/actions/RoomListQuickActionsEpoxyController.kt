@@ -18,7 +18,6 @@ package im.vector.app.features.home.room.list.actions
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.airbnb.epoxy.TypedEpoxyController
-import im.vector.app.R
 import im.vector.app.core.epoxy.bottomSheetDividerItem
 import im.vector.app.core.epoxy.bottomsheet.bottomSheetActionItem
 import im.vector.app.core.epoxy.bottomsheet.bottomSheetRoomPreviewItem
@@ -30,6 +29,7 @@ import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.roomprofile.notifications.notificationOptions
 import im.vector.app.features.roomprofile.notifications.notificationStateMapped
 import im.vector.app.features.settings.VectorPreferences
+import im.vector.lib.strings.CommonStrings
 import org.matrix.android.sdk.api.session.room.notification.RoomNotificationState
 import org.matrix.android.sdk.api.util.toMatrixItem
 import javax.inject.Inject
@@ -110,10 +110,10 @@ class RoomListQuickActionsEpoxyController @Inject constructor(
 
     @StringRes
     private fun titleForNotificationState(notificationState: RoomNotificationState): Int? = when (notificationState) {
-        RoomNotificationState.ALL_MESSAGES       -> R.string.room_settings_default // SC addition to allow this again
-        RoomNotificationState.ALL_MESSAGES_NOISY -> R.string.room_settings_all_messages
-        RoomNotificationState.MENTIONS_ONLY -> R.string.room_settings_mention_and_keyword_only
-        RoomNotificationState.MUTE -> R.string.room_settings_none
+        RoomNotificationState.ALL_MESSAGES       -> CommonStrings.room_settings_default // SC addition to allow this again
+        RoomNotificationState.ALL_MESSAGES_NOISY -> CommonStrings.room_settings_all_messages
+        RoomNotificationState.MENTIONS_ONLY -> CommonStrings.room_settings_mention_and_keyword_only
+        RoomNotificationState.MUTE -> CommonStrings.room_settings_none
         else -> null
     }
 

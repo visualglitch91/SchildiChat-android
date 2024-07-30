@@ -89,7 +89,7 @@ class SectionHeaderAdapter constructor(
 
         fun bind(roomsSectionData: RoomsSectionData) {
             binding.roomCategoryTitleView.text = roomsSectionData.name
-            val tintColor = ThemeUtils.getColor(binding.root.context, R.attr.vctr_content_secondary)
+            val tintColor = ThemeUtils.getColor(binding.root.context, im.vector.lib.ui.styles.R.attr.vctr_content_secondary)
             val collapsableArrowDrawable: Drawable? = if (roomsSectionData.isCollapsable) {
                 val expandedArrowDrawableRes = if (roomsSectionData.isExpanded) R.drawable.ic_expand_more else R.drawable.ic_expand_less
                 ContextCompat.getDrawable(binding.root.context, expandedArrowDrawableRes)?.also {
@@ -101,7 +101,7 @@ class SectionHeaderAdapter constructor(
             binding.root.isClickable = roomsSectionData.isCollapsable
             binding.roomCategoryTitleView.setCompoundDrawablesWithIntrinsicBounds(null, null, collapsableArrowDrawable, null)
             //binding.roomCategoryCounterView.setCompoundDrawablesWithIntrinsicBounds(null, null, collapsableArrowDrawable, null)
-            //binding.roomCategoryCounterView.text = roomsSectionData.itemCount.takeIf { it > 0 }?.toString().orEmpty()
+            //binding.roomCategoryCounterView.text = if (roomsSectionData.itemCount > 0) "${roomsSectionData.itemCount}" else null
             binding.roomCategoryUnreadCounterBadgeView.render(
                     UnreadCounterBadgeView.State.Count(roomsSectionData.notificationCount, roomsSectionData.isHighlighted, roomsSectionData.unread, roomsSectionData.markedUnread)
             )

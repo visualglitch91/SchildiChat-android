@@ -38,6 +38,7 @@ import im.vector.app.features.home.room.detail.timeline.helper.ContentUploadStat
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.themes.ThemeUtils
 import im.vector.app.features.voice.AudioWaveformView
+import im.vector.lib.strings.CommonStrings
 
 @EpoxyModelClass
 abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
@@ -81,7 +82,7 @@ abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
             contentUploadStateTrackerBinder.bind(attributes.informationData.eventId, izLocalFile, holder.progressLayout)
         } else {
             holder.voicePlaybackControlButton.setImageResource(R.drawable.ic_cross)
-            holder.voicePlaybackControlButton.contentDescription = holder.view.context.getString(R.string.error_voice_message_unable_to_play)
+            holder.voicePlaybackControlButton.contentDescription = holder.view.context.getString(CommonStrings.error_voice_message_unable_to_play)
             holder.progressLayout.isVisible = false
         }
 
@@ -93,7 +94,7 @@ abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
                 attributes.informationData.messageLayout is TimelineMessageLayout.ScBubble) {
             Color.TRANSPARENT
         } else {
-            ThemeUtils.getColor(holder.view.context, R.attr.sc_message_bg_incoming)
+            ThemeUtils.getColor(holder.view.context, im.vector.lib.ui.styles.R.attr.sc_message_bg_incoming)
         }
         holder.voicePlaybackLayout.backgroundTintList = ColorStateList.valueOf(backgroundTint)
     }
@@ -102,8 +103,8 @@ abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
         holder.voicePlaybackWaveform.setOnLongClickListener(attributes.itemLongClickListener)
         holder.voicePlaybackControlButton.setOnClickListener { playbackControlButtonClickListener?.invoke(it) }
 
-        val waveformColorIdle = ThemeUtils.getColor(holder.view.context, R.attr.vctr_content_quaternary)
-        val waveformColorPlayed = ThemeUtils.getColor(holder.view.context, R.attr.vctr_content_secondary)
+        val waveformColorIdle = ThemeUtils.getColor(holder.view.context, im.vector.lib.ui.styles.R.attr.vctr_content_quaternary)
+        val waveformColorPlayed = ThemeUtils.getColor(holder.view.context, im.vector.lib.ui.styles.R.attr.vctr_content_secondary)
 
         holder.voicePlaybackWaveform.clear()
         waveform.forEach { amplitude ->
@@ -140,21 +141,21 @@ abstract class MessageVoiceItem : AbsMessageItem<MessageVoiceItem.Holder>() {
 
     private fun renderIdleState(holder: Holder, idleColor: Int, playedColor: Int) {
         holder.voicePlaybackControlButton.setImageResource(R.drawable.ic_play_pause_play)
-        holder.voicePlaybackControlButton.contentDescription = holder.view.context.getString(R.string.a11y_play_voice_message)
+        holder.voicePlaybackControlButton.contentDescription = holder.view.context.getString(CommonStrings.a11y_play_voice_message)
         holder.voicePlaybackTime.text = formatPlaybackTime(duration)
         holder.voicePlaybackWaveform.updateColors(0f, playedColor, idleColor)
     }
 
     private fun renderPlayingState(holder: Holder, state: AudioMessagePlaybackTracker.Listener.State.Playing, idleColor: Int, playedColor: Int) {
         holder.voicePlaybackControlButton.setImageResource(R.drawable.ic_play_pause_pause)
-        holder.voicePlaybackControlButton.contentDescription = holder.view.context.getString(R.string.a11y_pause_voice_message)
+        holder.voicePlaybackControlButton.contentDescription = holder.view.context.getString(CommonStrings.a11y_pause_voice_message)
         holder.voicePlaybackTime.text = formatPlaybackTime(state.playbackTime)
         holder.voicePlaybackWaveform.updateColors(state.percentage, playedColor, idleColor)
     }
 
     private fun renderPausedState(holder: Holder, state: AudioMessagePlaybackTracker.Listener.State.Paused, idleColor: Int, playedColor: Int) {
         holder.voicePlaybackControlButton.setImageResource(R.drawable.ic_play_pause_play)
-        holder.voicePlaybackControlButton.contentDescription = holder.view.context.getString(R.string.a11y_play_voice_message)
+        holder.voicePlaybackControlButton.contentDescription = holder.view.context.getString(CommonStrings.a11y_play_voice_message)
         holder.voicePlaybackTime.text = formatPlaybackTime(state.playbackTime)
         holder.voicePlaybackWaveform.updateColors(state.percentage, playedColor, idleColor)
     }

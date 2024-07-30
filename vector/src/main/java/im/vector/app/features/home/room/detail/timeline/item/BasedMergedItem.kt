@@ -25,6 +25,7 @@ import im.vector.app.features.home.AvatarRenderer
 import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLayout
 import im.vector.app.features.home.room.detail.timeline.view.TimelineMessageLayoutRenderer
 import im.vector.app.features.home.room.detail.timeline.view.scOnlyRenderMessageLayout
+import im.vector.lib.strings.CommonStrings
 import org.matrix.android.sdk.api.util.MatrixItem
 
 abstract class BasedMergedItem<H : BasedMergedItem.Holder>(@LayoutRes layoutId: Int) : BaseEventItem<H>(layoutId) {
@@ -38,10 +39,10 @@ abstract class BasedMergedItem<H : BasedMergedItem.Holder>(@LayoutRes layoutId: 
         }
         if (attributes.isCollapsed) {
             holder.separatorView.visibility = View.GONE
-            holder.expandView.setText(R.string.merged_events_expand)
+            holder.expandView.setText(CommonStrings.merged_events_expand)
         } else {
             holder.separatorView.visibility = View.VISIBLE
-            holder.expandView.setText(R.string.merged_events_collapse)
+            holder.expandView.setText(CommonStrings.merged_events_collapse)
         }
 
         (holder.view as? TimelineMessageLayoutRenderer).scOnlyRenderMessageLayout(attributes.messageLayout, this, holder)

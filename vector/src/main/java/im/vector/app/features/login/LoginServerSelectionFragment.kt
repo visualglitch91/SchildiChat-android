@@ -26,6 +26,7 @@ import im.vector.app.R
 import im.vector.app.core.resources.BuildMeta
 import im.vector.app.core.utils.openUrlInChromeCustomTab
 import im.vector.app.databinding.FragmentLoginServerSelectionBinding
+import im.vector.lib.strings.CommonStrings
 import me.gujun.android.span.span
 import javax.inject.Inject
 
@@ -64,7 +65,7 @@ class LoginServerSelectionFragment :
 
     private fun initTextViews() {
         views.loginServerChoiceEmsLearnMore.text = span {
-            text = getString(R.string.login_server_modular_learn_more)
+            text = getString(CommonStrings.login_server_modular_learn_more)
             textDecorationLine = "underline"
         }
     }

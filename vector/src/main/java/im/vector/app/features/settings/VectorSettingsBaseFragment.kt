@@ -36,6 +36,7 @@ import im.vector.app.core.platform.VectorViewModel
 import im.vector.app.core.utils.toast
 import im.vector.app.features.analytics.AnalyticsTracker
 import im.vector.app.features.analytics.plan.MobileScreen
+import im.vector.lib.strings.CommonStrings
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -132,8 +133,8 @@ abstract class VectorSettingsBaseFragment : ScPreferenceFragment(), MavericksVie
 
     protected fun notImplemented() {
         // Snackbar cannot be display on PreferenceFragment. TODO It's maybe because the show() method is not used...
-        // Snackbar.make(requireView(), R.string.not_implemented, Snackbar.LENGTH_SHORT)
-        activity?.toast(R.string.not_implemented)
+        // Snackbar.make(requireView(), CommonStrings.not_implemented, Snackbar.LENGTH_SHORT)
+        activity?.toast(CommonStrings.not_implemented)
     }
 
     /**
@@ -179,9 +180,9 @@ abstract class VectorSettingsBaseFragment : ScPreferenceFragment(), MavericksVie
 
     protected fun displayErrorDialog(errorMessage: String) {
         MaterialAlertDialogBuilder(requireActivity())
-                .setTitle(R.string.dialog_title_error)
+                .setTitle(CommonStrings.dialog_title_error)
                 .setMessage(errorMessage)
-                .setPositiveButton(R.string.ok, null)
+                .setPositiveButton(CommonStrings.ok, null)
                 .show()
     }
 

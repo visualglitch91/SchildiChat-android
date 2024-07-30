@@ -35,15 +35,14 @@ import im.vector.app.features.session.coroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
 import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
 
-class VectorGlideModelLoaderFactory(private val context: Context) : ModelLoaderFactory<ImageContentRenderer.Data, InputStream> {
+class ImageContentRendererDataLoaderFactory(private val context: Context) : ModelLoaderFactory<ImageContentRenderer.Data, InputStream> {
 
     override fun build(multiFactory: MultiModelLoaderFactory): ModelLoader<ImageContentRenderer.Data, InputStream> {
-        return VectorGlideModelLoader(context)
+        return ImageContentRendererDataLoader(context)
     }
 
     override fun teardown() {
@@ -51,7 +50,7 @@ class VectorGlideModelLoaderFactory(private val context: Context) : ModelLoaderF
     }
 }
 
-class VectorGlideModelLoader(private val context: Context) :
+class ImageContentRendererDataLoader(private val context: Context) :
         ModelLoader<ImageContentRenderer.Data, InputStream> {
     override fun handles(model: ImageContentRenderer.Data): Boolean {
         // Always handle
@@ -59,12 +58,12 @@ class VectorGlideModelLoader(private val context: Context) :
     }
 
     override fun buildLoadData(model: ImageContentRenderer.Data, width: Int, height: Int, options: Options): ModelLoader.LoadData<InputStream>? {
-        return ModelLoader.LoadData(ObjectKey(model), VectorGlideDataFetcher(context, model, width, height))
+        return ModelLoader.LoadData(ObjectKey(model), ImageContentRendererDataFetcher(context, model, width, height))
     }
 }
 
-class VectorGlideDataFetcher(
-        private val context: Context,
+class ImageContentRendererDataFetcher(
+        context: Context,
         private val data: ImageContentRenderer.Data,
         private val width: Int,
         private val height: Int
@@ -75,8 +74,6 @@ class VectorGlideDataFetcher(
     private val activeSessionHolder = context.singletonEntryPoint().activeSessionHolder()
 
     private val thumbnailExtractor = ThumbnailExtractor(context)
-
-    private val client = activeSessionHolder.getSafeActiveSession()?.getOkHttpClient() ?: OkHttpClient()
 
     override fun getDataClass(): Class<InputStream> {
         return InputStream::class.java
