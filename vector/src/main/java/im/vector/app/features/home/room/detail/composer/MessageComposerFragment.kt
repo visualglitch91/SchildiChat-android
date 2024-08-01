@@ -558,7 +558,7 @@ class MessageComposerFragment : VectorBaseFragment<FragmentComposerBinding>(), A
     }
 
     private fun handleSendButtonVisibilityChanged(event: MessageComposerViewEvents.AnimateSendButtonVisibility) {
-        val sendButtonColor = ThemeUtils.getColor(views.composerLayout.context, if (event.isActive) R.attr.colorAccent else R.attr.vctr_content_tertiary)
+        val sendButtonColor = ThemeUtils.getColor(views.composerLayout.context, if (event.isActive) com.google.android.material.R.attr.colorAccent else im.vector.lib.ui.styles.R.attr.vctr_content_tertiary)
         views.composerLayout.sendButton.imageTintList = ColorStateList.valueOf(sendButtonColor)
         if (event.isVisible) {
             if (views.composerLayout.sendButton.isVisible) {

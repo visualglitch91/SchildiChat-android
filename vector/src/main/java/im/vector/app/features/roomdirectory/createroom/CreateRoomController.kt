@@ -98,7 +98,7 @@ class CreateRoomController @Inject constructor(
 
         settingsSectionTitleItem {
             id("settingsSection")
-            titleResId(R.string.create_room_settings_section)
+            titleResId(CommonStrings.create_room_settings_section)
             id("visibility")
             titleResId(CommonStrings.room_settings_room_access_title)
         }

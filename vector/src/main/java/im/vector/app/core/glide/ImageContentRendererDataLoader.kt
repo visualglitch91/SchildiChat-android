@@ -63,7 +63,7 @@ class ImageContentRendererDataLoader(private val context: Context) :
 }
 
 class ImageContentRendererDataFetcher(
-        context: Context,
+        private val context: Context,
         private val data: ImageContentRenderer.Data,
         private val width: Int,
         private val height: Int

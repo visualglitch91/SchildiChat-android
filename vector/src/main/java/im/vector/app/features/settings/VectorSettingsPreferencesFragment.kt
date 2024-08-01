@@ -118,7 +118,7 @@ class VectorSettingsPreferencesFragment :
             }
         }
         if (ThemeUtils.darkThemePossible(requireContext())) {
-            lightThemePref.title = getString(R.string.settings_light_theme)
+            lightThemePref.title = getString(CommonStrings.settings_light_theme)
             darkThemePref.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
                 if (newValue is String) {
                     ThemeUtils.setApplicationDarkTheme(requireContext().applicationContext, newValue)
@@ -132,7 +132,7 @@ class VectorSettingsPreferencesFragment :
                 }
             }
         } else {
-            lightThemePref.title = getString(R.string.settings_theme)
+            lightThemePref.title = getString(CommonStrings.settings_theme)
             darkThemePref.parent?.removePreference(darkThemePref)
         }
 

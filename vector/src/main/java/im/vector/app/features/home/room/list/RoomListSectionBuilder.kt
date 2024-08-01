@@ -130,7 +130,7 @@ class RoomListSectionBuilder(
         addSection(
                 sections = sections,
                 activeSpaceUpdaters = activeSpaceAwareQueries,
-                nameRes = R.string.invitations_header,
+                nameRes = CommonStrings.invitations_header,
                 notifyOfLocalEcho = true,
                 explicitSpaceId = explicitSpaceId,
                 sortOrder = sortOrder,
@@ -143,7 +143,7 @@ class RoomListSectionBuilder(
         addSection(
                 sections,
                 activeSpaceAwareQueries,
-                R.string.bottom_action_favourites,
+                CommonStrings.bottom_action_favourites,
                 false,
                 spaceFilterStrategy = if (onlyOrphansInHome) {
                     RoomListViewModel.SpaceFilterStrategy.ORPHANS_IF_SPACE_NULL
@@ -160,7 +160,7 @@ class RoomListSectionBuilder(
         addSection(
                 sections = sections,
                 activeSpaceUpdaters = activeSpaceAwareQueries,
-                nameRes = R.string.normal_priority_header,
+                nameRes = CommonStrings.normal_priority_header,
                 notifyOfLocalEcho = false,
                 explicitSpaceId = explicitSpaceId,
                 sortOrder = sortOrder,
@@ -177,7 +177,7 @@ class RoomListSectionBuilder(
         addSection(
                 sections = sections,
                 activeSpaceUpdaters = activeSpaceAwareQueries,
-                nameRes = R.string.low_priority_header,
+                nameRes = CommonStrings.low_priority_header,
                 notifyOfLocalEcho = false,
                 explicitSpaceId = explicitSpaceId,
                 sortOrder = sortOrder,
@@ -194,7 +194,7 @@ class RoomListSectionBuilder(
         addSection(
                 sections = sections,
                 activeSpaceUpdaters = activeSpaceAwareQueries,
-                nameRes = R.string.system_alerts_header,
+                nameRes = CommonStrings.system_alerts_header,
                 notifyOfLocalEcho = false,
                 explicitSpaceId = explicitSpaceId,
                 sortOrder = sortOrder,

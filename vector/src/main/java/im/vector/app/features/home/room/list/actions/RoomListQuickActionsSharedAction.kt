@@ -29,22 +29,22 @@ sealed class RoomListQuickActionsSharedAction(
 ) : VectorSharedAction {
 
     data class MarkUnread(val roomId: String) : RoomListQuickActionsSharedAction(
-            R.string.room_list_quick_actions_mark_room_unread,
+            CommonStrings.room_list_quick_actions_mark_room_unread,
             R.drawable.ic_room_actions_mark_room_unread
     )
 
     data class MarkRead(val roomId: String) : RoomListQuickActionsSharedAction(
-            R.string.room_list_quick_actions_mark_room_read,
+            CommonStrings.room_list_quick_actions_mark_room_read,
             R.drawable.ic_room_actions_mark_room_read
     )
 
     data class OpenAtBottom(val roomId: String) : RoomListQuickActionsSharedAction(
-            R.string.room_list_quick_actions_open_at_bottom,
+            CommonStrings.room_list_quick_actions_open_at_bottom,
             R.drawable.ic_room_actions_open_at_bottom
     )
 
     data class OpenAnonymous(val roomId: String) : RoomListQuickActionsSharedAction(
-            R.string.room_list_quick_actions_open_anonymous,
+            CommonStrings.room_list_quick_actions_open_anonymous,
             R.drawable.ic_room_actions_open_anonymous
     )
 

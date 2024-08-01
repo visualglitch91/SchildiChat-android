@@ -118,7 +118,7 @@ class ImageContentRenderer @Inject constructor(
                 .load(imageUrl)
                 .fitCenter()
                 .listener(object: RequestListener<Drawable> {
-                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>, isFirstResource: Boolean): Boolean {
                         Timber.e("Rendering url $imageUrl failed: $e")
                         if (hideOnFail) {
                             imageView.isGone = true
@@ -126,7 +126,7 @@ class ImageContentRenderer @Inject constructor(
                         return false
                     }
 
-                    override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                    override fun onResourceReady(resource: Drawable, model: Any, target: Target<Drawable>?, dataSource: DataSource, isFirstResource: Boolean): Boolean {
                         if (hideOnFail) {
                             imageView.isVisible = true
                         }
@@ -162,13 +162,13 @@ class ImageContentRenderer @Inject constructor(
 
         var request = createGlideRequest(data, mode, imageView, size)
                 .listener(object : RequestListener<Drawable> {
-                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>, isFirstResource: Boolean): Boolean {
                         Timber.e(e, "Glide image render failed")
                         return false
                     }
 
-                    override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                        if (resource != null /*&& (data.width == null || data.height == null || data.width == 0 || data.height == 0)*/) {
+                    override fun onResourceReady(resource: Drawable, model: Any, target: Target<Drawable>?, dataSource: DataSource, isFirstResource: Boolean): Boolean {
+                        //if ((data.width == null || data.height == null || data.width == 0 || data.height == 0)) {
                             val updatedData = data.copy(width = resource.intrinsicWidth, height = resource.intrinsicHeight)
                             val newSize = processSize(updatedData, mode)
                             imageView.updateLayoutParams {
@@ -176,7 +176,7 @@ class ImageContentRenderer @Inject constructor(
                                 height = newSize.height
                             }
                             onImageSizeListener?.onImageSizeUpdated(newSize.width, newSize.height)
-                        }
+                        //}
                         return false
                     }
                 })

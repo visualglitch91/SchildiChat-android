@@ -957,8 +957,8 @@ class TimelineFragment :
                 resources,
                 menu.findItem(R.id.dev_base_theme),
                 R.id.dev_base_theme_group,
-                R.array.theme_entries,
-                R.array.theme_values,
+                im.vector.lib.strings.R.array.theme_entries,
+                im.vector.lib.strings.R.array.theme_values,
                 ThemeUtils.getCurrentActiveTheme(requireContext())
         ) { value ->
             ThemeUtils.setCurrentActiveTheme(requireContext(), value)
@@ -1129,7 +1129,7 @@ class TimelineFragment :
             val badgeDrawable = DrawableCompat.wrap(badgeFrameLayout.background)
             val color = ThemeUtils.getColor(
                     requireContext(),
-                    if (userIsMentioned) R.attr.colorError else R.attr.colorAccent)
+                    if (userIsMentioned) com.google.android.material.R.attr.colorError else com.google.android.material.R.attr.colorAccent
             )
             DrawableCompat.setTint(badgeDrawable, color)
             badgeFrameLayout.background = badgeDrawable
@@ -1569,10 +1569,10 @@ class TimelineFragment :
         views.includeRoomToolbar.roomToolbarSubtitleView.apply {
             setTextOrHide(subtitle)
             if (typingMessage.isNullOrBlank()) {
-                setTextColor(colorProvider.getColorFromAttribute(R.attr.vctr_content_secondary))
+                setTextColor(colorProvider.getColorFromAttribute(im.vector.lib.ui.styles.R.attr.vctr_content_secondary))
                 setTypeface(null, Typeface.NORMAL)
             } else {
-                setTextColor(colorProvider.getColorFromAttribute(R.attr.colorPrimary))
+                setTextColor(colorProvider.getColorFromAttribute(com.google.android.material.R.attr.colorPrimary))
                 setTypeface(null, Typeface.BOLD)
             }
         }

@@ -373,8 +373,8 @@ object ThemeUtils {
                 color.data
             } catch (e: Exception) {
                 when (colorAttribute) {
-                    android.R.attr.colorAccent           -> ContextCompat.getColor(c, R.color.accent_sc)
-                    R.attr.colorAccent                   -> ContextCompat.getColor(c, R.color.accent_sc)
+                    android.R.attr.colorAccent -> ContextCompat.getColor(c, R.color.accent_sc)
+                    com.google.android.material.R.attr.colorAccent -> ContextCompat.getColor(c, R.color.accent_sc)
                     else                                 -> {
                         Timber.e(e, "Unable to get color")
                         ContextCompat.getColor(c, android.R.color.holo_red_dark)

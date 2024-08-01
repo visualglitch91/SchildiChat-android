@@ -102,9 +102,9 @@ class EventHtmlRenderer @Inject constructor(
     }
 
     private fun resolveCodeBlockBackground() =
-            ThemeUtils.getColor(context, R.attr.code_block_bg_color)
+            ThemeUtils.getColor(context, im.vector.lib.ui.styles.R.attr.code_block_bg_color)
     private fun resolveQuoteBarColor() =
-            ThemeUtils.getColor(context, R.attr.quote_bar_color)
+            ThemeUtils.getColor(context, im.vector.lib.ui.styles.R.attr.quote_bar_color)
 
     private var codeBlockBackground: Int = resolveCodeBlockBackground()
     private var quoteBarColor: Int = resolveQuoteBarColor()

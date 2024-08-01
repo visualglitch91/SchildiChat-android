@@ -18,6 +18,7 @@ package im.vector.app.features.home.room.list.actions
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.airbnb.epoxy.TypedEpoxyController
+import im.vector.app.R
 import im.vector.app.core.epoxy.bottomSheetDividerItem
 import im.vector.app.core.epoxy.bottomsheet.bottomSheetActionItem
 import im.vector.app.core.epoxy.bottomsheet.bottomSheetRoomPreviewItem

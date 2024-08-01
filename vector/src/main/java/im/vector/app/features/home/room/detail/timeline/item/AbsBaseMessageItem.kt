@@ -172,16 +172,16 @@ abstract class AbsBaseMessageItem<H : AbsBaseMessageItem.Holder>(@LayoutRes layo
             // else: dual-side bubbles (getBubbleMargin should not get called for other bubbleStyles)
 
             // Direct chats usually have avatars hidden on both sides
-            baseAttributes.informationData.isDirect -> resources.getDimensionPixelSize(R.dimen.dual_bubble_both_sides_without_avatar_margin)
+            baseAttributes.informationData.isDirect -> resources.getDimensionPixelSize(im.vector.lib.ui.styles.R.dimen.dual_bubble_both_sides_without_avatar_margin)
             // No direct chat, but sent by me: other side has an avatar
             baseAttributes.informationData.sentByMe -> {
-                resources.getDimensionPixelSize(R.dimen.dual_bubble_one_side_without_avatar_margin) +
-                        resources.getDimensionPixelSize(R.dimen.dual_bubble_one_side_avatar_offset) +
+                resources.getDimensionPixelSize(im.vector.lib.ui.styles.R.dimen.dual_bubble_one_side_without_avatar_margin) +
+                        resources.getDimensionPixelSize(im.vector.lib.ui.styles.R.dimen.dual_bubble_one_side_avatar_offset) +
                         // SC bubbles use SMALL avatars
                         ceil(AvatarSizeProvider.Companion.AvatarStyle.SMALL.avatarSizeDP * resources.displayMetrics.density).toInt()
             }
             // No direct chat, sent by other: my side has hidden avatar
-            else -> resources.getDimensionPixelSize(R.dimen.dual_bubble_one_side_without_avatar_margin)
+            else -> resources.getDimensionPixelSize(im.vector.lib.ui.styles.R.dimen.dual_bubble_one_side_without_avatar_margin)
         }
     }
 

@@ -616,9 +616,9 @@ class RoomListFragment :
             val emptyState = when (roomListParams.displayMode) {
                 RoomListDisplayMode.ALL ->
                     StateView.State.Empty(
-                            title = getString(R.string.all_list_rooms_empty_title),
+                            title = getString(CommonStrings.all_list_rooms_empty_title),
                             image = ContextCompat.getDrawable(requireContext(), R.drawable.ic_home_bottom_group),
-                            message = getString(R.string.all_list_rooms_empty_body)
+                            message = getString(CommonStrings.all_list_rooms_empty_body)
                     )
                 RoomListDisplayMode.NOTIFICATIONS -> {
                     StateView.State.Empty(

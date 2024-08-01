@@ -144,7 +144,7 @@ class LoginFragment :
         }
 
         if (error == 0) {
-            loginViewModel.handle(LoginAction.LoginOrRegister(login, password, getString(R.string.login_mobile_device_sc)))
+            loginViewModel.handle(LoginAction.LoginOrRegister(login, password, getString(CommonStrings.login_mobile_device_sc)))
         }
     }
 

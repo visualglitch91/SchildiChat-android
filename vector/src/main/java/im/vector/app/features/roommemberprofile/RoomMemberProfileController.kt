@@ -153,7 +153,7 @@ class RoomMemberProfileController @Inject constructor(
                         id("verify_footer")
                         text(host.stringProvider.getString(CommonStrings.room_profile_encrypted_subtitle).toEpoxyCharSequence())
                         centered(false)
-                        backgroundColor(host.colorProvider.getColorFromAttribute(R.attr.vctr_header_background))
+                        backgroundColor(host.colorProvider.getColorFromAttribute(im.vector.lib.ui.styles.R.attr.vctr_header_background))
                     }
                 }
             } else {
@@ -175,7 +175,7 @@ class RoomMemberProfileController @Inject constructor(
                 id("verify_footer_not_encrypted")
                 text(host.stringProvider.getString(CommonStrings.room_profile_not_encrypted_subtitle).toEpoxyCharSequence())
                 centered(false)
-                backgroundColor(host.colorProvider.getColorFromAttribute(R.attr.vctr_header_background))
+                backgroundColor(host.colorProvider.getColorFromAttribute(im.vector.lib.ui.styles.R.attr.vctr_header_background))
             }
         }
     }

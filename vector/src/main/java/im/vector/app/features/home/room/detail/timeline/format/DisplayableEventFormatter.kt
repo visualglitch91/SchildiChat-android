@@ -85,7 +85,7 @@ class DisplayableEventFormatter @Inject constructor(
                 timelineEvent.getVectorLastMessageContent()?.let { messageContent ->
                     when (messageContent.msgType) {
                         MessageType.MSGTYPE_TEXT -> {
-                            val body = messageContent.getTextDisplayableContent(imageFallback = stringProvider.getString(R.string.sent_an_image))
+                            val body = messageContent.getTextDisplayableContent(imageFallback = stringProvider.getString(CommonStrings.sent_an_image))
                             if (messageContent is MessageTextContent && messageContent.matrixFormattedBody.isNullOrBlank().not()) {
                                 val localFormattedBody = htmlRenderer.get().parse(body) as Document
                                 val renderedBody = htmlRenderer.get().render(localFormattedBody) ?: body
@@ -115,11 +115,11 @@ class DisplayableEventFormatter @Inject constructor(
                             }
                         }
                         MessageType.MSGTYPE_VIDEO -> {
-                            val text = (messageContent as? MessageWithAttachmentContent)?.getCaption() ?: stringProvider.getString(CommonStrings.string.sent_a_video)
+                            val text = (messageContent as? MessageWithAttachmentContent)?.getCaption() ?: stringProvider.getString(CommonStrings.sent_a_video)
                             simpleFormat(senderName, text, appendAuthor)
                         }
                         MessageType.MSGTYPE_FILE -> {
-                            val text = (messageContent as? MessageWithAttachmentContent)?.getCaption() ?: stringProvider.getString(CommonStrings.string.sent_a_file)
+                            val text = (messageContent as? MessageWithAttachmentContent)?.getCaption() ?: stringProvider.getString(CommonStrings.sent_a_file)
                             simpleFormat(senderName, text, appendAuthor)
                         }
                         MessageType.MSGTYPE_LOCATION -> {
@@ -210,7 +210,7 @@ class DisplayableEventFormatter @Inject constructor(
                 (event.getClearContent().toModel() as? MessageContent)?.let { messageContent ->
                     when (messageContent.msgType) {
                         MessageType.MSGTYPE_TEXT -> {
-                            val body = messageContent.getTextDisplayableContent(imageFallback = stringProvider.getString(R.string.sent_an_image))
+                            val body = messageContent.getTextDisplayableContent(imageFallback = stringProvider.getString(CommonStrings.sent_an_image))
                             if (messageContent is MessageTextContent && messageContent.matrixFormattedBody.isNullOrBlank().not()) {
                                 val localFormattedBody = htmlRenderer.get().parse(body) as Document
                                 val renderedBody = htmlRenderer.get().render(localFormattedBody) ?: body

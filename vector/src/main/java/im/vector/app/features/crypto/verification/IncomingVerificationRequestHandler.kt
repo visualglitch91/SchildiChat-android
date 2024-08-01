@@ -207,7 +207,7 @@ class IncomingVerificationRequestHandler @Inject constructor(
                                     pr.transactionId,
                             )
                         }
-                        colorAttribute = R.attr.verification_request_background
+                        colorAttribute = im.vector.lib.ui.styles.R.attr.verification_request_background
                         // 5mn expiration
                         expirationTimestamp = clock.epochMillis() + (5 * 60 * 1000L)
                     }

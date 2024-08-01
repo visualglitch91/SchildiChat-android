@@ -54,9 +54,9 @@ class EmojiSearchResultController @Inject constructor(
         if (!vectorPreferences.simplifiedMode()) {
             // Extra EmojiItem to allow reacting with freeform text
             val freeformReaction = EmojiItem(
-                    name = stringProvider.getString(R.string.freeform_react_with, data.query),
+                    name = stringProvider.getString(CommonStrings.freeform_react_with, data.query),
                     unicode = "",
-                    keywords = listOf(stringProvider.getString(R.string.freeform_reaction_summary))
+                    keywords = listOf(stringProvider.getString(CommonStrings.freeform_reaction_summary))
             )
             emojiSearchResultItem {
                 id("de.spiritcroc.riotx.freeform-reaction.${data.query}")

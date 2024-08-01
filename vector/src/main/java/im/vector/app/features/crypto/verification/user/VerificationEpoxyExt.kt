@@ -162,10 +162,10 @@ fun BaseEpoxyVerificationController.renderAcceptDeclineRequest() {
     bottomSheetVerificationActionItem {
         id("accept_pr")
         title(host.stringProvider.getString(CommonStrings.action_accept))
-        titleColor(host.colorProvider.getColorFromAttribute(R.attr.vctr_encrypting_message_text_color))
+        titleColor(host.colorProvider.getColorFromAttribute(im.vector.lib.ui.styles.R.attr.vctr_encrypting_message_text_color))
         // subTitle(host.stringProvider.getString(CommonStrings.verification_request_start_notice))
         iconRes(R.drawable.ic_arrow_right)
-        iconColor(host.colorProvider.getColorFromAttribute(R.attr.vctr_encrypting_message_text_color))
+        iconColor(host.colorProvider.getColorFromAttribute(im.vector.lib.ui.styles.R.attr.vctr_encrypting_message_text_color))
         listener { host.listener?.acceptRequest() }
     }
     bottomSheetVerificationActionItem {
@@ -253,9 +253,9 @@ fun BaseEpoxyVerificationController.buildSasCodeActions() {
     bottomSheetVerificationActionItem {
         id("ok")
         title(host.stringProvider.getString(CommonStrings.verification_sas_match))
-        titleColor(host.colorProvider.getColorFromAttribute(R.attr.vctr_encrypting_message_text_color))
+        titleColor(host.colorProvider.getColorFromAttribute(im.vector.lib.ui.styles.R.attr.vctr_encrypting_message_text_color))
         iconRes(R.drawable.ic_check_on)
-        iconColor(host.colorProvider.getColorFromAttribute(R.attr.vctr_encrypting_message_text_color))
+        iconColor(host.colorProvider.getColorFromAttribute(im.vector.lib.ui.styles.R.attr.vctr_encrypting_message_text_color))
         listener { host.listener?.onMatchButtonTapped() }
     }
 }
@@ -356,9 +356,9 @@ fun BaseEpoxyVerificationController.renderQrTransaction(transaction: Verificatio
             bottomSheetVerificationActionItem {
                 id("confirm")
                 title(host.stringProvider.getString(CommonStrings.qr_code_scanned_by_other_yes))
-                titleColor(host.colorProvider.getColorFromAttribute(R.attr.vctr_encrypting_message_text_color))
+                titleColor(host.colorProvider.getColorFromAttribute(im.vector.lib.ui.styles.R.attr.vctr_encrypting_message_text_color))
                 iconRes(R.drawable.ic_check_on)
-                iconColor(host.colorProvider.getColorFromAttribute(R.attr.vctr_encrypting_message_text_color))
+                iconColor(host.colorProvider.getColorFromAttribute(im.vector.lib.ui.styles.R.attr.vctr_encrypting_message_text_color))
                 listener { host.listener?.onUserConfirmsQrCodeScanned() }
             }
         }

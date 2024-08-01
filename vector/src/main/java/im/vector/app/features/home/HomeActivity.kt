@@ -645,8 +645,8 @@ class HomeActivity :
                 resources,
                 menu.findItem(R.id.dev_base_theme),
                 R.id.dev_base_theme_group,
-                R.array.theme_entries,
-                R.array.theme_values,
+                im.vector.lib.strings.R.array.theme_entries,
+                im.vector.lib.strings.R.array.theme_values,
                 ThemeUtils.getCurrentActiveTheme(this)
         ) { value ->
             ThemeUtils.setCurrentActiveTheme(this, value)

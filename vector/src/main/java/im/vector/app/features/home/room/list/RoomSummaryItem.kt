@@ -127,9 +127,9 @@ abstract class RoomSummaryItem : VectorEpoxyModel<RoomSummaryItem.Holder>(R.layo
         // Mirror unreadCounterBadgeView colors
         holder.unreadIndentIndicator.setBackgroundColor(
                 when {
-                    showHighlighted                             -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, R.attr.colorError)
-                    unreadNotificationCount > 0 || markedUnread -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, R.attr.colorAccent)
-                    hasUnreadMessage                            -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, R.attr.unread_line_unimportant)
+                    showHighlighted                             -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, com.google.android.material.R.attr.colorError)
+                    unreadNotificationCount > 0 || markedUnread -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, com.google.android.material.R.attr.colorAccent)
+                    hasUnreadMessage                            -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, im.vector.lib.ui.styles.R.attr.unread_line_unimportant)
                     else                                        -> 0
                 }
         )

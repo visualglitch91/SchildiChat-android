@@ -156,7 +156,7 @@ class RoomProfileController @Inject constructor(
         genericFooterItem {
             id("e2e info")
             centered(false)
-            backgroundColor(host.colorProvider.getColorFromAttribute(R.attr.vctr_header_background))
+            backgroundColor(host.colorProvider.getColorFromAttribute(im.vector.lib.ui.styles.R.attr.vctr_header_background))
             text(
                     span {
                         apply {

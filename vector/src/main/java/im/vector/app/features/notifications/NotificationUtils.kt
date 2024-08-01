@@ -946,7 +946,7 @@ class NotificationUtils @Inject constructor(
             noisy: Boolean,
             lastMessageTimestamp: Long
     ): Notification {
-        val accentColor = ContextCompat.getColor(context, R.color.notification_accent_color)
+        val accentColor = ContextCompat.getColor(context, im.vector.lib.ui.styles.R.color.notification_accent_color)
         val smallIcon = R.drawable.ic_status_bar_sc
 
         return NotificationCompat.Builder(context, if (noisy) NOISY_NOTIFICATION_CHANNEL_ID else SILENT_NOTIFICATION_CHANNEL_ID)

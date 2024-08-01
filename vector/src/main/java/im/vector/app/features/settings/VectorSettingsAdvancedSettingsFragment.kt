@@ -119,12 +119,12 @@ class VectorSettingsAdvancedSettingsFragment :
         findPreference<VectorPreference>("SETTINGS_APPLY_SC_DEFAULT_SETTINGS")?.let {
             it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 MaterialAlertDialogBuilder(requireContext())
-                        .setTitle(R.string.settings_apply_sc_default_settings_dialog_title)
-                        .setMessage(R.string.settings_apply_sc_default_settings_dialog_summary)
-                        .setPositiveButton(R.string._continue) { _, _ ->
+                        .setTitle(CommonStrings.settings_apply_sc_default_settings_dialog_title)
+                        .setMessage(CommonStrings.settings_apply_sc_default_settings_dialog_summary)
+                        .setPositiveButton(CommonStrings._continue) { _, _ ->
                             vectorPreferences.applyScDefaultValues()
                         }
-                        .setNegativeButton(R.string.action_cancel) { _, _ -> /* Just close dialog */ }
+                        .setNegativeButton(CommonStrings.action_cancel) { _, _ -> /* Just close dialog */ }
                         .show()
                 true
             }

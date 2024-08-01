@@ -143,7 +143,7 @@ open class VectorPreference : Preference {
             } else {
                 val bgDrawable = TypedValue()
                 context.theme.resolveAttribute(android.R.attr.selectableItemBackground, bgDrawable, true)
-                ViewCompat.setBackground(itemView, ContextCompat.getDrawable(context, bgDrawable.resourceId))
+                itemView.background = ContextCompat.getDrawable(context, bgDrawable.resourceId)
             }
         } catch (e: Exception) {
             Timber.e(e, "onBindView")
