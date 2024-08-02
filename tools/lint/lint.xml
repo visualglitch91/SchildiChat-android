@@ -115,4 +115,7 @@
 
     <!-- DI -->
     <issue id="JvmStaticProvidesInObjectDetector" severity="error" />
+
+    <!-- SC -->
+    <issue id="ExtraTranslation" severity="ignore" />
 </lint>
