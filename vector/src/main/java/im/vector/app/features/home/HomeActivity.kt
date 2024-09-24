@@ -255,7 +255,8 @@ class HomeActivity :
             }
         }
 
-        homeActivityViewModel.observeViewEvents {
+        Timber.tag("SC_NP_DBG").i("Starting home event observation")
+        homeActivityViewModel.observeViewEvents("SC_NP_DBG") {
             when (it) {
                 is HomeActivityViewEvents.AskPasswordToInitCrossSigning -> handleAskPasswordToInitCrossSigning(it)
                 is HomeActivityViewEvents.CurrentSessionNotVerified -> handleOnNewSession(it)
@@ -291,6 +292,7 @@ class HomeActivity :
     }
 
     private fun handleShowNotificationDialog() {
+        Timber.tag("SC_NP_DBG").i("handleShowNotificationDialog")
         notificationPermissionManager.eventuallyRequestPermission(this, postPermissionLauncher)
     }
 

@@ -50,6 +50,7 @@ class NotificationPermissionManager @Inject constructor(
     ) {
         if (!sdkIntProvider.isAtLeast(Build.VERSION_CODES.TIRAMISU)) return
         if (!vectorPreferences.areNotificationEnabledForDevice() && !ignorePreference) return
+        timber.log.Timber.tag("SC_NP_DBG").i("Checking notification permission")
         checkPermissions(
                 listOf(Manifest.permission.POST_NOTIFICATIONS),
                 activity,

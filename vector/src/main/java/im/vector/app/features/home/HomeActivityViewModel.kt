@@ -118,6 +118,7 @@ class HomeActivityViewModel @AssistedInject constructor(
 
     private fun initialize() {
         if (isInitialized) return
+        Timber.tag("SC_NP_DBG").i("Initialize homeActivity ${System.identityHashCode(this)}")
         isInitialized = true
         // Ensure Session is syncing
         ensureSessionSyncingUseCase.execute()
@@ -189,6 +190,7 @@ class HomeActivityViewModel @AssistedInject constructor(
                         if (!didAskUser) {
                             _viewEvents.post(HomeActivityViewEvents.ShowAnalyticsOptIn)
                         } else {
+                            Timber.tag("SC_NP_DBG").i("didAskUser -> ask for notif permission")
                             _viewEvents.post(HomeActivityViewEvents.ShowNotificationDialog)
                         }
                     }
@@ -210,6 +212,7 @@ class HomeActivityViewModel @AssistedInject constructor(
                 }
             }
         } else {
+            Timber.tag("SC_NP_DBG").i("no analytics -> ask for notif permission")
             _viewEvents.post(HomeActivityViewEvents.ShowNotificationDialog)
         }
     }
