@@ -2,7 +2,7 @@
 <resources>
     <string name="normal_priority_header">Normale Priorität</string>
     <string name="settings_home_overview">Übersicht</string>
-    <string name="settings_single_overview">Vereinte Chat-Übersicht</string>
+    <string name="settings_single_overview">Kombinierte Chat-Übersicht</string>
     <string name="settings_single_overview_summary">Sowohl Direktnachrichten als auch Räume auf einer Seite anzeigen</string>
     <string name="settings_room_unread_kind_dm">Direktchat-Vorschau</string>
     <string name="settings_room_unread_kind_group">Gruppenchat-Vorschau</string>
@@ -71,7 +71,7 @@
     <string name="sc_accent_greendark">Dunkelgrün</string>
     <string name="sc_accent_amber">Bernstein</string>
     <string name="sc_accent_cyan">Zyan</string>
-    <string name="sc_accent_pink">Pink</string>
+    <string name="sc_accent_pink">Rosa</string>
     <string name="settings_user_colors_in_public_rooms">Nutzerfarben in öffentlichen Räumen</string>
     <string name="settings_open_chats_at_first_unread">Öffnen bei der ersten ungelesenen Nachricht</string>
     <string name="settings_open_chats_at_first_unread_summary">Chats bei der ersten ungelesenen Nachricht öffnen, statt an der neuesten.</string>
@@ -143,7 +143,7 @@
     <string name="dev_tools_menu_redacted">Gelöschte Nachrichten</string>
     <string name="settings_floating_date">Schwebendes Datum</string>
     <string name="dev_tools_menu_hidden_events">Versteckte Events</string>
-    <string name="settings_sc_debugging">Schildi-debugging</string>
+    <string name="settings_sc_debugging">Schildi-Debugging</string>
     <string name="settings_space_back_navigation_summary">Zurück-Button drücken, um den zuvor ausgewählten Space anzuzeigen</string>
     <string name="standard_emojis">Standard-Emojis</string>
     <string name="custom_emotes_this_room">Raum-Emojis</string>
@@ -175,4 +175,10 @@
     <string name="settings_space_pager_prefer_space_1">Unteren Root Space bevorzugen</string>
     <string name="action_send_as_sticker">Als Sticker senden</string>
     <string name="settings_call_ringtone_use_default_stun_summary">Wird %s als Hilfsserver nutzen, wenn dein Homeserver keinen anbietet (deine IP-Adresse wird für den Stun-Server während eines Anrufs sichtbar)</string>
+    <string name="settings_sc_dbg_show_read_tracking">Zeige Lesebestätigungen</string>
+    <string name="settings_sc_dbg_read_marker">Gelesen-Markierung-Debugging</string>
+    <string name="custom_emotes_named_other_room">\"%1$s\" von %2$s</string>
+    <string name="settings_space_back_navigation">Spaces zurück stapeln</string>
+    <string name="settings_sc_dbg_show_duplicate_read_receipts">Doppelte Lesebestätigungen</string>
+    <string name="settings_space_pager_prefer_space_1_summary">Zeige in der unteren Leiste vorrangig die Spaces an, die du an den Anfang deiner Root-Spaces verschoben hast</string>
 </resources>
