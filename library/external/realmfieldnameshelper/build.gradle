@@ -4,6 +4,10 @@ apply plugin: 'java'
 sourceCompatibility = versions.sourceCompat
 targetCompatibility = versions.sourceCompat
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions.jvmTarget = versions.jvmTarget
+}
+
 dependencies {
     implementation 'com.squareup:javapoet:1.13.0'
 }
@@ -12,6 +16,7 @@ task javadocJar(type: Jar, dependsOn: 'javadoc') {
     from javadoc.destinationDir
     archiveClassifier = 'javadoc'
 }
+
 task sourcesJar(type: Jar, dependsOn: 'classes') {
     from sourceSets.main.allSource
     archiveClassifier = 'sources'
