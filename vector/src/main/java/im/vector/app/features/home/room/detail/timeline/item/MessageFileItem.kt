@@ -99,7 +99,7 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
                 || attributes.informationData.messageLayout is TimelineMessageLayout.ScBubble) {
             Color.TRANSPARENT
         } else {
-            ThemeUtils.getColor(holder.view.context, R.attr.sc_message_bg_incoming)
+            ThemeUtils.getColor(holder.view.context, im.vector.lib.ui.styles.R.attr.sc_message_bg_incoming)
         }
         holder.mainLayout.backgroundTintList = ColorStateList.valueOf(backgroundTint)
         holder.filenameView.onClick(attributes.itemClickListener)
@@ -118,11 +118,11 @@ abstract class MessageFileItem : AbsMessageItem<MessageFileItem.Holder>() {
     override fun getViewStubMinimumWidth(holder: Holder): Int {
         // Guess text width for name and time
         // On first call, holder.fileImageView.width is not initialized yet
-        val imageWidth = holder.fileImageView.resources.getDimensionPixelSize(R.dimen.file_icon_size)
+        val imageWidth = holder.fileImageView.resources.getDimensionPixelSize(im.vector.lib.ui.styles.R.dimen.file_icon_size)
         val minimumWidthWithText =
                 ceil(guessTextWidth(holder.filenameView, filename)).toInt() +
                         imageWidth +
-                        holder.filenameView.resources.getDimensionPixelSize(R.dimen.sc_bubble_guess_minimum_width_padding)
+                        holder.filenameView.resources.getDimensionPixelSize(im.vector.lib.ui.styles.R.dimen.sc_bubble_guess_minimum_width_padding)
         val absoluteMinimumWidth = imageWidth*3
         return max(absoluteMinimumWidth, minimumWidthWithText)
     }

@@ -24,14 +24,13 @@ import android.widget.ImageView
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
-import com.bumptech.glide.integration.webp.decoder.WebpDrawable
-import com.bumptech.glide.integration.webp.decoder.WebpDrawableTransformation
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.target.Target
 import im.vector.app.R
@@ -106,7 +105,7 @@ class ImageContentRenderer @Inject constructor(
         val contentUrlResolver = activeSessionHolder.getActiveSession().contentUrlResolver()
         val imageUrl = contentUrlResolver.resolveFullSize(previewUrlData.mxcUrl) ?: return false
         /*
-        val maxHeight = dimensionConverter.resources.getDimensionPixelSize(R.dimen.preview_url_view_image_max_height)
+        val maxHeight = dimensionConverter.resources.getDimensionPixelSize(im.vector.lib.ui.styles.R.dimen.preview_url_view_image_max_height)
         val height = previewUrlData.imageHeight ?: URL_PREVIEW_IMAGE_MIN_FULL_HEIGHT_PX
         val width = previewUrlData.imageWidth ?: URL_PREVIEW_IMAGE_MIN_FULL_WIDTH_PX
         if (height < URL_PREVIEW_IMAGE_MIN_FULL_HEIGHT_PX || width < URL_PREVIEW_IMAGE_MIN_FULL_WIDTH_PX) {
@@ -119,7 +118,7 @@ class ImageContentRenderer @Inject constructor(
                 .load(imageUrl)
                 .fitCenter()
                 .listener(object: RequestListener<Drawable> {
-                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>, isFirstResource: Boolean): Boolean {
                         Timber.e("Rendering url $imageUrl failed: $e")
                         if (hideOnFail) {
                             imageView.isGone = true
@@ -127,7 +126,7 @@ class ImageContentRenderer @Inject constructor(
                         return false
                     }
 
-                    override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                    override fun onResourceReady(resource: Drawable, model: Any, target: Target<Drawable>?, dataSource: DataSource, isFirstResource: Boolean): Boolean {
                         if (hideOnFail) {
                             imageView.isVisible = true
                         }
@@ -163,13 +162,13 @@ class ImageContentRenderer @Inject constructor(
 
         var request = createGlideRequest(data, mode, imageView, size)
                 .listener(object : RequestListener<Drawable> {
-                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>, isFirstResource: Boolean): Boolean {
                         Timber.e(e, "Glide image render failed")
                         return false
                     }
 
-                    override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                        if (resource != null /*&& (data.width == null || data.height == null || data.width == 0 || data.height == 0)*/) {
+                    override fun onResourceReady(resource: Drawable, model: Any, target: Target<Drawable>?, dataSource: DataSource, isFirstResource: Boolean): Boolean {
+                        //if ((data.width == null || data.height == null || data.width == 0 || data.height == 0)) {
                             val updatedData = data.copy(width = resource.intrinsicWidth, height = resource.intrinsicHeight)
                             val newSize = processSize(updatedData, mode)
                             imageView.updateLayoutParams {
@@ -177,16 +176,13 @@ class ImageContentRenderer @Inject constructor(
                                 height = newSize.height
                             }
                             onImageSizeListener?.onImageSizeUpdated(newSize.width, newSize.height)
-                        }
+                        //}
                         return false
                     }
                 })
         request = if (animate && mode == Mode.ANIMATED_THUMBNAIL) {
             // Glide seems to already do some dp to px calculation for animated gifs?
-            val animatedCornerTransformation = RoundedCorners(cornerRoundnessDp)
-            request.optionalTransform(animatedCornerTransformation)
-                    .transform(WebpDrawable::class.java, WebpDrawableTransformation(animatedCornerTransformation))
-            //request.apply(RequestOptions.bitmapTransform(RoundedCorners(3)))
+            request.optionalTransform(RoundedCorners(cornerRoundnessDp))
         } else {
             request.dontAnimate()
                     .optionalTransform(cornerTransformation)
@@ -249,7 +245,7 @@ class ImageContentRenderer @Inject constructor(
             override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,
-                    target: Target<Drawable>?,
+                    target: Target<Drawable>,
                     isFirstResource: Boolean
             ): Boolean {
                 callback?.invoke(false)
@@ -257,10 +253,10 @@ class ImageContentRenderer @Inject constructor(
             }
 
             override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
+                    resource: Drawable,
+                    model: Any,
                     target: Target<Drawable>?,
-                    dataSource: DataSource?,
+                    dataSource: DataSource,
                     isFirstResource: Boolean
             ): Boolean {
                 callback?.invoke(true)

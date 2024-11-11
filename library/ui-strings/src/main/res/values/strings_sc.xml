@@ -146,6 +146,8 @@
 
     <string name="settings_enable_space_pager">Swipe chat list to switch space</string>
     <string name="settings_enable_space_pager_summary">Allow to switch between root spaces by swiping horizontally in the chat list</string>
+    <string name="settings_space_pager_prefer_space_1">Prefer lower root space</string>
+    <string name="settings_space_pager_prefer_space_1_summary">Prioritize showing spaces in the bottom space bar that you have moved to the top of your root space list</string>
 
     <string name="settings_notif_only_alert_once">Only alert once</string>
     <string name="settings_notif_only_alert_once_summary">Omit alert sounds for new messages if there is already an open notification for that chat</string>

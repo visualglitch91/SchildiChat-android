@@ -50,6 +50,9 @@ import im.vector.app.features.analytics.metrics.VectorPlugins
 import im.vector.app.features.configuration.VectorCustomEventTypesProvider
 import im.vector.app.features.invite.AutoAcceptInvites
 import im.vector.app.features.invite.CompileTimeAutoAcceptInvites
+import im.vector.app.features.mdm.DefaultMdmService
+import im.vector.app.features.mdm.MdmData
+import im.vector.app.features.mdm.MdmService
 import im.vector.app.features.navigation.DefaultNavigator
 import im.vector.app.features.navigation.Navigator
 import im.vector.app.features.pin.PinCodeStore
@@ -61,6 +64,7 @@ import im.vector.app.features.settings.VectorPreferences
 import im.vector.app.features.ui.SharedPreferencesUiStateRepository
 import im.vector.app.features.ui.UiStateRepository
 import im.vector.application.BuildConfig
+import im.vector.application.R
 import im.vector.lib.core.utils.timer.Clock
 import im.vector.lib.core.utils.timer.DefaultClock
 import kotlinx.coroutines.CoroutineScope
@@ -109,6 +113,9 @@ import javax.inject.Singleton
     abstract fun bindEmojiSpanify(emojiCompatWrapper: EmojiCompatWrapper): EmojiSpanify
 
     @Binds
+    abstract fun bindMdmService(service: DefaultMdmService): MdmService
+
+    @Binds
     abstract fun bindFontScale(fontScale: FontScalePreferencesImpl): FontScalePreferences
 
     @Binds
@@ -145,10 +152,10 @@ import javax.inject.Singleton
             flipperProxy: FlipperProxy,
             vectorPlugins: VectorPlugins,
             vectorCustomEventTypesProvider: VectorCustomEventTypesProvider,
+            mdmService: MdmService,
     ): MatrixConfiguration {
         return MatrixConfiguration(
                 applicationFlavor = BuildConfig.FLAVOR_DESCRIPTION,
-                cryptoFlavor = BuildConfig.CRYPTO_FLAVOR_DESCRIPTION,
                 roomDisplayNameFallbackProvider = vectorRoomDisplayNameFallbackProvider,
                 threadMessagesEnabledDefault = vectorPreferences.areThreadMessagesEnabled(),
                 networkInterceptors = listOfNotNull(
@@ -157,6 +164,7 @@ import javax.inject.Singleton
                 metricPlugins = vectorPlugins.plugins(),
                 cryptoAnalyticsPlugin = vectorPlugins.cryptoMetricPlugin,
                 customEventTypesProvider = vectorCustomEventTypesProvider,
+                clientPermalinkBaseUrl = mdmService.getData(MdmData.PermalinkBaseUrl),
                 syncConfig = SyncConfig(
                         syncFilterParams = SyncFilterParams(lazyLoadMembersForStateEvents = true, useThreadNotifications = true)
                 )
@@ -218,9 +226,10 @@ import javax.inject.Singleton
 
     @Provides
     @Singleton
-    fun providesBuildMeta() = BuildMeta(
+    fun providesBuildMeta(context: Context) = BuildMeta(
             isDebug = BuildConfig.DEBUG,
             applicationId = BuildConfig.APPLICATION_ID,
+            applicationName = context.getString(R.string.app_name),
             lowPrivacyLoggingEnabled = Config.LOW_PRIVACY_LOG_ENABLE,
             versionName = BuildConfig.VERSION_NAME,
             gitRevision = BuildConfig.GIT_REVISION,

@@ -28,6 +28,7 @@ import im.vector.app.features.autocomplete.member.AutocompleteEmojiDataItem
 import im.vector.app.features.reactions.data.EmojiDataSource
 import im.vector.app.features.reactions.data.EmojiItem
 import im.vector.app.features.settings.VectorPreferences
+import im.vector.lib.strings.CommonStrings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -123,7 +124,7 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
             val currentRoomEmotes = room.getAllEmojiItems(query)
             val allEmoteData = currentRoomEmotes.toAutocompleteItems().let {
                 if (it.isNotEmpty()) {
-                    listOf(AutocompleteEmojiDataItem.Header(roomId, context.getString(R.string.custom_emotes_this_room))) + it
+                    listOf(AutocompleteEmojiDataItem.Header(roomId, context.getString(CommonStrings.custom_emotes_this_room))) + it
                 } else {
                     emptyList()
                 }
@@ -145,7 +146,7 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
                     emoteData += listOf(
                             AutocompleteEmojiDataItem.Header(
                                     AutocompleteEmojiController.ACCOUNT_DATA_EMOTE_ID,
-                                    context.getString(R.string.custom_emotes_account_data)
+                                    context.getString(CommonStrings.custom_emotes_account_data)
                             )
                     )
                     emoteData += userPack.toAutocompleteItems()
@@ -188,13 +189,13 @@ class AutocompleteEmojiPresenter @AssistedInject constructor(
                                                 packRoomId,
                                                 if (packName != null) {
                                                     context.getString(
-                                                            R.string.custom_emotes_named_other_room,
+                                                            CommonStrings.custom_emotes_named_other_room,
                                                             packName,
                                                             packRoomName
                                                     )
                                                 } else {
                                                     context.getString(
-                                                            R.string.custom_emotes_other_room,
+                                                            CommonStrings.custom_emotes_other_room,
                                                             packRoomName
                                                     )
                                                 }

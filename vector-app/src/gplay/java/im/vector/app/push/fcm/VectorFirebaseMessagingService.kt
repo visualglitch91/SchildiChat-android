@@ -19,13 +19,14 @@ package im.vector.app.push.fcm
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
-import im.vector.app.R
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.pushers.FcmHelper
 import im.vector.app.core.pushers.PushParser
 import im.vector.app.core.pushers.PushersManager
 import im.vector.app.core.pushers.UnifiedPushHelper
 import im.vector.app.core.pushers.VectorPushHandler
+import im.vector.app.features.mdm.MdmData
+import im.vector.app.features.mdm.MdmService
 import im.vector.app.features.settings.VectorPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -46,6 +47,7 @@ class VectorFirebaseMessagingService : FirebaseMessagingService() {
     @Inject lateinit var pushParser: PushParser
     @Inject lateinit var vectorPushHandler: VectorPushHandler
     @Inject lateinit var unifiedPushHelper: UnifiedPushHelper
+    @Inject lateinit var mdmService: MdmService
 
     private val scope = CoroutineScope(SupervisorJob())
 
@@ -53,6 +55,7 @@ class VectorFirebaseMessagingService : FirebaseMessagingService() {
         scope.cancel()
         super.onDestroy()
     }
+
     override fun onNewToken(token: String) {
         Timber.tag(loggerTag.value).d("New Firebase token")
         fcmHelper.storeFcmToken(token)
@@ -62,7 +65,13 @@ class VectorFirebaseMessagingService : FirebaseMessagingService() {
                 unifiedPushHelper.isEmbeddedDistributor()
         ) {
             scope.launch {
-                pushersManager.enqueueRegisterPusher(token, getString(R.string.pusher_http_url))
+                pushersManager.enqueueRegisterPusher(
+                        pushKey = token,
+                        gateway = mdmService.getData(
+                                mdmData = MdmData.DefaultPushGatewayUrl,
+                                defaultValue = getString(im.vector.app.config.R.string.pusher_http_url),
+                        ),
+                )
             }
         }
     }

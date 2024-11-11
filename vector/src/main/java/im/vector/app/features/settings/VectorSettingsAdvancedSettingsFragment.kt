@@ -26,10 +26,12 @@ import im.vector.app.core.platform.VectorBaseActivity
 import im.vector.app.core.preference.VectorPreference
 import im.vector.app.core.preference.VectorPreferenceCategory
 import im.vector.app.core.preference.VectorSwitchPreference
+import im.vector.app.core.resources.BuildMeta
 import im.vector.app.core.utils.copyToClipboard
 import im.vector.app.features.analytics.plan.MobileScreen
 import im.vector.app.features.home.NightlyProxy
 import im.vector.app.features.rageshake.RageShake
+import im.vector.lib.strings.CommonStrings
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -38,10 +40,12 @@ class VectorSettingsAdvancedSettingsFragment :
 
     @Inject lateinit var vectorPreferences: VectorPreferences
 
-    override var titleRes = R.string.settings_advanced_settings
+    override var titleRes = CommonStrings.settings_advanced_settings
     override val preferenceXmlRes = R.xml.vector_settings_advanced_settings
 
     @Inject lateinit var nightlyProxy: NightlyProxy
+
+    @Inject lateinit var buildMeta: BuildMeta
 
     private var rageshake: RageShake? = null
 
@@ -55,7 +59,7 @@ class VectorSettingsAdvancedSettingsFragment :
 
         rageshake = (activity as? VectorBaseActivity<*>)?.rageShake
         rageshake?.interceptor = {
-            (activity as? VectorBaseActivity<*>)?.showSnackbar(getString(R.string.rageshake_detected))
+            (activity as? VectorBaseActivity<*>)?.showSnackbar(getString(CommonStrings.rageshake_detected))
         }
     }
 
@@ -112,16 +116,19 @@ class VectorSettingsAdvancedSettingsFragment :
             findPreference<VectorPreferenceCategory>("SETTINGS_RAGE_SHAKE_CATEGORY_KEY")!!.isVisible = false
         }
 
-        findPreference<VectorPreference>("SETTINGS_APPLY_SC_DEFAULT_SETTINGS")?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(R.string.settings_apply_sc_default_settings_dialog_title)
-                    .setMessage(R.string.settings_apply_sc_default_settings_dialog_summary)
-                    .setPositiveButton(R.string._continue) { _, _ ->
-                        vectorPreferences.applyScDefaultValues()
-                    }
-                    .setNegativeButton(R.string.action_cancel) { _, _ -> /* Just close dialog */ }
-                    .show()
-            true
+        findPreference<VectorPreference>("SETTINGS_APPLY_SC_DEFAULT_SETTINGS")?.let {
+            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(CommonStrings.settings_apply_sc_default_settings_dialog_title)
+                        .setMessage(CommonStrings.settings_apply_sc_default_settings_dialog_summary)
+                        .setPositiveButton(CommonStrings._continue) { _, _ ->
+                            vectorPreferences.applyScDefaultValues()
+                        }
+                        .setNegativeButton(CommonStrings.action_cancel) { _, _ -> /* Just close dialog */ }
+                        .show()
+                true
+            }
+            it.isVisible = buildMeta.isInternalBuild
         }
     }
 

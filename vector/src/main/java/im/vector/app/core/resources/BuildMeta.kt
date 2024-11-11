@@ -16,9 +16,12 @@
 
 package im.vector.app.core.resources
 
+import im.vector.app.BuildConfig
+
 data class BuildMeta(
         val isDebug: Boolean,
         val applicationId: String,
+        val applicationName: String,
         val lowPrivacyLoggingEnabled: Boolean,
         val versionName: String,
         val gitRevision: String,
@@ -26,4 +29,9 @@ data class BuildMeta(
         val gitBranchName: String,
         val flavorDescription: String,
         val flavorShortDescription: String,
-)
+) {
+    val isInternalBuild: Boolean = BuildConfig.DEBUG || gitBranchName == "sm_fdroid"
+    // Play Store has some annoying forms to fill out if we have all features, like easy-access to registering an account at matrix.org.
+    // Accordingly, we want to disable some features for releases that go to the Play Store, while keeping them in all fdroid-based releases.
+    val isPlayStoreBuild: Boolean =  "gplay" in gitBranchName
+}

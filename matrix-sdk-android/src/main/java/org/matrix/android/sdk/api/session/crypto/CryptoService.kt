@@ -16,7 +16,6 @@
 
 package org.matrix.android.sdk.api.session.crypto
 
-import android.content.Context
 import androidx.annotation.Size
 import androidx.lifecycle.LiveData
 import androidx.paging.PagedList
@@ -60,8 +59,6 @@ interface CryptoService {
     suspend fun deleteDevice(deviceId: String, userInteractiveAuthInterceptor: UserInteractiveAuthInterceptor)
 
     suspend fun deleteDevices(@Size(min = 1) deviceIds: List<String>, userInteractiveAuthInterceptor: UserInteractiveAuthInterceptor)
-
-    fun getCryptoVersion(context: Context, longFormat: Boolean): String
 
     fun isCryptoEnabled(): Boolean
 
@@ -240,7 +237,8 @@ interface CryptoService {
             toDevice: ToDeviceSyncResponse?,
             deviceChanges: DeviceListResponse?,
             keyCounts: DeviceOneTimeKeysCountSyncResponse?,
-            deviceUnusedFallbackKeyTypes: List<String>?)
+            deviceUnusedFallbackKeyTypes: List<String>?,
+            nextBatch: String?)
 
     suspend fun onLiveEvent(roomId: String, event: Event, isInitialSync: Boolean, cryptoStoreAggregator: CryptoStoreAggregator?)
     suspend fun onStateEvent(roomId: String, event: Event, cryptoStoreAggregator: CryptoStoreAggregator?) {}

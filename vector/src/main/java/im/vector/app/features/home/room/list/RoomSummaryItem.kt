@@ -127,9 +127,9 @@ abstract class RoomSummaryItem : VectorEpoxyModel<RoomSummaryItem.Holder>(R.layo
         // Mirror unreadCounterBadgeView colors
         holder.unreadIndentIndicator.setBackgroundColor(
                 when {
-                    showHighlighted                             -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, R.attr.colorError)
-                    unreadNotificationCount > 0 || markedUnread -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, R.attr.colorAccent)
-                    hasUnreadMessage                            -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, R.attr.unread_line_unimportant)
+                    showHighlighted                             -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, com.google.android.material.R.attr.colorError)
+                    unreadNotificationCount > 0 || markedUnread -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, com.google.android.material.R.attr.colorAccent)
+                    hasUnreadMessage                            -> ThemeUtils.getColor(holder.unreadIndentIndicator.context, im.vector.lib.ui.styles.R.attr.unread_line_unimportant)
                     else                                        -> 0
                 }
         )
@@ -175,7 +175,7 @@ abstract class RoomSummaryItem : VectorEpoxyModel<RoomSummaryItem.Holder>(R.layo
     private fun renderSelection(holder: Holder, isSelected: Boolean) {
         if (isSelected) {
             holder.avatarCheckedImageView.visibility = View.VISIBLE
-            val backgroundColor = ThemeUtils.getColor(holder.view.context, R.attr.colorPrimary)
+            val backgroundColor = ThemeUtils.getColor(holder.view.context, com.google.android.material.R.attr.colorPrimary)
             val backgroundDrawable = TextDrawable.builder().buildRound("", backgroundColor)
             holder.avatarImageView.setImageDrawable(backgroundDrawable)
         } else {

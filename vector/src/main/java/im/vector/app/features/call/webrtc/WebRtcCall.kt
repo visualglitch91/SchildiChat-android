@@ -40,6 +40,7 @@ import im.vector.app.features.session.coroutineScope
 import im.vector.app.features.settings.VectorPreferences
 import im.vector.lib.core.utils.flow.chunk
 import im.vector.lib.core.utils.timer.CountUpTimer
+import im.vector.lib.strings.CommonStrings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -308,7 +309,7 @@ class WebRtcCall(
                 add(
                         PeerConnection
                                 .IceServer
-                                .builder("stun:" + stringProvider.getString(R.string.fallback_stun_server_url))
+                                .builder("stun:" + stringProvider.getString(im.vector.app.config.R.string.fallback_stun_server_url))
                                 .createIceServer()
                 )
             }

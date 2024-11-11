@@ -69,6 +69,13 @@
 
         <im.vector.app.core.preference.VectorSwitchPreference
             android:defaultValue="false"
+            android:key="SETTINGS_SPACE_PAGER_BAR_PREFER_SPACE"
+            android:dependency="SETTINGS_ENABLE_SPACE_PAGER"
+            android:title="@string/settings_space_pager_prefer_space_1"
+            android:summary="@string/settings_space_pager_prefer_space_1_summary" />
+
+        <im.vector.app.core.preference.VectorSwitchPreference
+            android:defaultValue="false"
             android:key="SETTINGS_SHOW_OPEN_ANONYMOUS"
             android:title="@string/settings_show_open_anonymous"
             android:summary="@string/settings_show_open_anonymous_summary" />

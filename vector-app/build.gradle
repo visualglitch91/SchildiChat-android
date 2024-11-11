@@ -37,9 +37,9 @@ ext.versionMinor = 6
 // Note: even values are reserved for regular release, odd values for hotfix release.
 // When creating a hotfix, you should decrease the value, since the current value
 // is the value for the next regular release.
-ext.versionPatch = 5
+ext.versionPatch = 22
 
-ext.scVersion = 71
+ext.scVersion = 81
 
 static def getGitTimestamp() {
     def cmd = 'git show -s --format=%ct'
@@ -69,10 +69,8 @@ def getVersionCode() {
 
 def getNightlyUniversalApkPath() {
     def taskNames = gradle.getStartParameter().taskNames.toString()
-    if(taskNames.contains("RustCryptoNightly")) {
-        return "vector-app/build/outputs/apk/gplayRustCrypto/nightly/vector-gplay-rustCrypto-universal-nightly.apk"
-    } else if (taskNames.contains("KotlinCryptoNightly")) {
-        return "vector-app/build/outputs/apk/gplayKotlinCrypto/nightly/vector-gplay-kotlinCrypto-universal-nightly.apk"
+    if(taskNames.contains("Nightly")) {
+        return "vector-app/build/outputs/apk/gplay/nightly/vector-gplay-universal-nightly.apk"
     } else {
         return ""
     }
@@ -156,8 +154,8 @@ android {
         renderscriptTargetApi 24
         renderscriptSupportModeEnabled true
 
-        versionCode 40101210
-        versionName "1.6.5.sc71"
+        versionCode 40101310
+        versionName "1.6.22.sc81"
 
         // Generate a random app task affinity
         manifestPlaceholders = [appTaskAffinitySuffix: "H_${gitRevision()}"]
@@ -252,7 +250,7 @@ android {
             resValue "string", "app_name", "SchildiChat dbg"
 
             if (project.hasProperty("coverage")) {
-                testCoverageEnabled = coverage == "true"
+                testCoverageEnabled = project.coverage == "true"
             }
         }
 
@@ -309,7 +307,7 @@ android {
         }
     }
 
-    flavorDimensions "store", "crypto"
+    flavorDimensions = ["store"]
 
     productFlavors {
         gplay {
@@ -319,36 +317,19 @@ android {
             }
 
             dimension "store"
-            versionName "1.6.5.sc71"
+            versionName "1.6.22.sc81"
             buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"G\""
             buildConfigField "String", "FLAVOR_DESCRIPTION", "\"GooglePlay\""
         }
 
         fdroid {
             dimension "store"
-            versionName "1.6.5.sc71"
+            versionName "1.6.22.sc81"
             buildConfigField "String", "SHORT_FLAVOR_DESCRIPTION", "\"F\""
             buildConfigField "String", "FLAVOR_DESCRIPTION", "\"FDroid\""
             isDefault = true
         }
 
-        kotlinCrypto {
-            dimension "crypto"
-            // versionName "1.6.5.sc71"
-            buildConfigField "String", "CRYPTO_FLAVOR_DESCRIPTION", "\"olm-crypto\""
-//            buildConfigField "String", "FLAVOR_DESCRIPTION", "\"KotlinCrypto\""
-        }
-        rustCrypto {
-            dimension "crypto"
-            isDefault = true
-            // applicationIdSuffix ".corroded"
-            // versionNameSuffix "-R"
-            // resValue "string", "app_name", "ER"
-
-//            // versionName "1.6.5.sc71"
-            buildConfigField "String", "CRYPTO_FLAVOR_DESCRIPTION", "\"rust-crypto\""
-//            buildConfigField "String", "FLAVOR_DESCRIPTION", "\"RustCrypto\""
-        }
     }
 
     variantFilter { variant ->
@@ -361,7 +342,7 @@ android {
         }
     }
 
-    lintOptions {
+    lint {
         lintConfig file("../tools/lint/lint.xml")
 
         checkDependencies true
@@ -374,7 +355,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = versions.jvmTarget
         freeCompilerArgs += [
                 "-opt-in=kotlin.RequiresOptIn",
                 // Fixes false positive "This is an internal Mavericks API. It is not intended for external use."
@@ -389,6 +370,13 @@ android {
 
     buildFeatures {
         viewBinding true
+        buildConfig true
+    }
+
+    packaging {
+        pickFirsts.add("META-INF/LICENSE.md")
+        pickFirsts.add("META-INF/LICENSE-notice.md")
+        pickFirsts.add("MANIFEST.MF")
     }
 }
 
@@ -396,6 +384,7 @@ dependencies {
     implementation project(':vector')
     implementation project(':vector-config')
     implementation project(':library:core-utils')
+    implementation project(':library:ui-strings')
     debugImplementation project(':library:external:span')
     debugImplementation project(':library:ui-styles')
     implementation libs.dagger.hilt
@@ -410,9 +399,9 @@ dependencies {
         exclude group: 'com.facebook.fbjni', module: 'fbjni'
     }
     debugImplementation 'com.facebook.soloader:soloader:0.10.5'
-    debugImplementation "com.kgurgul.flipper:flipper-realm-android:2.2.0"
+    debugImplementation "com.kgurgul.flipper:flipper-realm-android:2.3.0"
 
-    gplayImplementation "com.google.android.gms:play-services-location:21.0.1"
+    gplayImplementation "com.google.android.gms:play-services-location:21.3.0"
     // UnifiedPush gplay flavor only
     gplayImplementation platform(libs.google.firebaseBom)
     gplayImplementation(libs.google.messaging) {
@@ -428,7 +417,7 @@ dependencies {
     //nightlyImplementation libs.google.appdistribution
 
     // OSS License, gplay flavor only
-    gplayImplementation 'com.google.android.gms:play-services-oss-licenses:17.0.1'
+    gplayImplementation 'com.google.android.gms:play-services-oss-licenses:17.1.0'
     kapt libs.dagger.hiltCompiler
     ksp libs.airbnb.epoxyProcessor
 

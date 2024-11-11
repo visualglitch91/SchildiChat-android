@@ -16,11 +16,11 @@
 
 package org.matrix.android.sdk.internal.auth.login
 
-import android.util.Patterns
 import org.matrix.android.sdk.api.auth.LoginType
 import org.matrix.android.sdk.api.auth.login.LoginProfileInfo
 import org.matrix.android.sdk.api.auth.login.LoginWizard
 import org.matrix.android.sdk.api.auth.registration.RegisterThreePid
+import org.matrix.android.sdk.api.extensions.isEmail
 import org.matrix.android.sdk.api.session.Session
 import org.matrix.android.sdk.api.util.JsonDict
 import org.matrix.android.sdk.internal.auth.AuthAPI
@@ -35,6 +35,7 @@ import org.matrix.android.sdk.internal.auth.registration.RegisterAddThreePidTask
 import org.matrix.android.sdk.internal.network.executeRequest
 import org.matrix.android.sdk.internal.session.content.DefaultContentUrlResolver
 import org.matrix.android.sdk.internal.session.contentscanner.DisabledContentScannerService
+import org.matrix.android.sdk.internal.session.media.IsAuthenticatedMediaSupported
 
 internal class DefaultLoginWizard(
         private val authAPI: AuthAPI,
@@ -45,8 +46,14 @@ internal class DefaultLoginWizard(
     private var pendingSessionData: PendingSessionData = pendingSessionStore.getPendingSessionData() ?: error("Pending session data should exist here")
 
     private val getProfileTask: GetProfileTask = DefaultGetProfileTask(
-            authAPI,
-            DefaultContentUrlResolver(pendingSessionData.homeServerConnectionConfig, DisabledContentScannerService())
+            authAPI = authAPI,
+            contentUrlResolver = DefaultContentUrlResolver(
+                    homeServerConnectionConfig = pendingSessionData.homeServerConnectionConfig,
+                    scannerService = DisabledContentScannerService(),
+                    isAuthenticatedMediaSupported = object : IsAuthenticatedMediaSupported {
+                        override fun invoke() = false
+                    }
+            )
     )
 
     override suspend fun getProfileInfo(matrixId: String): LoginProfileInfo {
@@ -59,7 +66,7 @@ internal class DefaultLoginWizard(
             initialDeviceName: String,
             deviceId: String?
     ): Session {
-        val loginParams = if (Patterns.EMAIL_ADDRESS.matcher(login).matches()) {
+        val loginParams = if (login.isEmail()) {
             PasswordLoginParams.thirdPartyIdentifier(
                     medium = ThreePidMedium.EMAIL,
                     address = login,

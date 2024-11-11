@@ -23,9 +23,9 @@ import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import im.vector.app.R
 import im.vector.app.core.utils.checkPermissions
 import im.vector.app.features.settings.VectorPreferences
+import im.vector.lib.strings.CommonStrings
 import org.matrix.android.sdk.api.util.BuildVersionSdkIntProvider
 import javax.inject.Inject
 
@@ -50,11 +50,12 @@ class NotificationPermissionManager @Inject constructor(
     ) {
         if (!sdkIntProvider.isAtLeast(Build.VERSION_CODES.TIRAMISU)) return
         if (!vectorPreferences.areNotificationEnabledForDevice() && !ignorePreference) return
+        timber.log.Timber.tag("SC_NP_DBG").i("Checking notification permission")
         checkPermissions(
                 listOf(Manifest.permission.POST_NOTIFICATIONS),
                 activity,
                 activityResultLauncher = requestPermissionLauncher,
-                if (showRationale) R.string.permissions_rationale_msg_notification else 0
+                if (showRationale) CommonStrings.permissions_rationale_msg_notification else 0
         )
     }
 

@@ -28,7 +28,7 @@ import com.google.common.base.Strings.isNullOrEmpty
 import com.squareup.moshi.Types
 import de.spiritcroc.matrixsdk.util.DbgUtil
 import im.vector.app.BuildConfig
-import im.vector.app.R
+import im.vector.app.config.R
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.extensions.getAllChildFragments
 import im.vector.app.core.extensions.toOnOff
@@ -271,7 +271,7 @@ class BugReporter @Inject constructor(
                 activeSessionHolder.getSafeActiveSession()?.let { session ->
                     userId = session.myUserId
                     deviceId = session.sessionParams.deviceId
-                    olmVersion = session.cryptoService().getCryptoVersion(context, true)
+                    olmVersion = Matrix.getCryptoVersion(true)
                 }
 
                 if (!mIsCancelled) {
@@ -569,12 +569,12 @@ class BugReporter @Inject constructor(
         // As per https://github.com/matrix-org/rageshake
         // app: Identifier for the application (eg 'riot-web').
         // Should correspond to a mapping configured in the configuration file for github issue reporting to work.
-        // (see R.string.bug_report_url for configured RS server)
+        // (see CommonStrings.bug_report_url for configured RS server)
         return context.getString(
                 when (reportType) {
                     ReportType.AUTO_UISI_SENDER,
-                    ReportType.AUTO_UISI -> R.string.bug_report_auto_uisi_app_name
-                    else -> R.string.bug_report_app_name
+                    ReportType.AUTO_UISI -> im.vector.app.config.R.string.bug_report_auto_uisi_app_name
+                    else -> im.vector.app.config.R.string.bug_report_app_name
                 }
         )
     }

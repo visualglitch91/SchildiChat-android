@@ -25,7 +25,6 @@ import com.airbnb.mvrx.Uninitialized
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import im.vector.app.R
 import im.vector.app.core.di.MavericksAssistedViewModelFactory
 import im.vector.app.core.di.hiltMavericksViewModelFactory
 import im.vector.app.core.mvrx.runCatchingToAsync
@@ -35,6 +34,7 @@ import im.vector.app.features.createdirect.DirectRoomHelper
 import im.vector.app.features.displayname.getBestName
 import im.vector.app.features.home.room.detail.timeline.helper.MatrixItemColorProvider
 import im.vector.app.features.powerlevel.PowerLevelsFlowFactory
+import im.vector.lib.strings.CommonStrings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
@@ -161,6 +161,7 @@ class RoomMemberProfileViewModel @AssistedInject constructor(
         when (action) {
             is RoomMemberProfileAction.RetryFetchingInfo -> handleRetryFetchProfileInfo()
             is RoomMemberProfileAction.IgnoreUser -> handleIgnoreAction()
+            is RoomMemberProfileAction.ReportUser -> handleReportAction()
             is RoomMemberProfileAction.VerifyUser -> prepareVerification()
             is RoomMemberProfileAction.ShareRoomMemberProfile -> handleShareRoomMemberProfile()
             is RoomMemberProfileAction.SetPowerLevel -> handleSetPowerLevel(action)
@@ -169,6 +170,30 @@ class RoomMemberProfileViewModel @AssistedInject constructor(
             RoomMemberProfileAction.InviteUser -> handleInviteAction()
             is RoomMemberProfileAction.SetUserColorOverride -> handleSetUserColorOverride(action)
             is RoomMemberProfileAction.OpenOrCreateDm -> handleOpenOrCreateDm(action)
+        }
+    }
+
+    private fun handleReportAction() {
+        room ?: return
+        viewModelScope.launch {
+            val event = try {
+                // The API needs an Event, use user state event if available (it should always be available)
+                val userStateEventId = room.stateService()
+                        .getStateEvent(EventType.STATE_ROOM_MEMBER, QueryStringValue.Equals(initialState.userId))
+                        ?.eventId
+                // If not found fallback to the latest event
+                val eventId = (userStateEventId ?: room.roomSummary()?.latestPreviewableEvent?.eventId) ?: return@launch
+                room.reportingService()
+                        .reportContent(
+                                eventId = eventId,
+                                score = -100,
+                                reason = "Reporting user ${initialState.userId}"
+                        )
+                RoomMemberProfileViewEvents.OnReportActionSuccess
+            } catch (failure: Throwable) {
+                RoomMemberProfileViewEvents.Failure(failure)
+            }
+            _viewEvents.post(event)
         }
     }
 
@@ -377,10 +402,10 @@ class RoomMemberProfileViewModel @AssistedInject constructor(
             val roomName = roomSummary.toMatrixItem().getBestName()
             val powerLevelsHelper = PowerLevelsHelper(powerLevelsContent)
             when (val userPowerLevel = powerLevelsHelper.getUserRole(initialState.userId)) {
-                Role.Admin -> stringProvider.getString(R.string.room_member_power_level_admin_in, roomName)
-                Role.Moderator -> stringProvider.getString(R.string.room_member_power_level_moderator_in, roomName)
-                Role.Default -> stringProvider.getString(R.string.room_member_power_level_default_in, roomName)
-                is Role.Custom -> stringProvider.getString(R.string.room_member_power_level_custom_in, userPowerLevel.value, roomName)
+                Role.Admin -> stringProvider.getString(CommonStrings.room_member_power_level_admin_in, roomName)
+                Role.Moderator -> stringProvider.getString(CommonStrings.room_member_power_level_moderator_in, roomName)
+                Role.Default -> stringProvider.getString(CommonStrings.room_member_power_level_default_in, roomName)
+                is Role.Custom -> stringProvider.getString(CommonStrings.room_member_power_level_custom_in, userPowerLevel.value, roomName)
             }
         }.execute {
             copy(userPowerLevelString = it)

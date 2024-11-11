@@ -34,7 +34,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
-import im.vector.app.R
 import im.vector.app.features.themes.ThemeUtils
 import org.matrix.android.sdk.api.extensions.orFalse
 import timber.log.Timber
@@ -111,7 +110,7 @@ open class VectorPreference : Preference {
                 val icon = holder.findViewById(android.R.id.icon) as? ImageView
 
                 icon?.let {
-                    val color = ThemeUtils.getColor(context, R.attr.vctr_content_secondary)
+                    val color = ThemeUtils.getColor(context, im.vector.lib.ui.styles.R.attr.vctr_content_secondary)
                     ImageViewCompat.setImageTintList(it, ColorStateList.valueOf(color))
                 }
             }
@@ -120,7 +119,7 @@ open class VectorPreference : Preference {
             currentHighlightAnimator?.cancel()
             if (isHighlighted) {
                 val colorFrom = Color.TRANSPARENT
-                val colorTo = ThemeUtils.getColor(itemView.context, R.attr.colorPrimary)
+                val colorTo = ThemeUtils.getColor(itemView.context, com.google.android.material.R.attr.colorPrimary)
                 currentHighlightAnimator = ValueAnimator.ofObject(ArgbEvaluator(), colorFrom, colorTo).apply {
                     duration = 250 // milliseconds
                     addUpdateListener { animator ->
@@ -144,7 +143,7 @@ open class VectorPreference : Preference {
             } else {
                 val bgDrawable = TypedValue()
                 context.theme.resolveAttribute(android.R.attr.selectableItemBackground, bgDrawable, true)
-                ViewCompat.setBackground(itemView, ContextCompat.getDrawable(context, bgDrawable.resourceId))
+                itemView.background = ContextCompat.getDrawable(context, bgDrawable.resourceId)
             }
         } catch (e: Exception) {
             Timber.e(e, "onBindView")

@@ -26,6 +26,8 @@ import im.vector.app.core.epoxy.ClickListener
 import im.vector.app.core.epoxy.VectorEpoxyModel
 import im.vector.app.core.epoxy.onClick
 import im.vector.app.features.themes.ThemeUtils
+import im.vector.lib.strings.CommonPlurals
+import im.vector.lib.strings.CommonStrings
 
 @EpoxyModelClass // Re-using item_autocomplete_emoji to avoid class-cast exceptions like https://github.com/SchildiChat/SchildiChat-android-rageshakes/issues/1040
 abstract class AutocompleteExpandItem : VectorEpoxyModel<AutocompleteEmojiItem.Holder>(R.layout.item_autocomplete_emoji) {
@@ -43,13 +45,13 @@ abstract class AutocompleteExpandItem : VectorEpoxyModel<AutocompleteEmojiItem.H
         holder.emoteImage.isVisible = true
         holder.emojiNameText.isVisible = true
         holder.emoteImage.setImageResource(R.drawable.ic_expand_more)
-        holder.emoteImage.imageTintList = ColorStateList.valueOf(ThemeUtils.getColor(holder.emoteImage.context, R.attr.vctr_content_secondary))
+        holder.emoteImage.imageTintList = ColorStateList.valueOf(ThemeUtils.getColor(holder.emoteImage.context, im.vector.lib.ui.styles.R.attr.vctr_content_secondary))
         holder.emojiText.typeface = Typeface.DEFAULT
         count.let {
             if (it == null) {
-                holder.emojiNameText.setText(R.string.room_profile_section_more)
+                holder.emojiNameText.setText(CommonStrings.room_profile_section_more)
             } else {
-                holder.emojiNameText.text = holder.emojiNameText.resources.getQuantityString(R.plurals.message_reaction_show_more, it, it)
+                holder.emojiNameText.text = holder.emojiNameText.resources.getQuantityString(CommonPlurals.message_reaction_show_more, it, it)
             }
         }
         holder.emojiKeywordText.isVisible = false

@@ -32,6 +32,7 @@ import io.noties.markwon.core.CoreProps;
 import io.noties.markwon.html.HtmlTag;
 import io.noties.markwon.html.MarkwonHtmlRenderer;
 import io.noties.markwon.html.TagHandler;
+import timber.log.Timber;
 
 /**
  * Copied from https://github.com/noties/Markwon/blob/master/markwon-html/src/main/java/io/noties/markwon/html/tag/ListHandler.java#L44
@@ -63,8 +64,17 @@ public class ListHandlerWithInitialStart extends TagHandler {
         final RenderProps renderProps = visitor.renderProps();
         final SpanFactory spanFactory = configuration.spansFactory().get(ListItem.class);
 
-        // Modified line
-        int number = Integer.parseInt(block.attributes().containsKey(START_KEY) ? block.attributes().get(START_KEY) : "1");
+        // Modified part start
+        int number;
+        try {
+            number = Integer.parseInt(block.attributes().containsKey(START_KEY) ? block.attributes().get(START_KEY) : "1");
+        } catch (Exception e) {
+            // On repeated render, we get `java.lang.NumberFormatException: For input string: ""`
+            // See also https://github.com/SchildiChat/SchildiChat-android/issues/206
+            //Timber.v(e, "Failed to read list start");
+            number = 1;
+        }
+        // Modified part end
 
         final int bulletLevel = currentBulletListLevel(block);
 

@@ -21,7 +21,6 @@ import org.matrix.android.sdk.api.session.permalinks.PermalinkService
 import org.matrix.android.sdk.api.session.room.model.RoomEmoteContent.Companion.USAGE_STICKER
 import org.matrix.android.sdk.api.session.room.send.MatrixItemSpan
 import org.matrix.android.sdk.api.util.MatrixItem
-import org.matrix.android.sdk.internal.session.displayname.DisplayNameResolver
 import java.util.Collections
 import javax.inject.Inject
 
@@ -31,7 +30,6 @@ import javax.inject.Inject
  */
 internal class TextPillsUtils @Inject constructor(
         private val mentionLinkSpecComparator: MentionLinkSpecComparator,
-        private val displayNameResolver: DisplayNameResolver,
         private val permalinkService: PermalinkService
 ) {
 
@@ -79,7 +77,7 @@ internal class TextPillsUtils @Inject constructor(
                     val imgHtml = "<img data-mx-emoticon height=\"32\" src=\"${urlSpan.matrixItem.avatarUrl}\" title=\":${urlSpan.matrixItem.displayName}:\" alt=\":${urlSpan.matrixItem.displayName}:\">"
                     append(imgHtml)
                 } else {
-                    append(String.format(template, urlSpan.matrixItem.id, displayNameResolver.getBestName(urlSpan.matrixItem)))
+                    append(String.format(template, urlSpan.matrixItem.id, urlSpan.matrixItem.id))
                 }
                 currIndex = end
             }

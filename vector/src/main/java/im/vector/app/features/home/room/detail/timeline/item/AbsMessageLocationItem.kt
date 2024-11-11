@@ -38,6 +38,7 @@ import im.vector.app.features.home.room.detail.timeline.style.TimelineMessageLay
 import im.vector.app.features.home.room.detail.timeline.style.granularRoundedCorners
 import im.vector.app.features.location.MapLoadingErrorView
 import im.vector.app.features.location.MapLoadingErrorViewState
+import org.matrix.android.sdk.api.util.MatrixItem
 
 abstract class AbsMessageLocationItem<H : AbsMessageLocationItem.Holder>(
         @LayoutRes layoutId: Int = R.layout.item_timeline_event_base
@@ -47,7 +48,7 @@ abstract class AbsMessageLocationItem<H : AbsMessageLocationItem.Holder>(
     var locationUrl: String? = null
 
     @EpoxyAttribute
-    var locationUserId: String? = null
+    var pinMatrixItem: MatrixItem? = null
 
     @EpoxyAttribute
     var mapWidth: Int = 0
@@ -87,7 +88,7 @@ abstract class AbsMessageLocationItem<H : AbsMessageLocationItem.Holder>(
                     override fun onLoadFailed(
                             e: GlideException?,
                             model: Any?,
-                            target: Target<Drawable>?,
+                            target: Target<Drawable>,
                             isFirstResource: Boolean
                     ): Boolean {
                         holder.staticMapPinImageView.setImageDrawable(null)
@@ -99,13 +100,13 @@ abstract class AbsMessageLocationItem<H : AbsMessageLocationItem.Holder>(
                     }
 
                     override fun onResourceReady(
-                            resource: Drawable?,
-                            model: Any?,
+                            resource: Drawable,
+                            model: Any,
                             target: Target<Drawable>?,
-                            dataSource: DataSource?,
+                            dataSource: DataSource,
                             isFirstResource: Boolean
                     ): Boolean {
-                        locationPinProvider?.create(locationUserId) { pinDrawable ->
+                        locationPinProvider?.create(pinMatrixItem) { pinDrawable ->
                             // we are not using Glide since it does not display it correctly when there is no user photo
                             holder.staticMapPinImageView.setImageDrawable(pinDrawable)
                         }

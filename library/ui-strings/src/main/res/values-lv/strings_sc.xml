@@ -178,4 +178,7 @@
     <string name="settings_single_overview">Apvienots tērzēšanas pārskats</string>
     <string name="settings_room_unread_kind_dm">Tiešo tērzēšanu priekšskatījuma saturs</string>
     <string name="settings_enable_space_pager_summary">Ļaut pārslēgties starp pamata vietām ar gulenisku pavilkšanu tērzēšanu sarakstā</string>
+    <string name="settings_space_pager_prefer_space_1">Dot priekšroku zemākai pamata vietai</string>
+    <string name="settings_space_pager_prefer_space_1_summary">Rādīt vietas apakšējā vietu joslā, kuras ir pārvietotas uz pamata vietu saraksta augšgalu</string>
+    <string name="settings_integrations_scalar_warning">⚠️ Šis iestatījums pēc noklusējuma (ja vien serverī nav norādīts citādi) iespējo piekļuvi \"scalar\", Element iekļaušanas pārvaldniekam, kam, diemžēl, ir slēgts kods, tas ir, tā pirmkods nav atvērts un cilvēki vai SchildiChat izstrādātāji nevar to pārbaudīt.</string>
 </resources>

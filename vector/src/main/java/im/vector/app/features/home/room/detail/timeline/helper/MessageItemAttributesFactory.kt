@@ -17,7 +17,6 @@ package im.vector.app.features.home.room.detail.timeline.helper
 
 import de.spiritcroc.util.ThumbnailGenerationVideoDownloadDecider
 import im.vector.app.EmojiCompatFontProvider
-import im.vector.app.R
 import im.vector.app.core.resources.StringProvider
 import im.vector.app.core.resources.UserPreferencesProvider
 import im.vector.app.features.home.AvatarRenderer
@@ -27,6 +26,7 @@ import im.vector.app.features.home.room.detail.timeline.format.DisplayableEventF
 import im.vector.app.features.home.room.detail.timeline.item.AbsMessageItem
 import im.vector.app.features.home.room.detail.timeline.item.MessageInformationData
 import im.vector.app.features.home.room.detail.timeline.item.ReactionsSummaryEvents
+import im.vector.lib.strings.CommonStrings
 import org.matrix.android.sdk.api.session.threads.ThreadDetails
 import javax.inject.Inject
 
@@ -68,7 +68,7 @@ class MessageItemAttributesFactory @Inject constructor(
                 threadCallback = callback,
                 readReceiptsCallback = callback,
                 emojiTypeFace = emojiCompatFontProvider.typeface,
-                decryptionErrorMessage = stringProvider.getString(R.string.encrypted_message),
+                decryptionErrorMessage = stringProvider.getString(CommonStrings.encrypted_message),
                 threadSummaryFormatted = displayableEventFormatter.formatThreadSummary(threadDetails?.threadSummaryLatestEvent).toString(),
                 threadDetails = threadDetails,
                 reactionsSummaryEvents = reactionsSummaryEvents,

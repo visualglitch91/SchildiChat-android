@@ -29,7 +29,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.PreferenceManager
-import im.vector.app.R
+import im.vector.lib.ui.styles.R
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicReference
 
@@ -373,8 +373,8 @@ object ThemeUtils {
                 color.data
             } catch (e: Exception) {
                 when (colorAttribute) {
-                    android.R.attr.colorAccent           -> ContextCompat.getColor(c, R.color.accent_sc)
-                    R.attr.colorAccent                   -> ContextCompat.getColor(c, R.color.accent_sc)
+                    android.R.attr.colorAccent -> ContextCompat.getColor(c, R.color.accent_sc)
+                    com.google.android.material.R.attr.colorAccent -> ContextCompat.getColor(c, R.color.accent_sc)
                     else                                 -> {
                         Timber.e(e, "Unable to get color")
                         ContextCompat.getColor(c, android.R.color.holo_red_dark)

@@ -29,6 +29,7 @@ import android.os.HandlerThread
 import android.os.StrictMode
 import android.util.Log
 import android.view.Gravity
+import androidx.core.content.ContextCompat
 import androidx.core.provider.FontRequest
 import androidx.core.provider.FontsContractCompat
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -55,7 +56,9 @@ import im.vector.app.core.debug.LeakDetector
 import im.vector.app.core.di.ActiveSessionHolder
 import im.vector.app.core.pushers.FcmHelper
 import im.vector.app.core.resources.BuildMeta
+import im.vector.app.features.analytics.DecryptionFailureTracker
 import im.vector.app.features.analytics.VectorAnalytics
+import im.vector.app.features.analytics.plan.SuperProperties
 import im.vector.app.features.call.webrtc.WebRtcCallManager
 import im.vector.app.features.configuration.VectorConfiguration
 import im.vector.app.features.invite.InvitesAcceptor
@@ -104,6 +107,7 @@ class VectorApplication :
     @Inject lateinit var callManager: WebRtcCallManager
     @Inject lateinit var invitesAcceptor: InvitesAcceptor
     @Inject lateinit var autoRageShaker: AutoRageShaker
+    @Inject lateinit var decryptionFailureTracker: DecryptionFailureTracker
     @Inject lateinit var vectorFileLogger: VectorFileLogger
     @Inject lateinit var vectorAnalytics: VectorAnalytics
     @Inject lateinit var flipperProxy: FlipperProxy
@@ -112,6 +116,7 @@ class VectorApplication :
     @Inject lateinit var buildMeta: BuildMeta
     @Inject lateinit var leakDetector: LeakDetector
     @Inject lateinit var vectorLocale: VectorLocale
+    @Inject lateinit var webRtcCallManager: WebRtcCallManager
 
     // font thread handler
     private var fontThreadHandler: Handler? = null
@@ -131,8 +136,16 @@ class VectorApplication :
         appContext = this
         flipperProxy.init(matrix)
         vectorAnalytics.init()
+        vectorAnalytics.updateSuperProperties(
+                SuperProperties(
+                        appPlatform = SuperProperties.AppPlatform.EA,
+                        cryptoSDK = SuperProperties.CryptoSDK.Rust,
+                        cryptoSDKVersion = Matrix.getCryptoVersion(longFormat = false)
+                )
+        )
         invitesAcceptor.initialize()
         autoRageShaker.initialize()
+        decryptionFailureTracker.start()
         vectorUncaughtExceptionHandler.activate()
 
         // SC SDK helper initialization
@@ -175,20 +188,37 @@ class VectorApplication :
         notificationUtils.createNotificationChannels()
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
+            private var stopBackgroundSync = false
+
             override fun onResume(owner: LifecycleOwner) {
                 Timber.i("App entered foreground")
                 fcmHelper.onEnterForeground(activeSessionHolder)
-                activeSessionHolder.getSafeActiveSessionAsync {
-                    it?.syncService()?.stopAnyBackgroundSync()
+                if (webRtcCallManager.currentCall.get() == null) {
+                    Timber.i("App entered foreground and no active call: stop any background sync")
+                    activeSessionHolder.getSafeActiveSessionAsync {
+                        it?.syncService()?.stopAnyBackgroundSync()
+                    }
+                } else {
+                    Timber.i("App entered foreground: there is an active call, set stopBackgroundSync to true")
+                    stopBackgroundSync = true
                 }
-//                activeSessionHolder.getSafeActiveSession()?.also {
-//                    it.syncService().stopAnyBackgroundSync()
-//                }
             }
 
             override fun onPause(owner: LifecycleOwner) {
                 Timber.i("App entered background")
                 fcmHelper.onEnterBackground(activeSessionHolder)
+
+                if (stopBackgroundSync) {
+                    if (webRtcCallManager.currentCall.get() == null) {
+                        Timber.i("App entered background: stop any background sync")
+                        activeSessionHolder.getSafeActiveSessionAsync {
+                            it?.syncService()?.stopAnyBackgroundSync()
+                        }
+                        stopBackgroundSync = false
+                    } else {
+                        Timber.i("App entered background: there is an active call do not stop background sync")
+                    }
+                }
             }
         })
         ProcessLifecycleOwner.get().lifecycle.addObserver(spaceStateHandler)
@@ -196,13 +226,16 @@ class VectorApplication :
         ProcessLifecycleOwner.get().lifecycle.addObserver(callManager)
         // This should be done as early as possible
         // initKnownEmojiHashSet(appContext)
-
-        applicationContext.registerReceiver(powerKeyReceiver, IntentFilter().apply {
-            // Looks like i cannot receive OFF, if i don't have both ON and OFF
-            addAction(Intent.ACTION_SCREEN_OFF)
-            addAction(Intent.ACTION_SCREEN_ON)
-        })
-
+        ContextCompat.registerReceiver(
+                applicationContext,
+                powerKeyReceiver,
+                IntentFilter().apply {
+                    // Looks like i cannot receive OFF, if i don't have both ON and OFF
+                    addAction(Intent.ACTION_SCREEN_OFF)
+                    addAction(Intent.ACTION_SCREEN_ON)
+                },
+                ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
         EmojiManager.install(GoogleEmojiProvider())
 
         // Initialize Mapbox before inflating mapViews

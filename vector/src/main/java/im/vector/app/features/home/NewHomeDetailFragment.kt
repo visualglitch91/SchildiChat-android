@@ -63,6 +63,7 @@ import im.vector.app.features.spaces.SpaceListBottomSheet
 import im.vector.app.features.workers.signout.BannerState
 import im.vector.app.features.workers.signout.ServerBackupStatusAction
 import im.vector.app.features.workers.signout.ServerBackupStatusViewModel
+import im.vector.lib.strings.CommonStrings
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.matrix.android.sdk.api.session.crypto.model.DeviceInfo
@@ -263,12 +264,12 @@ class NewHomeDetailFragment :
         alertManager.postVectorAlert(
                 VerificationVectorAlert(
                         uid = uid,
-                        title = getString(R.string.new_session),
-                        description = getString(R.string.verify_this_session, newest.displayName ?: newest.deviceId ?: ""),
+                        title = getString(CommonStrings.new_session),
+                        description = getString(CommonStrings.verify_this_session, newest.displayName ?: newest.deviceId ?: ""),
                         iconId = R.drawable.ic_shield_warning
                 ).apply {
                     viewBinder = VerificationVectorAlert.ViewBinder(user, avatarRenderer)
-                    colorInt = colorProvider.getColorFromAttribute(R.attr.colorPrimary)
+                    colorInt = colorProvider.getColorFromAttribute(com.google.android.material.R.attr.colorPrimary)
                     contentAction = Runnable {
                         (weakCurrentActivity?.get() as? VectorBaseActivity<*>)?.let { vectorBaseActivity ->
                             vectorBaseActivity.navigator
@@ -292,8 +293,8 @@ class NewHomeDetailFragment :
         alertManager.postVectorAlert(
                 VerificationVectorAlert(
                         uid = uid,
-                        title = getString(R.string.review_unverified_sessions_title),
-                        description = getString(R.string.review_unverified_sessions_description),
+                        title = getString(CommonStrings.review_unverified_sessions_title),
+                        description = getString(CommonStrings.review_unverified_sessions_description),
                         iconId = R.drawable.ic_shield_warning,
                         shouldBeDisplayedIn = { activity ->
                             // do not show when there is an ongoing verification flow
@@ -304,7 +305,7 @@ class NewHomeDetailFragment :
                         }
                 ).apply {
                     viewBinder = VerificationVectorAlert.ViewBinder(user, avatarRenderer)
-                    colorInt = colorProvider.getColorFromAttribute(R.attr.colorPrimary)
+                    colorInt = colorProvider.getColorFromAttribute(com.google.android.material.R.attr.colorPrimary)
                     contentAction = Runnable {
                         (weakCurrentActivity?.get() as? VectorBaseActivity<*>)?.let { activity ->
                             // mark as ignored to avoid showing it again
@@ -324,7 +325,7 @@ class NewHomeDetailFragment :
     }
 
     private fun onSpaceChange(spaceSummary: RoomSummary?) {
-        views.collapsingToolbar.title = (spaceSummary?.displayName ?: getString(R.string.all_chats))
+        views.collapsingToolbar.title = (spaceSummary?.displayName ?: getString(CommonStrings.all_chats))
     }
 
     private fun setupKeysBackupBanner() {

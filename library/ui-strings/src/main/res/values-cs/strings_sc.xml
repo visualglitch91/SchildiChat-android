@@ -104,7 +104,7 @@
     <string name="settings_aggregate_unread_counts_summary">Zda počítat nepřečtené chaty místo jednotlivých zpráv v kategoriích prostorů a místností</string>
     <string name="settings_jump_to_bottom_on_send">Přejít na konec po odesílání</string>
     <string name="settings_jump_to_bottom_on_send_summary">Automaticky posunout dolů při odesílání zprávy</string>
-    <string name="settings_include_space_members_as_rooms">Zorbazit lidi v prostorech</string>
+    <string name="settings_include_space_members_as_rooms">Zobrazit lidi v prostorech</string>
     <string name="settings_include_space_members_as_rooms_summary">Pokud je zakázáno, můžete stále přidávat přímé zprávy do osobních prostorů. Pokud je povoleno, automaticky se zobrazí všichni, kteří jsou členy daného prostoru.</string>
     <string name="room_list_quick_actions_open_at_bottom">Otevřít na posledních zprávách</string>
     <string name="settings_enable_space_pager">Přejetím po seznamu chatů změnit prostor</string>
@@ -181,4 +181,6 @@
     <string name="settings_clear_highlight_on_scroll_summary">Odstranit zvýraznění zpráv při posouvání</string>
     <string name="settings_call_ringtone_use_default_stun_title">Povolit asistenční server pro zpětné volání</string>
     <string name="settings_integrations_scalar_warning">⚠️ Toto nastavení ve výchozím stavu (pokud není přepsáno v konfiguraci vašeho domovského serveru) umožňuje přístup ke \"scalaru\", integračnímu manažeru Elementu, který je bohužel proprietární, tj. jeho zdrojový kód není otevřený a nemůže být kontrolován veřejností ani vývojáři SchildiChatu.</string>
+    <string name="settings_space_pager_prefer_space_1_summary">Upřednostnit zobrazení prostorů ve spodním pruhu, které jste přesunuli na začátek seznamu kořenových prostorů</string>
+    <string name="settings_space_pager_prefer_space_1">Upřednostnit spodní kořenový prostor</string>
 </resources>

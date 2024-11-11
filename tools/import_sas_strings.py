@@ -35,7 +35,7 @@ if args.verbose:
     print("Argument:")
     print(args)
 
-base_url = "https://raw.githubusercontent.com/matrix-org/matrix-doc/master/data-definitions/sas-emoji.json"
+base_url = "https://raw.githubusercontent.com/matrix-org/matrix-spec/main/data-definitions/sas-emoji.json"
 
 print("Downloading " + base_url + "…")
 
@@ -96,7 +96,8 @@ write_file(os.path.join(data_defs_dir, "values/strings_sas.xml"), default)
 for lang in cumul:
     androidLang = lang\
         .replace("_", "-r")\
-        .replace("zh-rHans", "zh-rCN")
+        .replace("zh-rHans", "zh-rCN") \
+        .replace("zh-rHant", "zh-rTW")
     write_file(os.path.join(data_defs_dir, "values-" + androidLang + "/strings_sas.xml"), cumul[lang])
 
 print()

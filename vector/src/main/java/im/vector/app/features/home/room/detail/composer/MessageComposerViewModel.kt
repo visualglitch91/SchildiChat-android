@@ -23,7 +23,6 @@ import com.airbnb.mvrx.withState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import im.vector.app.R
 import im.vector.app.core.di.MavericksAssistedViewModelFactory
 import im.vector.app.core.di.hiltMavericksViewModelFactory
 import im.vector.app.core.extensions.getVectorLastMessageContent
@@ -52,6 +51,7 @@ import im.vector.app.features.voicebroadcast.model.asVoiceBroadcastEvent
 import im.vector.app.features.voicebroadcast.usecase.GetVoiceBroadcastStateEventLiveUseCase
 import im.vector.app.features.voicebroadcast.voiceBroadcastId
 import im.vector.lib.core.utils.timer.Clock
+import im.vector.lib.strings.CommonStrings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
@@ -153,7 +153,7 @@ class MessageComposerViewModel @AssistedInject constructor(
     }
 
     private fun handleOnTextChanged(action: MessageComposerAction.OnTextChanged) {
-            val needsSendButtonVisibilityUpdate = currentComposerText.isBlank() != action.text.isBlank()
+        val needsSendButtonVisibilityUpdate = currentComposerText.isBlank() != action.text.isBlank()
         currentComposerText = SpannableString(action.text)
         if (needsSendButtonVisibilityUpdate) {
             updateIsSendButtonVisibility(true)
@@ -184,7 +184,8 @@ class MessageComposerViewModel @AssistedInject constructor(
     private fun handleEnterEditMode(room: Room, action: MessageComposerAction.EnterEditMode) {
         room.getTimelineEvent(action.eventId)?.let { timelineEvent ->
             val formatted = vectorPreferences.isRichTextEditorEnabled()
-            setState { copy(sendMode = SendMode.Edit(timelineEvent, timelineEvent.getTextEditableContent(formatted))) }
+            val editableContent = timelineEvent.getTextEditableContent(formatted)
+            setState { copy(sendMode = SendMode.Edit(timelineEvent, editableContent)) }
         }
     }
 
@@ -245,9 +246,8 @@ class MessageComposerViewModel @AssistedInject constructor(
 
     private fun handleSendMessage(room: Room, action: MessageComposerAction.SendMessage) {
         withState { state ->
-            analyticsTracker.capture(state.toAnalyticsComposer()).also {
-                setState { copy(startsThread = false) }
-            }
+            analyticsTracker.capture(state.toAnalyticsComposer())
+            setState { copy(startsThread = false) }
             when (state.sendMode) {
                 is SendMode.Regular -> {
                     when (val parsedCommand = commandParser.parseSlashCommand(
@@ -415,7 +415,7 @@ class MessageComposerViewModel @AssistedInject constructor(
                             popDraft(room)
                         }
                         is ParsedCommand.SendSpoiler -> {
-                            val text = "[${stringProvider.getString(R.string.spoiler)}](${parsedCommand.message})"
+                            val text = "[${stringProvider.getString(CommonStrings.spoiler)}](${parsedCommand.message})"
                             val formattedText = "<span data-mx-spoiler>${parsedCommand.message}</span>"
                             if (state.rootThreadEventId != null) {
                                 room.relationService().replyInThread(
@@ -481,7 +481,7 @@ class MessageComposerViewModel @AssistedInject constructor(
                                 _viewEvents.post(MessageComposerViewEvents.SlashCommandResultOk(parsedCommand))
                                 _viewEvents.post(
                                         MessageComposerViewEvents
-                                                .ShowMessage(stringProvider.getString(R.string.command_description_discard_session_not_handled))
+                                                .ShowMessage(stringProvider.getString(CommonStrings.command_description_discard_session_not_handled))
                                 )
                             }
                         }
@@ -585,7 +585,7 @@ class MessageComposerViewModel @AssistedInject constructor(
                     if (inReplyTo != null) {
                         // TODO check if same content?
                         room.getTimelineEvent(inReplyTo)?.let {
-                            room.relationService().editReply(state.sendMode.timelineEvent, it, action.text.toString(), action.formattedText)
+                            room.relationService().editReply(state.sendMode.timelineEvent, it, action.text, action.formattedText)
                         }
                     } else {
                         val messageContent = state.sendMode.timelineEvent.getVectorLastMessageContent()
@@ -712,8 +712,8 @@ class MessageComposerViewModel @AssistedInject constructor(
         if (sendChatEffect.message.isBlank()) {
             val defaultMessage = stringProvider.getString(
                     when (sendChatEffect.chatEffect) {
-                        ChatEffect.CONFETTI -> R.string.default_message_emote_confetti
-                        ChatEffect.SNOWFALL -> R.string.default_message_emote_snow
+                        ChatEffect.CONFETTI -> CommonStrings.default_message_emote_confetti
+                        ChatEffect.SNOWFALL -> CommonStrings.default_message_emote_snow
                     }
             )
             room.sendService().sendTextMessage(defaultMessage, MessageType.MSGTYPE_EMOTE)

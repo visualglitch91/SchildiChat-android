@@ -30,6 +30,7 @@ import im.vector.app.core.preference.VectorPreference
 import im.vector.app.core.utils.RingtoneUtils
 import im.vector.app.features.analytics.plan.MobileScreen
 import im.vector.lib.core.utils.compat.getParcelableExtraCompat
+import im.vector.lib.strings.CommonStrings
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -37,7 +38,7 @@ class VectorSettingsVoiceVideoFragment : VectorSettingsBaseFragment() {
 
     @Inject lateinit var ringtoneUtils: RingtoneUtils
 
-    override var titleRes = R.string.preference_voice_and_video
+    override var titleRes = CommonStrings.preference_voice_and_video
     override val preferenceXmlRes = R.xml.vector_settings_voice_video
 
     private val mUseRiotCallRingtonePreference by lazy {
@@ -63,8 +64,8 @@ class VectorSettingsVoiceVideoFragment : VectorSettingsBaseFragment() {
         }
 
         useDefaultStunPreference.let {
-            val stun = getString(R.string.fallback_stun_server_url)
-            it.summary = getString(R.string.settings_call_ringtone_use_default_stun_summary, stun)
+            val stun = getString(im.vector.app.config.R.string.fallback_stun_server_url)
+            it.summary = getString(CommonStrings.settings_call_ringtone_use_default_stun_summary, stun)
         }
 
         mCallRingtonePreference.let {
@@ -88,7 +89,7 @@ class VectorSettingsVoiceVideoFragment : VectorSettingsBaseFragment() {
 
     private fun displayRingtonePicker() {
         val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
-            putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, getString(R.string.settings_call_ringtone_dialog_title))
+            putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, getString(CommonStrings.settings_call_ringtone_dialog_title))
             putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
             putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
             putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_RINGTONE)

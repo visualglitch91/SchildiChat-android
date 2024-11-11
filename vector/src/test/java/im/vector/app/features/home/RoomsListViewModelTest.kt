@@ -18,6 +18,9 @@ package im.vector.app.features.home
 
 import android.widget.ImageView
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
+import androidx.paging.PagedList
 import com.airbnb.mvrx.test.MavericksTestRule
 import im.vector.app.R
 import im.vector.app.core.platform.StateView
@@ -34,7 +37,9 @@ import im.vector.app.test.fakes.FakeSpaceStateHandler
 import im.vector.app.test.fakes.FakeStringProvider
 import im.vector.app.test.fixtures.RoomSummaryFixture.aRoomSummary
 import im.vector.app.test.test
+import im.vector.lib.strings.CommonStrings
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -43,7 +48,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.matrix.android.sdk.api.query.SpaceFilter
 import org.matrix.android.sdk.api.session.getUserOrDefault
+import org.matrix.android.sdk.api.session.room.ResultBoundaries
+import org.matrix.android.sdk.api.session.room.RoomSortOrder
+import org.matrix.android.sdk.api.session.room.RoomSummaryQueryParams
+import org.matrix.android.sdk.api.session.room.UpdatableLivePageResult
 import org.matrix.android.sdk.api.session.room.model.Membership
+import org.matrix.android.sdk.api.session.room.model.RoomSummary
 import org.matrix.android.sdk.api.util.Optional
 import org.matrix.android.sdk.api.util.toMatrixItem
 import org.matrix.android.sdk.flow.FlowSession
@@ -81,16 +91,31 @@ class RoomsListViewModelTest {
         val roomC = aRoomSummary("room_c")
         val allRooms = listOf(roomA, roomB, roomC)
 
+        val mockPagedList = mockk<PagedList<RoomSummary>>().apply {
+            every { get(any<Int>()) } answers {
+                allRooms[firstArg()]
+            }
+
+            every { loadedCount } returns allRooms.size
+        }
+
         every {
-            fakeFLowSession.liveRoomSummaries(
+            fakeSession.fakeRoomService.getFilteredPagedRoomSummariesLive(
                     match {
                         it.roomCategoryFilter == null &&
                                 it.roomTagQueryFilter == null &&
                                 it.memberships == listOf(Membership.JOIN) &&
                                 it.spaceFilter is SpaceFilter.NoFilter
-                    }, any()
+                    }, any(), any()
             )
-        } returns flowOf(allRooms)
+        } returns object : UpdatableLivePageResult {
+            override val livePagedList: LiveData<PagedList<RoomSummary>>
+                get() = liveData { emit(mockPagedList) }
+            override val liveBoundaries: LiveData<ResultBoundaries>
+                get() = liveData {  emit(ResultBoundaries(true, true, false)) }
+            override var queryParams = RoomSummaryQueryParams.Builder().build()
+            override var sortOrder = RoomSortOrder.ACTIVITY
+        }
 
         viewModelWith(initialState)
     }
@@ -111,8 +136,8 @@ class RoomsListViewModelTest {
 
         val userName = fakeSession.getUserOrDefault(fakeSession.myUserId).toMatrixItem().getBestName()
         val allEmptyState = StateView.State.Empty(
-                title = fakeStringProvider.instance.getString(R.string.home_empty_no_rooms_title, userName),
-                message = fakeStringProvider.instance.getString(R.string.home_empty_no_rooms_message),
+                title = fakeStringProvider.instance.getString(CommonStrings.home_empty_no_rooms_title, userName),
+                message = fakeStringProvider.instance.getString(CommonStrings.home_empty_no_rooms_message),
                 image = fakeDrawableProvider.instance.getDrawable(R.drawable.ill_empty_all_chats),
                 isBigImage = true
         )
@@ -135,8 +160,8 @@ class RoomsListViewModelTest {
 
         val userName = fakeSession.getUserOrDefault(fakeSession.myUserId).toMatrixItem().getBestName()
         val allEmptyState = StateView.State.Empty(
-                title = fakeStringProvider.instance.getString(R.string.home_empty_no_rooms_title, userName),
-                message = fakeStringProvider.instance.getString(R.string.home_empty_no_rooms_message),
+                title = fakeStringProvider.instance.getString(CommonStrings.home_empty_no_rooms_title, userName),
+                message = fakeStringProvider.instance.getString(CommonStrings.home_empty_no_rooms_message),
                 image = fakeDrawableProvider.instance.getDrawable(R.drawable.ill_empty_all_chats),
                 isBigImage = true
         )
@@ -154,8 +179,8 @@ class RoomsListViewModelTest {
         viewModel.handle(HomeRoomListAction.ChangeRoomFilter(filter = aFilter))
 
         val unreadsEmptyState = StateView.State.Empty(
-                title = fakeStringProvider.instance.getString(R.string.home_empty_no_unreads_title),
-                message = fakeStringProvider.instance.getString(R.string.home_empty_no_unreads_message),
+                title = fakeStringProvider.instance.getString(CommonStrings.home_empty_no_unreads_title),
+                message = fakeStringProvider.instance.getString(CommonStrings.home_empty_no_unreads_message),
                 image = fakeDrawableProvider.instance.getDrawable(R.drawable.ill_empty_unreads),
                 isBigImage = true,
                 imageScaleType = ImageView.ScaleType.CENTER_INSIDE
